@@ -1,11 +1,22 @@
 package main
 
-import "fmt"
+import (
+	"log"
+
+	"github.com/gin-gonic/gin"
+)
 
 func init() {
 
 }
 
 func main() {
-	fmt.Print("hello datti")
+	router := gin.Default()
+	router.GET("/hello", func(ctx *gin.Context) {
+		ctx.String(200, "hello datti")
+	})
+
+	if err := router.Run(":8080"); err != nil {
+		log.Fatal("Server Run Failed.: ", err)
+	}
 }

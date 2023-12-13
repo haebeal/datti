@@ -1,0 +1,29 @@
+name: Pipeline
+
+on:
+  push:
+    branches: [develop, release, main]
+
+jobs:
+  deploy-dev:
+    name: deploy cloudrun to dev environment
+    if: ${{ github.ref == 'refs/heads/develop' || github.base_ref == 'develop' }}
+    uses: ./.github/workflows/_deploy.yml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      environment: dev
+      ref: ${{ github.sha }}
+    secrets: inherit
+  deploy-reg:
+    name: deploy cloudrun to reg environment
+    if: ${{ github.ref == 'refs/heads/release' || github.base_ref == 'release' }}
+    uses: ./.github/workflows/_deploy.yml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      environment: reg
+      ref: ${{ github.sha }}
+    secrets: inherit

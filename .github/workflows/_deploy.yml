@@ -1,0 +1,51 @@
+name: Build and Deploy to Cloud Run
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+        description: デプロイ先環境名(基本的にprod, reg, devのいずれかを使用)
+      ref:
+        type: string
+        required: true
+        description: コミットID(SHA)
+jobs:
+  deploy:
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v1
+        with:
+          token_format: "access_token"
+          workload_identity_provider: "${{ secrets.WIF_PROVIDER }}"
+          service_account: "${{ secrets.WIF_SERVICE_ACCOUNT }}"
+      - name: Docker Auth
+        id: docker-auth
+        uses: docker/login-action@v2
+        with:
+          username: "oauth2accesstoken"
+          password: "${{ steps.auth.outputs.access_token }}"
+          registry: "${{ secrets.GAR_LOCATION }}-docker.pkg.dev"
+      - name: Build and Push Container
+        run: |-
+          docker build -t "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ inputs.environment }}:${{ inputs.ref }}" ./
+          docker push "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ inputs.environment }}:${{ inputs.ref }}"
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: ${{ secrets.SERVICE }}-${{ inputs.environment }}
+          region: ${{ secrets.REGION }}
+          image: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ inputs.environment }}:${{ inputs.ref }}
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}

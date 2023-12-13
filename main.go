@@ -12,7 +12,7 @@ func init() {
 
 func main() {
 	router := gin.Default()
-	router.GET("api/hello", func(ctx *gin.Context) {
+	router.GET("/api/hello", func(ctx *gin.Context) {
 		ctx.String(200, "hello datti")
 	})
 

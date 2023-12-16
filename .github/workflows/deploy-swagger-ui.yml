@@ -2,8 +2,7 @@ name: Deploy Swagger UI
 
 on:
   push:
-    branches:
-      - main
+    branches: [develop, release, main]
     # types:
     #   - opened
     #   - synchronize

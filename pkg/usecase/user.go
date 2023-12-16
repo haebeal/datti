@@ -5,12 +5,13 @@ import (
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
+	"github.com/datti-api/pkg/validator"
 )
 
 type UserUseCase interface {
-	CreateUser(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error)
+	CreateUser(c context.Context, user *model.User) (*model.User, error)
 	GetUser(c context.Context, id int) (*model.User, error)
-	UpdateUser(c context.Context, id int, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string)
+	UpdateUser(c context.Context, user *model.User)
 }
 
 type userUseCase struct {
@@ -24,8 +25,13 @@ func NewUserUseCase(userRepo repository.UserRepository) UserUseCase {
 }
 
 // Create implements UserUseCase.
-func (uu *userUseCase) CreateUser(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error) {
-	newUser, err := uu.repository.CreatUser(c, name, email, photoUrl, accountCode, bankCode, branchCode)
+func (uu *userUseCase) CreateUser(c context.Context, user *model.User) (*model.User, error) {
+	err := validator.ValidatorEmail(user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	newUser, err := uu.repository.CreatUser(c, user)
 	if err != nil {
 		return nil, err
 	}
@@ -39,6 +45,6 @@ func (uu *userUseCase) GetUser(c context.Context, id int) (*model.User, error) {
 }
 
 // UpdateUser implements UserUseCase.
-func (uu *userUseCase) UpdateUser(c context.Context, id int, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) {
+func (uu *userUseCase) UpdateUser(c context.Context, user *model.User) {
 	panic("unimplemented")
 }

@@ -31,13 +31,12 @@ func (uh *userHandler) HandlerCreate(c *gin.Context) {
 		c.AbortWithStatus(http.StatusBadRequest)
 	}
 
-	newUser, err := uh.useCase.CreateUser(c, user.Name, user.Email, user.PhotoURL, user.AccountCode, user.BankCode, user.BranchCode)
+	newUser, err := uh.useCase.CreateUser(c, user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 	} else {
 		c.JSON(http.StatusCreated, gin.H{"user": newUser})
 	}
-
 }
 
 // HandlerGet implements UserHandler.

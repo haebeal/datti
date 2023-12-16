@@ -7,7 +7,7 @@ import (
 )
 
 type UserRepository interface {
-	CreatUser(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error)
+	CreatUser(c context.Context, user *model.User) (*model.User, error)
 	GetUser(c context.Context) (*model.User, error)
-	UpdateUser(c context.Context, id int, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error)
+	UpdateUser(c context.Context, user *model.User) (*model.User, error)
 }

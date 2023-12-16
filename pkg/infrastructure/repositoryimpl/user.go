@@ -13,23 +13,15 @@ type userRepoImpl struct {
 }
 
 // CreatUserはrepository.UserRepository.CreatUserの実装
-func (u *userRepoImpl) CreatUser(c context.Context, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error) {
-	newUser := &model.User{
-		Name:        name,
-		Email:       email,
-		PhotoURL:    photoUrl,
-		AccountCode: accountCode,
-		BankCode:    bankCode,
-		BranchCode:  bankCode,
-	}
+func (u *userRepoImpl) CreatUser(c context.Context, user *model.User) (*model.User, error) {
 
 	// ユーザーの登録
-	result := u.DBEngine.Engine.Create(&newUser)
+	result := u.DBEngine.Engine.Create(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return newUser, nil
+	return user, nil
 }
 
 // GetUserはrepository.UserRepository.GetUserの実装
@@ -38,7 +30,7 @@ func (u *userRepoImpl) GetUser(c context.Context) (*model.User, error) {
 }
 
 // UpdateUserはrepository.UserRepository.UpdateUserの実装
-func (u *userRepoImpl) UpdateUser(c context.Context, id int, name string, email string, photoUrl string, accountCode string, bankCode string, branchCode string) (*model.User, error) {
+func (u *userRepoImpl) UpdateUser(c context.Context, user *model.User) (*model.User, error) {
 	panic("unimplemented")
 }
 

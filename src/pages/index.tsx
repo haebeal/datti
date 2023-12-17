@@ -1,5 +1,14 @@
-import { Heading } from "@chakra-ui/react";
+import { Button, Grid, GridItem, Heading, VStack } from "@chakra-ui/react";
 import Head from "next/head";
+import Link from "next/link";
+
+export const getStaticProps = async () => {
+  return {
+    props: {
+      layout: "top",
+    },
+  };
+};
 
 const Home = () => {
   return (
@@ -11,7 +20,24 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Heading>Hello Datti!</Heading>
+        <Grid templateColumns="repeat(12, 1fr)">
+          <GridItem colSpan={12}>
+            <VStack direction="column" pt={180} gap={8} color="white">
+              <Heading size="4xl">Hello Datti!</Heading>
+              <Heading size="lg">
+                誰にいくら払ったっけ？を記録するアプリ
+              </Heading>
+              <Button
+                colorScheme="facebook"
+                size="lg"
+                as={Link}
+                href="/dashboard"
+              >
+                はじめる
+              </Button>
+            </VStack>
+          </GridItem>
+        </Grid>
       </main>
     </>
   );

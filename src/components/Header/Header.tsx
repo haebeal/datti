@@ -1,15 +1,7 @@
-import {
-  Avatar,
-  Box,
-  Container,
-  HStack,
-  Heading,
-  Spacer,
-} from "@chakra-ui/react";
-import { signOut, useSession } from "next-auth/react";
+import { Box, Container } from "@chakra-ui/react";
+import { useSession } from "next-auth/react";
 import useSWR from "swr";
 
-import { SignoutButton } from "@/components/SignoutButton";
 import { HeaderContents } from "./HeaderContents";
 
 interface User {

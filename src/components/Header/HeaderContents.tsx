@@ -1,4 +1,5 @@
-import { HStack, Spacer } from "@chakra-ui/react";
+import { HStack, Heading, Spacer } from "@chakra-ui/react";
+import Link from "next/link";
 
 import { AvatorMenu } from "@/components/AvatorMenu";
 import { SignoutButton } from "@/components/SignoutButton";
@@ -10,13 +11,18 @@ interface Props {
 }
 
 export const HeaderContents = ({ isLoading, name, photoUrl }: Props) => {
-  if (isLoading) return;
-
   return (
     <HStack h="full" gap={7}>
+      <Heading size="lg" as={Link} href="/dashboard">
+        Datti
+      </Heading>
       <Spacer />
-      <AvatorMenu isLoading={isLoading} name={name} photoUrl={photoUrl} />
-      <SignoutButton />
+      {!isLoading && (
+        <>
+          <AvatorMenu isLoading={isLoading} name={name} photoUrl={photoUrl} />
+          <SignoutButton />
+        </>
+      )}
     </HStack>
   );
 };

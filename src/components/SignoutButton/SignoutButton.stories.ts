@@ -6,6 +6,9 @@ const meta = {
   title: "Components/SignoutButton",
   component: SignoutButton,
   tags: ["autodocs"],
+  parameters: {
+    layout: "centered",
+  },
 } satisfies Meta<typeof SignoutButton>;
 
 export default meta;

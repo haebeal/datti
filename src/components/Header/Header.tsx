@@ -62,6 +62,7 @@ export const Header = () => {
             <Avatar
               size="md"
               ignoreFallback
+              aria-label="profile"
               src={data?.photoUrl ?? undefined}
             />
             <Heading size="sm">{data?.name}さん</Heading>

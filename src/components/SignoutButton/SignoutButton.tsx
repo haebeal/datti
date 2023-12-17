@@ -1,11 +1,14 @@
 import { Button } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import { signOut } from "next-auth/react";
 
-interface Props {
-  onClick: () => void;
-}
+export const SignoutButton = () => {
+  const onClick = () => {
+    signOut({
+      callbackUrl: "/",
+    });
+  };
 
-export const SignoutButton = ({ onClick }: Props) => {
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.5 }}

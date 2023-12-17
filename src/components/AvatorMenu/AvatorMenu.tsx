@@ -41,13 +41,9 @@ export const AvatorMenu = ({ isLoading, name, photoUrl }: Props) => {
         </MenuButton>
         <MenuList>
           <MenuGroup title={name ?? "未ログイン"}>
-            {name && (
-              <>
-                <MenuItem as={Link} href="/profile">
-                  プロフィール
-                </MenuItem>
-              </>
-            )}
+            <MenuItem as={Link} href="/profile">
+              プロフィール
+            </MenuItem>
           </MenuGroup>
         </MenuList>
       </Menu>

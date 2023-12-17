@@ -4,19 +4,8 @@ import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 
 import { Header } from "@/components/Header";
-
-type LayoutType = "top" | "main";
-const getTheme = (layout?: LayoutType) => {
-  return extendTheme({
-    styles: {
-      global: {
-        body: {
-          backgroundColor: layout === "top" ? "blue.400" : "gray.100",
-        },
-      },
-    },
-  });
-};
+import type { LayoutType } from "@/utils";
+import { getTheme } from "@/utils";
 
 export interface PageProps {
   layout?: LayoutType;

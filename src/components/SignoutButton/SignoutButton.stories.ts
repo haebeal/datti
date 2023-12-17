@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from "@storybook/react";
 
-import { SignoutButton } from "@/components/SignoutButton";
+import { SignoutButton } from "./SignoutButton";
 
 const meta = {
   title: "Components/SignoutButton",

@@ -1,13 +1,6 @@
-import {
-  Button,
-  Center,
-  Grid,
-  GridItem,
-  Heading,
-  Stack,
-} from "@chakra-ui/react";
+import { Grid, GridItem, Heading } from "@chakra-ui/react";
+import { useSession } from "next-auth/react";
 import Head from "next/head";
-import Link from "next/link";
 
 const Home = () => {
   return (

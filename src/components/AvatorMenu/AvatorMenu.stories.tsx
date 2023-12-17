@@ -1,4 +1,3 @@
-import { Box, Container } from "@chakra-ui/react";
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { AvatorMenu } from "./AvatorMenu";

@@ -1,5 +1,6 @@
-import { Avatar, HStack, Heading, Spacer } from "@chakra-ui/react";
+import { HStack, Spacer } from "@chakra-ui/react";
 
+import { AvatorMenu } from "@/components/AvatorMenu";
 import { SignoutButton } from "@/components/SignoutButton";
 
 interface Props {
@@ -12,10 +13,9 @@ export const HeaderContents = ({ isLoading, name, photoUrl }: Props) => {
   if (isLoading) return;
 
   return (
-    <HStack h="full">
-      <Avatar size="md" ignoreFallback aria-label="profile" src={photoUrl} />
-      <Heading size="sm">{name}さん</Heading>
+    <HStack h="full" gap={7}>
       <Spacer />
+      <AvatorMenu isLoading={isLoading} name={name} photoUrl={photoUrl} />
       <SignoutButton />
     </HStack>
   );

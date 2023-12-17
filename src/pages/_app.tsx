@@ -1,4 +1,4 @@
-import { ChakraProvider, Container, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider, Container } from "@chakra-ui/react";
 import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";

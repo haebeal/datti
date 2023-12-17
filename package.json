@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome lint ./src",
-    "format": "biome format --write ./src"
+    "format": "biome format --write ./src",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@chakra-ui/react": "^2.8.2",
@@ -23,9 +25,19 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.4.1",
+    "@chakra-ui/storybook-addon": "^5.1.0",
+    "@storybook/addon-essentials": "^7.6.5",
+    "@storybook/addon-interactions": "^7.6.5",
+    "@storybook/addon-links": "^7.6.5",
+    "@storybook/addon-onboarding": "^1.0.10",
+    "@storybook/blocks": "^7.6.5",
+    "@storybook/nextjs": "^7.6.5",
+    "@storybook/react": "^7.6.5",
+    "@storybook/test": "^7.6.5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "storybook": "^7.6.5",
     "typescript": "^5"
   }
 }

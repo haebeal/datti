@@ -10,7 +10,7 @@
     "format": "biome format --write ./src",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "chromatic": "npx chromatic --project-token=chpt_47b7322918ff2bf",
+    "chromatic": "npx chromatic",
     "test": "jest",
     "test:watch": "jest --watch"
   },

@@ -10,6 +10,7 @@ import { signOut, useSession } from "next-auth/react";
 import useSWR from "swr";
 
 import { SignoutButton } from "@/components/SignoutButton";
+import { HeaderContents } from "./HeaderContents";
 
 interface User {
   id: string;
@@ -48,28 +49,14 @@ export const Header = () => {
     ([path, token]) => fetcher<User>(path, token),
   );
 
-  const onClickAuthButton = () => {
-    signOut({
-      callbackUrl: "/",
-    });
-  };
-
   return (
     <Box as="header" h="80px" bg="white">
       <Container maxW="container.xl" h="full">
-        {!isLoading && status !== "loading" && (
-          <HStack h="full">
-            <Avatar
-              size="md"
-              ignoreFallback
-              aria-label="profile"
-              src={data?.photoUrl ?? undefined}
-            />
-            <Heading size="sm">{data?.name}さん</Heading>
-            <Spacer />
-            <SignoutButton onClick={onClickAuthButton} />
-          </HStack>
-        )}
+        <HeaderContents
+          isLoading={isLoading || status === "loading"}
+          name={data?.name ?? "未設定"}
+          photoUrl={data?.photoUrl}
+        />
       </Container>
     </Box>
   );

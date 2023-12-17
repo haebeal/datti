@@ -1,21 +1,43 @@
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider, Container, extendTheme } from "@chakra-ui/react";
+import { Session } from "next-auth";
+import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 
-const theme = extendTheme({
-  styles: {
-    global: {
-      body: {
-        backgroundColor: "gray.100",
+import { Header } from "@/components/Header";
+
+type LayoutType = "top" | "main";
+const getTheme = (layout?: LayoutType) => {
+  return extendTheme({
+    styles: {
+      global: {
+        body: {
+          backgroundColor: layout === "top" ? "blue.400" : "gray.100",
+        },
       },
     },
-  },
-});
+  });
+};
 
-const App = ({ Component, pageProps }: AppProps) => {
+export interface PageProps {
+  layout?: LayoutType;
+  session: Session;
+}
+
+const App = ({
+  Component,
+  pageProps: { session, layout },
+}: AppProps<PageProps>) => {
+  const theme = getTheme(layout);
+
   return (
-    <ChakraProvider theme={theme}>
-      <Component {...pageProps} />
-    </ChakraProvider>
+    <SessionProvider session={session}>
+      <ChakraProvider theme={theme}>
+        {layout !== "top" && <Header />}
+        <Container maxW="container.xl">
+          <Component />
+        </Container>
+      </ChakraProvider>
+    </SessionProvider>
   );
 };
 

@@ -46,7 +46,7 @@ export const Header = () => {
       <Container maxW="container.xl" h="full">
         <HeaderContents
           isLoading={isLoading || status === "loading"}
-          name={data?.name ?? "未設定"}
+          name={data?.name}
           photoUrl={data?.photoUrl}
         />
       </Container>

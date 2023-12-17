@@ -6,7 +6,7 @@ import { SignoutButton } from "@/components/SignoutButton";
 
 interface Props {
   isLoading: boolean;
-  name: string;
+  name?: string;
   photoUrl?: string;
 }
 

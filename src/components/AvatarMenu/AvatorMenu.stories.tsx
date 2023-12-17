@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { AvatorMenu } from "./AvatorMenu";
+import { AvatarMenu } from "./AvatarMenu";
 
 const meta = {
-  title: "Components/AvatorMenu",
-  component: AvatorMenu,
+  title: "Components/AvatarMenu",
+  component: AvatarMenu,
   parameters: {
     layout: "centered",
   },
   tags: ["autodocs"],
-} satisfies Meta<typeof AvatorMenu>;
+} satisfies Meta<typeof AvatarMenu>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

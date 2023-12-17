@@ -15,7 +15,7 @@ interface Props {
   photoUrl?: string;
 }
 
-export const AvatorMenu = ({ isLoading, name, photoUrl }: Props) => {
+export const AvatarMenu = ({ isLoading, name, photoUrl }: Props) => {
   if (isLoading) return;
 
   return (

@@ -1,7 +1,7 @@
 import { HStack, Heading, Spacer } from "@chakra-ui/react";
 import Link from "next/link";
 
-import { AvatorMenu } from "@/components/AvatorMenu";
+import { AvatarMenu } from "@/components/AvatarMenu";
 import { SignoutButton } from "@/components/SignoutButton";
 
 interface Props {
@@ -19,7 +19,7 @@ export const HeaderContents = ({ isLoading, name, photoUrl }: Props) => {
       <Spacer />
       {!isLoading && (
         <>
-          <AvatorMenu isLoading={isLoading} name={name} photoUrl={photoUrl} />
+          <AvatarMenu isLoading={isLoading} name={name} photoUrl={photoUrl} />
           <SignoutButton />
         </>
       )}

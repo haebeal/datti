@@ -3,7 +3,7 @@ import NextLink from "next/link";
 
 const NotFound = () => {
   return (
-    <Center minH="calc(100vh - 80px)">
+    <Center minH="80vh">
       <VStack gap={4}>
         <Heading size="xl">404 Not Found</Heading>
         <Heading size="lg">このURLは存在しません</Heading>

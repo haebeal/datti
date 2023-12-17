@@ -37,7 +37,7 @@ export const AvatorMenu = ({ isLoading, name, photoUrl }: Props) => {
     >
       <Menu>
         <MenuButton>
-          <Avatar borderWidth={1} borderColor="gray.100" src={photoUrl ?? ""} />
+          <Avatar borderColor="gray.100" src={photoUrl ?? ""} />
         </MenuButton>
         <MenuList>
           <MenuGroup title={name ?? "未ログイン"}>

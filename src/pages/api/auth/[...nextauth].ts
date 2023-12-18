@@ -49,6 +49,7 @@ export default NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/signin",
+    error: "/401",
   },
   callbacks: {
     jwt: async ({ token, user, account }) => {

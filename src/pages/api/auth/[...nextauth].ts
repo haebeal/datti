@@ -73,7 +73,7 @@ export default NextAuth({
       }
       return token;
     },
-    session: async ({ session, token, user }) => {
+    session: async ({ session, token }) => {
       session.credential = token.credential;
       return session;
     },

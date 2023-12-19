@@ -9,5 +9,6 @@ import (
 type UserRepository interface {
 	CreatUser(c context.Context, user *model.User) (*model.User, error)
 	GetUser(c context.Context) (*model.User, error)
+	GetUserByEmail(c context.Context, user *model.User) (*model.User, error)
 	UpdateUser(c context.Context, user *model.User) (*model.User, error)
 }

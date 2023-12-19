@@ -11,6 +11,7 @@ import (
 type UserUseCase interface {
 	CreateUser(c context.Context, user *model.User) (*model.User, error)
 	GetUser(c context.Context, id int) (*model.User, error)
+	GetUserByEmail(c context.Context, user *model.User) (*model.User, error)
 	UpdateUser(c context.Context, user *model.User)
 }
 
@@ -42,6 +43,16 @@ func (uu *userUseCase) CreateUser(c context.Context, user *model.User) (*model.U
 // GetUser implements UserUseCase.
 func (uu *userUseCase) GetUser(c context.Context, id int) (*model.User, error) {
 	panic("unimplemented")
+}
+
+// Emailでユーザー情報を取得する
+func (uu *userUseCase) GetUserByEmail(c context.Context, user *model.User) (*model.User, error) {
+	findUser, err := uu.repository.GetUserByEmail(c, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return findUser, nil
 }
 
 // UpdateUser implements UserUseCase.

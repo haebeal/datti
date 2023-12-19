@@ -41,7 +41,7 @@ const App = ({
             },
           }}
         >
-          {layout === "main" && <Header />}
+          {(layout === "main" || layout === undefined) && <Header />}
           <Container maxW="container.xl">
             <Component />
           </Container>

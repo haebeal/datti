@@ -50,7 +50,6 @@ func Sever(dsn string) {
 			// me.GET("/", userHandler.HandlerGet)
 			me.POST("/", userHandler.HandlerCreate)
 			me.PUT("/", userHandler.HandlerUpdate)
-			me.GET("/", userHandler.HandleSingIn)
 		}
 	}
 

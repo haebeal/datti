@@ -42,7 +42,7 @@ func (u *userRepoImpl) UpdateUser(c context.Context, user *model.User) (*model.U
 // Emailと突合してユーザーを取得
 func (u *userRepoImpl) GetUserByEmail(c context.Context, user *model.User) (*model.User, error) {
 	// ユーザー情報の取得
-	result := u.DBEngine.Engine.Where("email = ?", user.Email).Find(&user)
+	result := u.DBEngine.Engine.First(user, "email = ?", user.Email)
 	if result.Error != nil {
 		return nil, result.Error
 	}

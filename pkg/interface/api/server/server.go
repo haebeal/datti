@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/datti-api/pkg/infrastructure/database"
-	repositoryimpl "github.com/datti-api/pkg/infrastructure/repositoryimpl"
+	"github.com/datti-api/pkg/infrastructure/repositoryimpl"
 	"github.com/datti-api/pkg/interface/api/handler"
 	"github.com/datti-api/pkg/usecase"
 	"github.com/datti-api/pkg/utils"
@@ -47,7 +47,7 @@ func Sever(dsn string) {
 	{
 		me := api.Group("/me")
 		{
-			// me.GET("/", userHandler.HandlerGet)
+			me.GET("/", userHandler.HandlerGet)
 			me.POST("/", userHandler.HandlerCreate)
 			me.PUT("/", userHandler.HandlerUpdate)
 		}

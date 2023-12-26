@@ -45,8 +45,23 @@ func (uh *userHandler) HandlerCreate(c *gin.Context) {
 }
 
 // HandlerGet implements UserHandler.
-func (*userHandler) HandlerGet(c *gin.Context) {
-	panic("unimplemented")
+func (uh *userHandler) HandlerGet(c *gin.Context) {
+	user := new(model.User)
+	name, exsist := c.Get("name")
+	if exsist {
+		user.Name = name.(string)
+	}
+	email, exsist := c.Get("email")
+	if exsist {
+		user.Email = email.(string)
+	}
+
+	findUser, err := uh.useCase.GetUserByEmail(c, user)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
+	} else {
+		c.JSON(http.StatusOK, gin.H{"user": findUser})
+	}
 }
 
 // HandlerUpdate implements UserHandler.

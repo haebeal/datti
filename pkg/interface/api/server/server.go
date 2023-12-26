@@ -21,9 +21,11 @@ func Sever(dsn string) {
 	userUseCase := usecase.NewUserUseCase(userRepository)
 	userHandler := handler.NewUserHandler(userUseCase)
 
+	// ルーターの生成
 	r := gin.Default()
 	r.Use(utils.PeopleMmiddleware)
 
+	// cros設定
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
 		"http://localhost:3000",
@@ -40,9 +42,9 @@ func Sever(dsn string) {
 		"PUT",
 	)
 	config.AllowCredentials = true
-	// cros設定
 	r.Use(cors.New(config))
 
+	// アクセスポイントの設定
 	api := r.Group("/api")
 	{
 		me := api.Group("/me")
@@ -53,7 +55,7 @@ func Sever(dsn string) {
 		}
 	}
 
-	if err := r.Run(":8080"); err != nil {
+	if err := r.Run("localhost:8080"); err != nil {
 		panic(err)
 	}
 }

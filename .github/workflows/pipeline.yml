@@ -2,7 +2,11 @@ name: Pipeline
 
 on:
   push:
-    branches: [feature/**, develop, release, main]
+    branches: 
+      - 'feature/**'
+      - develop
+      - release
+      - main
 
 jobs:
   deploy-feat:

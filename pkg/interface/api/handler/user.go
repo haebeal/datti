@@ -29,14 +29,7 @@ func NewUserHandler(userUseCase usecase.UserUseCase) UserHandler {
 // HandlerCreate implements UserHandler.
 func (uh *userHandler) HandlerCreate(c *gin.Context) {
 	user := new(model.User)
-	// name, exsist := c.Get("name")
-	// if exsist {
-	// 	user.Name = name.(string)
-	// }
-	// email, exsist := c.Get("email")
-	// if exsist {
-	// 	user.Email = email.(string)
-	// }
+
 	// リクエストボディから構造体へバインディング
 	if err := c.BindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})

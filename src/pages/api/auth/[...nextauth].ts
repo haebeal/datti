@@ -49,6 +49,7 @@ export default NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
     signIn: "/signin",
+    error: "/401",
   },
   callbacks: {
     jwt: async ({ token, user, account }) => {
@@ -67,12 +68,12 @@ export default NextAuth({
       if (!token.credential.expiryAt) {
         throw new Error("トークンの有効期限が取得できませんでした");
       }
-      if (new Date() > new Date(token.credential.expiryAt)) {
+      if (new Date() > new Date(token.credential.expiryAt + 100)) {
         return refreshoken(token);
       }
       return token;
     },
-    session: async ({ session, token, user }) => {
+    session: async ({ session, token }) => {
       session.credential = token.credential;
       return session;
     },

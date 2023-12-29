@@ -1,5 +1,5 @@
 export { default } from "next-auth/middleware";
 
 export const config = {
-  matcher: ["/((?!signin|api).+)"],
+  matcher: ["/((?!signin|401|api).+)"],
 };

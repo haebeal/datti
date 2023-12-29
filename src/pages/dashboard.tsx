@@ -1,5 +1,4 @@
 import { Grid, GridItem, Heading } from "@chakra-ui/react";
-import { useSession } from "next-auth/react";
 import Head from "next/head";
 
 const Home = () => {

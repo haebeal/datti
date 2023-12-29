@@ -2,6 +2,8 @@ import { Box, Container } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 
+import { HttpError } from "@/utils";
+
 import { HeaderContents } from "./HeaderContents";
 
 interface User {
@@ -18,9 +20,6 @@ const fetcher = async <T,>(
   path: string,
   accessToken: string | null | undefined,
 ): Promise<T> => {
-  if (!accessToken) {
-    throw new Error("cannot get access token");
-  }
   const response = await fetch(path, {
     method: "GET",
     headers: {
@@ -28,13 +27,18 @@ const fetcher = async <T,>(
     },
   });
   const result = await response.json();
-  return result;
+
+  if (response.ok) {
+    return result;
+  }
+
+  throw new HttpError(response);
 };
 
 export const Header = () => {
   const { data: session, status } = useSession();
 
-  const { isLoading, data, error } = useSWR(
+  const { isLoading, data } = useSWR(
     session?.credential.accessToken
       ? ["/api/me", session.credential.accessToken]
       : null,

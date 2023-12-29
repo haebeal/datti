@@ -6,7 +6,7 @@ WORKDIR ${ROOT}
 COPY go.mod go.sum ./
 COPY . .
 RUN go mod tidy
-
+RUN ls -l
 RUN CGO_ENABLED=0 GOOS=linux go build -o $ROOT/binary
 
 EXPOSE 8080

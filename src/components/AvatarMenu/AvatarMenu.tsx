@@ -41,8 +41,8 @@ export const AvatarMenu = ({ isLoading, name, photoUrl }: Props) => {
         </MenuButton>
         <MenuList>
           <MenuGroup title={name ?? "未ログイン"}>
-            <MenuItem as={Link} href="/profile">
-              プロフィール
+            <MenuItem as={Link} href="/settings">
+              設定
             </MenuItem>
           </MenuGroup>
         </MenuList>

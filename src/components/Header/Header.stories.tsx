@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>;
 export const Primary: Story = {
   decorators: [
     (Story) => (
-      <Box as="header" h="80px" bg="white">
+      <Box as="header" h="80px" bg="white" mx={5} height="200px">
         <Container maxW="container.xl" h="full">
           <Story />
         </Container>
@@ -32,7 +32,7 @@ export const Primary: Story = {
 export const Loading: Story = {
   decorators: [
     (Story) => (
-      <Box as="header" h="80px" bg="white">
+      <Box as="header" h="80px" bg="white" mx={5}>
         <Container maxW="container.xl" h="full">
           <Story />
         </Container>

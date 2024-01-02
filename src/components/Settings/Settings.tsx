@@ -18,11 +18,6 @@ interface Props {
 export const Settings = ({ updateProfile }: Props) => {
   return (
     <Card>
-      <CardHeader>
-        <Heading size="md" textAlign="center">
-          設定
-        </Heading>
-      </CardHeader>
       <CardBody>
         <Tabs>
           <TabList>

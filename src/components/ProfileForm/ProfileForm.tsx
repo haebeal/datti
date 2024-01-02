@@ -28,6 +28,7 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
       bg="white"
       as="form"
       px={10}
+      mt={5}
       gap={5}
       onSubmit={handleSubmit(onSubmit)}
     >

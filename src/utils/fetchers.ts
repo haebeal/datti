@@ -1,4 +1,4 @@
-import { HttpError } from "./HttpError";
+import { HttpError } from "@/errors";
 
 export const fetcher = async <T>(
   path: string,

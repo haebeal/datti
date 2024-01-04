@@ -6,9 +6,10 @@ import { useRouter } from "next/router";
 import { SWRConfig } from "swr";
 
 import type { LayoutType } from "@/utils";
-import { HttpError, getTheme } from "@/utils";
+import { getTheme } from "@/utils";
 
 import { Header } from "@/components/Header";
+import { HttpError } from "@/errors";
 
 export interface PageProps {
   layout?: LayoutType;

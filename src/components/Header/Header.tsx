@@ -2,7 +2,7 @@ import { Box, Container } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 import useSWR from "swr";
 
-import { HttpError } from "@/utils";
+import { HttpError } from "@/errors";
 
 import { HeaderContents } from "./HeaderContents";
 

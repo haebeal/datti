@@ -2,11 +2,7 @@ name: Deploy Swagger UI
 
 on:
   push:
-    branches: [develop, release, main]
-    # types:
-    #   - opened
-    #   - synchronize
-    #   - closed
+    branches: [feature/**, develop, main]
     paths:
       - openapi.yml
       - .github/workflows/deploy-swagger-ui.yml

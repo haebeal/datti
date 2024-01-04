@@ -4,7 +4,7 @@ import { ProfileForm } from "./ProfileForm";
 const meta = {
   title: "Components/ProfileForm",
   component: ProfileForm,
-  tags: [],
+  tags: ["autodocs"],
 } satisfies Meta<typeof ProfileForm>;
 
 export default meta;

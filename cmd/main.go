@@ -1,8 +1,6 @@
 package main
 
 import (
-	"flag"
-
 	"github.com/datti-api/pkg/interface/api/server"
 )
 
@@ -27,6 +25,8 @@ func main() {
 	// 	log.Fatalf("failed to access secret version: %v", err)
 	// }
 	// dsn := *(*string)(unsafe.Pointer(&result.Payload.Data))
-	localdsn := *flag.String("d", "host=localhost user=postgres password=root dbname=datti_db port=5432 sslmode=disable TimeZone=Asia/Tokyo", "database resource name")
-	server.Sever(localdsn)
+	// host=localhost user=postgres password=root dbname=datti_db port=5432 sslmode=disable TimeZone=Asia/Tokyo
+	// localdsn := *flag.String("d", "", "database resource name")
+	dsn := ""
+	server.Sever(dsn)
 }

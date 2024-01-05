@@ -1,3 +1,4 @@
+import { Profile } from "@/features/profile";
 import { DefaultSession } from "next-auth";
 
 interface GoogleCredential {
@@ -11,6 +12,7 @@ interface GoogleCredential {
 declare module "next-auth/jwt" {
   interface JWT {
     credential: GoogleCredential;
+    profile: Profile;
   }
 }
 

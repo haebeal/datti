@@ -1,3 +1,5 @@
+import { HttpError } from "@/errors";
+import { getProfile, postProfile } from "@/features/profile";
 import { google } from "googleapis";
 import NextAuth from "next-auth";
 import { JWT } from "next-auth/jwt";
@@ -53,7 +55,8 @@ export default NextAuth({
   },
   callbacks: {
     jwt: async ({ token, user, account }) => {
-      if (account && user) {
+      if (account?.access_token) {
+        const profile = await getProfile(account.access_token);
         return {
           credential: {
             idToken: account.id_token,
@@ -62,6 +65,7 @@ export default NextAuth({
             refreshToken: account.refresh_token,
             error: null,
           },
+          profile,
           user,
         };
       }
@@ -77,14 +81,33 @@ export default NextAuth({
       session.credential = token.credential;
       return session;
     },
-    signIn: async ({ account }) => {
-      const response = await fetch(`${process.env.NEXTAUTH_URL}/api/me`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer: ${account?.access_token}`,
-        },
-      });
-      return response.ok;
+    signIn: async ({ user, account }) => {
+      const accessToken = account?.access_token;
+      if (!accessToken) {
+        return false;
+      }
+      try {
+        await getProfile(accessToken);
+      } catch (error) {
+        if (!(error instanceof HttpError) || error.status !== 404) {
+          return false;
+        }
+        // Profile が取得できなかった場合は作成
+        const { name, email, image } = user;
+        if (name === null || email === null || image === null) {
+          return false;
+        }
+        try {
+          await postProfile(accessToken, {
+            name,
+            email,
+            photoUrl: image,
+          });
+        } catch (error) {
+          return false;
+        }
+      }
+      return true;
     },
   },
 });

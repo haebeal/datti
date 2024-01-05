@@ -12,12 +12,12 @@ interface GoogleCredential {
 declare module "next-auth/jwt" {
   interface JWT {
     credential: GoogleCredential;
-    profile: Profile;
   }
 }
 
 declare module "next-auth" {
   interface Session {
     credential: GoogleCredential;
+    profile?: Profile;
   }
 }

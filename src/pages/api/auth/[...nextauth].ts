@@ -56,7 +56,6 @@ export default NextAuth({
   callbacks: {
     jwt: async ({ token, user, account }) => {
       if (account?.access_token) {
-        const profile = await getProfile(account.access_token);
         return {
           credential: {
             idToken: account.id_token,
@@ -65,7 +64,6 @@ export default NextAuth({
             refreshToken: account.refresh_token,
             error: null,
           },
-          profile,
           user,
         };
       }
@@ -79,6 +77,10 @@ export default NextAuth({
     },
     session: async ({ session, token }) => {
       session.credential = token.credential;
+      if (token.credential.accessToken) {
+        const profile = await getProfile(token.credential.accessToken);
+        session.profile = profile;
+      }
       return session;
     },
     signIn: async ({ user, account }) => {

@@ -13,7 +13,7 @@ export const fetcher = async <T extends object, U = unknown>(
           Authorization: `Bearer: ${accessToken}`,
         }
       : undefined,
-    body: JSON.stringify(body),
+    body: body ? JSON.stringify(body) : undefined,
   });
 
   if (response.ok) {

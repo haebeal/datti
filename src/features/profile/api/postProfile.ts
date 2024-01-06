@@ -6,10 +6,5 @@ export const postProfile = (
   accessToken: string,
   body: Partial<Profile>,
 ): Promise<Profile> => {
-  return fetcher<Profile>(
-    `${process.env.NEXTAUTH_URL}/api/me`,
-    accessToken,
-    "POST",
-    body,
-  );
+  return fetcher<Profile>("/api/me", accessToken, "POST", body);
 };

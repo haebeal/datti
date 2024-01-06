@@ -1,0 +1,109 @@
+openapi: 3.0.0
+info:
+  title: Datti API
+  version: 0.0.1
+  description: "割り勘管理サービスDattiのWebAPI"
+servers:
+  - url: https://datti.net/api
+    description: 本番環境のAPIエントリーポイント
+  - url: https://datti-reg.haebeal.net/api
+    description: リグレ環境のAPIエントリポイント
+  - url: https://datti-dev.haebeal.net/api
+    description: 開発環境のAPIエントリポイント
+paths:
+  /me:
+    post:
+      tags:
+        - users
+      summary: ユーザーを追加します
+      description: ユーザーを追加します
+      requestBody:
+        description: 登録するユーザー情報
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: {type: string, example: "ユーザー名"}
+                email: {type: string, example: "メールアドレス"}
+                photoUrl: {type: string, example: "画像のURL"}
+                accountCode: {type: string, example: "口座番号"}
+                bankCode: {type: string, example: "金融機関コード"}
+                branchCode: {type: string, example: "支店番号"}
+      responses:
+        '201':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: {type: integer, example: "ユーザーID"}
+                  name: {type: string, example: "ユーザー名"}
+                  email: {type: string, example: "メールアドレス"}
+                  photoUrl: {type: string, example: "画像のURL"}
+                  accountCode: {type: string, example: "口座番号"}
+                  bankCode: {type: string, example: "金融機関コード"}
+                  branchCode: {type: string, example: "支店番号"}
+        '500':
+          description: 失敗
+    get:
+      tags:
+        - users
+      summary: ログインユーザーの情報を返す
+      description: ログインユーザーの情報を返す
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: {type: integer, example: "ユーザーID"}
+                  name: {type: string, example: "ユーザー名"}
+                  email: {type: string, example: "メールアドレス"}
+                  photoUrl: {type: string, example: "画像のURL"}
+                  accountCode: {type: string, example: "口座番号"}
+                  bankCode: {type: string, example: "金融機関コード"}
+                  branchCode: {type: string, example: "支店番号"}
+        '500':
+          description: 失敗
+    put:
+      tags:
+        - users
+      summary: ユーザー情報の編集
+      description: ユーザー情報の編集
+      requestBody:
+        description: ユーザー情報の編集
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id: {type: integer, example: "ユーザーID"}
+                name: {type: string, example: "ユーザー名"}
+                email: {type: string, example: "メールアドレス"}
+                photoUrl: {type: string, example: "画像のURL"}
+                accountCode: {type: string, example: "口座番号"}
+                bankCode: {type: string, example: "金融機関コード"}
+                branchCode: {type: string, example: "支店番号"}
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: {type: integer, example: "ユーザーID"}
+                  name: {type: string, example: "ユーザー名"}
+                  email: {type: string, example: "メールアドレス"}
+                  photoUrl: {type: string, example: "画像のURL"}
+                  accountCode: {type: string, example: "口座番号"}
+                  bankCode: {type: string, example: "金融機関コード"}
+                  branchCode: {type: string, example: "支店番号"}
+        '500':
+          description: 失敗

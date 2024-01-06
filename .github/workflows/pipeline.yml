@@ -2,12 +2,16 @@ name: Pipeline
 
 on:
   push:
-    branches: [feature/**, develop, release, main]
+    branches: 
+      - 'feature/**'
+      - 'develop'
+      - 'main'
 
 jobs:
   deploy-feat:
     name: deploy cloudrun to dev environment
-    if: ${{ github.ref == 'refs/heads/feature/**' || github.base_ref == 'feature/**' }}
+    if: startsWith(github.ref, 'refs/heads/feature/') || startsWith(github.base_ref, 'feature/')
+    # if: ${{ github.ref == 'refs/heads/feature/' || github.base_ref == 'feature/' }}
     uses: ./.github/workflows/_deploy.yml
     permissions:
       id-token: write

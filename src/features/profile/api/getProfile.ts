@@ -7,6 +7,5 @@ export const getProfile = async (accessToken: string) => {
     `${process.env.NEXTAUTH_URL}/api/me`,
     accessToken,
   );
-  console.log(data);
   return data;
 };

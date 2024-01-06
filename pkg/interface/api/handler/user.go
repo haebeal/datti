@@ -70,18 +70,17 @@ func (uh *userHandler) HandlerGet(c *gin.Context) {
 
 // HandlerUpdate implements UserHandler.
 func (uh *userHandler) HandlerUpdate(c *gin.Context) {
-	user := new(model.User)
-
-	if err := c.BindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+	var requestBody map[string]interface{}
+	if err := c.BindJSON(&requestBody); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
 	}
 
-	email, exsist := c.Get("email")
-	if exsist {
-		user.Email = email.(string)
+	email := ""
+	if parm, exsist := c.Get("email"); exsist {
+		email = parm.(string)
 	}
 
-	updateUser, err := uh.useCase.UpdateUser(c, user)
+	updateUser, err := uh.useCase.UpdateUser(c, email, requestBody)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 	} else {

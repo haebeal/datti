@@ -12,7 +12,7 @@ type UserUseCase interface {
 	CreateUser(c context.Context, user *model.User) (*model.User, error)
 	GetUser(c context.Context, id int) (*model.User, error)
 	GetUserByEmail(c context.Context, user *model.User) (*model.User, error)
-	UpdateUser(c context.Context, user *model.User) (*model.User, error)
+	UpdateUser(c context.Context, email string, updateFields map[string]interface{}) (*model.User, error)
 }
 
 type userUseCase struct {
@@ -56,13 +56,12 @@ func (uu *userUseCase) GetUserByEmail(c context.Context, user *model.User) (*mod
 }
 
 // UpdateUser implements UserUseCase.
-func (uu *userUseCase) UpdateUser(c context.Context, user *model.User) (*model.User, error) {
-	err := validator.ValidatorName(user.Name)
-	if err != nil {
-		return nil, err
+func (uu *userUseCase) UpdateUser(c context.Context, email string, updateFields map[string]interface{}) (*model.User, error) {
+	if val, exists := updateFields["Name"]; exists {
+		validator.ValidatorName(val.(string))
 	}
 
-	updateUser, err := uu.repository.UpdateUser(c, user)
+	updateUser, err := uu.repository.UpdateUser(c, email, updateFields)
 	if err != nil {
 		return nil, err
 	}

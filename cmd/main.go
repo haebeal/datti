@@ -1,32 +1,20 @@
 package main
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/datti-api/pkg/interface/api/server"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load("../.env")
+	if err != nil {
+		fmt.Printf("Failed Load environment: %v", err)
+	}
 
-	// クライアントの作成
-	// ctx := context.Background()
-	// client, err := secretmanager.NewClient(ctx)
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-
-	// // シークレットneon_dsnへのアクセス
-	// resourceName := ""
-	// req := &secretmanagerpb.AccessSecretVersionRequest{
-	// 	Name: resourceName,
-	// }
-
-	// // シークレット上にアクセスする
-	// result, err := client.AccessSecretVersion(ctx, req)
-	// if err != nil {
-	// 	log.Fatalf("failed to access secret version: %v", err)
-	// }
-	// dsn := *(*string)(unsafe.Pointer(&result.Payload.Data))
-	// host=localhost user=postgres password=root dbname=datti_db port=5432 sslmode=disable TimeZone=Asia/Tokyo
-	// localdsn := *flag.String("d", "", "database resource name")
-	dsn := ""
+	// .envの DSNを取得して、messageに代入します。
+	dsn := os.Getenv("DSN")
 	server.Sever(dsn)
 }

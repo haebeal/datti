@@ -85,6 +85,7 @@ export default NextAuth({
     },
     signIn: async ({ user, account }) => {
       const accessToken = account?.access_token;
+      console.log(accessToken);
       if (!accessToken) {
         return false;
       }

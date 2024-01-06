@@ -8,9 +8,11 @@ export const fetcher = async <T extends object>(
 ): Promise<T> => {
   const response = await fetch(path, {
     method: method,
-    headers: {
-      Authorization: `Bearer: ${accessToken}`,
-    },
+    headers: accessToken
+      ? {
+          Authorization: `Bearer: ${accessToken}`,
+        }
+      : undefined,
     body: JSON.stringify(body),
   });
   const result = await response.json();

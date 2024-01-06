@@ -85,11 +85,13 @@ export default NextAuth({
     },
     signIn: async ({ user, account }) => {
       const accessToken = account?.access_token;
+      console.log(accessToken);
       if (!accessToken) {
         return false;
       }
       try {
-        await getProfile(accessToken);
+        const result = await getProfile(accessToken);
+        console.log(result);
       } catch (error) {
         if (!(error instanceof HttpError) || error.status !== 404) {
           return false;

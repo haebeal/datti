@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/datti-api/pkg/domain/model"
@@ -46,6 +47,7 @@ func (uh *userHandler) HandlerCreate(c *gin.Context) {
 
 // HandlerGet implements UserHandler.
 func (uh *userHandler) HandlerGet(c *gin.Context) {
+	log.Print("GetHandler")
 	user := new(model.User)
 	name, exsist := c.Get("name")
 	if exsist {

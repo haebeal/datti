@@ -60,5 +60,4 @@ func Sever(dsn string) {
 	if err := r.Run("0.0.0.0:8080"); err != nil {
 		panic(err)
 	}
-	log.Print("Server Running...")
 }

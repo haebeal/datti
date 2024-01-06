@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
@@ -15,7 +14,6 @@ import (
 func PeopleMmiddleware(c *gin.Context) {
 	// コンテキストからトークンを取得
 	accessToken := strings.Split(c.Request.Header.Get("Authorization"), " ")[1]
-	log.Print(accessToken)
 	oauthClient := oauth2.NewClient(c, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken}))
 
 	// トークンを元にクライアントを生成

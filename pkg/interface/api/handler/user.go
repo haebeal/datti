@@ -70,7 +70,7 @@ func (uh *userHandler) HandlerGet(c *gin.Context) {
 
 // HandlerUpdate implements UserHandler.
 func (uh *userHandler) HandlerUpdate(c *gin.Context) {
-	var requestBody map[string]interface{}
+	var requestBody map[string]any
 	if err := c.BindJSON(&requestBody); err != nil {
 		c.AbortWithError(http.StatusBadRequest, err)
 	}

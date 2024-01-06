@@ -12,7 +12,7 @@ type UserUseCase interface {
 	CreateUser(c context.Context, user *model.User) (*model.User, error)
 	GetUser(c context.Context, id int) (*model.User, error)
 	GetUserByEmail(c context.Context, user *model.User) (*model.User, error)
-	UpdateUser(c context.Context, email string, updateFields map[string]interface{}) (*model.User, error)
+	UpdateUser(c context.Context, email string, updateFields map[string]any) (*model.User, error)
 }
 
 type userUseCase struct {
@@ -56,7 +56,7 @@ func (uu *userUseCase) GetUserByEmail(c context.Context, user *model.User) (*mod
 }
 
 // UpdateUser implements UserUseCase.
-func (uu *userUseCase) UpdateUser(c context.Context, email string, updateFields map[string]interface{}) (*model.User, error) {
+func (uu *userUseCase) UpdateUser(c context.Context, email string, updateFields map[string]any) (*model.User, error) {
 	if val, exists := updateFields["Name"]; exists {
 		validator.ValidatorName(val.(string))
 	}

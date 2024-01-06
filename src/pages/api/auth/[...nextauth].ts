@@ -85,20 +85,17 @@ export default NextAuth({
     },
     signIn: async ({ user, account }) => {
       const accessToken = account?.access_token;
-      console.log(accessToken);
       if (!accessToken) {
         return false;
       }
       try {
         await getProfile(accessToken);
       } catch (error) {
-        console.log(error);
         if (!(error instanceof HttpError) || error.status !== 404) {
           return false;
         }
         // Profile が取得できなかった場合は作成
         const { name, email, image } = user;
-        console.log(name);
         if (name === null || email === null || image === null) {
           return false;
         }

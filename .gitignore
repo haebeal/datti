@@ -234,3 +234,6 @@ $RECYCLE.BIN/
 
 # air
 tmp
+
+# evn
+.env

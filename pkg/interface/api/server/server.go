@@ -1,7 +1,7 @@
 package server
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/datti-api/pkg/infrastructure/database"
 	"github.com/datti-api/pkg/infrastructure/repositoryimpl"
@@ -15,7 +15,7 @@ import (
 func Sever(dsn string) {
 	dbEngine, err := database.NewDBEngine(dsn)
 	if err != nil {
-		fmt.Print(err.Error())
+		log.Print(err.Error())
 	}
 
 	// 依存性の解決

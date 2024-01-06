@@ -40,7 +40,7 @@ func (uh *userHandler) HandlerCreate(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 	} else {
-		c.JSON(http.StatusCreated, gin.H{"user": newUser})
+		c.JSON(http.StatusCreated, newUser)
 	}
 }
 
@@ -64,7 +64,7 @@ func (uh *userHandler) HandlerGet(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		}
 	} else {
-		c.JSON(http.StatusOK, gin.H{"user": findUser})
+		c.JSON(http.StatusOK, findUser)
 	}
 }
 

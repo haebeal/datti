@@ -2,7 +2,11 @@ import { fetcher } from "@/utils";
 
 import type { Profile } from "../types";
 
-export const getProfile = (accessToken: string): Promise<Profile> => {
-  console.log(`${process.env.NEXTAUTH_URL}/api/me`);
-  return fetcher<Profile>(`${process.env.NEXTAUTH_URL}/api/me`, accessToken);
+export const getProfile = async (accessToken: string) => {
+  const data = await fetcher<Profile>(
+    `${process.env.NEXTAUTH_URL}/api/me`,
+    accessToken,
+  );
+  console.log(data);
+  return data;
 };

@@ -1,10 +1,10 @@
 import { HttpError } from "@/errors";
 
-export const fetcher = async <T extends object>(
+export const fetcher = async <T extends object, U = unknown>(
   path: string,
   accessToken: string | null | undefined,
   method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
-  body?: Partial<T>,
+  body?: Partial<T> | U,
 ): Promise<T> => {
   const response = await fetch(path, {
     method: method,

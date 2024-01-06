@@ -12,9 +12,9 @@ export const fetcher = async <T extends object>(
     },
   });
   console.log(response);
-  const result = await response.json();
 
   if (response.ok) {
+    const result = await response.json();
     return result;
   }
 

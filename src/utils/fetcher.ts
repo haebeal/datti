@@ -11,11 +11,11 @@ export const fetcher = async <T extends object>(
     headers: {
       Authorization: `Bearer: ${accessToken}`,
     },
-    body: JSON.stringify(body),
+    body: body ? JSON.stringify(body) : undefined,
   });
-  const result = await response.json();
 
   if (response.ok) {
+    const result = await response.json();
     return result;
   }
 

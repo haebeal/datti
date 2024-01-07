@@ -39,12 +39,12 @@ func Sever(dsn string) {
 		// "Access-Control-Allow-Headers",
 		// "Access-Control-Allow-Origin",
 	)
-	config.AddAllowMethods(
-		"GET",
-		"POST",
-		"PUT",
-		"OPTIONS",
-	)
+	// config.AddAllowMethods(
+	// 	"GET",
+	// 	"POST",
+	// 	"PUT",
+	// 	"OPTIONS",
+	// )
 	// config.AllowCredentials = true
 	r.Use(cors.New(config))
 	r.Use(utils.PeopleMmiddleware)

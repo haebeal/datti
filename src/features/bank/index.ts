@@ -1,4 +1,4 @@
 export * from "./api/getBanks";
-export * from "./api/getBranchs";
+export * from "./api/getBranches";
 
 export type * from "./types";

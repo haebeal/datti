@@ -1,5 +1,11 @@
 import { FormControl, FormLabel, Heading, Stack } from "@chakra-ui/react";
-import { AsyncProps, AsyncSelect, GroupBase } from "chakra-react-select";
+import {
+  ActionMeta,
+  AsyncProps,
+  AsyncSelect,
+  GroupBase,
+  SingleValue,
+} from "chakra-react-select";
 import { useId } from "react";
 import {
   Control,
@@ -9,17 +15,7 @@ import {
   Path,
 } from "react-hook-form";
 
-type Props<T extends FieldValues, U> = AsyncProps<
-  {
-    label: string;
-    value: string;
-  },
-  true,
-  GroupBase<{
-    label: string;
-    value: string;
-  }>
-> & {
+type Props<T extends FieldValues, U> = AsyncProps<U, true, GroupBase<U>> & {
   id?: string;
   label: string;
   placeholder: string;
@@ -27,6 +23,10 @@ type Props<T extends FieldValues, U> = AsyncProps<
   error?: FieldError;
   control: Control<T>;
   name: Path<T>;
+  onChangeSelect?: (
+    newValue: SingleValue<U>,
+    actionMeta: ActionMeta<U>,
+  ) => void;
 };
 
 export const FormSelect = <T extends FieldValues, U>({
@@ -37,6 +37,10 @@ export const FormSelect = <T extends FieldValues, U>({
   control,
   name,
   loadOptions,
+  getOptionLabel,
+  getOptionValue,
+  value,
+  onChangeSelect,
 }: Props<T, U>) => {
   const id = useId();
 
@@ -56,19 +60,15 @@ export const FormSelect = <T extends FieldValues, U>({
           control={control}
           name={name}
           render={({ field }) => (
-            <AsyncSelect<
-              {
-                label: string;
-                value: string;
-              },
-              false
-            >
+            <AsyncSelect<U, false>
               {...field}
               instanceId={id}
               placeholder={placeholder}
+              getOptionLabel={getOptionLabel}
+              getOptionValue={getOptionValue}
+              value={value}
+              onChange={onChangeSelect}
               loadOptions={loadOptions}
-              getOptionLabel={(option) => option.label}
-              getOptionValue={(option) => option.value}
               defaultOptions
               chakraStyles={{
                 container: (provided) => ({

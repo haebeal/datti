@@ -21,7 +21,7 @@ const SettingsPage = () => {
       <main>
         <Grid templateColumns="repeat(12, 1fr)" gap={5}>
           <GridItem colSpan={12}>
-            <Heading size="lg" textAlign="center" mt={10}>
+            <Heading size="lg" mt={10}>
               {profile && `${profile.name}さんの`}設定
             </Heading>
           </GridItem>

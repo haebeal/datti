@@ -67,6 +67,8 @@ export const FormSelect = <T extends FieldValues, U>({
               instanceId={id}
               placeholder={placeholder}
               loadOptions={loadOptions}
+              getOptionLabel={(option) => option.label}
+              getOptionValue={(option) => option.value}
               onChange={(newValue) => {
                 field.onChange(newValue?.value ?? null);
               }}

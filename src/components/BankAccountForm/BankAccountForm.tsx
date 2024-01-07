@@ -76,7 +76,7 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
           const banks = await getBanks(input);
           return banks;
         }}
-        getOptionLabel={(option) => option.name}
+        getOptionLabel={(option) => `${option.name}銀行`}
         getOptionValue={(option) => option.code}
         onChangeSelect={(newValue) => {
           setValue("branchCode", "");

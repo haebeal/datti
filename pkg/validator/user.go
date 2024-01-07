@@ -9,7 +9,7 @@ import (
 func ValidatorEmail(email string) error {
 	return validation.Validate(email,
 		validation.Required.Error("メールアドレスは必須項目です"),
-		validation.Min(1).Error("メールアドレスは1文字以上で登録してください"),
+		validation.Length(1, 255).Error("メールアドレスは1~255文字で登録してください"),
 		is.Email.Error("メールアドレスを入力してください"),
 	)
 }
@@ -25,7 +25,7 @@ func ValidatorPhotoUrl(photoUrl string) error {
 func ValidatorName(name string) error {
 	return validation.Validate(name,
 		validation.Required.Error("ユーザー名は必須項目です"),
-		validation.Min(1).Error("ユーザー名は1文字以上で登録してください"),
+		validation.Length(1, 255).Error("ユーザー名は1~255文字で登録してください"),
 	)
 }
 

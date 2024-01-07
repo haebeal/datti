@@ -1,8 +1,8 @@
+import { BankAccountForm } from "@/components/BankAccountForm";
 import { ProfileForm } from "@/components/ProfileForm";
 import {
   Card,
   CardBody,
-  CardHeader,
   Heading,
   Tab,
   TabList,
@@ -13,9 +13,10 @@ import {
 
 interface Props {
   updateProfile: () => Promise<void>;
+  updateBankAccount: () => Promise<void>;
 }
 
-export const Settings = ({ updateProfile }: Props) => {
+export const Settings = ({ updateProfile, updateBankAccount }: Props) => {
   return (
     <Card>
       <CardBody>
@@ -31,6 +32,9 @@ export const Settings = ({ updateProfile }: Props) => {
           <TabPanels>
             <TabPanel>
               <ProfileForm onSubmit={updateProfile} />
+            </TabPanel>
+            <TabPanel>
+              <BankAccountForm onSubmit={updateBankAccount} />
             </TabPanel>
           </TabPanels>
         </Tabs>

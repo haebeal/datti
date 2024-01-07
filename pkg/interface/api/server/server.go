@@ -8,7 +8,6 @@ import (
 	"github.com/datti-api/pkg/interface/api/handler"
 	"github.com/datti-api/pkg/usecase"
 	"github.com/datti-api/pkg/utils"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,26 +26,16 @@ func Sever(dsn string) {
 	r := gin.Default()
 
 	// cors設定
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{
-		"http://localhost:3000",
-		"https://datti-dev.haebeal.net",
-		"https://datti-reg.haebeal.net",
-	}
-	config.AddAllowHeaders(
-		"Authorization",
-		// "Access-Token",
-		// "Access-Control-Allow-Headers",
-		// "Access-Control-Allow-Origin",
-	)
-	// config.AddAllowMethods(
-	// 	"GET",
-	// 	"POST",
-	// 	"PUT",
-	// 	"OPTIONS",
+	// config := cors.DefaultConfig()
+	// config.AllowOrigins = []string{
+	// 	"http://localhost:3000",
+	// 	"https://datti-dev.haebeal.net",
+	// 	"https://datti-reg.haebeal.net",
+	// }
+	// config.AddAllowHeaders(
+	// 	"Authorization",
 	// )
-	// config.AllowCredentials = true
-	r.Use(cors.New(config))
+	// r.Use(cors.New(config))
 	r.Use(utils.PeopleMmiddleware)
 
 	// アクセスポイントの設定

@@ -77,10 +77,6 @@ export default NextAuth({
     },
     session: async ({ session, token }) => {
       session.credential = token.credential;
-      if (token.credential.accessToken) {
-        const profile = await getProfile(token.credential.accessToken);
-        session.profile = profile;
-      }
       return session;
     },
     signIn: async ({ user, account }) => {

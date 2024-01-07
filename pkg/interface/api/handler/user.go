@@ -32,7 +32,7 @@ func (uh *userHandler) HandlerCreate(c *gin.Context) {
 
 	// リクエストボディから構造体へバインディング
 	if err := c.BindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 	}
 
 	// ユーザー情報の新規登録
@@ -72,7 +72,7 @@ func (uh *userHandler) HandlerGet(c *gin.Context) {
 func (uh *userHandler) HandlerUpdate(c *gin.Context) {
 	user := new(model.User)
 	if err := c.BindJSON(&user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"err": err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 	}
 
 	// 更新用のフィールを作成

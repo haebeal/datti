@@ -19,8 +19,8 @@ func PeopleMmiddleware(c *gin.Context) {
 	if leng == 2 {
 		accessToken = arr[1]
 	} else {
-		// ErorrHandling
-		c.AbortWithStatus(http.StatusUnauthorized)
+		// 不正なトークンの形式であるためセッションを中断する
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": "invalid token format"})
 	}
 
 	oauthClient := oauth2.NewClient(c, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken}))
@@ -28,17 +28,18 @@ func PeopleMmiddleware(c *gin.Context) {
 	// トークンを元にクライアントを生成
 	srv, err := people.NewService(c, option.WithHTTPClient(oauthClient))
 	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": err.Error()})
 	}
 
 	// peopleAPIからプロフィール情報を取得
 	userInfo, err := srv.People.Get("people/me").PersonFields("names,emailAddresses").Do()
 	if err != nil {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"err": err.Error()})
+	} else {
+		// コンテキストに名前とメールアドレスを追加
+		c.Set("name", userInfo.Names[0].DisplayName)
+		c.Set("email", userInfo.EmailAddresses[0].Value)
 	}
-	// コンテキストに名前とメールアドレスを追加
-	c.Set("name", userInfo.Names[0].DisplayName)
-	c.Set("email", userInfo.EmailAddresses[0].Value)
 
 	// 次のミドルウェアへコンテキストを伝播
 	c.Next()

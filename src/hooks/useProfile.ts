@@ -1,3 +1,4 @@
+import { useToast } from "@chakra-ui/react";
 import useSWR from "swr";
 
 import { Profile, getProfile, updateProfile } from "@/features/profile";
@@ -5,6 +6,7 @@ import { useSession } from "next-auth/react";
 
 export const useProfile = () => {
   const { data: session, status } = useSession();
+  const toast = useToast();
 
   const {
     data: profile,
@@ -17,6 +19,10 @@ export const useProfile = () => {
       return;
     }
     updateProfile(session.credential.accessToken, value);
+    toast({
+      title: "プロフィールを更新しました",
+      status: "success",
+    });
     mutate({ ...profile, ...value });
   };
 

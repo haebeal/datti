@@ -4,12 +4,14 @@ import { Profile, getProfile } from "@/features/profile";
 import { useSession } from "next-auth/react";
 
 export const useProfile = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
 
-  const { data: profile } = useSWR<Profile>(
+  const { data: profile, isLoading: isFetching } = useSWR<Profile>(
     session?.credential.accessToken,
     getProfile,
   );
 
-  return { profile };
+  const isLoading = status === "loading" || isFetching;
+
+  return { profile, isLoading };
 };

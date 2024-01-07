@@ -5,6 +5,7 @@ import {
   Card,
   CardBody,
   Heading,
+  Skeleton,
   Tab,
   TabList,
   TabPanel,
@@ -14,12 +15,14 @@ import {
 
 interface Props {
   profile?: Profile;
+  isLoading: boolean;
   updateProfile: () => Promise<void>;
   updateBankAccount: () => Promise<void>;
 }
 
 export const Settings = ({
   profile,
+  isLoading,
   updateProfile,
   updateBankAccount,
 }: Props) => {
@@ -37,28 +40,32 @@ export const Settings = ({
           </TabList>
           <TabPanels>
             <TabPanel>
-              <ProfileForm
-                defaultValues={
-                  profile && {
-                    email: profile.email,
-                    name: profile.name,
-                    photoUrl: profile.photoUrl,
+              <Skeleton isLoaded={!isLoading}>
+                <ProfileForm
+                  defaultValues={
+                    profile && {
+                      email: profile.email,
+                      name: profile.name,
+                      photoUrl: profile.photoUrl,
+                    }
                   }
-                }
-                onSubmit={updateProfile}
-              />
+                  onSubmit={updateProfile}
+                />
+              </Skeleton>
             </TabPanel>
             <TabPanel>
-              <BankAccountForm
-                defaultValues={
-                  profile && {
-                    bankCode: profile.bankCode,
-                    branchCode: profile.branchCode,
-                    accountCode: profile.accountCode,
+              <Skeleton isLoaded={!isLoading}>
+                <BankAccountForm
+                  defaultValues={
+                    profile && {
+                      bankCode: profile.bankCode,
+                      branchCode: profile.branchCode,
+                      accountCode: profile.accountCode,
+                    }
                   }
-                }
-                onSubmit={updateBankAccount}
-              />
+                  onSubmit={updateBankAccount}
+                />
+              </Skeleton>
             </TabPanel>
           </TabPanels>
         </Tabs>

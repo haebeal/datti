@@ -8,7 +8,7 @@ const SettingsPage = () => {
   const updateProfile = async () => {};
   const updateBankAccount = async () => {};
 
-  const { profile } = useProfile();
+  const { profile, isLoading } = useProfile();
 
   return (
     <>
@@ -27,6 +27,7 @@ const SettingsPage = () => {
           </GridItem>
           <GridItem colSpan={12}>
             <Settings
+              isLoading={isLoading}
               profile={profile}
               updateProfile={updateProfile}
               updateBankAccount={updateBankAccount}

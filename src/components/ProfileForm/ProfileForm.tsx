@@ -1,5 +1,5 @@
 import { FormInput } from "@/components/FormInput";
-import { Button, Input, VStack } from "@chakra-ui/react";
+import { Button, VStack } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 
 interface FormProps {
@@ -31,7 +31,6 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
       gap={5}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <Input {...register("email")} />
       <FormInput
         label="Email"
         readonly

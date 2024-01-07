@@ -67,6 +67,9 @@ export const FormSelect = <T extends FieldValues, U>({
               instanceId={id}
               placeholder={placeholder}
               loadOptions={loadOptions}
+              onChange={(newValue) => {
+                field.onChange(newValue?.value ?? null);
+              }}
               defaultOptions
               chakraStyles={{
                 container: (provided) => ({

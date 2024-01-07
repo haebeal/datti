@@ -36,9 +36,9 @@ func Sever(dsn string) {
 	}
 	config.AddAllowHeaders(
 		"Authorization",
-		"Access-Token",
-		"Access-Control-Allow-Headers",
-		"Access-Control-Allow-Origin",
+		// "Access-Token",
+		// "Access-Control-Allow-Headers",
+		// "Access-Control-Allow-Origin",
 	)
 	config.AddAllowMethods(
 		"GET",
@@ -46,7 +46,7 @@ func Sever(dsn string) {
 		"PUT",
 		"OPTIONS",
 	)
-	config.AllowCredentials = true
+	// config.AllowCredentials = true
 	r.Use(cors.New(config))
 
 	// アクセスポイントの設定
@@ -57,6 +57,9 @@ func Sever(dsn string) {
 			me.GET("/", userHandler.HandlerGet)
 			me.POST("/", userHandler.HandlerCreate)
 			me.PUT("/", userHandler.HandlerUpdate)
+			me.OPTIONS("/", func(c *gin.Context) {
+				log.Printf("options")
+			})
 		}
 	}
 

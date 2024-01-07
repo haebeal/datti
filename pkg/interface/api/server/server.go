@@ -30,7 +30,7 @@ func Sever(dsn string) {
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
 		"http://localhost:3000",
-		// "https://datti-dev.haebeal.net",
+		"https://datti-dev.haebeal.net",
 		"https://datti-reg.haebeal.net",
 	}
 	config.AddAllowHeaders(

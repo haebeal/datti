@@ -25,7 +25,6 @@ func Sever(dsn string) {
 
 	// ルーターの生成
 	r := gin.Default()
-	r.Use(utils.PeopleMmiddleware)
 
 	// cros設定
 	config := cors.DefaultConfig()
@@ -48,6 +47,7 @@ func Sever(dsn string) {
 	)
 	// config.AllowCredentials = true
 	r.Use(cors.New(config))
+	r.Use(utils.PeopleMmiddleware)
 
 	// アクセスポイントの設定
 	api := r.Group("/api")

@@ -5,7 +5,7 @@ import { Settings } from "@/components/Settings";
 import { useProfile } from "@/hooks/useProfile";
 
 const SettingsPage = () => {
-  const { profile, isLoading, updateProfile } = useProfile();
+  const { profile, isLoading, update } = useProfile();
 
   return (
     <>
@@ -26,7 +26,7 @@ const SettingsPage = () => {
             <Settings
               isLoading={isLoading}
               profile={profile}
-              updateProfile={updateProfile}
+              updateProfile={update}
             />
           </GridItem>
         </Grid>

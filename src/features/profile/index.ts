@@ -1,4 +1,5 @@
 export * from "./api/getProfile";
-export * from "./api/postProfile";
+export * from "./api/createProfile";
+export * from "./api/updateProfile";
 
 export type * from "./types";

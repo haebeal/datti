@@ -1,10 +1,14 @@
-import { Settings } from "@/components/Settings";
 import { Grid, GridItem, Heading } from "@chakra-ui/react";
 import Head from "next/head";
+
+import { Settings } from "@/components/Settings";
+import { useProfile } from "@/hooks/useProfile";
 
 const SettingsPage = () => {
   const updateProfile = async () => {};
   const updateBankAccount = async () => {};
+
+  const { profile } = useProfile();
 
   return (
     <>
@@ -18,7 +22,7 @@ const SettingsPage = () => {
         <Grid templateColumns="repeat(12, 1fr)" gap={5}>
           <GridItem>
             <Heading size="lg" textAlign="center" mt={10}>
-              設定
+              {profile && `${profile.name}さんの`}設定
             </Heading>
           </GridItem>
           <GridItem colSpan={12}>

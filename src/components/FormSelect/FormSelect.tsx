@@ -34,16 +34,10 @@ interface Props<T extends FieldValues, U> {
           value: U;
         }>
       >;
-  defaultValue?: PropsValue<
-    | {
-        label: string;
-        value: U;
-      }
-    | GroupBase<{
-        label: string;
-        value: U;
-      }>
-  >;
+  defaultValue?: PropsValue<{
+    label: string;
+    value: U;
+  }>;
   loadOptions: (
     inputValue: string,
     callback: (

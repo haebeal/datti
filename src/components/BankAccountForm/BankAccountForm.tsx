@@ -28,39 +28,11 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
     defaultValues,
   });
 
-  const loadBankOptions = async (input: string) => {
-    try {
-      const banks = await getBanks(input);
-      return banks.map((bank) => ({
-        label: `${bank.name}銀行`,
-        value: bank.code,
-      }));
-    } catch (_) {
-      return [];
-    }
-  };
-
   const [isDisplayBranchSelect, setDisplayBranchSelect] = useState(false);
   useEffect(() => {
     setDisplayBranchSelect(false);
     setTimeout(() => setDisplayBranchSelect(true), 300);
   }, [setDisplayBranchSelect, watch("bankCode")]);
-
-  const loadBranchOptions = async (input: string) => {
-    const bankCode = watch("bankCode");
-    if (!bankCode) {
-      return [];
-    }
-    try {
-      const branches = await getBranches(bankCode, input);
-      return branches.map((branch) => ({
-        label: `${branch.name}支店`,
-        value: branch.code,
-      }));
-    } catch (_) {
-      return [];
-    }
-  };
 
   return (
     <VStack
@@ -77,11 +49,18 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
         error={errors.bankCode}
         control={control}
         name="bankCode"
-        defaultValue={{
-          label: watch("bankCode"),
-          value: watch("bankCode"),
+        defaultValue={watch("bankCode")}
+        loadOptions={async (input) => {
+          const banks = await getBanks(input);
+          const bankOptions: ReadonlyArray<{
+            label: string;
+            options: string[];
+          }> = banks.map((bank) => ({
+            label: bank.name,
+            options: [bank.code],
+          }));
+          return bankOptions;
         }}
-        loadOptions={loadBankOptions}
       />
       {watch("bankCode") && isDisplayBranchSelect && (
         <FormSelect<BankAccountFormProps, string>
@@ -90,11 +69,18 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
           error={errors.branchCode}
           control={control}
           name="branchCode"
-          defaultValue={{
-            label: watch("branchCode"),
-            value: watch("branchCode"),
+          defaultValue={watch("branchCode")}
+          loadOptions={async (input) => {
+            const banks = await getBranches(watch("bankCode"), input);
+            const bankOptions: ReadonlyArray<{
+              label: string;
+              options: string[];
+            }> = banks.map((bank) => ({
+              label: bank.name,
+              options: [bank.code],
+            }));
+            return bankOptions;
           }}
-          loadOptions={loadBranchOptions}
         />
       )}
       <FormInput

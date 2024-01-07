@@ -1,10 +1,5 @@
 import { FormControl, FormLabel, Heading, Stack } from "@chakra-ui/react";
-import {
-  AsyncSelect,
-  GroupBase,
-  OptionsOrGroups,
-  PropsValue,
-} from "chakra-react-select";
+import { AsyncProps, AsyncSelect, GroupBase } from "chakra-react-select";
 import { useId } from "react";
 import {
   Control,
@@ -14,7 +9,7 @@ import {
   Path,
 } from "react-hook-form";
 
-interface Props<T extends FieldValues, U> {
+type Props<T extends FieldValues, U> = AsyncProps<U, true, GroupBase<U>> & {
   id?: string;
   label: string;
   placeholder: string;
@@ -22,49 +17,7 @@ interface Props<T extends FieldValues, U> {
   error?: FieldError;
   control: Control<T>;
   name: Path<T>;
-  defaultOptions?:
-    | boolean
-    | OptionsOrGroups<
-        {
-          label: string;
-          value: U;
-        },
-        GroupBase<{
-          label: string;
-          value: U;
-        }>
-      >;
-  defaultValue?: PropsValue<{
-    label: string;
-    value: U;
-  }>;
-  loadOptions: (
-    inputValue: string,
-    callback: (
-      options: OptionsOrGroups<
-        {
-          label: string;
-          value: U;
-        },
-        GroupBase<{
-          label: string;
-          value: U;
-        }>
-      >,
-    ) => void,
-  ) => Promise<
-    OptionsOrGroups<
-      {
-        label: string;
-        value: U;
-      },
-      GroupBase<{
-        label: string;
-        value: U;
-      }>
-    >
-  >;
-}
+};
 
 export const FormSelect = <T extends FieldValues, U>({
   label,
@@ -72,8 +25,6 @@ export const FormSelect = <T extends FieldValues, U>({
   readonly = false,
   error,
   control,
-  defaultValue,
-  defaultOptions = true,
   name,
   loadOptions,
 }: Props<T, U>) => {
@@ -94,14 +45,13 @@ export const FormSelect = <T extends FieldValues, U>({
         <Controller
           control={control}
           name={name}
-          render={({ field: { onChange, value } }) => (
-            <AsyncSelect
+          render={({ field }) => (
+            <AsyncSelect<U, false>
+              {...field}
               instanceId={id}
-              cacheOptions={false}
               placeholder={placeholder}
-              defaultOptions={defaultOptions}
               loadOptions={loadOptions}
-              defaultValue={defaultValue}
+              defaultOptions
               chakraStyles={{
                 container: (provided) => ({
                   ...provided,
@@ -115,9 +65,6 @@ export const FormSelect = <T extends FieldValues, U>({
               size="md"
               required
               isReadOnly={readonly}
-              onChange={(newValue) => {
-                onChange(!newValue ? null : newValue.value);
-              }}
               isClearable
             />
           )}

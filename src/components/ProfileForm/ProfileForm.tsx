@@ -29,9 +29,10 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
       px={10}
       mt={5}
       gap={5}
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit((data) => {
+        console.log(data);
+      })}
     >
-      <p>{JSON.stringify(defaultValues)}</p>
       <FormInput
         label="Email"
         readonly

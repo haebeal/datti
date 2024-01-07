@@ -13,7 +13,16 @@ import (
 // 指定されたトークンを使用してPeople APIクライアントを作成
 func PeopleMmiddleware(c *gin.Context) {
 	// コンテキストからトークンを取得
-	accessToken := strings.Split(c.Request.Header.Get("Authorization"), " ")[1]
+	accessToken := ""
+	arr := strings.Split(c.Request.Header.Get("Authorization"), " ")
+	leng := len(arr)
+	if leng == 2 {
+		accessToken = arr[1]
+	} else {
+		// ErorrHandling
+		c.AbortWithStatus(http.StatusUnauthorized)
+	}
+
 	oauthClient := oauth2.NewClient(c, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken}))
 
 	// トークンを元にクライアントを生成

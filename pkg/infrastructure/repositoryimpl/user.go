@@ -35,8 +35,14 @@ func (u *userRepoImpl) GetUser(c context.Context) (*model.User, error) {
 }
 
 // UpdateUserはrepository.UserRepository.UpdateUserの実装
-func (u *userRepoImpl) UpdateUser(c context.Context, user *model.User) (*model.User, error) {
-	panic("unimplemented")
+func (u *userRepoImpl) UpdateUser(c context.Context, email string, updateFields map[string]any) (*model.User, error) {
+	var user *model.User
+	// ユーザー情報の更新
+	result := u.DBEngine.Engine.Model(&model.User{}).Where("email = ?", email).Updates(updateFields).Scan(&user)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return user, nil
 }
 
 // Emailと突合してユーザーを取得

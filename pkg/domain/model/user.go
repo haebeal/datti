@@ -6,7 +6,7 @@ type User struct {
 	gorm.Model
 	Name        string `json:"name" gorm:"not null"`
 	Email       string `json:"email" gorm:"not null;unique"`
-	PhotoURL    string `json:"photoUrl"`
+	PhotoUrl    string `json:"photoUrl"`
 	AccountCode string `json:"accountCode"`
 	BankCode    string `gorm:"default:null"`
 	BranchCode  string `json:"branchCode"`

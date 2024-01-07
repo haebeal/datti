@@ -25,26 +25,19 @@ func Sever(dsn string) {
 
 	// ルーターの生成
 	r := gin.Default()
-	r.Use(utils.PeopleMmiddleware)
 
-	// cros設定
+	// cors設定
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
 		"http://localhost:3000",
+		"https://datti-dev.haebeal.net",
+		"https://datti-reg.haebeal.net",
 	}
 	config.AddAllowHeaders(
 		"Authorization",
-		"Access-Token",
-		"Access-Control-Allow-Headers",
-		"Access-Control-Allow-Origin",
 	)
-	config.AddAllowMethods(
-		"GET",
-		"POST",
-		"PUT",
-	)
-	config.AllowCredentials = true
 	r.Use(cors.New(config))
+	r.Use(utils.PeopleMmiddleware)
 
 	// アクセスポイントの設定
 	api := r.Group("/api")

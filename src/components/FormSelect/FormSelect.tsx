@@ -9,7 +9,17 @@ import {
   Path,
 } from "react-hook-form";
 
-type Props<T extends FieldValues, U> = AsyncProps<U, true, GroupBase<U>> & {
+type Props<T extends FieldValues, U> = AsyncProps<
+  {
+    label: string;
+    value: string;
+  },
+  true,
+  GroupBase<{
+    label: string;
+    value: string;
+  }>
+> & {
   id?: string;
   label: string;
   placeholder: string;
@@ -46,7 +56,13 @@ export const FormSelect = <T extends FieldValues, U>({
           control={control}
           name={name}
           render={({ field }) => (
-            <AsyncSelect<U, false>
+            <AsyncSelect<
+              {
+                label: string;
+                value: string;
+              },
+              false
+            >
               {...field}
               instanceId={id}
               placeholder={placeholder}

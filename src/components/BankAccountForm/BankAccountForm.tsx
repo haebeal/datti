@@ -49,15 +49,14 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
         error={errors.bankCode}
         control={control}
         name="bankCode"
-        defaultValue={watch("bankCode")}
         loadOptions={async (input) => {
           const banks = await getBanks(input);
           const bankOptions: ReadonlyArray<{
             label: string;
-            options: string[];
+            value: string;
           }> = banks.map((bank) => ({
             label: bank.name,
-            options: [bank.code],
+            value: bank.code,
           }));
           return bankOptions;
         }}
@@ -69,17 +68,16 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
           error={errors.branchCode}
           control={control}
           name="branchCode"
-          defaultValue={watch("branchCode")}
           loadOptions={async (input) => {
             const banks = await getBranches(watch("bankCode"), input);
-            const bankOptions: ReadonlyArray<{
+            const branchCode: ReadonlyArray<{
               label: string;
-              options: string[];
+              value: string;
             }> = banks.map((bank) => ({
               label: bank.name,
-              options: [bank.code],
+              value: bank.code,
             }));
-            return bankOptions;
+            return branchCode;
           }}
         />
       )}

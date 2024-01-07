@@ -69,9 +69,6 @@ export const FormSelect = <T extends FieldValues, U>({
               loadOptions={loadOptions}
               getOptionLabel={(option) => option.label}
               getOptionValue={(option) => option.value}
-              onChange={(newValue) => {
-                field.onChange(newValue?.value ?? null);
-              }}
               defaultOptions
               chakraStyles={{
                 container: (provided) => ({

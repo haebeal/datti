@@ -23,7 +23,7 @@ export const useProfile = () => {
       title: "プロフィールを更新しました",
       status: "success",
     });
-    mutate({ ...profile, ...value });
+    mutate();
   };
 
   const isLoading = status === "loading" || isFetching;

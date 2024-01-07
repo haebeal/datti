@@ -1,6 +1,5 @@
 import { Center, HStack, Heading, Link, VStack } from "@chakra-ui/react";
 import { signOut, useSession } from "next-auth/react";
-import { Head } from "next/document";
 import NextLink from "next/link";
 import { useEffect } from "react";
 
@@ -23,12 +22,6 @@ const NotAuthenticated = () => {
 
   return (
     <>
-      <Head>
-        <title>Datti - Not Authenticated</title>
-        <meta name="description" content="Datti Web" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
       <Center minH="80vh">
         <VStack gap={4}>
           <Heading size="xl">401 Not Authenticated</Heading>

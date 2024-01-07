@@ -32,13 +32,13 @@ func (uh *userHandler) HandlerCreate(c *gin.Context) {
 
 	// リクエストボディから構造体へバインディング
 	if err := c.BindJSON(&user); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 	}
 
 	// ユーザー情報の新規登録
 	newUser, err := uh.useCase.CreateUser(c, user)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 	} else {
 		c.JSON(http.StatusCreated, newUser)
 	}
@@ -59,9 +59,9 @@ func (uh *userHandler) HandlerGet(c *gin.Context) {
 	findUser, err := uh.useCase.GetUserByEmail(c, user)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, err)
+			c.JSON(http.StatusNotFound, gin.H{"err": err.Error()})
 		} else {
-			c.JSON(http.StatusInternalServerError, err)
+			c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 		}
 	} else {
 		c.JSON(http.StatusOK, findUser)
@@ -72,7 +72,7 @@ func (uh *userHandler) HandlerGet(c *gin.Context) {
 func (uh *userHandler) HandlerUpdate(c *gin.Context) {
 	user := new(model.User)
 	if err := c.BindJSON(&user); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 	}
 
 	// 更新用のフィールを作成
@@ -100,7 +100,7 @@ func (uh *userHandler) HandlerUpdate(c *gin.Context) {
 
 	updateUser, err := uh.useCase.UpdateUser(c, email, requestField)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"err": err.Error()})
 	} else {
 		c.JSON(http.StatusOK, updateUser)
 	}

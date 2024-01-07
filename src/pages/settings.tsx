@@ -4,6 +4,7 @@ import Head from "next/head";
 
 const SettingsPage = () => {
   const updateProfile = async () => {};
+  const updateBankAccount = async () => {};
 
   return (
     <>
@@ -21,7 +22,10 @@ const SettingsPage = () => {
             </Heading>
           </GridItem>
           <GridItem colSpan={12}>
-            <Settings updateProfile={updateProfile} />
+            <Settings
+              updateProfile={updateProfile}
+              updateBankAccount={updateBankAccount}
+            />
           </GridItem>
         </Grid>
       </main>

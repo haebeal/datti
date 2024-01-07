@@ -31,6 +31,8 @@ func Sever(dsn string) {
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
 		"http://localhost:3000",
+		"https://datti-dev.haebeal.net",
+		"https://datti-reg.haebeal.net",
 	}
 	config.AddAllowHeaders(
 		"Authorization",
@@ -42,6 +44,7 @@ func Sever(dsn string) {
 		"GET",
 		"POST",
 		"PUT",
+		"OPTIONS",
 	)
 	config.AllowCredentials = true
 	r.Use(cors.New(config))

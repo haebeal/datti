@@ -1,4 +1,4 @@
-import { VStack } from "@chakra-ui/react";
+import { Button, VStack } from "@chakra-ui/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 import { FormInput } from "@/components/FormInput";
@@ -96,6 +96,9 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
         type="number"
         error={errors.accountCode}
       />
+      <Button mt={5} minW="30%" type="submit" colorScheme="twitter">
+        更新
+      </Button>
     </VStack>
   );
 };

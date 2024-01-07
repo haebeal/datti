@@ -5,10 +5,7 @@ import { Settings } from "@/components/Settings";
 import { useProfile } from "@/hooks/useProfile";
 
 const SettingsPage = () => {
-  const updateProfile = async () => {};
-  const updateBankAccount = async () => {};
-
-  const { profile, isLoading } = useProfile();
+  const { profile, isLoading, updateProfile } = useProfile();
 
   return (
     <>
@@ -30,7 +27,6 @@ const SettingsPage = () => {
               isLoading={isLoading}
               profile={profile}
               updateProfile={updateProfile}
-              updateBankAccount={updateBankAccount}
             />
           </GridItem>
         </Grid>

@@ -13,7 +13,6 @@ type Story = StoryObj<typeof meta>;
 export const Primary: Story = {
   args: {
     updateProfile: async () => {},
-    updateBankAccount: async () => {},
     isLoading: false,
   },
 };
@@ -21,7 +20,6 @@ export const Primary: Story = {
 export const Loading: Story = {
   args: {
     updateProfile: async () => {},
-    updateBankAccount: async () => {},
     isLoading: true,
   },
 };

@@ -1,16 +1,16 @@
 import { FormInput } from "@/components/FormInput";
 import { Button, VStack } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 
-interface FormProps {
+export interface ProfileFormProps {
   email: string;
   name: string;
   photoUrl: string;
 }
 
 interface Props {
-  defaultValues?: FormProps;
-  onSubmit: () => Promise<void>;
+  defaultValues?: ProfileFormProps;
+  onSubmit: SubmitHandler<ProfileFormProps>;
 }
 
 export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
@@ -18,7 +18,7 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormProps>({
+  } = useForm<ProfileFormProps>({
     defaultValues,
   });
 

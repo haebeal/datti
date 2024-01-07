@@ -11,7 +11,11 @@ export const useProfile = () => {
     getProfile,
   );
 
+  const updateProfile = async (value: Partial<Profile>) => {
+    console.log(value);
+  };
+
   const isLoading = status === "loading" || isFetching;
 
-  return { profile, isLoading };
+  return { profile, isLoading, updateProfile };
 };

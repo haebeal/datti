@@ -16,16 +16,10 @@ import {
 interface Props {
   profile?: Profile;
   isLoading: boolean;
-  updateProfile: () => Promise<void>;
-  updateBankAccount: () => Promise<void>;
+  updateProfile: (value: Partial<Profile>) => Promise<void>;
 }
 
-export const Settings = ({
-  profile,
-  isLoading,
-  updateProfile,
-  updateBankAccount,
-}: Props) => {
+export const Settings = ({ profile, isLoading, updateProfile }: Props) => {
   return (
     <Card>
       <CardBody>
@@ -63,7 +57,7 @@ export const Settings = ({
                       accountCode: profile.accountCode,
                     }
                   }
-                  onSubmit={updateBankAccount}
+                  onSubmit={updateProfile}
                 />
               </Skeleton>
             </TabPanel>

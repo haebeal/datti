@@ -1,20 +1,20 @@
 import { VStack } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 import { FormInput } from "@/components/FormInput";
 import { FormSelect } from "@/components/FormSelect";
 import { getBanks, getBranches } from "@/features/bank";
 import { useEffect, useState } from "react";
 
-interface FormProps {
+export interface BankAccountFormProps {
   bankCode: string;
   branchCode: string;
   accountCode: string;
 }
 
 interface Props {
-  defaultValues?: FormProps;
-  onSubmit: () => Promise<void>;
+  defaultValues?: BankAccountFormProps;
+  onSubmit: SubmitHandler<BankAccountFormProps>;
 }
 
 export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
@@ -24,7 +24,7 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
     handleSubmit,
     formState: { errors },
     watch,
-  } = useForm<FormProps>({
+  } = useForm<BankAccountFormProps>({
     defaultValues,
   });
 
@@ -71,7 +71,7 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
       gap={5}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <FormSelect<FormProps, string>
+      <FormSelect<BankAccountFormProps, string>
         label="金融機関"
         placeholder="金融機関を選択"
         error={errors.bankCode}
@@ -80,7 +80,7 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
         loadOptions={loadBankOptions}
       />
       {watch("bankCode") && isDisplayBranchSelect && (
-        <FormSelect<FormProps, string>
+        <FormSelect<BankAccountFormProps, string>
           label="支店"
           placeholder="支店を選択"
           error={errors.branchCode}

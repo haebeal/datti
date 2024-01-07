@@ -1,46 +1,57 @@
 package validator
 
 import (
-	"unicode/utf8"
-
-	dattierr "github.com/datti-api/pkg/error"
+	validation "github.com/go-ozzo/ozzo-validation"
+	"github.com/go-ozzo/ozzo-validation/is"
 )
 
-/*
-メールアドレスの文字数検査
-0文字の場合はエラーを投げる
-*/
+// メールアドレスの検査
 func ValidatorEmail(email string) error {
-	if utf8.RuneCountInString(email) == 0 {
-		err := dattierr.NewBadEmailError()
-		return err
-	}
-	return nil
+	return validation.Validate(email,
+		validation.Required.Error("メールアドレスは必須項目です"),
+		validation.Min(1).Error("メールアドレスは1文字以上で登録してください"),
+		is.Email.Error("メールアドレスを入力してください"),
+	)
 }
 
-/*
-ユーザー名の文字数検査
-0文字の場合はエラーを投げる
-*/
+// 画像URLの検査
+func ValidatorPhotoUrl(photoUrl string) error {
+	return validation.Validate(photoUrl,
+		is.URL.Error("正しいURLを登録してください"),
+	)
+}
+
+// ユーザー名の検査
 func ValidatorName(name string) error {
-	if utf8.RuneCountInString(name) == 0 {
-		err := dattierr.NewBadNameError()
-		return err
-	}
-	return nil
+	return validation.Validate(name,
+		validation.Required.Error("ユーザー名は必須項目です"),
+		validation.Min(1).Error("ユーザー名は1文字以上で登録してください"),
+	)
 }
 
-// 金融機関番号検査
-func ValidatorBankCode(bankCode string) bool {
-	return utf8.RuneCountInString(bankCode) == 4
+// 金融機関番号の検査
+func ValidatorBankCode(bankCode string) error {
+	return validation.Validate(bankCode,
+		validation.Required.Error("金融機関コードは必須項目です"),
+		validation.Length(4, 4).Error("金融機関コードは4桁で登録してください"),
+		is.Int.Error("金融機関コードは数字で登録してください"),
+	)
 }
 
 // 口座番号の検査
-func ValidatorAccountCode(accountCode string) bool {
-	return utf8.RuneCountInString(accountCode) >= 4 && utf8.RuneCountInString(accountCode) <= 7
+func ValidatorAccountCode(accountCode string) error {
+	return validation.Validate(accountCode,
+		validation.Required.Error("口座番号は必須項目です"),
+		validation.Length(4, 7).Error("口座番号は4~7桁で登録してください"),
+		is.Int.Error("口座番号は数字で登録してください"),
+	)
 }
 
 // 支店番号の検査
-func ValidatorBranchCode(branchCode string) bool {
-	return utf8.RuneCountInString(branchCode) == 3
+func ValidatorBranchCode(branchCode string) error {
+	return validation.Validate(branchCode,
+		validation.Required.Error("支店番号は必須項目です"),
+		validation.Length(3, 3).Error("支店番号は3桁で登録してください"),
+		is.Int.Error("支店番号は数字で登録してください"),
+	)
 }

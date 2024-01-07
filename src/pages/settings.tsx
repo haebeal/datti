@@ -9,7 +9,7 @@ const SettingsPage = () => {
   return (
     <>
       <Head>
-        <title>Datti -設定</title>
+        <title>Datti - 設定</title>
         <meta name="description" content="Datti Web" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />

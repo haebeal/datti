@@ -22,11 +22,12 @@ const SettingsPage = () => {
         <Grid templateColumns="repeat(12, 1fr)" gap={5}>
           <GridItem colSpan={12}>
             <Heading size="lg" mt={10}>
-              {profile && `${profile.name}さんの`}設定
+              設定
             </Heading>
           </GridItem>
           <GridItem colSpan={12}>
             <Settings
+              profile={profile}
               updateProfile={updateProfile}
               updateBankAccount={updateBankAccount}
             />

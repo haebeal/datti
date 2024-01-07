@@ -3,7 +3,6 @@ import { Button, VStack } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 
 interface FormProps {
-  id: number;
   email: string;
   name: string;
   photoUrl: string;

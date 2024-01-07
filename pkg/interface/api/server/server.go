@@ -26,11 +26,11 @@ func Sever(dsn string) {
 	// ルーターの生成
 	r := gin.Default()
 
-	// cros設定
+	// cors設定
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{
 		"http://localhost:3000",
-		"https://datti-dev.haebeal.net",
+		// "https://datti-dev.haebeal.net",
 		"https://datti-reg.haebeal.net",
 	}
 	config.AddAllowHeaders(

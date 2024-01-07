@@ -33,15 +33,8 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
       onSubmit={handleSubmit(onSubmit)}
     >
       <FormInput
-        label="ID"
-        placeholder="ユーザーID"
-        register={register("id")}
-        readonly
-        type="number"
-        error={errors.id}
-      />
-      <FormInput
         label="Email"
+        readonly
         placeholder="メールアドレスを入力"
         register={register("email")}
         type="email"

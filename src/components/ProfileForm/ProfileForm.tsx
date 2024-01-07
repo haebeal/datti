@@ -31,6 +31,7 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
       gap={5}
       onSubmit={handleSubmit(onSubmit)}
     >
+      <p>{JSON.stringify(defaultValues)}</p>
       <FormInput
         label="Email"
         readonly

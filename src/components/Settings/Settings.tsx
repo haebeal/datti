@@ -30,7 +30,6 @@ export const Settings = ({
           <TabList>
             <Tab>
               <Heading size="sm">プロフィール</Heading>
-              <Heading>{JSON.stringify(profile)}</Heading>
             </Tab>
             <Tab>
               <Heading size="sm">振込先口座</Heading>

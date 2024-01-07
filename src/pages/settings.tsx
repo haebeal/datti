@@ -20,7 +20,7 @@ const SettingsPage = () => {
       </Head>
       <main>
         <Grid templateColumns="repeat(12, 1fr)" gap={5}>
-          <GridItem>
+          <GridItem colSpan={12}>
             <Heading size="lg" textAlign="center" mt={10}>
               {profile && `${profile.name}さんの`}設定
             </Heading>

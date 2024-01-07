@@ -8,7 +8,7 @@ type User struct {
 	Email       string `json:"email" gorm:"not null;unique"`
 	PhotoUrl    string `json:"photoUrl"`
 	AccountCode string `json:"accountCode"`
-	BankCode    string `gorm:"default:null"`
+	BankCode    string `json:"bankCode" gorm:"default:null"`
 	BranchCode  string `json:"branchCode"`
 	// GroupUsers     []GroupUser `gorm:"foreignKey:UserID"`
 	// PaymentsPaidBy []Payment   `gorm:"foreignKey:PaidBy"`

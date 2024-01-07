@@ -18,7 +18,7 @@ export const useProfile = () => {
     if (!profile || !session?.credential.accessToken) {
       return;
     }
-    updateProfile(session.credential.accessToken, value);
+    await updateProfile(session.credential.accessToken, value);
     toast({
       title: "プロフィールを更新しました",
       status: "success",

@@ -69,8 +69,6 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
       gap={5}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <Heading>金融機関:{watch("bankCode")}</Heading>
-      <Heading>支店:{watch("branchCode")}</Heading>
       <FormSelect<BankAccountFormProps, Bank>
         label="金融機関"
         placeholder="金融機関を選択"

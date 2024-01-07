@@ -77,6 +77,10 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
         error={errors.bankCode}
         control={control}
         name="bankCode"
+        defaultValue={{
+          label: watch("bankCode"),
+          value: watch("bankCode"),
+        }}
         loadOptions={loadBankOptions}
       />
       {watch("bankCode") && isDisplayBranchSelect && (
@@ -86,6 +90,10 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
           error={errors.branchCode}
           control={control}
           name="branchCode"
+          defaultValue={{
+            label: watch("branchCode"),
+            value: watch("branchCode"),
+          }}
           loadOptions={loadBranchOptions}
         />
       )}

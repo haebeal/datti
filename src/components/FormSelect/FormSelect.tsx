@@ -1,5 +1,10 @@
 import { FormControl, FormLabel, Heading, Stack } from "@chakra-ui/react";
-import { AsyncSelect, GroupBase, OptionsOrGroups } from "chakra-react-select";
+import {
+  AsyncSelect,
+  GroupBase,
+  OptionsOrGroups,
+  PropsValue,
+} from "chakra-react-select";
 import { useId } from "react";
 import {
   Control,
@@ -29,6 +34,16 @@ interface Props<T extends FieldValues, U> {
           value: U;
         }>
       >;
+  defaultValue?: PropsValue<
+    | {
+        label: string;
+        value: U;
+      }
+    | GroupBase<{
+        label: string;
+        value: U;
+      }>
+  >;
   loadOptions: (
     inputValue: string,
     callback: (
@@ -63,6 +78,7 @@ export const FormSelect = <T extends FieldValues, U>({
   readonly = false,
   error,
   control,
+  defaultValue,
   defaultOptions = true,
   name,
   loadOptions,
@@ -91,6 +107,7 @@ export const FormSelect = <T extends FieldValues, U>({
               placeholder={placeholder}
               defaultOptions={defaultOptions}
               loadOptions={loadOptions}
+              defaultValue={defaultValue}
               chakraStyles={{
                 container: (provided) => ({
                   ...provided,

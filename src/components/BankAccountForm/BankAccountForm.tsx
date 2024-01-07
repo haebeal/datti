@@ -47,15 +47,18 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
   const selectedBranchCode = watch("branchCode");
   const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
   useEffect(() => {
+    setDisplay(false);
     if (!selectedBranchCode) {
       setSelectedBranch(null);
+      setDisplay(true);
       return;
     }
     getBranch(selectedBankCode, selectedBranchCode).then((branch) => {
       setSelectedBranch(branch);
+      setDisplay(true);
       return;
     });
-  }, [selectedBankCode, selectedBranchCode]);
+  }, [selectedBranchCode]);
 
   return (
     <VStack

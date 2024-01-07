@@ -7,7 +7,7 @@ export const postProfile = (
   body: Partial<Profile>,
 ): Promise<Profile> => {
   return fetcher<Profile>(
-    `${process.env.NEXTAUTH_URL}/api/me`,
+    `${process.env.NEXT_PUBLIC_FETCH_HOST}/api/me`,
     accessToken,
     "POST",
     body,

@@ -1,10 +1,17 @@
-import { Button, Heading, VStack } from "@chakra-ui/react";
+import { Button, VStack } from "@chakra-ui/react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 import { FormInput } from "@/components/FormInput";
 import { FormSelect } from "@/components/FormSelect";
-import { Bank, Branch, getBank, getBanks, getBranches } from "@/features/bank";
-import { getBranch } from "@/features/bank/api/getBranch";
+import {
+  Bank,
+  Branch,
+  getBank,
+  getBanks,
+  getBranch,
+  getBranches,
+} from "@/features/bank";
+import { SingleValue } from "chakra-react-select";
 import { useEffect, useState } from "react";
 
 export interface BankAccountFormProps {
@@ -30,35 +37,61 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
     defaultValues,
   });
 
-  const selectedBankCode = watch("bankCode");
-  const [selectedBank, setSelectedBank] = useState<Bank | null>(null);
+  const [selectedBank, setSelectedBank] = useState<Bank>();
+  const [selectedBranch, setSelectedBranch] = useState<Branch>();
   useEffect(() => {
-    if (!selectedBankCode) {
-      setSelectedBank(null);
+    // 表示用 金融機関の取得
+    if (!watch("bankCode")) {
+      setSelectedBank(undefined);
       return;
     }
-    getBank(selectedBankCode).then((bank) => {
-      setSelectedBank(bank);
+    getBank(watch("bankCode"))
+      .then((bank) => setSelectedBank(bank))
+      .catch(() => setSelectedBank(undefined));
+  }, [watch("bankCode")]);
+  useEffect(() => {
+    // 表示用 支店の取得
+    if (!watch("bankCode") || !watch("branchCode")) {
+      setSelectedBranch(undefined);
       return;
-    });
-  }, [selectedBankCode]);
+    }
+    getBranch(watch("bankCode"), watch("branchCode"))
+      .then((branch) => setSelectedBranch(branch))
+      .catch(() => setSelectedBranch(undefined));
+  }, [watch("branchCode")]);
 
-  const [isDisplay, setDisplay] = useState(false);
-  const selectedBranchCode = watch("branchCode");
-  const [selectedBranch, setSelectedBranch] = useState<Branch | null>(null);
-  useEffect(() => {
-    setDisplay(false);
-    if (!selectedBranchCode) {
-      setSelectedBranch(null);
-      setDisplay(true);
-      return;
+  // 金融機関変更時、支店の初期化と再レンダリング
+  const [isDisplayBranch, setDisplayBranch] = useState(false);
+  const onChangeBankOption = (newValue: SingleValue<Bank>) => {
+    setValue("bankCode", newValue?.code ?? "");
+    setValue("branchCode", "");
+    setDisplayBranch(false);
+    setInterval(() => {
+      setDisplayBranch(true);
+    }, 450);
+  };
+  const onChangeBranch = (newValue: SingleValue<Branch>) => {
+    setValue("branchCode", newValue?.code ?? "");
+  };
+
+  // 金融機関オプションの非同期取得
+  const onLoadBankOptions = async (input: string) => {
+    try {
+      const banks = await getBanks(input);
+      return banks;
+    } catch (_) {
+      return [];
     }
-    getBranch(selectedBankCode, selectedBranchCode).then((branch) => {
-      setSelectedBranch(branch);
-      setDisplay(true);
-      return;
-    });
-  }, [selectedBranchCode]);
+  };
+  // 支店オプションの非同期取得
+  const onLoadBranchOptions = async (input: string) => {
+    try {
+      const branches = await getBranches(watch("bankCode"), input);
+      return branches;
+    } catch (_) {
+      return [];
+    }
+  };
 
   return (
     <VStack
@@ -75,39 +108,24 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
         error={errors.bankCode}
         control={control}
         name="bankCode"
-        loadOptions={async (input) => {
-          const banks = await getBanks(input);
-          return banks;
-        }}
+        loadOptions={onLoadBankOptions}
         getOptionLabel={(option) => `${option.name}銀行`}
         getOptionValue={(option) => option.code}
-        onChangeSelect={(newValue) => {
-          setValue("branchCode", "");
-          setDisplay(false);
-          setInterval(() => {
-            setDisplay(true);
-          }, 400);
-          setValue("bankCode", newValue?.code ?? "");
-        }}
         value={selectedBank}
+        onChangeSelect={onChangeBankOption}
       />
-      {watch("bankCode") && isDisplay && (
+      {watch("bankCode") && isDisplayBranch && (
         <FormSelect<BankAccountFormProps, Branch>
           label="支店"
           placeholder="支店を選択"
           error={errors.branchCode}
           control={control}
           name="branchCode"
-          loadOptions={async (input) => {
-            const branches = await getBranches(watch("bankCode"), input);
-            return branches;
-          }}
+          loadOptions={onLoadBranchOptions}
           getOptionLabel={(option) => option.name}
           getOptionValue={(option) => option.code}
-          onChangeSelect={(newValue) => {
-            setValue("branchCode", newValue?.code ?? "");
-          }}
           value={selectedBranch}
+          onChangeSelect={onChangeBranch}
         />
       )}
       <FormInput

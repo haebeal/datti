@@ -1,5 +1,17 @@
-import { FormControl, FormLabel, Heading, Stack } from "@chakra-ui/react";
-import { AsyncSelect, GroupBase, OptionsOrGroups } from "chakra-react-select";
+import {
+  FormControl,
+  FormLabel,
+  Heading,
+  Skeleton,
+  Stack,
+} from "@chakra-ui/react";
+import {
+  ActionMeta,
+  AsyncProps,
+  AsyncSelect,
+  GroupBase,
+  SingleValue,
+} from "chakra-react-select";
 import { useId } from "react";
 import {
   Control,
@@ -9,53 +21,20 @@ import {
   Path,
 } from "react-hook-form";
 
-interface Props<T extends FieldValues, U> {
+type Props<T extends FieldValues, U> = AsyncProps<U, true, GroupBase<U>> & {
   id?: string;
   label: string;
   placeholder: string;
   readonly?: boolean;
   error?: FieldError;
   control: Control<T>;
+  isLoading?: boolean;
   name: Path<T>;
-  defaultOptions?:
-    | boolean
-    | OptionsOrGroups<
-        {
-          label: string;
-          value: U;
-        },
-        GroupBase<{
-          label: string;
-          value: U;
-        }>
-      >;
-  loadOptions: (
-    inputValue: string,
-    callback: (
-      options: OptionsOrGroups<
-        {
-          label: string;
-          value: U;
-        },
-        GroupBase<{
-          label: string;
-          value: U;
-        }>
-      >,
-    ) => void,
-  ) => Promise<
-    OptionsOrGroups<
-      {
-        label: string;
-        value: U;
-      },
-      GroupBase<{
-        label: string;
-        value: U;
-      }>
-    >
-  >;
-}
+  onChangeSelect?: (
+    newValue: SingleValue<U>,
+    actionMeta: ActionMeta<U>,
+  ) => void;
+};
 
 export const FormSelect = <T extends FieldValues, U>({
   label,
@@ -63,9 +42,13 @@ export const FormSelect = <T extends FieldValues, U>({
   readonly = false,
   error,
   control,
-  defaultOptions = true,
+  isLoading = false,
   name,
   loadOptions,
+  getOptionLabel,
+  getOptionValue,
+  value,
+  onChangeSelect,
 }: Props<T, U>) => {
   const id = useId();
 
@@ -81,36 +64,39 @@ export const FormSelect = <T extends FieldValues, U>({
         >
           {label}
         </Heading>
-        <Controller
-          control={control}
-          name={name}
-          render={({ field: { onChange, value } }) => (
-            <AsyncSelect
-              instanceId={id}
-              cacheOptions={false}
-              placeholder={placeholder}
-              defaultOptions={defaultOptions}
-              loadOptions={loadOptions}
-              chakraStyles={{
-                container: (provided) => ({
-                  ...provided,
-                  width: "full",
-                }),
-                control: (provided) => ({
-                  ...provided,
-                  backgroundColor: readonly ? "" : "gray.200",
-                }),
-              }}
-              size="md"
-              required
-              isReadOnly={readonly}
-              onChange={(newValue) => {
-                onChange(!newValue ? null : newValue.value);
-              }}
-              isClearable
-            />
-          )}
-        />
+        <Skeleton w="full" isLoaded={!isLoading}>
+          <Controller
+            control={control}
+            name={name}
+            render={({ field }) => (
+              <AsyncSelect<U, false>
+                {...field}
+                instanceId={id}
+                placeholder={placeholder}
+                getOptionLabel={getOptionLabel}
+                getOptionValue={getOptionValue}
+                value={value}
+                onChange={onChangeSelect}
+                loadOptions={loadOptions}
+                defaultOptions
+                chakraStyles={{
+                  container: (provided) => ({
+                    ...provided,
+                    width: "full",
+                  }),
+                  control: (provided) => ({
+                    ...provided,
+                    backgroundColor: readonly ? "" : "gray.200",
+                  }),
+                }}
+                size="md"
+                required
+                isReadOnly={readonly}
+                isClearable
+              />
+            )}
+          />
+        </Skeleton>
       </Stack>
     </FormControl>
   );

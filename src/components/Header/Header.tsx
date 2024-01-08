@@ -1,18 +1,18 @@
 import { Box, Container } from "@chakra-ui/react";
-import { useSession } from "next-auth/react";
 
-import { HeaderContents } from "./HeaderContents";
+import { HeaderContents } from "@/components/Header/HeaderContents";
+import { useProfile } from "@/hooks/useProfile";
 
 export const Header = () => {
-  const { data: session, status } = useSession();
+  const { profile, isLoading } = useProfile();
 
   return (
     <Box as="header" h="80px" bg="white">
       <Container maxW="container.xl" h="full">
         <HeaderContents
-          isLoading={status === "loading"}
-          name={session?.profile?.name}
-          photoUrl={session?.profile?.photoUrl}
+          isLoading={isLoading}
+          name={profile?.name}
+          photoUrl={profile?.photoUrl}
         />
       </Container>
     </Box>

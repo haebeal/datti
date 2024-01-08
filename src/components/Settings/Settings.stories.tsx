@@ -13,6 +13,13 @@ type Story = StoryObj<typeof meta>;
 export const Primary: Story = {
   args: {
     updateProfile: async () => {},
-    updateBankAccount: async () => {},
+    isLoading: false,
+  },
+};
+
+export const Loading: Story = {
+  args: {
+    updateProfile: async () => {},
+    isLoading: true,
   },
 };

@@ -13,7 +13,11 @@ type Story = StoryObj<typeof meta>;
 
 export const Primary: Story = {
   args: {
-    defaultValues: undefined,
+    defaultValues: {
+      bankCode: "0001",
+      branchCode: "001",
+      accountCode: "00000000",
+    },
     onSubmit: async () => {},
   },
 };

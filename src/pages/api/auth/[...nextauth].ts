@@ -1,5 +1,5 @@
 import { HttpError } from "@/errors";
-import { getProfile, postProfile } from "@/features/profile";
+import { createProfile, getProfile } from "@/features/profile";
 import { google } from "googleapis";
 import NextAuth from "next-auth";
 import { JWT } from "next-auth/jwt";
@@ -77,10 +77,6 @@ export default NextAuth({
     },
     session: async ({ session, token }) => {
       session.credential = token.credential;
-      if (token.credential.accessToken) {
-        const profile = await getProfile(token.credential.accessToken);
-        session.profile = profile;
-      }
       return session;
     },
     signIn: async ({ user, account }) => {
@@ -100,7 +96,7 @@ export default NextAuth({
           return false;
         }
         try {
-          await postProfile(accessToken, {
+          await createProfile(accessToken, {
             name,
             email,
             photoUrl: image,

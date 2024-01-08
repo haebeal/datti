@@ -1,9 +1,11 @@
 import { BankAccountForm } from "@/components/BankAccountForm";
 import { ProfileForm } from "@/components/ProfileForm";
+import { Profile } from "@/features/profile";
 import {
   Card,
   CardBody,
   Heading,
+  Skeleton,
   Tab,
   TabList,
   TabPanel,
@@ -12,11 +14,12 @@ import {
 } from "@chakra-ui/react";
 
 interface Props {
-  updateProfile: () => Promise<void>;
-  updateBankAccount: () => Promise<void>;
+  profile?: Profile;
+  isLoading: boolean;
+  updateProfile: (value: Partial<Profile>) => Promise<void>;
 }
 
-export const Settings = ({ updateProfile, updateBankAccount }: Props) => {
+export const Settings = ({ profile, isLoading, updateProfile }: Props) => {
   return (
     <Card>
       <CardBody>
@@ -31,10 +34,32 @@ export const Settings = ({ updateProfile, updateBankAccount }: Props) => {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <ProfileForm onSubmit={updateProfile} />
+              <Skeleton isLoaded={!isLoading}>
+                <ProfileForm
+                  defaultValues={
+                    profile && {
+                      email: profile.email,
+                      name: profile.name,
+                      photoUrl: profile.photoUrl,
+                    }
+                  }
+                  onSubmit={updateProfile}
+                />
+              </Skeleton>
             </TabPanel>
             <TabPanel>
-              <BankAccountForm onSubmit={updateBankAccount} />
+              <Skeleton isLoaded={!isLoading}>
+                <BankAccountForm
+                  defaultValues={
+                    profile && {
+                      bankCode: profile.bankCode,
+                      branchCode: profile.branchCode,
+                      accountCode: profile.accountCode,
+                    }
+                  }
+                  onSubmit={updateProfile}
+                />
+              </Skeleton>
             </TabPanel>
           </TabPanels>
         </Tabs>

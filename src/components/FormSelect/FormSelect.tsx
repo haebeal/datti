@@ -1,4 +1,10 @@
-import { FormControl, FormLabel, Heading, Stack } from "@chakra-ui/react";
+import {
+  FormControl,
+  FormLabel,
+  Heading,
+  Skeleton,
+  Stack,
+} from "@chakra-ui/react";
 import {
   ActionMeta,
   AsyncProps,
@@ -22,6 +28,7 @@ type Props<T extends FieldValues, U> = AsyncProps<U, true, GroupBase<U>> & {
   readonly?: boolean;
   error?: FieldError;
   control: Control<T>;
+  isLoading?: boolean;
   name: Path<T>;
   onChangeSelect?: (
     newValue: SingleValue<U>,
@@ -35,6 +42,7 @@ export const FormSelect = <T extends FieldValues, U>({
   readonly = false,
   error,
   control,
+  isLoading = false,
   name,
   loadOptions,
   getOptionLabel,
@@ -56,37 +64,39 @@ export const FormSelect = <T extends FieldValues, U>({
         >
           {label}
         </Heading>
-        <Controller
-          control={control}
-          name={name}
-          render={({ field }) => (
-            <AsyncSelect<U, false>
-              {...field}
-              instanceId={id}
-              placeholder={placeholder}
-              getOptionLabel={getOptionLabel}
-              getOptionValue={getOptionValue}
-              value={value}
-              onChange={onChangeSelect}
-              loadOptions={loadOptions}
-              defaultOptions
-              chakraStyles={{
-                container: (provided) => ({
-                  ...provided,
-                  width: "full",
-                }),
-                control: (provided) => ({
-                  ...provided,
-                  backgroundColor: readonly ? "" : "gray.200",
-                }),
-              }}
-              size="md"
-              required
-              isReadOnly={readonly}
-              isClearable
-            />
-          )}
-        />
+        <Skeleton w="full" isLoaded={!isLoading}>
+          <Controller
+            control={control}
+            name={name}
+            render={({ field }) => (
+              <AsyncSelect<U, false>
+                {...field}
+                instanceId={id}
+                placeholder={placeholder}
+                getOptionLabel={getOptionLabel}
+                getOptionValue={getOptionValue}
+                value={value}
+                onChange={onChangeSelect}
+                loadOptions={loadOptions}
+                defaultOptions
+                chakraStyles={{
+                  container: (provided) => ({
+                    ...provided,
+                    width: "full",
+                  }),
+                  control: (provided) => ({
+                    ...provided,
+                    backgroundColor: readonly ? "" : "gray.200",
+                  }),
+                }}
+                size="md"
+                required
+                isReadOnly={readonly}
+                isClearable
+              />
+            )}
+          />
+        </Skeleton>
       </Stack>
     </FormControl>
   );

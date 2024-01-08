@@ -61,14 +61,14 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
   }, [watch("branchCode")]);
 
   // 金融機関変更時、支店の初期化と再レンダリング
-  const [isDisplayBranch, setDisplayBranch] = useState(false);
+  const [isLoadingBranch, setLoadingBranch] = useState(false);
   const onChangeBankOption = (newValue: SingleValue<Bank>) => {
     setValue("bankCode", newValue?.code ?? "");
     setValue("branchCode", "");
-    setDisplayBranch(false);
+    setLoadingBranch(true);
     setInterval(() => {
-      setDisplayBranch(true);
-    }, 450);
+      setLoadingBranch(false);
+    }, 500);
   };
   const onChangeBranch = (newValue: SingleValue<Branch>) => {
     setValue("branchCode", newValue?.code ?? "");
@@ -114,9 +114,10 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
         value={selectedBank}
         onChangeSelect={onChangeBankOption}
       />
-      {watch("bankCode") && isDisplayBranch && (
+      {watch("bankCode") && (
         <FormSelect<BankAccountFormProps, Branch>
           label="支店"
+          isLoading={isLoadingBranch}
           placeholder="支店を選択"
           error={errors.branchCode}
           control={control}

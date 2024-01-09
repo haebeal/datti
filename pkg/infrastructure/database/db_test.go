@@ -12,9 +12,9 @@ import (
 func TestNewDBEngin(t *testing.T) {
 	// テスト用のDSNを設定
 	testDSN := "host=localhost user=postgres password=root dbname=datti_db port=5432 sslmode=disable TimeZone=Asia/Tokyo"
-
+	dbInit := true
 	// テスト用のDBEngineを生成
-	dbEngine, err := database.NewDBEngine(testDSN)
+	dbEngine, err := database.NewDBEngine(testDSN, dbInit)
 	if err != nil {
 		t.Fatalf("Error creating DBEngine: %v", err)
 	}

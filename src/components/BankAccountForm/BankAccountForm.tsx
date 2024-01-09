@@ -1,5 +1,8 @@
 import { Button, VStack } from "@chakra-ui/react";
+import { SingleValue } from "chakra-react-select";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
 
 import { FormInput } from "@/components/FormInput";
 import { FormSelect } from "@/components/FormSelect";
@@ -11,20 +14,21 @@ import {
   getBranch,
   getBranches,
 } from "@/features/bank";
-import { SingleValue } from "chakra-react-select";
-import { useEffect, useState } from "react";
+import { profileScheme } from "@/features/profile";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export interface BankAccountFormProps {
-  bankCode: string;
-  branchCode: string;
-  accountCode: string;
-}
+const formSchema = profileScheme.pick({
+  accountCode: true,
+  bankCode: true,
+  branchCode: true,
+});
 
 interface Props {
-  defaultValues?: BankAccountFormProps;
-  onSubmit: SubmitHandler<BankAccountFormProps>;
+  defaultValues?: FormSchemaType;
+  onSubmit: SubmitHandler<FormSchemaType>;
 }
 
+type FormSchemaType = z.infer<typeof formSchema>;
 export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
   const {
     register,
@@ -33,8 +37,9 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
     formState: { errors },
     setValue,
     watch,
-  } = useForm<BankAccountFormProps>({
+  } = useForm<FormSchemaType>({
     defaultValues,
+    resolver: zodResolver(formSchema),
   });
 
   const [selectedBank, setSelectedBank] = useState<Bank>();
@@ -102,7 +107,7 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
       gap={5}
       onSubmit={handleSubmit(onSubmit)}
     >
-      <FormSelect<BankAccountFormProps, Bank>
+      <FormSelect<FormSchemaType, Bank>
         label="金融機関"
         placeholder="金融機関を選択"
         error={errors.bankCode}
@@ -115,7 +120,7 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
         onChangeSelect={onChangeBankOption}
       />
       {watch("bankCode") && (
-        <FormSelect<BankAccountFormProps, Branch>
+        <FormSelect<FormSchemaType, Branch>
           label="支店"
           isLoading={isLoadingBranch}
           placeholder="支店を選択"

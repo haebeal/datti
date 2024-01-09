@@ -1,5 +1,6 @@
 import {
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
@@ -25,8 +26,10 @@ export const FormInput = ({
   register,
   error,
 }: Props) => {
+  const isError = error ? true : false;
+
   return (
-    <FormControl isInvalid={error ? true : false}>
+    <FormControl isInvalid={isError}>
       <Stack direction={{ base: "column", md: "row" }}>
         <Heading
           w={{ base: "", md: "30%" }}
@@ -49,6 +52,7 @@ export const FormInput = ({
           readOnly={readonly}
         />
       </Stack>
+      {isError && <FormErrorMessage>{error?.message}</FormErrorMessage>}
     </FormControl>
   );
 };

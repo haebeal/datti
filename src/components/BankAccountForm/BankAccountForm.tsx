@@ -22,13 +22,13 @@ const formSchema = profileScheme.pick({
   bankCode: true,
   branchCode: true,
 });
+type FormSchemaType = z.infer<typeof formSchema>;
 
 interface Props {
   defaultValues?: FormSchemaType;
   onSubmit: SubmitHandler<FormSchemaType>;
 }
 
-type FormSchemaType = z.infer<typeof formSchema>;
 export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
   const {
     register,

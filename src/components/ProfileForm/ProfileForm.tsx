@@ -38,7 +38,6 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
     <VStack
       bg="white"
       as="form"
-      px={10}
       mt={5}
       gap={5}
       onSubmit={handleSubmit(onSubmit)}

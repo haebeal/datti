@@ -1,4 +1,5 @@
 import { Button, VStack } from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { SingleValue } from "chakra-react-select";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
@@ -15,7 +16,6 @@ import {
   getBranches,
 } from "@/features/bank";
 import { profileScheme } from "@/features/profile";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 const formSchema = profileScheme.pick({
   accountCode: true,

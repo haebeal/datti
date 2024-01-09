@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const profileScheme = z.object({
-  id: z.string(),
+  id: z.string().readonly(),
   name: z.string(),
   email: z.string().email(),
   photoUrl: z.string().url(),

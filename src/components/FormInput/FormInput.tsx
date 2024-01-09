@@ -48,7 +48,6 @@ export const FormInput = ({
           bg={readonly ? "" : "gray.200"}
           border="none"
           type={type}
-          required
           readOnly={readonly}
         />
       </Stack>

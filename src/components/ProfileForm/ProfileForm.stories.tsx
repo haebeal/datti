@@ -12,6 +12,11 @@ type Story = StoryObj<typeof meta>;
 
 export const Primary: Story = {
   args: {
+    defaultValues: {
+      email: "test@example.com",
+      name: "テストユーザー",
+      photoUrl: "https://placehold.jp/150x150.png",
+    },
     onSubmit: async () => {},
   },
 };

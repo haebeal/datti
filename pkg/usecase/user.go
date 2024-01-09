@@ -27,8 +27,11 @@ func NewUserUseCase(userRepo repository.UserRepository) UserUseCase {
 
 // Create implements UserUseCase.
 func (uu *userUseCase) CreateUser(c context.Context, user *model.User) (*model.User, error) {
-	err := validator.ValidatorEmail(user.Email)
-	if err != nil {
+	// メールアドレスとユーザー名の値を検査する
+	if err := validator.ValidatorEmail(user.Email); err != nil {
+		return nil, err
+	}
+	if err := validator.ValidatorName(user.Name); err != nil {
 		return nil, err
 	}
 
@@ -57,8 +60,32 @@ func (uu *userUseCase) GetUserByEmail(c context.Context, user *model.User) (*mod
 
 // UpdateUser implements UserUseCase.
 func (uu *userUseCase) UpdateUser(c context.Context, email string, updateFields map[string]any) (*model.User, error) {
+	// 各フィールドの値が存在するかを確認する
+	// 値が存在する場合は検査を行う
 	if val, exists := updateFields["Name"]; exists {
-		validator.ValidatorName(val.(string))
+		if err := validator.ValidatorName(val.(string)); err != nil {
+			return nil, err
+		}
+	}
+	if val, exists := updateFields["PhotoUrl"]; exists {
+		if err := validator.ValidatorPhotoUrl(val.(string)); err != nil {
+			return nil, err
+		}
+	}
+	if val, exists := updateFields["AccountCode"]; exists {
+		if err := validator.ValidatorAccountCode(val.(string)); err != nil {
+			return nil, err
+		}
+	}
+	if val, exists := updateFields["BankCode"]; exists {
+		if err := validator.ValidatorBankCode(val.(string)); err != nil {
+			return nil, err
+		}
+	}
+	if val, exists := updateFields["BranchCode"]; exists {
+		if err := validator.ValidatorBranchCode(val.(string)); err != nil {
+			return nil, err
+		}
 	}
 
 	updateUser, err := uu.repository.UpdateUser(c, email, updateFields)

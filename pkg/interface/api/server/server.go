@@ -12,8 +12,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Sever(dsn string) {
-	dbEngine, err := database.NewDBEngine(dsn)
+func Sever(dsn string, hostName string, dbInit bool) {
+	dbEngine, err := database.NewDBEngine(dsn, dbInit)
 	if err != nil {
 		log.Print(err.Error())
 	}
@@ -50,7 +50,7 @@ func Sever(dsn string) {
 		}
 	}
 
-	if err := r.Run("0.0.0.0:8080"); err != nil {
+	if err := r.Run(hostName + ":8080"); err != nil {
 		panic(err)
 	}
 }

@@ -10,16 +10,22 @@ type DBEngine struct {
 	Engine *gorm.DB
 }
 
-func NewDBEngine(dsn string) (*DBEngine, error) {
+func NewDBEngine(dsn string, dbInit bool) (*DBEngine, error) {
 	// コネクションの生成
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
-	// 初期化関数の呼び出し
-	db, err = InitDB(db)
-	if err != nil {
-		return nil, err
+
+	exists := db.Migrator().HasTable(&model.User{})
+
+	// 環境変数により初期化の実施を行う
+	if (exists && dbInit) || (!exists && dbInit) || (!exists && !dbInit) {
+		// 初期化関数の呼び出し
+		db, err = InitDB(db)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return &DBEngine{Engine: db}, nil

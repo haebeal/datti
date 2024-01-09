@@ -12,7 +12,7 @@ import { FieldError, UseFormRegisterReturn } from "react-hook-form";
 interface Props {
   label: string;
   placeholder: string;
-  type: HTMLInputTypeAttribute;
+  type?: HTMLInputTypeAttribute;
   readonly?: boolean;
   error?: FieldError;
   register: UseFormRegisterReturn;

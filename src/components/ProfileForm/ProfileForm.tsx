@@ -48,21 +48,18 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
         readonly
         placeholder="メールアドレスを入力"
         register={register("email")}
-        type="email"
         error={errors.email}
       />
       <FormInput
         label="ユーザー名"
         placeholder="ユーザー名を入力"
         register={register("name")}
-        type="text"
         error={errors.name}
       />
       <FormInput
         label="プロフィール画像"
         placeholder="画像のURLを入力"
         register={register("photoUrl")}
-        type="url"
         error={errors.photoUrl}
       />
       <Button mt={5} minW="30%" type="submit" colorScheme="twitter">

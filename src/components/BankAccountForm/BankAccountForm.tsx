@@ -138,7 +138,6 @@ export const BankAccountForm = ({ defaultValues, onSubmit }: Props) => {
         label="口座番号"
         placeholder="口座番号を入力"
         register={register("accountCode")}
-        type="number"
         error={errors.accountCode}
       />
       <Button mt={5} minW="30%" type="submit" colorScheme="twitter">

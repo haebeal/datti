@@ -16,7 +16,8 @@ func TestCreateUser(t *testing.T) {
 	user.Name = "tasak"
 	user.Email = "vividnasubi@gmail.com"
 	dsn := "host=localhost user=postgres password=root dbname=datti_db port=5432 sslmode=disable TimeZone=Asia/Tokyo"
-	db, _ := database.NewDBEngine(dsn)
+	dbInit := true
+	db, _ := database.NewDBEngine(dsn, dbInit)
 	repo := repositoryimpl.NewUserRepoImpl(db)
 	uu := usecase.NewUserUseCase(repo)
 	newUser, err := uu.CreateUser(c, user)
@@ -43,7 +44,8 @@ func TestGetUserByEmail(t *testing.T) {
 	user.Name = "tasak"
 	user.Email = "vividnasubi@gmail.com"
 	dsn := "host=localhost user=postgres password=root dbname=datti_db port=5432 sslmode=disable TimeZone=Asia/Tokyo"
-	db, _ := database.NewDBEngine(dsn)
+	dbInit := true
+	db, _ := database.NewDBEngine(dsn, dbInit)
 	repo := repositoryimpl.NewUserRepoImpl(db)
 	uu := usecase.NewUserUseCase(repo)
 	uu.CreateUser(c, user)

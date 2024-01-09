@@ -12,8 +12,10 @@ func TestServer(t *testing.T) {
 	wg.Add(1)
 	// テスト用のDSNを指定してください
 	dsn := "host=localhost user=postgres password=root dbname=datti_db port=5432 sslmode=disable TimeZone=Asia/Tokyo"
+	hostName := "localhost"
+	dbInit := false
 	go func() {
-		server.Sever(dsn)
+		server.Sever(dsn, hostName, dbInit)
 		wg.Done()
 	}()
 }

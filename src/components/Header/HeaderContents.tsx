@@ -1,4 +1,4 @@
-import { HStack, Heading, Spacer } from "@chakra-ui/react";
+import { HStack, Heading, Spacer, useMediaQuery } from "@chakra-ui/react";
 import Link from "next/link";
 
 import { AvatarMenu } from "@/components/AvatarMenu";
@@ -11,6 +11,8 @@ interface Props {
 }
 
 export const HeaderContents = ({ isLoading, name, photoUrl }: Props) => {
+  const [isMobile] = useMediaQuery("(max-width: 48em)");
+
   return (
     <HStack h="full" gap={7}>
       <Heading size="lg" as={Link} href="/dashboard">
@@ -19,8 +21,13 @@ export const HeaderContents = ({ isLoading, name, photoUrl }: Props) => {
       <Spacer />
       {!isLoading && (
         <>
-          <AvatarMenu isLoading={isLoading} name={name} photoUrl={photoUrl} />
-          <SignoutButton />
+          <AvatarMenu
+            isLoading={isLoading}
+            isMobile={isMobile}
+            name={name}
+            photoUrl={photoUrl}
+          />
+          {!isMobile && <SignoutButton />}
         </>
       )}
     </HStack>

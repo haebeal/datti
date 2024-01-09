@@ -1,6 +1,10 @@
-import { FormInput } from "@/components/FormInput";
 import { Button, VStack } from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { FormInput } from "@/components/FormInput";
+import { profileScheme } from "@/features/profile";
 
 export interface ProfileFormProps {
   email: string;
@@ -8,9 +12,16 @@ export interface ProfileFormProps {
   photoUrl: string;
 }
 
+const formSchema = profileScheme.pick({
+  email: true,
+  name: true,
+  photoUrl: true,
+});
+type FormSchemaType = z.infer<typeof formSchema>;
+
 interface Props {
-  defaultValues?: ProfileFormProps;
-  onSubmit: SubmitHandler<ProfileFormProps>;
+  defaultValues?: FormSchemaType;
+  onSubmit: SubmitHandler<FormSchemaType>;
 }
 
 export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
@@ -18,8 +29,9 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ProfileFormProps>({
+  } = useForm<FormSchemaType>({
     defaultValues,
+    resolver: zodResolver(formSchema),
   });
 
   return (

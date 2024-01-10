@@ -30,6 +30,7 @@ const App = ({
         <SWRConfig
           value={{
             onError: (error) => {
+              console.log(error);
               if (error instanceof HttpError) {
                 if (error.status === 401) {
                   router.push("/401");

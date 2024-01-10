@@ -59,9 +59,9 @@ func (uh *userHandler) HandlerGet(c *gin.Context) {
 	findUser, err := uh.useCase.GetUserByEmail(c, user)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		}
 	} else {
 		c.JSON(http.StatusOK, findUser)

@@ -36,7 +36,7 @@ const App = ({
                 }
                 toast({
                   status: "error",
-                  title: error.message,
+                  title: JSON.stringify(error.message),
                 });
               }
             },

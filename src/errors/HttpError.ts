@@ -14,6 +14,7 @@ export class HttpError extends Error {
   status: number;
   statusText: string;
   constructor(response: Response) {
+    console.log(JSON.stringify(response));
     super(response.statusText);
     this.name = "HttpError";
     this.status = response.status;

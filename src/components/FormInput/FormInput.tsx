@@ -1,5 +1,6 @@
 import {
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   Input,
@@ -11,7 +12,7 @@ import { FieldError, UseFormRegisterReturn } from "react-hook-form";
 interface Props {
   label: string;
   placeholder: string;
-  type: HTMLInputTypeAttribute;
+  type?: HTMLInputTypeAttribute;
   readonly?: boolean;
   error?: FieldError;
   register: UseFormRegisterReturn;
@@ -25,8 +26,10 @@ export const FormInput = ({
   register,
   error,
 }: Props) => {
+  const isError = error ? true : false;
+
   return (
-    <FormControl isInvalid={error ? true : false}>
+    <FormControl isInvalid={isError}>
       <Stack direction={{ base: "column", md: "row" }}>
         <Heading
           w={{ base: "", md: "30%" }}
@@ -45,10 +48,10 @@ export const FormInput = ({
           bg={readonly ? "" : "gray.200"}
           border="none"
           type={type}
-          required
           readOnly={readonly}
         />
       </Stack>
+      {isError && <FormErrorMessage>{error?.message}</FormErrorMessage>}
     </FormControl>
   );
 };

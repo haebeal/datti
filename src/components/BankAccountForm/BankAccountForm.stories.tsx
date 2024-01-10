@@ -16,7 +16,7 @@ export const Primary: Story = {
     defaultValues: {
       bankCode: "0001",
       branchCode: "001",
-      accountCode: "00000000",
+      accountCode: "0000000",
     },
     onSubmit: async () => {},
   },

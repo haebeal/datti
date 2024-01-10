@@ -17,6 +17,16 @@ type Story = StoryObj<typeof meta>;
 export const Primary: Story = {
   args: {
     isLoading: false,
+    isMobile: false,
+    name: "テストユーザー",
+    photoUrl: "https://placehold.jp/150x150.png",
+  },
+};
+
+export const Mobile: Story = {
+  args: {
+    isLoading: false,
+    isMobile: true,
     name: "テストユーザー",
     photoUrl: "https://placehold.jp/150x150.png",
   },

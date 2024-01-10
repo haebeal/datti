@@ -1,5 +1,6 @@
 import {
   FormControl,
+  FormErrorMessage,
   FormLabel,
   Heading,
   Skeleton,
@@ -51,6 +52,7 @@ export const FormSelect = <T extends FieldValues, U>({
   onChangeSelect,
 }: Props<T, U>) => {
   const id = useId();
+  const isError = error ? true : false;
 
   return (
     <FormControl isInvalid={error ? true : false}>
@@ -98,6 +100,7 @@ export const FormSelect = <T extends FieldValues, U>({
           />
         </Skeleton>
       </Stack>
+      {isError && <FormErrorMessage>{error?.message}</FormErrorMessage>}
     </FormControl>
   );
 };

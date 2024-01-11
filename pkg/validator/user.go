@@ -34,7 +34,6 @@ func ValidatorBankCode(bankCode string) error {
 	return validation.Validate(bankCode,
 		validation.Required.Error("金融機関コードは必須項目です"),
 		validation.Length(4, 4).Error("金融機関コードは4桁で登録してください"),
-		is.Int.Error("金融機関コードは数字で登録してください"),
 	)
 }
 
@@ -43,7 +42,6 @@ func ValidatorAccountCode(accountCode string) error {
 	return validation.Validate(accountCode,
 		validation.Required.Error("口座番号は必須項目です"),
 		validation.Length(4, 7).Error("口座番号は4~7桁で登録してください"),
-		is.Int.Error("口座番号は数字で登録してください"),
 	)
 }
 
@@ -52,6 +50,5 @@ func ValidatorBranchCode(branchCode string) error {
 	return validation.Validate(branchCode,
 		validation.Required.Error("支店番号は必須項目です"),
 		validation.Length(3, 3).Error("支店番号は3桁で登録してください"),
-		is.Int.Error("支店番号は数字で登録してください"),
 	)
 }

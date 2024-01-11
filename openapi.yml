@@ -15,10 +15,10 @@ paths:
     post:
       tags:
         - users
-      summary: ユーザーを追加します
-      description: ユーザーを追加します
+      summary: ユーザー情報の登録
+      description: ユーザー情報の登録
       requestBody:
-        description: 登録するユーザー情報
+        description: ユーザー情報の登録
         required: true
         content:
           application/json:
@@ -27,83 +27,132 @@ paths:
               properties:
                 name: {type: string, example: "ユーザー名"}
                 email: {type: string, example: "メールアドレス"}
-                photoUrl: {type: string, example: "画像のURL"}
-                accountCode: {type: string, example: "口座番号"}
-                bankCode: {type: string, example: "金融機関コード"}
-                branchCode: {type: string, example: "支店番号"}
       responses:
         '201':
-          description: 成功
+          description: 正常処理のレスポンス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: バリデーションエラーのレスポンス
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  id: {type: integer, example: "ユーザーID"}
-                  name: {type: string, example: "ユーザー名"}
-                  email: {type: string, example: "メールアドレス"}
-                  photoUrl: {type: string, example: "画像のURL"}
-                  accountCode: {type: string, example: "口座番号"}
-                  bankCode: {type: string, example: "金融機関コード"}
-                  branchCode: {type: string, example: "支店番号"}
+                  error: {type: string, example: "bad request error"}
+        '401':
+          description: アクセストークンによる認証のレスポンス
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: {type: string, example: "unauthrization error"}
         '500':
-          description: 失敗
+          description: 内部エラーのレスポンス
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: {type: string, example: "内部エラーのメッセージ（エラー内容によって可変）"}
     get:
       tags:
         - users
-      summary: ログインユーザーの情報を返す
-      description: ログインユーザーの情報を返す
+      summary: ユーザー情報の取得
+      description: ユーザー情報の取得
       responses:
         '200':
-          description: 成功
+          description: 正常処理のレスポンス
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: アクセストークンによる認証エラーのレスポンス
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  id: {type: integer, example: "ユーザーID"}
-                  name: {type: string, example: "ユーザー名"}
-                  email: {type: string, example: "メールアドレス"}
-                  photoUrl: {type: string, example: "画像のURL"}
-                  accountCode: {type: string, example: "口座番号"}
-                  bankCode: {type: string, example: "金融機関コード"}
-                  branchCode: {type: string, example: "支店番号"}
+                  error: {type: string, example: "unauthrization err"}
+        '404':
+          description: ユーザーが登録されていない場合のレスポンス
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: {type: string, example: "record not found"}
         '500':
-          description: 失敗
+          description: 内部エラーのレスポンス
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: {type: string, example: "内部エラーのメッセージ（エラー内容によって可変）"}
     put:
       tags:
         - users
-      summary: ユーザー情報の編集
-      description: ユーザー情報の編集
+      summary: ユーザー情報の更新
+      description: ユーザー情報の更新
       requestBody:
-        description: ユーザー情報の編集
+        description: ユーザー情報の更新
         required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                id: {type: integer, example: "ユーザーID"}
-                name: {type: string, example: "ユーザー名"}
-                email: {type: string, example: "メールアドレス"}
-                photoUrl: {type: string, example: "画像のURL"}
-                accountCode: {type: string, example: "口座番号"}
-                bankCode: {type: string, example: "金融機関コード"}
-                branchCode: {type: string, example: "支店番号"}
+              $ref: '#/components/schemas/User'
       responses:
         '200':
-          description: 成功
+          description: 正常処理のレスポンス
+          content:
+            application/json:
+              schema:
+                $ref: '#components/schemas/User'
+        '400':
+          description: バリデーションエラーのレスポンス
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  id: {type: integer, example: "ユーザーID"}
-                  name: {type: string, example: "ユーザー名"}
-                  email: {type: string, example: "メールアドレス"}
-                  photoUrl: {type: string, example: "画像のURL"}
-                  accountCode: {type: string, example: "口座番号"}
-                  bankCode: {type: string, example: "金融機関コード"}
-                  branchCode: {type: string, example: "支店番号"}
+                  error: {type: string, example: "bad request error"}
+        '403':
+          description: アクセストークンによる認証エラーのレスポンス
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: {type: string, example: "内部エラーのメッセージ（エラー内容によって可変）"}
         '500':
-          description: 失敗
+          description: 内部エラーのレスポンス
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: {type: string, example: "内部エラーのメッセージ（エラー内容によって可変）"}
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        photoUrl:
+          type: string
+        accountCode:
+          type: string
+        bankCode:
+          type: string
+        branchCode:
+          type: string
+      required:
+        - email

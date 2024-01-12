@@ -1,21 +1,54 @@
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider, Container, useToast } from "@chakra-ui/react";
+import { Session } from "next-auth";
+import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
+import { useRouter } from "next/router";
+import { SWRConfig } from "swr";
 
-const theme = extendTheme({
-  styles: {
-    global: {
-      body: {
-        backgroundColor: "gray.100",
-      },
-    },
-  },
-});
+import type { LayoutType } from "@/utils";
+import { getTheme } from "@/utils";
 
-const App = ({ Component, pageProps }: AppProps) => {
+import { Header } from "@/components/Header";
+import { HttpError } from "@/errors";
+
+export interface PageProps {
+  layout?: LayoutType;
+  session: Session;
+}
+
+const App = ({
+  Component,
+  pageProps: { session, layout },
+}: AppProps<PageProps>) => {
+  const theme = getTheme(layout);
+  const router = useRouter();
+  const toast = useToast();
+
   return (
-    <ChakraProvider theme={theme}>
-      <Component {...pageProps} />
-    </ChakraProvider>
+    <SessionProvider session={session}>
+      <ChakraProvider theme={theme}>
+        <SWRConfig
+          value={{
+            onError: (error) => {
+              if (error instanceof HttpError) {
+                if (error.status === 401) {
+                  router.push("/401");
+                }
+                toast({
+                  status: "error",
+                  title: error.message,
+                });
+              }
+            },
+          }}
+        >
+          {(layout === "main" || layout === undefined) && <Header />}
+          <Container maxW="container.xl">
+            <Component />
+          </Container>
+        </SWRConfig>
+      </ChakraProvider>
+    </SessionProvider>
   );
 };
 

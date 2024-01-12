@@ -39,11 +39,13 @@ func InitDB(db *gorm.DB) (*gorm.DB, error) {
 		return nil, result.Error
 	}
 	// テーブルの削除
-	if err := db.Migrator().DropTable(&model.User{}); err != nil {
+	if err := db.Migrator().DropTable(&model.User{}, &model.Group{}, &model.GroupUser{}); err != nil {
 		return nil, err
 	}
 	// テーブルのマイグレーション
-	db.AutoMigrate(&model.User{})
+	if err := db.AutoMigrate(&model.User{}, &model.Group{}, &model.GroupUser{}); err != nil {
+		return nil, err
+	}
 
 	return db, nil
 }

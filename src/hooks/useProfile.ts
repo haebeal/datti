@@ -1,6 +1,6 @@
 import { useToast } from "@chakra-ui/react";
 
-import { Profile, postProfile, profileScheme } from "@/features/profile";
+import { Profile, profileScheme, putProfile } from "@/features/profile";
 import { useAuth0 } from "@auth0/auth0-react";
 
 export const useProfile = () => {
@@ -27,7 +27,7 @@ export const useProfile = () => {
     }
 
     try {
-      const result = await postProfile(accessToken, value);
+      const result = await putProfile(accessToken, value);
       toast({
         status: "success",
         title: "プロフィールを更新しました",

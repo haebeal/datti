@@ -1,3 +1,3 @@
-export * from "./api/postProfile";
+export * from "./api/putProfile";
 
 export * from "./types";

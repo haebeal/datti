@@ -7,6 +7,7 @@ import (
 
 type GroupHandler interface {
 	HandleCreate(c *gin.Context)
+	HandleGetById(c *gin.Context)
 	HandleGet(c *gin.Context)
 	HandleUpdate(c *gin.Context)
 }
@@ -22,16 +23,21 @@ func NewGroupHandler(groupUseCase usecase.GroupUseCase) GroupHandler {
 }
 
 // HandleCreate implements GroupHandler.
-func (gh *groupHandler) HandleCreate(c *gin.Context) {
+func (*groupHandler) HandleCreate(c *gin.Context) {
 	panic("unimplemented")
 }
 
 // HandleGet implements GroupHandler.
-func (gh *groupHandler) HandleGet(c *gin.Context) {
+func (*groupHandler) HandleGet(c *gin.Context) {
+	panic("unimplemented")
+}
+
+// HandleGetById implements GroupHandler.
+func (*groupHandler) HandleGetById(c *gin.Context) {
 	panic("unimplemented")
 }
 
 // HandleUpdate implements GroupHandler.
-func (gh *groupHandler) HandleUpdate(c *gin.Context) {
+func (*groupHandler) HandleUpdate(c *gin.Context) {
 	panic("unimplemented")
 }

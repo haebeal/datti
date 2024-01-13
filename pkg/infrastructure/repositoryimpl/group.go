@@ -18,17 +18,22 @@ func NewGropuRepoImpl(engine *database.DBEngine) repository.GroupRepository {
 	}
 }
 
-// Creat implements repository.GroupRepository.
-func (*groupRepoImpl) Creat(c context.Context, group *model.Group, owner *model.User, members []*model.User) (*model.Group, []*model.User, error) {
+// CreatGroup implements repository.GroupRepository.
+func (gr *groupRepoImpl) CreatGroup(c context.Context, group *model.Group, owner *model.User, members []*model.User) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
 }
 
-// Get implements repository.GroupRepository.
-func (*groupRepoImpl) Get(c context.Context, user *model.User) (*model.Group, []*model.User, error) {
+// GetGroupById implements repository.GroupRepository.
+func (gr *groupRepoImpl) GetGroupById(c context.Context, id int) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
 }
 
-// Update implements repository.GroupRepository.
-func (*groupRepoImpl) Update(c context.Context, members []*model.User, gropu *model.Group) (*model.Group, []*model.User, error) {
+// GetGroups implements repository.GroupRepository.
+func (gr *groupRepoImpl) GetGroups(c context.Context, user *model.User) ([]*model.Group, error) {
+	panic("unimplemented")
+}
+
+// UpdateGroup implements repository.GroupRepository.
+func (gr *groupRepoImpl) UpdateGroup(c context.Context, members []*model.User, gropu *model.Group) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
 }

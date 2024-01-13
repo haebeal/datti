@@ -8,9 +8,10 @@ import (
 )
 
 type GroupUseCase interface {
-	Create(c context.Context, group *model.Group, owner *model.User, members []*model.User) (*model.Group, []*model.User, error)
-	Get(c context.Context, user *model.User) (*model.Group, []*model.User, error)
-	Update(c context.Context, members []*model.User, group *model.Group) (*model.Group, []*model.User, error)
+	CreateGroup(c context.Context, group *model.Group, owner *model.User, members []*model.User) (*model.Group, []*model.User, error)
+	GetGroupById(c context.Context, id int) (*model.Group, []*model.User, error)
+	GetGroups(c context.Context) ([]*model.Group, error)
+	UpdateGroup(c context.Context, members []*model.User, group *model.Group) (*model.Group, []*model.User, error)
 }
 
 type groupUseCase struct {
@@ -23,17 +24,22 @@ func NewGroupUseCase(groupRepo repository.GroupRepository) GroupUseCase {
 	}
 }
 
-// Create implements GroupUseCase.
-func (*groupUseCase) Create(c context.Context, group *model.Group, owner *model.User, members []*model.User) (*model.Group, []*model.User, error) {
+// CreateGroup implements GroupUseCase.
+func (*groupUseCase) CreateGroup(c context.Context, group *model.Group, owner *model.User, members []*model.User) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
 }
 
-// Get implements GroupUseCase.
-func (*groupUseCase) Get(c context.Context, user *model.User) (*model.Group, []*model.User, error) {
+// GetGroupById implements GroupUseCase.
+func (*groupUseCase) GetGroupById(c context.Context, id int) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
 }
 
-// Update implements GroupUseCase.
-func (*groupUseCase) Update(c context.Context, members []*model.User, group *model.Group) (*model.Group, []*model.User, error) {
+// GetGroups implements GroupUseCase.
+func (*groupUseCase) GetGroups(c context.Context) ([]*model.Group, error) {
+	panic("unimplemented")
+}
+
+// UpdateGroup implements GroupUseCase.
+func (*groupUseCase) UpdateGroup(c context.Context, members []*model.User, group *model.Group) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
 }

@@ -58,7 +58,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 			groups.GET("/", groupHandler.HandleGet)
 			groups.POST("/", groupHandler.HandleCreate)
 			groups.GET("/:id", groupHandler.HandleGetById)
-			// groups.PUT("/:id", groupHandler.HandleUpdate)
+			groups.PUT("/:id", groupHandler.HandleUpdate)
 		}
 	}
 

@@ -1,6 +1,4 @@
 import { ChakraProvider, Container, useToast } from "@chakra-ui/react";
-import { Session } from "next-auth";
-import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import { SWRConfig } from "swr";
@@ -15,13 +13,9 @@ import { useEffect } from "react";
 
 export interface PageProps {
   layout?: LayoutType;
-  session: Session;
 }
 
-const App = ({
-  Component,
-  pageProps: { session, layout },
-}: AppProps<PageProps>) => {
+const App = ({ Component, pageProps: { layout } }: AppProps<PageProps>) => {
   const theme = getTheme(layout);
 
   const { isLoading, isAuthenticated } = useAuth0();

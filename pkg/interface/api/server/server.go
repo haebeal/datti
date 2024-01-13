@@ -13,6 +13,7 @@ import (
 )
 
 func Sever(dsn string, hostName string, dbInit bool) {
+	// DBインスタンスの生成
 	dbEngine, err := database.NewDBEngine(dsn, dbInit)
 	if err != nil {
 		log.Print(err.Error())
@@ -22,6 +23,10 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	userRepository := repositoryimpl.NewUserRepoImpl(dbEngine)
 	userUseCase := usecase.NewUserUseCase(userRepository)
 	userHandler := handler.NewUserHandler(userUseCase)
+
+	groupRepository := repositoryimpl.NewGropuRepoImpl(dbEngine)
+	groupUseCase := usecase.NewGroupUseCase(groupRepository)
+	groupHandler := handler.NewGroupHandler(groupUseCase)
 
 	// ルーターの生成
 	r := gin.Default()
@@ -39,7 +44,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.Use(cors.New(config))
 	r.Use(utils.PeopleMmiddleware)
 
-	// アクセスポイントの設定
+	// エンドポイントの設定
 	api := r.Group("/api")
 	{
 		me := api.Group("/me")
@@ -47,6 +52,13 @@ func Sever(dsn string, hostName string, dbInit bool) {
 			me.GET("/", userHandler.HandlerGet)
 			me.POST("/", userHandler.HandlerCreate)
 			me.PUT("/", userHandler.HandlerUpdate)
+		}
+		groups := api.Group("/groups")
+		{
+			groups.GET("/", groupHandler.HandleGet)
+			groups.POST("/", groupHandler.HandleCreate)
+			groups.GET("/:id", groupHandler.HandleGetById)
+			groups.PUT("/:id", groupHandler.HandleUpdate)
 		}
 	}
 

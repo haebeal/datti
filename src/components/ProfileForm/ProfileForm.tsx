@@ -1,38 +1,28 @@
-import { Button, VStack } from "@chakra-ui/react";
+import { Button, Skeleton, VStack } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { FormInput } from "@/components/FormInput";
-import { profileScheme } from "@/features/profile";
-
-export interface ProfileFormProps {
-  email: string;
-  name: string;
-  photoUrl: string;
-}
-
-const formSchema = profileScheme.pick({
-  email: true,
-  name: true,
-  photoUrl: true,
-});
-type FormSchemaType = z.infer<typeof formSchema>;
+import { Profile, profileScheme } from "@/features/profile";
 
 interface Props {
-  defaultValues?: FormSchemaType;
-  onSubmit: SubmitHandler<FormSchemaType>;
+  defaultValues?: Profile;
+  updateProfile: (value: Partial<Profile>) => Promise<Profile | null>;
 }
 
-export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
+export const ProfileForm = ({ defaultValues, updateProfile }: Props) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<FormSchemaType>({
-    defaultValues,
-    resolver: zodResolver(formSchema),
+  } = useForm<Profile>({
+    defaultValues: defaultValues,
+    resolver: zodResolver(profileScheme),
   });
+
+  const onSubmit: SubmitHandler<Profile> = async (data) => {
+    await updateProfile(data);
+  };
 
   return (
     <VStack
@@ -58,8 +48,8 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
       <FormInput
         label="プロフィール画像"
         placeholder="画像のURLを入力"
-        register={register("photoUrl")}
-        error={errors.photoUrl}
+        register={register("picture")}
+        error={errors.picture}
       />
       <Button mt={5} minW="30%" type="submit" colorScheme="twitter">
         更新

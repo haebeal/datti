@@ -1,8 +1,8 @@
-import { ProfileForm } from "@/components/ProfileForm";
 import {
   Card,
   CardBody,
   Heading,
+  Skeleton,
   Tab,
   TabList,
   TabPanel,
@@ -10,7 +10,12 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 
+import { ProfileForm } from "@/components/ProfileForm";
+import { useProfile } from "@/hooks/useProfile";
+
 export const SettingPanel = () => {
+  const { isLoading: isLoadingProfile, profile, updateProfile } = useProfile();
+
   return (
     <Card>
       <CardBody>
@@ -25,7 +30,12 @@ export const SettingPanel = () => {
           </TabList>
           <TabPanels>
             <TabPanel>
-              <ProfileForm />
+              <Skeleton isLoaded={!isLoadingProfile}>
+                <ProfileForm
+                  defaultValues={profile}
+                  updateProfile={updateProfile}
+                />
+              </Skeleton>
             </TabPanel>
             <TabPanel>
               <div />

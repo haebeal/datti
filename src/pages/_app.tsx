@@ -10,6 +10,8 @@ import { getTheme } from "@/utils";
 
 import { Header } from "@/components/Header";
 import { HttpError } from "@/errors";
+import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
+import { useEffect } from "react";
 
 export interface PageProps {
   layout?: LayoutType;
@@ -21,19 +23,30 @@ const App = ({
   pageProps: { session, layout },
 }: AppProps<PageProps>) => {
   const theme = getTheme(layout);
-  const router = useRouter();
+
+  const { isLoading, isAuthenticated } = useAuth0();
+  const { pathname, push } = useRouter();
   const toast = useToast();
 
+  useEffect(() => {
+    if (pathname.match("/((?!401|404).+)") && !isLoading && !isAuthenticated) {
+      push("/401");
+    }
+  }, [pathname]);
+
   return (
-    <SessionProvider session={session}>
+    <Auth0Provider
+      domain={process.env.NEXT_PUBLIC_AUTH0_DOMAIN}
+      clientId={process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID}
+      authorizationParams={{
+        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`,
+      }}
+    >
       <ChakraProvider theme={theme}>
         <SWRConfig
           value={{
             onError: (error) => {
               if (error instanceof HttpError) {
-                if (error.status === 401) {
-                  router.push("/401");
-                }
                 toast({
                   status: "error",
                   title: error.message,
@@ -48,7 +61,7 @@ const App = ({
           </Container>
         </SWRConfig>
       </ChakraProvider>
-    </SessionProvider>
+    </Auth0Provider>
   );
 };
 

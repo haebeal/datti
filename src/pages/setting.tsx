@@ -1,12 +1,9 @@
 import { Grid, GridItem, Heading } from "@chakra-ui/react";
 import Head from "next/head";
 
-import { Settings } from "@/components/Settings";
-import { useProfile } from "@/hooks/useProfile";
+import { SettingPanel } from "@/components/SettingPanel";
 
 const SettingsPage = () => {
-  const { profile, isLoading, update } = useProfile();
-
   return (
     <>
       <Head>
@@ -23,11 +20,7 @@ const SettingsPage = () => {
             </Heading>
           </GridItem>
           <GridItem colSpan={12}>
-            <Settings
-              isLoading={isLoading}
-              profile={profile}
-              updateProfile={update}
-            />
+            <SettingPanel />
           </GridItem>
         </Grid>
       </main>

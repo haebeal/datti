@@ -1,18 +1,18 @@
 import { Box, Container } from "@chakra-ui/react";
-import { HeaderContents } from "./HeaderContents";
+import { Header } from "./Header";
 
 import type { Meta, StoryObj } from "@storybook/react";
 
 const meta = {
   title: "Components/Header",
-  component: HeaderContents,
+  component: Header,
   tags: ["autodocs"],
-} satisfies Meta<typeof HeaderContents>;
+} satisfies Meta<typeof Header>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Primary: Story = {
+export const Default: Story = {
   decorators: [
     (Story) => (
       <Box as="header" h="80px" bg="white" mx={5} height="200px">
@@ -22,24 +22,4 @@ export const Primary: Story = {
       </Box>
     ),
   ],
-  args: {
-    isLoading: false,
-    name: "テストユーザー",
-    photoUrl: "https://placehold.jp/150x150.png",
-  },
-};
-
-export const Loading: Story = {
-  decorators: [
-    (Story) => (
-      <Box as="header" h="80px" bg="white" mx={5}>
-        <Container maxW="container.xl" h="full">
-          <Story />
-        </Container>
-      </Box>
-    ),
-  ],
-  args: {
-    isLoading: true,
-  },
 };

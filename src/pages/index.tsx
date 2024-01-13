@@ -48,7 +48,7 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Grid templateColumns="repeat(12, 1fr)">
+        <Grid templateColumns="repeat(12, 1fr)" minH="100vh" bg="blue.400">
           <GridItem colSpan={12}>
             <VStack direction="column" pt={180} gap={8} color="white">
               <Heading size="4xl">Hello Datti!</Heading>

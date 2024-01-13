@@ -1,32 +1,17 @@
-import { ChakraProvider, Container, useToast } from "@chakra-ui/react";
-import type { AppProps } from "next/app";
-import { useRouter } from "next/router";
+import { ChakraProvider, useToast } from "@chakra-ui/react";
+import type { AppPropsWithLayout } from "next/app";
 import { SWRConfig } from "swr";
 
-import type { LayoutType } from "@/utils";
 import { getTheme } from "@/utils";
 
-import { Header } from "@/components/Header";
 import { HttpError } from "@/errors";
-import { Auth0Provider, useAuth0 } from "@auth0/auth0-react";
-import { useEffect } from "react";
+import { Auth0Provider } from "@auth0/auth0-react";
 
-export interface PageProps {
-  layout?: LayoutType;
-}
+const App = ({ Component }: AppPropsWithLayout) => {
+  const theme = getTheme();
+  const getLayout = Component.getLayout ?? ((page) => page);
 
-const App = ({ Component, pageProps: { layout } }: AppProps<PageProps>) => {
-  const theme = getTheme(layout);
-
-  const { isLoading, isAuthenticated } = useAuth0();
-  const { pathname, push } = useRouter();
   const toast = useToast();
-
-  useEffect(() => {
-    if (pathname.match("/((?!401|404).+)") && !isLoading && !isAuthenticated) {
-      push("/401");
-    }
-  }, [pathname]);
 
   return (
     <Auth0Provider
@@ -49,10 +34,7 @@ const App = ({ Component, pageProps: { layout } }: AppProps<PageProps>) => {
             },
           }}
         >
-          {(layout === "main" || layout === undefined) && <Header />}
-          <Container maxW="container.xl">
-            <Component />
-          </Container>
+          {getLayout(<Component />)}
         </SWRConfig>
       </ChakraProvider>
     </Auth0Provider>

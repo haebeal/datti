@@ -1,8 +1,9 @@
 import { Center, Heading, Link, VStack } from "@chakra-ui/react";
+import { NextPage } from "next";
 import Head from "next/head";
 import NextLink from "next/link";
 
-const NotFound = () => {
+const NotFound: NextPage = () => {
   return (
     <>
       <Head>

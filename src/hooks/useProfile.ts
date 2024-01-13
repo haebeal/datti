@@ -45,6 +45,7 @@ export const useProfile = () => {
           title: "不明なエラーが発生しました",
         });
       }
+      return null;
     }
   };
 

@@ -11,7 +11,6 @@ type User struct {
 	BankCode    string      `json:"bankCode" gorm:"default:null"`
 	BranchCode  string      `json:"branchCode"`
 	GroupUser   []GroupUser `gorm:"foreignKey:UserID"`
-	GroupOwner  []Group     `gorm:"foreignKey:Owner"`
 	// PaymentsPaidBy []Payment   `gorm:"foreignKey:PaidBy"`
 	// PaymentsPaidTo []Payment   `gorm:"foreignKey:PaidTo"`
 }

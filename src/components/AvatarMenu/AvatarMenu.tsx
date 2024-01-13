@@ -45,7 +45,7 @@ export const AvatarMenu = ({ isLoading, isMobile, profile }: Props) => {
         </MenuButton>
         <MenuList>
           <MenuGroup title={profile?.name ?? "未ログイン"}>
-            <MenuItem as={Link} href="/settings">
+            <MenuItem as={Link} href="/setting">
               設定
             </MenuItem>
             {isMobile && (

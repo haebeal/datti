@@ -1,9 +1,11 @@
 import { Grid, GridItem, Heading } from "@chakra-ui/react";
+import { NextPageWithLayout } from "next";
 import Head from "next/head";
 
 import { SettingPanel } from "@/components/SettingPanel";
+import { DefaultLayout } from "@/layouts";
 
-const SettingsPage = () => {
+const SettingPage: NextPageWithLayout = () => {
   return (
     <>
       <Head>
@@ -28,4 +30,6 @@ const SettingsPage = () => {
   );
 };
 
-export default SettingsPage;
+SettingPage.getLayout = (page) => <DefaultLayout>{page}</DefaultLayout>;
+
+export default SettingPage;

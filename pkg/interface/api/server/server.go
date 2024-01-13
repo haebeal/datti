@@ -13,6 +13,7 @@ import (
 )
 
 func Sever(dsn string, hostName string, dbInit bool) {
+	// DBインスタンスの生成
 	dbEngine, err := database.NewDBEngine(dsn, dbInit)
 	if err != nil {
 		log.Print(err.Error())
@@ -43,7 +44,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.Use(cors.New(config))
 	r.Use(utils.PeopleMmiddleware)
 
-	// アクセスポイントの設定
+	// エンドポイントの設定
 	api := r.Group("/api")
 	{
 		me := api.Group("/me")

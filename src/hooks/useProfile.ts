@@ -14,7 +14,7 @@ export const useProfile = () => {
     ? getAccessTokenWithPopup
     : getAccessTokenSilently;
 
-  const profile = isLoading && !user ? undefined : profileScheme.parse(user);
+  const profile = user === undefined ? undefined : profileScheme.parse(user);
 
   const updateProfile = async (value: Partial<Profile>) => {
     const accessToken = await getAccessToken();

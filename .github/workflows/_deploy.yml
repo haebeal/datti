@@ -26,6 +26,9 @@ jobs:
           echo "NEXT_PUBLIC_AUTH0_DOMAIN=${{ secrets.NEXT_PUBLIC_AUTH0_DOMAIN }}" >> .env
           echo "NEXT_PUBLIC_AUTH0_CLIENT_ID=${{ secrets.NEXT_PUBLIC_AUTH0_CLIENT_ID }}" >> .env
 
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Build App
         run: npm run build
 

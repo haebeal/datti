@@ -49,7 +49,17 @@ export const AvatarMenu = ({ isLoading, isMobile, profile }: Props) => {
               設定
             </MenuItem>
             {isMobile && (
-              <MenuItem onClick={() => logout()}>ログアウト</MenuItem>
+              <MenuItem
+                onClick={() =>
+                  logout({
+                    logoutParams: {
+                      returnTo: process.env.NEXT_PUBLIC_BASE_URL,
+                    },
+                  })
+                }
+              >
+                ログアウト
+              </MenuItem>
             )}
           </MenuGroup>
         </MenuList>

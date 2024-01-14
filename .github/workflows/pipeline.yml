@@ -2,7 +2,7 @@ name: Pipeline
 
 on:
   push:
-    branches: [feature/**, develop]
+    branches: [feature/**, main]
 
 jobs:
   deploy-feat:
@@ -16,14 +16,14 @@ jobs:
       environment: dev
       ref: ${{ github.sha }}
     secrets: inherit
-  deploy-dev:
-    name: deploy cloudrun to reg environment
-    if: ${{ github.ref == 'refs/heads/develop' || github.base_ref == 'develop' }}
+  deploy-main:
+    name: deploy cloudrun to prod environment
+    if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
     uses: ./.github/workflows/_deploy.yml
     permissions:
       id-token: write
       contents: read
     with:
-      environment: reg
+      environment: prod
       ref: ${{ github.sha }}
     secrets: inherit

@@ -10,11 +10,18 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 
+import { BankAccountForm } from "@/components/BankAccountForm";
 import { ProfileForm } from "@/components/ProfileForm";
+import { useBankAccount } from "@/hooks/useBankAccount";
 import { useProfile } from "@/hooks/useProfile";
 
 export const SettingPanel = () => {
   const { isLoading: isLoadingProfile, profile, updateProfile } = useProfile();
+  const {
+    isLoading: isLoadingBankAccount,
+    bankAccount,
+    updateBankAccount,
+  } = useBankAccount();
 
   return (
     <Card>
@@ -38,7 +45,12 @@ export const SettingPanel = () => {
               </Skeleton>
             </TabPanel>
             <TabPanel>
-              <div />
+              <Skeleton isLoaded={!isLoadingBankAccount}>
+                <BankAccountForm
+                  defaultValues={bankAccount}
+                  updateBankAccount={updateBankAccount}
+                />
+              </Skeleton>
             </TabPanel>
           </TabPanels>
         </Tabs>

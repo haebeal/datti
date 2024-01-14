@@ -2,7 +2,7 @@ import { fetcher } from "@/utils";
 
 import type { Profile } from "../types";
 
-export const putProfile = (
+export const putProfile = async (
   accessToken: string,
   body: Partial<Profile>,
 ): Promise<Profile> => {

@@ -92,7 +92,6 @@ export const FormSelect = <T extends FieldValues, U>({
                   }),
                 }}
                 size="md"
-                required
                 isReadOnly={readonly}
                 isClearable
               />

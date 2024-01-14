@@ -1,24 +1,31 @@
-import { useAuth0 } from "@auth0/auth0-react";
 import { useToast } from "@chakra-ui/react";
+import useSWR from "swr";
 
-import { Profile, profileScheme, putProfile } from "@/features/profile";
+import {
+  BankAccount,
+  getBankAccount,
+  putBankAccount,
+} from "@/features/bankAccount";
 import { useAccessToken } from "@/hooks/useAccessToken";
 
-export const useProfile = () => {
+export const useBankAccount = () => {
   const { getAccessToken } = useAccessToken();
-  const { user, isLoading } = useAuth0();
+
   const toast = useToast();
+  const {
+    data: bankAccount,
+    isLoading,
+    mutate,
+  } = useSWR<BankAccount>("", getBankAccount);
 
-  const profile = user === undefined ? undefined : profileScheme.parse(user);
-
-  const updateProfile = async (value: Partial<Profile>) => {
+  const updateBankAccount = async (value: BankAccount) => {
     const accessToken = await getAccessToken();
 
     try {
-      const result = await putProfile(accessToken, value);
+      const result = await putBankAccount(accessToken, value);
       toast({
-        status: "success",
         title: "プロフィールを更新しました",
+        status: "success",
       });
       return result;
     } catch (error: unknown) {
@@ -34,8 +41,10 @@ export const useProfile = () => {
         });
       }
       return null;
+    } finally {
+      mutate();
     }
   };
 
-  return { profile, isLoading, updateProfile };
+  return { isLoading, bankAccount, updateBankAccount };
 };

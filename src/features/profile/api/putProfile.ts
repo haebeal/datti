@@ -7,7 +7,7 @@ export const putProfile = async (
   body: Partial<Profile>,
 ): Promise<Profile> => {
   return fetcher<Profile>(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/me`,
+    `${process.env.NEXT_PUBLIC_BACKEND_ENDPOINT}/api/me`,
     accessToken,
     "PUT",
     body,

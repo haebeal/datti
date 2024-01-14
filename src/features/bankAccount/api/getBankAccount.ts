@@ -6,7 +6,7 @@ export const getBankAccount = async (
   accessToken: string,
 ): Promise<BankAccount> => {
   return fetcher<BankAccount>(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/`,
+    `${process.env.NEXT_PUBLIC_BACKEND_ENDPOINT}/api/`,
     accessToken,
     "GET",
   );

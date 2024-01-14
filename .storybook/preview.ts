@@ -2,7 +2,7 @@ import type { Preview } from "@storybook/react";
 
 import { getTheme } from "../src/utils";
 
-const theme = getTheme("main");
+const theme = getTheme();
 
 const preview: Preview = {
   parameters: {

@@ -15,8 +15,8 @@ export const Primary: Story = {
     defaultValues: {
       email: "test@example.com",
       name: "テストユーザー",
-      photoUrl: "https://placehold.jp/150x150.png",
+      picture: "https://placehold.jp/150x150.png",
     },
-    onSubmit: async () => {},
+    updateProfile: async () => null,
   },
 };

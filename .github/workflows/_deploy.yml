@@ -21,7 +21,12 @@ jobs:
     environment:
       name: ${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - name: Create .env
+        run: |
+          echo "DSN=${{ secrets.NEON_DSN }}" >> .env
+          echo "HOST_NAME=${{ secrets.HOST_NAME }}" >> .env
+          echo "DB_INIT=${{ secrets.DB_INIT }}" >> .env
       - name: Google Auth
         id: auth
         uses: google-github-actions/auth@v1

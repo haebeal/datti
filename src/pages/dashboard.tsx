@@ -1,10 +1,27 @@
-import { Grid, GridItem, Heading } from "@chakra-ui/react";
+import {
+  Button,
+  Grid,
+  GridItem,
+  HStack,
+  Heading,
+  Text,
+} from "@chakra-ui/react";
 import { NextPageWithLayout } from "next";
 import Head from "next/head";
 
+import { useAccessToken } from "@/hooks/useAccessToken";
 import { DefaultLayout } from "@/layouts";
+import { useState } from "react";
 
 const Home: NextPageWithLayout = () => {
+  const { getAccessToken } = useAccessToken();
+  const [accessToken, setAccessToken] = useState("");
+
+  const onClickGetAccessToken = async () => {
+    const result = await getAccessToken();
+    setAccessToken(result);
+  };
+
   return (
     <>
       <Head>
@@ -19,6 +36,13 @@ const Home: NextPageWithLayout = () => {
             <Heading size="lg" mt={10}>
               ダッシュボード
             </Heading>
+            <HStack>
+              <Heading size="md">アクセストークン</Heading>
+              <Button colorScheme="twitter" onClick={onClickGetAccessToken}>
+                取得 / 更新
+              </Button>
+            </HStack>
+            <Text>{accessToken}</Text>
           </GridItem>
         </Grid>
       </main>

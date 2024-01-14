@@ -6,7 +6,7 @@ on:
 
 jobs:
   deploy-dev:
-    name: deploy cloudrun to dev environment
+    name: deploy cloudflare pages to dev environment
     if: contains(github.ref, 'feature')
     uses: ./.github/workflows/_deploy.yml
     permissions:
@@ -14,16 +14,14 @@ jobs:
       contents: read
     with:
       environment: dev
-      ref: ${{ github.sha }}
     secrets: inherit
-  deploy-reg:
-    name: deploy cloudrun to reg environment
-    if: ${{ github.ref == 'refs/heads/develop' || github.base_ref == 'develop' }}
+  deploy-prod:
+    name: deploy cloudflare pages to prod environment
+    if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
     uses: ./.github/workflows/_deploy.yml
     permissions:
       id-token: write
       contents: read
     with:
-      environment: reg
-      ref: ${{ github.sha }}
+      environment: prod
     secrets: inherit

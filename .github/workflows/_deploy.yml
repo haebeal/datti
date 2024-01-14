@@ -1,4 +1,4 @@
-name: Build and Deploy to Cloud Run
+name: Cloudflare Pages
 
 on:
   workflow_call:
@@ -6,53 +6,35 @@ on:
       environment:
         type: string
         required: true
-        description: デプロイ先環境名(基本的にprod, reg, devのいずれかを使用)
-      ref:
-        type: string
-        required: true
-        description: コミットID(SHA)
-jobs:
-  deploy:
-    permissions:
-      contents: "read"
-      id-token: "write"
+        description: デプロイ先環境名(prod, devのいずれかを使用)
 
-    runs-on: ubuntu-latest
+jobs:
+  publish:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+      deployments: write
     environment:
       name: ${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Create .env
         run: |
-          echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
-          echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env
-          echo "NEXT_PUBLIC_FETCH_HOST=${{ secrets.NEXT_PUBLIC_FETCH_HOST }}" >> .env
-          echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
-          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
-      - name: Google Auth
-        id: auth
-        uses: "google-github-actions/auth@v1"
+          echo "NEXT_PUBLIC_BASE_URL=${{ secrets.NEXT_PUBLIC_BASE_URL }}" >> .env
+          echo "NEXT_PUBLIC_BACKEND_ENDPOINT=${{ secrets.NEXT_PUBLIC_BACKEND_ENDPOINT }}" >> .env
+          echo "NEXT_PUBLIC_AUTH0_DOMAIN=${{ secrets.NEXT_PUBLIC_AUTH0_DOMAIN }}" >> .env
+          echo "NEXT_PUBLIC_AUTH0_CLIENT_ID=${{ secrets.NEXT_PUBLIC_AUTH0_CLIENT_ID }}" >> .env
+
+      - name: Build App
+        run: npm run build
+
+      - name: Publish to Cloudflare Pages
+        uses: cloudflare/pages-action@1
         with:
-          token_format: "access_token"
-          workload_identity_provider: "${{ secrets.WIF_PROVIDER }}"
-          service_account: "${{ secrets.WIF_SERVICE_ACCOUNT }}"
-      - name: Docker Auth
-        id: docker-auth
-        uses: "docker/login-action@v1"
-        with:
-          username: "oauth2accesstoken"
-          password: "${{ steps.auth.outputs.access_token }}"
-          registry: "${{ secrets.GAR_LOCATION }}-docker.pkg.dev"
-      - name: Build and Push Container
-        run: |-
-          docker build -t "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ inputs.environment }}:${{ inputs.ref }}" ./
-          docker push "${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ inputs.environment }}:${{ inputs.ref }}"
-      - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v1
-        with:
-          service: ${{ secrets.SERVICE }}-${{ inputs.environment }}
-          region: ${{ secrets.REGION }}
-          image: ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.REPOSITORY }}/${{ inputs.environment }}:${{ inputs.ref }}
-      - name: Show Output
-        run: echo ${{ steps.deploy.outputs.url }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
+          directory: out
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

@@ -1,3 +1,5 @@
+import { Profile } from "@/features/profile";
+import { useAuth0 } from "@auth0/auth0-react";
 import {
   Avatar,
   Menu,
@@ -7,24 +9,18 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
-import { signOut } from "next-auth/react";
 import Link from "next/link";
 
 interface Props {
   isLoading: boolean;
   isMobile: boolean;
-  name?: string;
-  photoUrl?: string;
+  profile?: Profile;
 }
 
-export const AvatarMenu = ({ isLoading, isMobile, name, photoUrl }: Props) => {
-  if (isLoading) return;
+export const AvatarMenu = ({ isLoading, isMobile, profile }: Props) => {
+  const { logout } = useAuth0();
 
-  const onClick = () => {
-    signOut({
-      callbackUrl: "/",
-    });
-  };
+  if (isLoading) return;
 
   return (
     <motion.div
@@ -45,14 +41,16 @@ export const AvatarMenu = ({ isLoading, isMobile, name, photoUrl }: Props) => {
     >
       <Menu>
         <MenuButton>
-          <Avatar borderColor="gray.100" src={photoUrl ?? ""} />
+          <Avatar borderColor="gray.100" src={profile?.picture ?? ""} />
         </MenuButton>
         <MenuList>
-          <MenuGroup title={name ?? "未ログイン"}>
-            <MenuItem as={Link} href="/settings">
+          <MenuGroup title={profile?.name ?? "未ログイン"}>
+            <MenuItem as={Link} href="/setting">
               設定
             </MenuItem>
-            {isMobile && <MenuItem onClick={onClick}>ログアウト</MenuItem>}
+            {isMobile && (
+              <MenuItem onClick={() => logout()}>ログアウト</MenuItem>
+            )}
           </MenuGroup>
         </MenuList>
       </Menu>

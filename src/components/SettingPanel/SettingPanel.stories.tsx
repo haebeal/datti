@@ -1,11 +1,11 @@
 import { Meta, StoryObj } from "@storybook/react";
-import { Settings } from "./Settings";
+import { SettingPanel } from "./SettingPanel";
 
 const meta = {
   title: "Components/Settings",
-  component: Settings,
+  component: SettingPanel,
   tags: ["autodocs"],
-} satisfies Meta<typeof Settings>;
+} satisfies Meta<typeof SettingPanel>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

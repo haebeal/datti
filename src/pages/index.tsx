@@ -1,6 +1,15 @@
-import { Button, Grid, GridItem, Heading, VStack } from "@chakra-ui/react";
+import { useAuth0 } from "@auth0/auth0-react";
+import {
+  Button,
+  Grid,
+  GridItem,
+  Heading,
+  VStack,
+  useToast,
+} from "@chakra-ui/react";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export const getStaticProps = async () => {
   return {
@@ -11,6 +20,25 @@ export const getStaticProps = async () => {
 };
 
 const Home = () => {
+  const toast = useToast();
+  const { push } = useRouter();
+  const { isLoading, isAuthenticated, loginWithRedirect } = useAuth0();
+
+  const onClickStart = () => {
+    if (isLoading) {
+      return toast({
+        status: "warning",
+        title: "読み込み中です",
+      });
+    }
+
+    if (isAuthenticated) {
+      return push("/dashboard");
+    }
+
+    loginWithRedirect();
+  };
+
   return (
     <>
       <Head>
@@ -20,21 +48,18 @@ const Home = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <Grid templateColumns="repeat(12, 1fr)">
+        <Grid templateColumns="repeat(12, 1fr)" minH="100vh" bg="blue.400">
           <GridItem colSpan={12}>
             <VStack direction="column" pt={180} gap={8} color="white">
               <Heading size="4xl">Hello Datti!</Heading>
               <Heading size="lg">
                 誰にいくら払ったっけ？を記録するアプリ
               </Heading>
-              <Button
-                colorScheme="facebook"
-                size="lg"
-                as={Link}
-                href="/dashboard"
-              >
-                はじめる
-              </Button>
+              {!isLoading && (
+                <Button colorScheme="facebook" size="lg" onClick={onClickStart}>
+                  はじめる
+                </Button>
+              )}
             </VStack>
           </GridItem>
         </Grid>

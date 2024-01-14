@@ -1,12 +1,11 @@
 import { Grid, GridItem, Heading } from "@chakra-ui/react";
+import { NextPageWithLayout } from "next";
 import Head from "next/head";
 
-import { Settings } from "@/components/Settings";
-import { useProfile } from "@/hooks/useProfile";
+import { SettingPanel } from "@/components/SettingPanel";
+import { DefaultLayout } from "@/layouts";
 
-const SettingsPage = () => {
-  const { profile, isLoading, update } = useProfile();
-
+const SettingPage: NextPageWithLayout = () => {
   return (
     <>
       <Head>
@@ -23,11 +22,7 @@ const SettingsPage = () => {
             </Heading>
           </GridItem>
           <GridItem colSpan={12}>
-            <Settings
-              isLoading={isLoading}
-              profile={profile}
-              updateProfile={update}
-            />
+            <SettingPanel />
           </GridItem>
         </Grid>
       </main>
@@ -35,4 +30,6 @@ const SettingsPage = () => {
   );
 };
 
-export default SettingsPage;
+SettingPage.getLayout = (page) => <DefaultLayout>{page}</DefaultLayout>;
+
+export default SettingPage;

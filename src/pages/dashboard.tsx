@@ -1,7 +1,10 @@
 import { Grid, GridItem, Heading } from "@chakra-ui/react";
+import { NextPageWithLayout } from "next";
 import Head from "next/head";
 
-const Home = () => {
+import { DefaultLayout } from "@/layouts";
+
+const Home: NextPageWithLayout = () => {
   return (
     <>
       <Head>
@@ -22,5 +25,7 @@ const Home = () => {
     </>
   );
 };
+
+Home.getLayout = (page) => <DefaultLayout>{page}</DefaultLayout>;
 
 export default Home;

@@ -12,8 +12,9 @@ jobs:
   publish:
     runs-on: ubuntu-20.04
     permissions:
-      id-token: write
       contents: read
+      id-token: write
+      deployments: write
     environment:
       name: ${{ inputs.environment }}
     steps:

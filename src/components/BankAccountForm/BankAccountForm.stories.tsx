@@ -18,6 +18,6 @@ export const Primary: Story = {
       branchCode: "001",
       accountCode: "0000000",
     },
-    onSubmit: async () => {},
+    updateBankAccount: async () => {},
   },
 };

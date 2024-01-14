@@ -34,7 +34,16 @@ export const Header = () => {
                 profile={profile}
               />
               {!isMobile && (
-                <Button colorScheme="red" onClick={() => logout()}>
+                <Button
+                  colorScheme="red"
+                  onClick={() =>
+                    logout({
+                      logoutParams: {
+                        returnTo: process.env.NEXT_PUBLIC_BASE_URL,
+                      },
+                    })
+                  }
+                >
                   ログアウト
                 </Button>
               )}

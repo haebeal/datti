@@ -14,6 +14,7 @@ import (
 
 // AuthorizationAPI用ミドルウェア
 func AuthorizationApiMiddleware(c *gin.Context) {
+	log.Print("AuthorizationAPI用ミドルウェアの処理を開始")
 	domain := os.Getenv("AUTH0_DOMAIN")
 	clientID := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SECRET")
@@ -35,22 +36,26 @@ func AuthorizationApiMiddleware(c *gin.Context) {
 		authentication.WithClientSecret(clientSecret),
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("AuthorizationAPIクライアントの初期化に失敗: %+v", err)
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "AuthorizationAPIクライアントの初期化に失敗"})
 	}
 
 	userProfiel, err := auth0API.UserInfo(context.Background(), accessToken)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("ユーザー情報の取得に失敗")
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "ユーザー情報の取得に失敗"})
 	}
 
 	userID := userProfiel.Sub
 	c.Set("user_id", userID)
 
+	log.Print("AuthorizationAPI用ミドルウェアの処理を終了")
 	c.Next()
 }
 
 // managementAPI用ミドルウェア
 func ManagementApiMiddlewaer(c *gin.Context) {
+	log.Print("ManagementAPI用ミドルウェアの処理を開始")
 	domain := os.Getenv("AUTH0_DOMAIN")
 	clientID := os.Getenv("CLIENT_ID")
 	clientSecret := os.Getenv("CLIENT_SECRET")
@@ -64,12 +69,12 @@ func ManagementApiMiddlewaer(c *gin.Context) {
 		management.WithClientCredentials(context.TODO(), clientID, clientSecret), // Replace with a Context that better suits your usage
 	)
 	if err != nil {
-		log.Fatalf("failed to initialize the auth0 management API client: %+v", err)
+		log.Fatalf("マネジメントAPIクライアントの初期化に失敗: %+v", err)
 	}
 
 	user, err := auth0API.User.Read(context.Background(), userID.(string)) // Replace with a Context that better suits your usage
 	if err != nil {
-		log.Fatalf("failed to create a new client: %+v", err)
+		log.Fatalf("ユーザー情報の取得に失敗: %+v", err)
 	}
 
 	log.Printf("%v", user)
@@ -77,5 +82,6 @@ func ManagementApiMiddlewaer(c *gin.Context) {
 	c.Set("name", user.Name)
 	c.Set("email", user.Email)
 
+	log.Print("ManagementAPI用ミドルウェアの処理を終了")
 	c.Next()
 }

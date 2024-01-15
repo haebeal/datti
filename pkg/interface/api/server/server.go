@@ -6,6 +6,7 @@ import (
 	"github.com/datti-api/pkg/infrastructure/database"
 	"github.com/datti-api/pkg/infrastructure/repositoryimpl"
 	"github.com/datti-api/pkg/interface/api/handler"
+	"github.com/datti-api/pkg/interface/api/middleware"
 	"github.com/datti-api/pkg/usecase"
 	"github.com/datti-api/pkg/utils"
 	"github.com/gin-contrib/cors"
@@ -42,6 +43,8 @@ func Sever(dsn string, hostName string, dbInit bool) {
 		"Authorization",
 	)
 	r.Use(cors.New(config))
+	r.Use(middleware.AuthorizationApiMiddleware)
+	r.Use(middleware.ManagementApiMiddlewaer)
 	r.Use(utils.PeopleMmiddleware)
 
 	// エンドポイントの設定

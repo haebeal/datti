@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/datti-api/pkg/domain/model"
@@ -49,11 +50,21 @@ func (uh *userHandler) HandlerGet(c *gin.Context) {
 	user := new(model.User)
 	name, exsist := c.Get("name")
 	if exsist {
-		user.Name = name.(string)
+		if str, ok := name.(*string); ok {
+			user.Name = *str
+		} else {
+			log.Fatal("cast error")
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err": "ユーザー情報の失敗しました"})
+		}
 	}
 	email, exsist := c.Get("email")
 	if exsist {
-		user.Email = email.(string)
+		if str, ok := email.(*string); ok {
+			user.Email = *str
+		} else {
+			log.Fatal("cast error")
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err": "ユーザー情報の取得に失敗"})
+		}
 	}
 
 	findUser, err := uh.useCase.GetUserByEmail(c, user)

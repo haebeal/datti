@@ -1,8 +1,8 @@
 package utils
 
 import (
+	"log"
 	"net/http"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
@@ -13,16 +13,11 @@ import (
 // 指定されたトークンを使用してPeople APIクライアントを作成
 func PeopleMmiddleware(c *gin.Context) {
 	// コンテキストからトークンを取得
-	accessToken := ""
-	arr := strings.Split(c.Request.Header.Get("Authorization"), " ")
-	leng := len(arr)
-	if leng == 2 {
-		accessToken = arr[1]
-	} else {
-		// 不正なトークンの形式であるためセッションを中断する
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token format"})
+	val, exists := c.Get("google_access_token")
+	if !exists {
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})
 	}
-
+	accessToken := castStringValue(val)
 	oauthClient := oauth2.NewClient(c, oauth2.StaticTokenSource(&oauth2.Token{AccessToken: accessToken}))
 
 	// トークンを元にクライアントを生成
@@ -34,13 +29,19 @@ func PeopleMmiddleware(c *gin.Context) {
 	// peopleAPIからプロフィール情報を取得
 	userInfo, err := srv.People.Get("people/me").PersonFields("names,emailAddresses").Do()
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		log.Printf("プロフィール情報の取得に失敗: %+v", err)
 	} else {
 		// コンテキストに名前とメールアドレスを追加
-		c.Set("name", userInfo.Names[0].DisplayName)
-		c.Set("email", userInfo.EmailAddresses[0].Value)
+		log.Print(userInfo)
 	}
 
 	// 次のミドルウェアへコンテキストを伝播
 	c.Next()
+}
+
+func castStringValue(value interface{}) string {
+	if str, ok := value.(*string); ok {
+		return *str
+	}
+	return ""
 }

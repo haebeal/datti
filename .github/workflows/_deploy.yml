@@ -27,6 +27,9 @@ jobs:
           echo "DSN=${{ secrets.NEON_DSN }}" >> .env
           echo "HOST_NAME=${{ secrets.HOST_NAME }}" >> .env
           echo "DB_INIT=${{ secrets.DB_INIT }}" >> .env
+          echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> .env
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
       - name: Google Auth
         id: auth
         uses: google-github-actions/auth@v1

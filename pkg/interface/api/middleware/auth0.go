@@ -73,5 +73,9 @@ func ManagementApiMiddlewaer(c *gin.Context) {
 	}
 
 	log.Printf("%v", user)
+	c.Set("google_access_token", user.Identities[0].AccessToken)
+	c.Set("name", user.Name)
+	c.Set("email", user.Email)
+
 	c.Next()
 }

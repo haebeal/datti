@@ -42,7 +42,7 @@ func AuthorizationApiMiddleware(c *gin.Context) {
 
 	userProfiel, err := auth0API.UserInfo(context.Background(), accessToken)
 	if err != nil {
-		log.Fatalf("ユーザー情報の取得に失敗")
+		log.Fatalf("ユーザー情報の取得に失敗: %+v", err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "ユーザー情報の取得に失敗"})
 	}
 

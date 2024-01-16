@@ -12,6 +12,7 @@ import (
 
 // 指定されたトークンを使用してPeople APIクライアントを作成
 func PeopleMmiddleware(c *gin.Context) {
+	log.Print("peopleAPIミドルウェアの処理を開始")
 	// コンテキストからトークンを取得
 	val, exists := c.Get("google_access_token")
 	if !exists {
@@ -35,6 +36,7 @@ func PeopleMmiddleware(c *gin.Context) {
 		log.Print(userInfo)
 	}
 
+	log.Print("peopleAPIミドルウェアの処理を終了")
 	// 次のミドルウェアへコンテキストを伝播
 	c.Next()
 }

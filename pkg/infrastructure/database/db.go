@@ -17,16 +17,16 @@ func NewDBEngine(dsn string, dbInit bool) (*DBEngine, error) {
 		return nil, err
 	}
 
-	exists := db.Migrator().HasTable(&model.User{})
+	// exists := db.Migrator().HasTable(&model.User{})
 
 	// 環境変数により初期化の実施を行う
-	if (exists && dbInit) || (!exists && dbInit) || (!exists && !dbInit) {
-		// 初期化関数の呼び出し
-		db, err = InitDB(db)
-		if err != nil {
-			return nil, err
-		}
+	// if (exists && dbInit) || (!exists && dbInit) || (!exists && !dbInit) {
+	// 初期化関数の呼び出し
+	db, err = InitDB(db)
+	if err != nil {
+		return nil, err
 	}
+	// }
 
 	return &DBEngine{Engine: db}, nil
 }
@@ -39,11 +39,11 @@ func InitDB(db *gorm.DB) (*gorm.DB, error) {
 		return nil, result.Error
 	}
 	// テーブルの削除
-	if err := db.Migrator().DropTable(&model.User{}, &model.Group{}, &model.GroupUser{}); err != nil {
+	if err := db.Migrator().DropTable(&model.User{}, &model.BankAccount{}, &model.Group{}, &model.GroupUser{}); err != nil {
 		return nil, err
 	}
 	// テーブルのマイグレーション
-	if err := db.AutoMigrate(&model.User{}, &model.Group{}, &model.GroupUser{}); err != nil {
+	if err := db.AutoMigrate(&model.User{}, &model.BankAccount{}, &model.Group{}, &model.GroupUser{}); err != nil {
 		return nil, err
 	}
 

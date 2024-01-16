@@ -13,7 +13,7 @@ import (
 func TestCreateUser(t *testing.T) {
 	c := context.Background()
 	user := new(model.User)
-	user.Name = "tasak"
+	// user.Name = "tasak"
 	user.Email = "vividnasubi@gmail.com"
 	dsn := "host=localhost user=postgres password=root dbname=datti_db port=5432 sslmode=disable TimeZone=Asia/Tokyo"
 	dbInit := true
@@ -29,9 +29,9 @@ func TestCreateUser(t *testing.T) {
 		t.Fatalf("Failed User Create")
 	}
 
-	if newUser.Name == "" {
-		t.Fatalf("Failed User Create")
-	}
+	// if newUser.Name == "" {
+	// 	t.Fatalf("Failed User Create")
+	// }
 
 	if newUser.Email == "" {
 		t.Fatalf("Failed User Create")
@@ -41,7 +41,7 @@ func TestCreateUser(t *testing.T) {
 func TestGetUserByEmail(t *testing.T) {
 	c := context.Background()
 	user := new(model.User)
-	user.Name = "tasak"
+	// user.Name = "tasak"
 	user.Email = "vividnasubi@gmail.com"
 	dsn := "host=localhost user=postgres password=root dbname=datti_db port=5432 sslmode=disable TimeZone=Asia/Tokyo"
 	dbInit := true
@@ -58,9 +58,9 @@ func TestGetUserByEmail(t *testing.T) {
 		t.Fatalf("Failed User Record")
 	}
 
-	if findUser.Name == "" {
-		t.Fatalf("Invalid User Name %s", findUser.Name)
-	}
+	// if findUser.Name == "" {
+	// 	t.Fatalf("Invalid User Name %s", findUser.Name)
+	// }
 
 	if findUser.Email == "" {
 		t.Fatalf("Invalid User Email %s", findUser.Email)

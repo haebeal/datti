@@ -29,6 +29,10 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	groupUseCase := usecase.NewGroupUseCase(groupRepository)
 	groupHandler := handler.NewGroupHandler(groupUseCase)
 
+	bankAccountRepository := repositoryimpl.NewBankAccountRepository(dbEngine)
+	bankAccountUseCase := usecase.NewBankAccountUseCase(bankAccountRepository)
+	bankAccountHandler := handler.NewBankAccountHandler(bankAccountUseCase)
+
 	// ルーターの生成
 	r := gin.Default()
 
@@ -55,6 +59,9 @@ func Sever(dsn string, hostName string, dbInit bool) {
 			me.GET("/", userHandler.HandlerGet)
 			me.POST("/", userHandler.HandlerCreate)
 			me.PUT("/", userHandler.HandlerUpdate)
+			me.GET("/bank", bankAccountHandler.HandleGet)
+			me.POST("/bank", bankAccountHandler.HandleCreate)
+			me.PUT("/bank", bankAccountHandler.HandleUpdate)
 		}
 		groups := api.Group("/groups")
 		{

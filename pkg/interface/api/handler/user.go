@@ -48,15 +48,15 @@ func (uh *userHandler) HandlerCreate(c *gin.Context) {
 // HandlerGet implements UserHandler.
 func (uh *userHandler) HandlerGet(c *gin.Context) {
 	user := new(model.User)
-	name, exsist := c.Get("name")
-	if exsist {
-		if str, ok := name.(*string); ok {
-			user.Name = *str
-		} else {
-			log.Fatal("cast error")
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err": "ユーザー情報の失敗しました"})
-		}
-	}
+	// name, exsist := c.Get("name")
+	// if exsist {
+	// 	if str, ok := name.(*string); ok {
+	// 		user.Name = *str
+	// 	} else {
+	// 		log.Fatal("cast error")
+	// 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err": "ユーザー情報の失敗しました"})
+	// 	}
+	// }
 	email, exsist := c.Get("email")
 	if exsist {
 		if str, ok := email.(*string); ok {
@@ -87,29 +87,28 @@ func (uh *userHandler) HandlerUpdate(c *gin.Context) {
 	}
 
 	// 更新用のフィールを作成
-	requestField := make(map[string]any)
-	if user.Name != "" {
-		requestField["Name"] = user.Name
-	}
-	if user.PhotoUrl != "" {
-		requestField["PhotoUrl"] = user.PhotoUrl
-	}
-	if user.AccountCode != "" {
-		requestField["AccountCode"] = user.AccountCode
-	}
-	if user.BankCode != "" {
-		requestField["BankCode"] = user.BankCode
-	}
-	if user.BranchCode != "" {
-		requestField["BranchCode"] = user.BranchCode
-	}
+	// requestField := make(map[string]any)
+	// if user.Name != "" {
+	// 	requestField["Name"] = user.Name
+	// }
+	// if user.PhotoUrl != "" {
+	// 	requestField["PhotoUrl"] = user.PhotoUrl
+	// }
+	// if user.AccountCode != "" {
+	// 	requestField["AccountCode"] = user.AccountCode
+	// }
+	// if user.BankCode != "" {
+	// 	requestField["BankCode"] = user.BankCode
+	// }
+	// if user.BranchCode != "" {
+	// 	requestField["BranchCode"] = user.BranchCode
+	// }
+	// email := ""
+	// if parm, exsist := c.Get("email"); exsist {
+	// 	email = parm.(string)
+	// }
 
-	email := ""
-	if parm, exsist := c.Get("email"); exsist {
-		email = parm.(string)
-	}
-
-	updateUser, err := uh.useCase.UpdateUser(c, email, requestField)
+	updateUser, err := uh.useCase.UpdateUser(c, user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	} else {

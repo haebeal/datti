@@ -43,7 +43,7 @@ func (u *userRepoImpl) CreatUser(c context.Context, user *model.User) (*model.Us
 }
 
 // UpdateUserはrepository.UserRepository.UpdateUserの実装
-func (u *userRepoImpl) UpdateUser(c context.Context, email string, updateFields map[string]any) (*model.User, error) {
+func (u *userRepoImpl) UpdateUser(c context.Context, user *model.User) (*model.User, error) {
 	// トランザクションを生成
 	tx := u.DBEngine.Engine.WithContext(c).Begin()
 	// エラーの発生した際にロールバックを行う
@@ -53,9 +53,8 @@ func (u *userRepoImpl) UpdateUser(c context.Context, email string, updateFields 
 		}
 	}()
 
-	var user *model.User
 	// ユーザー情報の更新
-	result := tx.Model(&model.User{}).Where("email = ?", email).Updates(updateFields).Scan(&user)
+	result := tx.Model(&model.User{}).Where("email = ?", user.Email).Updates(&user).Scan(&user)
 	if result.Error != nil {
 		return nil, result.Error
 	}

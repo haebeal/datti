@@ -12,7 +12,7 @@ type UserUseCase interface {
 	CreateUser(c context.Context, user *model.User) (*model.User, error)
 	GetUser(c context.Context, id int) (*model.User, error)
 	GetUserByEmail(c context.Context, user *model.User) (*model.User, error)
-	UpdateUser(c context.Context, email string, updateFields map[string]any) (*model.User, error)
+	UpdateUser(c context.Context, user *model.User) (*model.User, error)
 }
 
 type userUseCase struct {
@@ -31,9 +31,9 @@ func (uu *userUseCase) CreateUser(c context.Context, user *model.User) (*model.U
 	if err := validator.ValidatorEmail(user.Email); err != nil {
 		return nil, err
 	}
-	if err := validator.ValidatorName(user.Name); err != nil {
-		return nil, err
-	}
+	// if err := validator.ValidatorName(user.Name); err != nil {
+	// 	return nil, err
+	// }
 
 	newUser, err := uu.repository.CreatUser(c, user)
 	if err != nil {
@@ -59,36 +59,36 @@ func (uu *userUseCase) GetUserByEmail(c context.Context, user *model.User) (*mod
 }
 
 // UpdateUser implements UserUseCase.
-func (uu *userUseCase) UpdateUser(c context.Context, email string, updateFields map[string]any) (*model.User, error) {
+func (uu *userUseCase) UpdateUser(c context.Context, user *model.User) (*model.User, error) {
 	// 各フィールドの値が存在するかを確認する
 	// 値が存在する場合は検査を行う
-	if val, exists := updateFields["Name"]; exists {
-		if err := validator.ValidatorName(val.(string)); err != nil {
-			return nil, err
-		}
-	}
-	if val, exists := updateFields["PhotoUrl"]; exists {
-		if err := validator.ValidatorPhotoUrl(val.(string)); err != nil {
-			return nil, err
-		}
-	}
-	if val, exists := updateFields["AccountCode"]; exists {
-		if err := validator.ValidatorAccountCode(val.(string)); err != nil {
-			return nil, err
-		}
-	}
-	if val, exists := updateFields["BankCode"]; exists {
-		if err := validator.ValidatorBankCode(val.(string)); err != nil {
-			return nil, err
-		}
-	}
-	if val, exists := updateFields["BranchCode"]; exists {
-		if err := validator.ValidatorBranchCode(val.(string)); err != nil {
-			return nil, err
-		}
-	}
+	// if val, exists := updateFields["Name"]; exists {
+	// 	if err := validator.ValidatorName(val.(string)); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+	// if val, exists := updateFields["PhotoUrl"]; exists {
+	// 	if err := validator.ValidatorPhotoUrl(val.(string)); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+	// if val, exists := updateFields["AccountCode"]; exists {
+	// 	if err := validator.ValidatorAccountCode(val.(string)); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+	// if val, exists := updateFields["BankCode"]; exists {
+	// 	if err := validator.ValidatorBankCode(val.(string)); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+	// if val, exists := updateFields["BranchCode"]; exists {
+	// 	if err := validator.ValidatorBranchCode(val.(string)); err != nil {
+	// 		return nil, err
+	// 	}
+	// }
 
-	updateUser, err := uu.repository.UpdateUser(c, email, updateFields)
+	updateUser, err := uu.repository.UpdateUser(c, user)
 	if err != nil {
 		return nil, err
 	}

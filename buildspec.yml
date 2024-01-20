@@ -2,7 +2,7 @@ version: 0.2
 
 environment_variables:
 # 環境変数
-env:
+DeprecatedEnv:
   secrets-manager:
     HOST_NAME: ${arn:aws:secretsmanager:ap-southeast-2:767397878962:secret:dev/hostname-Ayl55i}:dev/hostname
     DSN: ${arn:aws:secretsmanager:ap-southeast-2:767397878962:secret:dev/neon-2Gu5TB}:dev/neon

@@ -9,7 +9,7 @@ environment_variables:
       AUTH0_DOMAIN: ${arn:aws:secretsmanager:ap-southeast-2:767397878962:secret:auth0/domain-LuFCaf}:auth0/domain
       AUTH0_CLIENT_ID: ${arn:aws:secretsmanager:ap-southeast-2:767397878962:secret:auth0/client_id-dEVhaD}:auth0/client_id
       AUTH0_CLIENT_SECRET: ${arn:aws:secretsmanager:ap-southeast-2:767397878962:secret:auth0/client_secret-KDj5o9}:auth0/client_secret
-      ECR_REGISTRY_URL: 767397878962.dkr.ecr.ap-southeast-2.amazonaws.com/datti-dev
+      ECR_REGISTRY_URL: 767397878962.dkr.ecr.ap-southeast-2.amazonaws.com
 
 phases:
   install:
@@ -29,7 +29,7 @@ phases:
 
       # ECRへのログイン
       - echo "Logging in to Amazon ECR..."
-      - aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URL}
+      - aws ecr get-login-password --region ap-southeast-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY_URL}
   build:
     commands:
       # dockerfileのビルド

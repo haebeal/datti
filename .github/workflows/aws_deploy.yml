@@ -31,13 +31,24 @@ jobs:
           echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> .env
           echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
           echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
-          
       - name: AWS Auth
         id: awsAuth
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: 'ap-southeast-2' #リージョン
+          aws-region: ap-southeast-2 #リージョン
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }} # IAMロールのARN
+          role-session-name: ${{ github.sha }} # セッション名の指定
+      - name: Set awscli credential
+        run: |
+          mkdir -p ~/.aws
+          echo "[profile]" >> ~/.aws/credentials
+          echo "aws_access_key_id = ${{ env.AWS_ACCESS_KEY_ID }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key = ${{ env.AWS_SECRET_ACCESS_KEY }}" >> ~/.aws/credentials
+          echo "aws_session_token = ${{ env.AWS_SESSION_TOKEN }}" >> ~/.aws/credentials
+      - name: Set awscli config
+        run: |
+          echo "[profile]" >> ~/.aws/config
+          echo "region = ap-southeast-2" >> ~/.aws/config
       - name: ECR Login
         uses: aws-actions/amazon-ecr-login@v2
         id: login-ecr

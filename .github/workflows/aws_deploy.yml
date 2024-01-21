@@ -46,7 +46,7 @@ jobs:
           # ECR レジストリを `aws-actions/amazon-ecr-login` アクションの `outputs.registry` から取得
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           # イメージを push する ECR リポジトリ名
-          REPOSITORY: "datti-dev"
+          REPOSITORY: "datti-dev:latest"
           # Git のコミットハッシュをイメージタグにする
           IMAGE_TAG: ${{ inputs.ref }}
         run: |

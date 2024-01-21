@@ -48,9 +48,10 @@ jobs:
       - name: Set awscli config
         run: |
           echo "[profile]" >> ~/.aws/config
-          echo "region = ap-southeast-2" >> ~/.aws/config
+          echo "region = ${{ env.AWS_REGION }}" >> ~/.aws/config
       - name: ECR Login
-        uses: aws-actions/amazon-ecr-login@v2
+        # uses: aws-actions/amazon-ecr-login@v2
+        run : aws ecr get-login-password --region ap-southeast-2 --profile profile | docker login --username AWS --password-stdin 767397878962.dkr.ecr.ap-southeast-2.amazonaws.com
         id: login-ecr
       - name: Build and push docker image to ecr
         env:

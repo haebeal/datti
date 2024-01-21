@@ -1,0 +1,54 @@
+name: Build and Deploy to Cloud Run
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+        description: デプロイ先環境名(基本的にprod, reg, devのいずれかを使用)
+      ref:
+        type: string
+        required: true
+        description: コミットID(SHA)
+jobs:
+  deploy:
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create .env
+        run: |
+          echo "DSN=${{ secrets.NEON_DSN }}" >> .env
+          echo "HOST_NAME=${{ secrets.HOST_NAME }}" >> .env
+          echo "DB_INIT=${{ secrets.DB_INIT }}" >> .env
+          echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> .env
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
+          
+      - name: AWS Auth
+        id: awsAuth
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: 'ap-southeast-2' #リージョン
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }} # IAMロールのARN
+      - name: ECR Login
+        uses: aws-actions/amazon-ecr-login@v1
+        id: login-ecr
+      - name: Build and push docker image to ecr
+        env:
+          # ECR レジストリを `aws-actions/amazon-ecr-login` アクションの `outputs.registry` から取得
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          # イメージを push する ECR リポジトリ名
+          REPOSITORY: "datti-dev"
+          # Git のコミットハッシュをイメージタグにする
+          IMAGE_TAG: ${{ inputs.ref }}
+        run: |
+          docker build . --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}

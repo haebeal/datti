@@ -50,5 +50,6 @@ jobs:
           # Git のコミットハッシュをイメージタグにする
           IMAGE_TAG: "latest"
         run: |
-          docker build --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} .
+          docker build -t ${{ env.REPOSITORY }} .
+          dcker tag ${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
           docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}

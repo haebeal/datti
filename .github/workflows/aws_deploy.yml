@@ -56,7 +56,7 @@ jobs:
       - name: Build and push docker image to ecr
         env:
           # ECR レジストリを `aws-actions/amazon-ecr-login` アクションの `outputs.registry` から取得
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REGISTRY: "767397878962.dkr.ecr.ap-southeast-2.amazonaws.com"
           # イメージを push する ECR リポジトリ名
           REPOSITORY: "datti-dev"
           # Git のコミットハッシュをイメージタグにする

@@ -35,8 +35,8 @@ jobs:
         id: awsAuth
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: ap-southeast-2 #リージョン
-          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }} # OIDC認証用のロールIAMロールのARN
+          aws-region: ${{ secrets.AWS_REGION }} #リージョン
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_ARN }} # GitHub Actions用のIAMロールのARN
           role-session-name: ${{ github.sha }} # セッション名の指定
       # ECR ログイン
       - name: ECR Login

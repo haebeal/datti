@@ -1,26 +1,22 @@
 import { ChakraProvider, useToast } from "@chakra-ui/react";
+import { Session } from "next-auth";
+import { SessionProvider } from "next-auth/react";
 import type { AppPropsWithLayout } from "next/app";
 import { SWRConfig } from "swr";
 
-import { getTheme } from "@/utils";
-
 import { HttpError } from "@/errors";
-import { Auth0Provider } from "@auth0/auth0-react";
+import { theme } from "@/utils";
 
-const App = ({ Component }: AppPropsWithLayout) => {
-  const theme = getTheme();
+const App = ({
+  Component,
+  pageProps: { session },
+}: AppPropsWithLayout<{ session: Session }>) => {
   const getLayout = Component.getLayout ?? ((page) => page);
 
   const toast = useToast();
 
   return (
-    <Auth0Provider
-      domain={process.env.NEXT_PUBLIC_AUTH0_DOMAIN}
-      clientId={process.env.NEXT_PUBLIC_AUTH0_CLIENT_ID}
-      authorizationParams={{
-        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/dashboard`,
-      }}
-    >
+    <SessionProvider session={session}>
       <ChakraProvider theme={theme}>
         <SWRConfig
           value={{
@@ -37,7 +33,7 @@ const App = ({ Component }: AppPropsWithLayout) => {
           {getLayout(<Component />)}
         </SWRConfig>
       </ChakraProvider>
-    </Auth0Provider>
+    </SessionProvider>
   );
 };
 

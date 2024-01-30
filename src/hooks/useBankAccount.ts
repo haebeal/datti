@@ -6,11 +6,8 @@ import {
   getBankAccount,
   putBankAccount,
 } from "@/features/bankAccount";
-import { useAccessToken } from "@/hooks/useAccessToken";
 
 export const useBankAccount = () => {
-  const { getAccessToken } = useAccessToken();
-
   const toast = useToast();
   const {
     data: bankAccount,
@@ -19,10 +16,8 @@ export const useBankAccount = () => {
   } = useSWR<BankAccount>("", getBankAccount);
 
   const updateBankAccount = async (value: BankAccount) => {
-    const accessToken = await getAccessToken();
-
     try {
-      const result = await putBankAccount(accessToken, value);
+      const result = await putBankAccount("", value);
       toast({
         title: "プロフィールを更新しました",
         status: "success",

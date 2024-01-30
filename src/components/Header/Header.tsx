@@ -8,15 +8,15 @@ import {
   Spacer,
   useMediaQuery,
 } from "@chakra-ui/react";
+import { signOut, useSession } from "next-auth/react";
 
 import { AvatarMenu } from "@/components/AvatarMenu";
 import { useProfile } from "@/hooks/useProfile";
-import { useAuth0 } from "@auth0/auth0-react";
 
 export const Header = () => {
-  const { logout } = useAuth0();
-  const { profile, isLoading } = useProfile();
+  const { status, data: session } = useSession();
   const [isMobile] = useMediaQuery("(max-width: 48em)");
+  const { profile } = useProfile();
 
   return (
     <Box as="header" h="80px" bg="white">
@@ -26,24 +26,17 @@ export const Header = () => {
             Datti
           </Heading>
           <Spacer />
-          {!isLoading && (
+          {status !== "unauthenticated" && (
             <>
-              <AvatarMenu
-                isLoading={isLoading}
-                isMobile={isMobile}
-                profile={profile}
-              />
+              {profile && (
+                <AvatarMenu
+                  isLoading={status === "loading"}
+                  isMobile={isMobile}
+                  profile={profile}
+                />
+              )}
               {!isMobile && (
-                <Button
-                  colorScheme="red"
-                  onClick={() =>
-                    logout({
-                      logoutParams: {
-                        returnTo: process.env.NEXT_PUBLIC_BASE_URL,
-                      },
-                    })
-                  }
-                >
+                <Button colorScheme="red" onClick={() => signOut()}>
                   ログアウト
                 </Button>
               )}

@@ -1,41 +1,58 @@
-import { useAuth0 } from "@auth0/auth0-react";
+import { Profile } from "@/features/profile";
+import { auth } from "@/utils/firebase";
 import { useToast } from "@chakra-ui/react";
-
-import { Profile, profileScheme, putProfile } from "@/features/profile";
-import { useAccessToken } from "@/hooks/useAccessToken";
+import {
+  GoogleAuthProvider,
+  signInWithCredential,
+  updateProfile as firebaseUpdateProfile,
+} from "firebase/auth";
+import { useSession } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 export const useProfile = () => {
-  const { getAccessToken } = useAccessToken();
-  const { user, isLoading } = useAuth0();
+  const { data: session } = useSession();
   const toast = useToast();
+  const [isLoading, setLoading] = useState(false);
+  const [idToken, setIdToken] = useState<string | null>("");
+  const [profile, setProfile] = useState<Profile | null>();
 
-  const profile = user === undefined ? undefined : profileScheme.parse(user);
+  useEffect(() => {
+    if (session?.credential.idToken) {
+      signInFirebaseAuth(session?.credential.idToken);
+    } else {
+      setIdToken(null);
+      setProfile(null);
+    }
+  }, [session]);
 
-  const updateProfile = async (value: Partial<Profile>) => {
-    const accessToken = await getAccessToken();
+  const signInFirebaseAuth = async (googleIdToken: string) => {
+    setLoading(true);
+    const credential = GoogleAuthProvider.credential(googleIdToken);
+    const { user } = await signInWithCredential(auth, credential);
+    setProfile({
+      email: user.email ?? "",
+      name: user.displayName ?? "",
+      picture: user.photoURL ?? "",
+    });
+    setIdToken(await user.getIdToken());
+    setLoading(false);
+  };
 
-    try {
-      const result = await putProfile(accessToken, value);
-      toast({
-        status: "success",
-        title: "プロフィールを更新しました",
+  const updateProfile = async (data: Profile) => {
+    if (auth.currentUser) {
+      setLoading(true);
+      await firebaseUpdateProfile(auth.currentUser, {
+        displayName: data.name,
+        photoURL: data.picture,
       });
-      return result;
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        toast({
-          status: "error",
-          title: error.message,
-        });
-      } else {
-        toast({
-          status: "error",
-          title: "不明なエラーが発生しました",
-        });
-      }
-      return null;
+      toast({
+        title: "プロフィールを更新しました",
+        status: "success",
+      });
+      setProfile(data);
+      setLoading(false);
     }
   };
 
-  return { profile, isLoading, updateProfile };
+  return { isLoading, profile, idToken, updateProfile };
 };

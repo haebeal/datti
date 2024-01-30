@@ -1,5 +1,5 @@
-import { useAuth0 } from "@auth0/auth0-react";
 import { Center, CircularProgress, Container } from "@chakra-ui/react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { ReactNode } from "react";
 
@@ -8,9 +8,9 @@ import { NotFound } from "@/components/NotFound";
 
 export const DefaultLayout = ({ children }: { children: ReactNode }) => {
   const { pathname } = useRouter();
-  const { isAuthenticated, isLoading } = useAuth0();
+  const { status } = useSession();
 
-  if (isLoading) {
+  if (status === "loading") {
     return (
       <Center h="80vh">
         <CircularProgress isIndeterminate />
@@ -18,7 +18,7 @@ export const DefaultLayout = ({ children }: { children: ReactNode }) => {
     );
   }
 
-  if (pathname.match("/((?!404).+)") && !isAuthenticated) {
+  if (pathname.match("/((?!404).+)") && status === "unauthenticated") {
     return (
       <Center h="80vh">
         <NotFound />

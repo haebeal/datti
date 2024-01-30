@@ -9,6 +9,7 @@ import {
   TabPanels,
   Tabs,
 } from "@chakra-ui/react";
+import { useSession } from "next-auth/react";
 
 import { BankAccountForm } from "@/components/BankAccountForm";
 import { ProfileForm } from "@/components/ProfileForm";
@@ -39,7 +40,7 @@ export const SettingPanel = () => {
             <TabPanel>
               <Skeleton isLoaded={!isLoadingProfile}>
                 <ProfileForm
-                  defaultValues={profile}
+                  defaultValues={profile ?? undefined}
                   updateProfile={updateProfile}
                 />
               </Skeleton>

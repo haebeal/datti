@@ -7,7 +7,7 @@ import { Profile, profileScheme } from "@/features/profile";
 
 interface Props {
   defaultValues?: Profile;
-  updateProfile: (value: Partial<Profile>) => Promise<Profile | null>;
+  updateProfile: (value: Profile) => Promise<void>;
 }
 
 export const ProfileForm = ({ defaultValues, updateProfile }: Props) => {

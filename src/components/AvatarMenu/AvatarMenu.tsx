@@ -1,5 +1,4 @@
 import { Profile } from "@/features/profile";
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   Avatar,
   Menu,
@@ -9,6 +8,7 @@ import {
   MenuList,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 
 interface Props {
@@ -18,8 +18,6 @@ interface Props {
 }
 
 export const AvatarMenu = ({ isLoading, isMobile, profile }: Props) => {
-  const { logout } = useAuth0();
-
   if (isLoading) return;
 
   return (
@@ -49,17 +47,7 @@ export const AvatarMenu = ({ isLoading, isMobile, profile }: Props) => {
               設定
             </MenuItem>
             {isMobile && (
-              <MenuItem
-                onClick={() =>
-                  logout({
-                    logoutParams: {
-                      returnTo: process.env.NEXT_PUBLIC_BASE_URL,
-                    },
-                  })
-                }
-              >
-                ログアウト
-              </MenuItem>
+              <MenuItem onClick={() => signOut()}>ログアウト</MenuItem>
             )}
           </MenuGroup>
         </MenuList>

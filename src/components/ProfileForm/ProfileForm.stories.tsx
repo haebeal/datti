@@ -17,6 +17,6 @@ export const Primary: Story = {
       name: "テストユーザー",
       picture: "https://placehold.jp/150x150.png",
     },
-    updateProfile: async () => null,
+    updateProfile: async () => {},
   },
 };

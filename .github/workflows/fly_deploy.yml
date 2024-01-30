@@ -33,6 +33,6 @@ jobs:
           echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> ./cmd/.env
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: ls -la ./cmd
-      - run: flyctl deploy --remote-only --config ${{ vars.FLY_CONFIG_PATH }}
+      - run: flyctl deploy --remote-only --ignorefile ./.dockerignore --config ${{ vars.FLY_CONFIG_PATH }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

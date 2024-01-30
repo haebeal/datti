@@ -32,6 +32,6 @@ jobs:
           echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
           echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
       - uses: superfly/flyctl-actions/setup-flyctl@master 
-      - run: flyctl deploy --remote-only --config ${{ secrets.FLY_CONFIG }}
+      - run: flyctl deploy --remote-only
         env:
           FLY_TOKEN: ${{ secrets.FLY_API_TOKEN }}

@@ -19,7 +19,7 @@ jobs:
   deploy-aws-feat:
     name: deploy aws to dev environment
     if: startsWith(github.ref, 'refs/heads/feature/')
-    uses: ./.github/workflows/aws_deploy.yml
+    uses: ./.github/workflows/fly_deploy.yml
     permissions:
       id-token: write
       contents: read
@@ -30,7 +30,7 @@ jobs:
   deploy-gcp-main:
     name: deploy cloudrun to prod environment
     if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
-    uses: ./.github/workflows/gcp_deploy.yml
+    uses: ./.github/workflows/fly_deploy.yml
     permissions:
       id-token: write
       contents: read

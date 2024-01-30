@@ -1,0 +1,38 @@
+name: Build and Deploy to Fly.io
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+        description: デプロイ先環境名(基本的にprod, devのいずれかを使用)
+      ref:
+        type: string
+        required: true
+        description: コミットID(SHA)
+     
+        
+jobs:
+  deploy:
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create .env
+        run: |
+          echo "DSN=${{ secrets.NEON_DSN }}" >> .env
+          echo "HOST_NAME=${{ secrets.HOST_NAME }}" >> .env
+          echo "DB_INIT=${{ secrets.DB_INIT }}" >> .env
+          echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> .env
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --remote-only --config ./fly/fly.api.dev.toml
+        env:
+          FLY_TOKEN: ${{ secrets.FLY_TOKEN }}

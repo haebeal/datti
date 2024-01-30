@@ -5,19 +5,8 @@ on:
     branches: [feature/**, main]
 
 jobs:
-  deploy-gcp-feat:
-    name: deploy gcp to dev environment
-    if: startsWith(github.ref, 'refs/heads/feature/')
-    uses: ./.github/workflows/gcp_deploy.yml
-    permissions:
-      id-token: write
-      contents: read
-    with:
-      environment: dev
-      ref: ${{ github.sha }}
-    secrets: inherit
-  deploy-aws-feat:
-    name: deploy aws to dev environment
+  deploy-fly-feat:
+    name: deploy fly to dev environment
     if: startsWith(github.ref, 'refs/heads/feature/')
     uses: ./.github/workflows/fly_deploy.yml
     permissions:
@@ -27,7 +16,18 @@ jobs:
       environment: dev
       ref: ${{ github.sha }}
     secrets: inherit
-  deploy-gcp-main:
+  # deploy-aws-feat:
+  #   name: deploy aws to dev environment
+  #   if: startsWith(github.ref, 'refs/heads/feature/')
+  #   uses: ./.github/workflows/aws_deploy.yml
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   with:
+  #     environment: dev
+  #     ref: ${{ github.sha }}
+  #   secrets: inherit
+  deploy-fly-main:
     name: deploy cloudrun to prod environment
     if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
     uses: ./.github/workflows/fly_deploy.yml

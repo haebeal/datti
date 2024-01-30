@@ -25,14 +25,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-          echo "DSN=${{ secrets.NEON_DSN }}" >> .env
-          echo "HOST_NAME=${{ secrets.HOST_NAME }}" >> .env
+          echo "DSN=${{ secrets.NEON_DSN }}" >> ./cmd/.env
+          echo "HOST_NAME=${{ secrets.HOST_NAME }}" >> ./cmd/.env
           echo "DB_INIT=${{ secrets.DB_INIT }}" >> .env
-          echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> .env
+          echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> ./cmd/.env
           echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
-          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> .env
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> ./cmd/.env
       - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: ls -la
+      - run: ls -la ./cmd
       - run: flyctl deploy --remote-only --config ${{ vars.FLY_CONFIG_PATH }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

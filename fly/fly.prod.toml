@@ -7,7 +7,7 @@ app = 'datti-api-prod'
 primary_region = 'nrt'
 
 [build]
-  dockerfile = "./dockerfile"
+  dockerfile = "./../dockerfile"
 
 [http_service]
   internal_port = 8080

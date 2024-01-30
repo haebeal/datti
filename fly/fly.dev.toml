@@ -7,8 +7,8 @@ app = 'datti-api-dev'
 primary_region = 'nrt'
 
 [build]
-  dockerfile = "./dockerfile"
-  
+  dockerfile = "./../dockerfile"
+
 [http_service]
   internal_port = 8080
   force_https = true

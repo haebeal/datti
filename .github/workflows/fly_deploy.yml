@@ -41,10 +41,10 @@ jobs:
           context: .
           file: ./dockerfile
           push: true
-          tags: datti-api/${{ inputs.environment }}:${{ inputs.ref }}
+          tags: ${{ secrets.DOCKER_REPO_NAME }}:${{ inputs.ref }}
       - name: Fly Insatll 
         uses: superfly/flyctl-actions/setup-flyctl@master
       - name: Delpoy to Fly  
-        run: flyctl deploy --remote-only --image datti-api/${{ inputs.environment }}:${{ inputs.ref }} --app ${{ vars.FLY_APP_NAME }}
+        run: flyctl deploy --remote-only --image ${{ secrets.DOCKER_REPO_NAME }}:${{ inputs.ref }} --app ${{ vars.FLY_APP_NAME }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

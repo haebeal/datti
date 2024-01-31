@@ -1,0 +1,28 @@
+name: Build and Deploy to Fly.io
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        required: true
+        description: デプロイ先環境名(基本的にprod, devのいずれかを使用)
+      ref:
+        type: string
+        required: true
+        description: コミットID(SHA)
+jobs:
+  deploy:
+
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Fly Insatll 
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Delpoy to Fly  
+        run: flyctl deploy --remote-only --config ${{ vars.FLY_CONFIG_PATH }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

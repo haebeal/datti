@@ -11,28 +11,38 @@ on:
         type: string
         required: true
         description: コミットID(SHA)
-     
-        
 jobs:
   deploy:
-    permissions:
-      contents: "read"
-      id-token: "write"
 
     runs-on: ubuntu-latest
     environment:
       name: ${{ inputs.environment }}
     steps:
-      - uses: actions/checkout@v4
-      - run: |
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Create .env
+        run: |
           echo "DSN=${{ secrets.NEON_DSN }}" >> ./cmd/.env
           echo "HOST_NAME=${{ secrets.HOST_NAME }}" >> ./cmd/.env
           echo "DB_INIT=${{ secrets.DB_INIT }}" >> .env
           echo "AUTH0_DOMAIN=${{ secrets.AUTH0_DOMAIN }}" >> ./cmd/.env
           echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> .env
           echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> ./cmd/.env
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-      - run: ls -la ./cmd
-      - run: flyctl deploy --remote-only --ignorefile ./.dockerignore --config ${{ vars.FLY_CONFIG_PATH }}
+      - name: Auth Docker
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./dockerfile
+          push: true
+          tags: datti-api/${{ inputs.environment }}:${{ inputs.ref }}
+      - name: Fly Insatll 
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Delpoy to Fly  
+        run: flyctl deploy --image datti-api/${{ inputs.environment }}:${{ inputs.ref }} --app ${{ vars.FLY_APP_NAME }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

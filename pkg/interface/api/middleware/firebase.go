@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -9,17 +8,10 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"google.golang.org/api/option"
 )
 
 func FirebaseAuthMiddleware(c *gin.Context) {
-	err := godotenv.Load()
-	if err != nil {
-		fmt.Printf("Failed Load environment: %v", err)
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "環境変数のロードに失敗しました"})
-	}
-
 	idToken := ""
 	arr := strings.Split(c.Request.Header.Get("Authorization"), " ")
 	if len(arr) != 2 {
@@ -31,7 +23,8 @@ func FirebaseAuthMiddleware(c *gin.Context) {
 	idToken = arr[1]
 
 	// Firebase SDKの初期化
-	opt := option.WithCredentialsJSON([]byte(os.Getenv("GOOGLE_CREDENTIALS_JSON")))
+	credential := []byte(os.Getenv("GOOGLE_CREDENTIALS_JSON"))
+	opt := option.WithCredentialsJSON(credential)
 	app, err := firebase.NewApp(c, nil, opt)
 	if err != nil {
 		log.Printf("Error initializing Firebase app: %v", err)

@@ -42,6 +42,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 		"https://datti-dev.haebeal.net",
 		"https://datti-reg.haebeal.net",
 	}
+	config.AllowCredentials = true
 	config.AddAllowHeaders(
 		"Authorization",
 	)

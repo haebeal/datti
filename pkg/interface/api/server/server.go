@@ -37,22 +37,22 @@ func Sever(dsn string, hostName string, dbInit bool) {
 
 	// cors設定
 	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{
-		"http://localhost:3000",
-		"https://datti-dev.haebeal.net",
-		"https://datti-reg.haebeal.net",
-	}
+	// config.AllowOrigins = []string{
+	// 	"http://localhost:3000",
+	// 	"https://datti-dev.haebeal.net",
+	// 	"https://datti-reg.haebeal.net",
+	// }
 	config.AllowAllOrigins = true
-	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"}
+	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "OPTIONS", "DELETE", "HEAD"}
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type"}
 	config.AllowCredentials = true
 	config.AddAllowHeaders(
-		"Access-Control-Allow-Credentials",
-		"Access-Control-Allow-Headers",
-		"Access-Control-Allow-Origin",
-		"Content-Type",
-		"Content-Length",
-		"Accept-Encoding",
+		// "Access-Control-Allow-Credentials",
+		// "Access-Control-Allow-Headers",
+		// "Access-Control-Allow-Origin",
+		// "Content-Type",
+		// "Content-Length",
+		// "Accept-Encoding",
 		"Authorization",
 	)
 	r.Use(cors.New(config))

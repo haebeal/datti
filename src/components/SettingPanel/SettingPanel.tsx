@@ -17,7 +17,13 @@ import { useBankAccount } from "@/hooks/useBankAccount";
 import { useProfile } from "@/hooks/useProfile";
 
 export const SettingPanel = () => {
-  const { isLoading: isLoadingProfile, profile, updateProfile } = useProfile();
+  const {
+    isLoading: isLoadingProfile,
+    isUploading,
+    profile,
+    updateProfile,
+    uploadProfilePhoto,
+  } = useProfile();
   const {
     isLoading: isLoadingBankAccount,
     bankAccount,
@@ -40,6 +46,8 @@ export const SettingPanel = () => {
             <TabPanel>
               <Skeleton isLoaded={!isLoadingProfile}>
                 <ProfileForm
+                  isUploading={isUploading}
+                  uploadProfilePhoto={uploadProfilePhoto}
                   defaultValues={profile ?? undefined}
                   updateProfile={updateProfile}
                 />

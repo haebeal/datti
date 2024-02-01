@@ -18,5 +18,6 @@ export const Primary: Story = {
       picture: "https://placehold.jp/150x150.png",
     },
     updateProfile: async () => {},
+    uploadProfilePhoto: async () => {},
   },
 };

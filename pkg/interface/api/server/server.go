@@ -44,6 +44,12 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	}
 	config.AllowCredentials = true
 	config.AddAllowHeaders(
+		"Access-Control-Allow-Credentials",
+		"Access-Control-Allow-Headers",
+		"Access-Control-Allow-Origin",
+		"Content-Type",
+		"Content-Length",
+		"Accept-Encoding",
 		"Authorization",
 	)
 	r.Use(cors.New(config))

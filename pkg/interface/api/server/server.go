@@ -42,6 +42,9 @@ func Sever(dsn string, hostName string, dbInit bool) {
 		"https://datti-dev.haebeal.net",
 		"https://datti-reg.haebeal.net",
 	}
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"}
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type"}
 	config.AllowCredentials = true
 	config.AddAllowHeaders(
 		"Access-Control-Allow-Credentials",

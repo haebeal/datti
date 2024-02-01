@@ -42,7 +42,7 @@ export const ProfileForm = ({
   };
 
   return (
-    <VStack>
+    <VStack as="form" onSubmit={handleSubmit(onSubmit)}>
       <Stack
         w="full"
         align="center"
@@ -55,13 +55,7 @@ export const ProfileForm = ({
           isLoading={isUploading}
           updatePhoto={uploadProfilePhoto}
         />
-        <VStack
-          w="full"
-          bg="white"
-          as="form"
-          gap={5}
-          onSubmit={handleSubmit(onSubmit)}
-        >
+        <VStack w="full" bg="white" gap={5}>
           <FormInput
             label="Email"
             readonly

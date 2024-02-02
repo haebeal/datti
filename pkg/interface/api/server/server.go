@@ -35,51 +35,32 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	// ルーターの生成
 	r := gin.Default()
 
-	// cors設定
+	// corsとミドルウェアの設定
 	config := cors.DefaultConfig()
-	// config.AllowOrigins = []string{
-	// 	"http://localhost:3000",
-	// 	"https://datti-dev.haebeal.net",
-	// 	"https://datti-reg.haebeal.net",
-	// }
 	config.AllowAllOrigins = true
-	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "OPTIONS", "DELETE", "HEAD"}
-	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type"}
-	config.AllowCredentials = true
-	config.AddAllowHeaders(
-		// "Access-Control-Allow-Credentials",
-		// "Access-Control-Allow-Headers",
-		// "Access-Control-Allow-Origin",
-		// "Content-Type",
-		// "Content-Length",
-		// "Accept-Encoding",
-		"Authorization",
-	)
+	config.AddAllowHeaders("Authorization")
 	r.Use(cors.New(config))
 	r.Use(middleware.FirebaseAuthMiddleware)
-	// r.Use(middleware.AuthorizationApiMiddleware)
-	// r.Use(middleware.ManagementApiMiddlewaer)
-	// r.Use(utils.PeopleMmiddleware)
 
 	// エンドポイントの設定
-	api := r.Group("/api")
+	// ユーザー
+	me := r.Group("/me")
 	{
-		me := api.Group("/me")
-		{
-			me.GET("/", userHandler.HandlerGet)
-			me.POST("/", userHandler.HandlerCreate)
-			me.PUT("/", userHandler.HandlerUpdate)
-			me.GET("/bank", bankAccountHandler.HandleGet)
-			me.POST("/bank", bankAccountHandler.HandleCreate)
-			me.PUT("/bank", bankAccountHandler.HandleUpdate)
-		}
-		groups := api.Group("/groups")
-		{
-			groups.GET("/", groupHandler.HandleGet)
-			groups.POST("/", groupHandler.HandleCreate)
-			groups.GET("/:id", groupHandler.HandleGetById)
-			groups.PUT("/:id", groupHandler.HandleUpdate)
-		}
+		me.GET("/", userHandler.HandlerGet)
+		me.POST("/", userHandler.HandlerCreate)
+		me.PUT("/", userHandler.HandlerUpdate)
+		me.GET("/bank", bankAccountHandler.HandleGet)
+		me.POST("/bank", bankAccountHandler.HandleCreate)
+		me.PUT("/bank", bankAccountHandler.HandleUpdate)
+	}
+
+	// グループ
+	groups := r.Group("/groups")
+	{
+		groups.GET("/", groupHandler.HandleGet)
+		groups.POST("/", groupHandler.HandleCreate)
+		groups.GET("/:id", groupHandler.HandleGetById)
+		groups.PUT("/:id", groupHandler.HandleUpdate)
 	}
 
 	if err := r.Run(hostName + ":8080"); err != nil {

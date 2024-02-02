@@ -49,9 +49,9 @@ func Sever(dsn string, hostName string, dbInit bool) {
 		me.GET("/", userHandler.HandlerGet)
 		me.POST("/", userHandler.HandlerCreate)
 		me.PUT("/", userHandler.HandlerUpdate)
-		me.GET("/bank", bankAccountHandler.HandleGet)
-		me.POST("/bank", bankAccountHandler.HandleCreate)
-		me.PUT("/bank", bankAccountHandler.HandleUpdate)
+		me.GET("/bank/", bankAccountHandler.HandleGet)
+		me.POST("/bank/", bankAccountHandler.HandleCreate)
+		me.PUT("/bank/", bankAccountHandler.HandleUpdate)
 	}
 
 	// グループ
@@ -59,8 +59,8 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	{
 		groups.GET("/", groupHandler.HandleGet)
 		groups.POST("/", groupHandler.HandleCreate)
-		groups.GET("/:id", groupHandler.HandleGetById)
-		groups.PUT("/:id", groupHandler.HandleUpdate)
+		groups.GET("/:id/", groupHandler.HandleGetById)
+		groups.PUT("/:id/", groupHandler.HandleUpdate)
 	}
 
 	if err := r.Run(hostName + ":8080"); err != nil {

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"unsafe"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 )
 
 func FirebaseAuthMiddleware(c *gin.Context) {
+	log.Print("firebaseAuth middleware start")
 	idToken := ""
 	arr := strings.Split(c.Request.Header.Get("Authorization"), " ")
 	if len(arr) != 2 {
@@ -29,12 +31,14 @@ func FirebaseAuthMiddleware(c *gin.Context) {
 	if err != nil {
 		log.Printf("Error initializing Firebase app: %v", err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "firebase SDKの初期化に失敗しました"})
+		return
 	}
 	// authClientの初期化
 	client, err := app.Auth(c)
 	if err != nil {
 		log.Printf("failed init auht client %v/n", err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "クライアントの初期化に失敗しました"})
+		return
 	}
 
 	// IDトークンの検証
@@ -42,11 +46,15 @@ func FirebaseAuthMiddleware(c *gin.Context) {
 	if err != nil {
 		log.Printf("failed verifying token %v/n", err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "IDトークンの検証エラー"})
+		return
 	}
 
-	println(token.Claims["name"])
-	println(token.Claims["email"])
-	c.Set("name", token.Claims["name"])
-	c.Set("email", token.Claims["email"])
+	name := token.Claims["name"]
+	email := token.Claims["email"]
+	log.Printf("name:  %v/n", (*string)(unsafe.Pointer(&name)))
+	log.Printf("email: %v/n", (*string)(unsafe.Pointer(&email)))
+	c.Set("name", (*string)(unsafe.Pointer(&name)))
+	c.Set("email", (*string)(unsafe.Pointer(&email)))
+	log.Print("firebaseAuth middleware successfly")
 	c.Next()
 }

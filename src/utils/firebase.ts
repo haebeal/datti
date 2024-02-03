@@ -14,4 +14,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 export const storage = getStorage(app);
-export const auth = getAuth(app);
+const auth = getAuth(app);
+auth.tenantId = process.env.NEXT_PUBLIC_FIREBASE_AUTH_TENANT;
+export { auth };

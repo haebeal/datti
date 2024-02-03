@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/datti-api/pkg/domain/model"
@@ -25,6 +26,15 @@ func NewUserHandler(userUseCase usecase.UserUseCase) UserHandler {
 // HandlerCreate implements UserHandler.
 func (uh *userHandler) HandlerCreate(c *gin.Context) {
 	user := new(model.User)
+	uid, exsist := c.Get("uid")
+	if exsist {
+		if str, ok := uid.(string); ok {
+			user.ID = str
+		} else {
+			log.Printf("cast error")
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err": "invalid UID"})
+		}
+	}
 
 	// リクエストボディから構造体へバインディング
 	if err := c.BindJSON(&user); err != nil {

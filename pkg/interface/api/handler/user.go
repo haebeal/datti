@@ -59,8 +59,8 @@ func (uh *userHandler) HandlerGet(c *gin.Context) {
 	// }
 	email, exsist := c.Get("email")
 	if exsist {
-		if str, ok := email.(*string); ok {
-			user.Email = *str
+		if str, ok := email.(string); ok {
+			user.Email = str
 		} else {
 			log.Fatal("cast error")
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"err": "ユーザー情報の取得に失敗"})

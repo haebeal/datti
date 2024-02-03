@@ -4,29 +4,20 @@ info:
   version: 0.0.1
   description: "割り勘管理サービスDattiのWebAPI"
 servers:
-  - url: https://datti.net/api
+  - url: https://datti-api-prod.fly.dev
     description: 本番環境のAPIエントリーポイント
-  - url: https://datti-reg.haebeal.net/api
-    description: リグレ環境のAPIエントリポイント
-  - url: https://datti-dev.haebeal.net/api
+  - url: https://datti-api-dev.fly.dev
     description: 開発環境のAPIエントリポイント
+security:
+- bearerAuth: []
+
 paths:
   /me:
     post:
       tags:
-        - users
+        - Users
       summary: ユーザー情報の登録
       description: ユーザー情報の登録
-      requestBody:
-        description: ユーザー情報の登録
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name: {type: string, example: "ユーザー名"}
-                email: {type: string, example: "メールアドレス"}
       responses:
         '201':
           description: 正常処理のレスポンス
@@ -34,14 +25,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
-        '400':
-          description: バリデーションエラーのレスポンス
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error: {type: string, example: "bad request error"}
         '401':
           description: アクセストークンによる認証のレスポンス
           content:
@@ -58,101 +41,17 @@ paths:
                 type: object
                 properties:
                   error: {type: string, example: "内部エラーのメッセージ（エラー内容によって可変）"}
-    get:
-      tags:
-        - users
-      summary: ユーザー情報の取得
-      description: ユーザー情報の取得
-      responses:
-        '200':
-          description: 正常処理のレスポンス
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-        '401':
-          description: アクセストークンによる認証エラーのレスポンス
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error: {type: string, example: "unauthrization err"}
-        '404':
-          description: ユーザーが登録されていない場合のレスポンス
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error: {type: string, example: "record not found"}
-        '500':
-          description: 内部エラーのレスポンス
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error: {type: string, example: "内部エラーのメッセージ（エラー内容によって可変）"}
-    put:
-      tags:
-        - users
-      summary: ユーザー情報の更新
-      description: ユーザー情報の更新
-      requestBody:
-        description: ユーザー情報の更新
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        '200':
-          description: 正常処理のレスポンス
-          content:
-            application/json:
-              schema:
-                $ref: '#components/schemas/User'
-        '400':
-          description: バリデーションエラーのレスポンス
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error: {type: string, example: "bad request error"}
-        '403':
-          description: アクセストークンによる認証エラーのレスポンス
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error: {type: string, example: "内部エラーのメッセージ（エラー内容によって可変）"}
-        '500':
-          description: 内部エラーのレスポンス
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error: {type: string, example: "内部エラーのメッセージ（エラー内容によって可変）"}
 components:
   schemas:
     User:
       type: object
       properties:
-        name:
-          type: string
-        email:
-          type: string
-        photoUrl:
-          type: string
-        accountCode:
-          type: string
-        bankCode:
-          type: string
-        branchCode:
+        uid:
           type: string
       required:
-        - email
+        - uid
+  securitySchemes:
+    BbearerAuth:
+      type: http
+      scheme: bearer
+      description:  Firebase AuthenticationのIDトークン

@@ -6,9 +6,6 @@
 app = 'datti-api-prod'
 primary_region = 'nrt'
 
-[env]
-  FLY_REGION="nrt"
-
 [build]
   dockerfile = "./../dockerfile"
 
@@ -16,7 +13,7 @@ primary_region = 'nrt'
   internal_port = 8080
   force_https = true
   auto_stop_machines = false
-  auto_start_machines = true
+  auto_start_machines = false
   min_machines_running = 1
   processes = ['app']
 

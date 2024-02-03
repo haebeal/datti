@@ -46,9 +46,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	// ユーザー
 	me := r.Group("/me")
 	{
-		me.GET("/", userHandler.HandlerGet)
 		me.POST("/", userHandler.HandlerCreate)
-		me.PUT("/", userHandler.HandlerUpdate)
 		me.GET("/bank/", bankAccountHandler.HandleGet)
 		me.POST("/bank/", bankAccountHandler.HandleCreate)
 		me.PUT("/bank/", bankAccountHandler.HandleUpdate)

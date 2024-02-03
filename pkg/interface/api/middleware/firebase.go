@@ -56,10 +56,10 @@ func FirebaseAuthMiddleware(c *gin.Context) {
 
 	name := u.DisplayName
 	email := u.Email
-	log.Printf("name:  %v\n", name)
-	log.Printf("email: %v\n", email)
+	uid := u.UID
 	c.Set("name", name)
 	c.Set("email", email)
+	c.Set("uid", uid)
 	log.Print("firebaseAuth middleware successfly")
 	c.Next()
 }

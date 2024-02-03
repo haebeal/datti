@@ -11,7 +11,6 @@ type User struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt `gorm:"index"`
-	Email       string         `json:"email" gorm:"not null;unique"`
 	GroupUser   []GroupUser    `gorm:"foreignKey:UserID"`
 	BankAccount []BankAccount  `gorm:"foreignKey:UserID"`
 	// PaymentsPaidBy []Payment   `gorm:"foreignKey:PaidBy"`

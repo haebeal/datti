@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"unsafe"
 
 	firebase "firebase.google.com/go/v4"
 	"github.com/gin-gonic/gin"
@@ -49,12 +48,18 @@ func FirebaseAuthMiddleware(c *gin.Context) {
 		return
 	}
 
-	name := token.Claims["name"]
-	email := token.Claims["email"]
-	log.Printf("name:  %v/n", (*string)(unsafe.Pointer(&name)))
-	log.Printf("email: %v/n", (*string)(unsafe.Pointer(&email)))
-	c.Set("name", (*string)(unsafe.Pointer(&name)))
-	c.Set("email", (*string)(unsafe.Pointer(&email)))
+	u, err := client.GetUser(c, token.UID)
+	if err != nil {
+		log.Fatalf("error getting user %s: %v\n", token.UID, err)
+	}
+	log.Printf("Successfully fetched user data: %v\n", u)
+
+	name := u.DisplayName
+	email := u.Email
+	log.Printf("name:  %v\n", name)
+	log.Printf("email: %v\n", email)
+	c.Set("name", name)
+	c.Set("email", email)
 	log.Print("firebaseAuth middleware successfly")
 	c.Next()
 }

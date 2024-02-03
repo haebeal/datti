@@ -6,6 +6,9 @@
 app = 'datti-api-prod'
 primary_region = 'nrt'
 
+[env]
+  TZ="Asia/Tokyo"
+
 [build]
   dockerfile = "./../dockerfile"
 

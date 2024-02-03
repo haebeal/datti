@@ -12,7 +12,7 @@ security:
 - bearerAuth: []
 
 paths:
-  /me:
+  /me/:
     post:
       tags:
         - Users

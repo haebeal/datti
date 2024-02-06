@@ -12,19 +12,19 @@ security:
 - bearerAuth: []
 
 paths:
-  /me/:
+  /bank/:
     post:
       tags:
-        - Users
-      summary: ユーザー情報の登録
-      description: ユーザー情報の登録
+        - Banks
+      summary: 口座情報の登録
+      description: 口座情報情報の登録
       responses:
         '201':
           description: 正常処理のレスポンス
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/BankAccount'
         '401':
           description: アクセストークンによる認証のレスポンス
           content:
@@ -43,13 +43,27 @@ paths:
                   error: {type: string, example: "内部エラーのメッセージ（エラー内容によって可変）"}
 components:
   schemas:
-    User:
+    BankAccount:
       type: object
       properties:
         uid:
           type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        deletedAt:
+          type: string
+        accountCode:
+          type: string
+        bankCode:
+          type: string
+        branchCode:
+          type: string
       required:
-        - uid
+        - accountCode
+        - bankCode
+        - branchCode
   securitySchemes:
     BbearerAuth:
       type: http

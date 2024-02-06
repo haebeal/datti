@@ -20,10 +20,6 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	}
 
 	// 依存性の解決
-	userRepository := repositoryimpl.NewUserRepoImpl(dbEngine)
-	userUseCase := usecase.NewUserUseCase(userRepository)
-	userHandler := handler.NewUserHandler(userUseCase)
-
 	groupRepository := repositoryimpl.NewGropuRepoImpl(dbEngine)
 	groupUseCase := usecase.NewGroupUseCase(groupRepository)
 	groupHandler := handler.NewGroupHandler(groupUseCase)
@@ -46,7 +42,6 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	// ユーザー
 	me := r.Group("/me")
 	{
-		me.POST("/", userHandler.HandlerCreate)
 		me.GET("/bank/", bankAccountHandler.HandleGet)
 		me.POST("/bank/", bankAccountHandler.HandleCreate)
 		me.PUT("/bank/", bankAccountHandler.HandleUpdate)

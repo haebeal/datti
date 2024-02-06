@@ -32,6 +32,7 @@ func FirebaseAuthMiddleware(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "firebase SDKの初期化に失敗しました"})
 		return
 	}
+
 	// authClientの初期化
 	client, err := app.Auth(c)
 	if err != nil {
@@ -39,26 +40,28 @@ func FirebaseAuthMiddleware(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "クライアントの初期化に失敗しました"})
 		return
 	}
+	tenantClient, err := client.TenantManager.AuthForTenant(os.Getenv("FIREBASE_AUTH_TENANT"))
+	if err != nil {
+		log.Printf("failed init auht client %v/n", err)
+		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "テナントのクライアントの初期化に失敗しました"})
+		return
+	}
 
 	// IDトークンの検証
-	token, err := client.VerifyIDToken(c, idToken)
+	token, err := tenantClient.VerifyIDToken(c, idToken)
 	if err != nil {
 		log.Printf("failed verifying token %v/n", err)
 		c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "IDトークンの検証エラー"})
 		return
 	}
 
-	u, err := client.GetUser(c, token.UID)
+	u, err := tenantClient.GetUser(c, token.UID)
 	if err != nil {
 		log.Fatalf("error getting user %s: %v\n", token.UID, err)
 	}
 	log.Printf("Successfully fetched user data: %v\n", u)
 
-	name := u.DisplayName
-	email := u.Email
 	uid := u.UID
-	c.Set("name", name)
-	c.Set("email", email)
 	c.Set("uid", uid)
 	log.Print("firebaseAuth middleware successfly")
 	c.Next()

@@ -40,11 +40,11 @@ func Sever(dsn string, hostName string, dbInit bool) {
 
 	// エンドポイントの設定
 	// ユーザー
-	me := r.Group("/me")
+	me := r.Group("/bank")
 	{
-		me.GET("/bank/", bankAccountHandler.HandleGet)
-		me.POST("/bank/", bankAccountHandler.HandleCreate)
-		me.PUT("/bank/", bankAccountHandler.HandleUpdate)
+		me.GET("/", bankAccountHandler.HandleGet)
+		me.POST("/", bankAccountHandler.HandleUpsert)
+		// me.PUT("/bank/", bankAccountHandler.HandleUpdate)
 	}
 
 	// グループ

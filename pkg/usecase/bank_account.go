@@ -11,7 +11,6 @@ import (
 type BankAccountUseCase interface {
 	UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error)
 	GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error)
-	UpdateBankAccount(c context.Context, user *model.User, bank *model.BankAccount) (*model.BankAccount, error)
 }
 
 type bankAccountUseCase struct {
@@ -44,11 +43,6 @@ func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, user *model.
 	}
 
 	return findBankAccount, nil
-}
-
-// UpdateBankAccount implements BankAccountUseCase.
-func (*bankAccountUseCase) UpdateBankAccount(c context.Context, user *model.User, bank *model.BankAccount) (*model.BankAccount, error) {
-	panic("unimplemented")
 }
 
 func NewBankAccountUseCase(bankAccountRepo repository.BankAccountRepository) BankAccountUseCase {

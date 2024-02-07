@@ -33,11 +33,6 @@ func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, user 
 	return findBankAccount, nil
 }
 
-// UpdateBankAccount implements repository.BankAccountRepository.
-func (*bankAccountRepositoryImpl) UpdateBankAccount(c context.Context, user *model.User, bank *model.BankAccount) (*model.BankAccount, error) {
-	panic("unimplemented")
-}
-
 func NewBankAccountRepository(engine *database.DBEngine) repository.BankAccountRepository {
 	return &bankAccountRepositoryImpl{
 		DBEngine: *engine,

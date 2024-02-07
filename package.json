@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "create-client": "rm -rf ./src/api/* && npx openapi2aspida -i https://haebeal.github.io/datti-api/openapi.yml -o ./src/api",
     "lint": "biome lint ./src",
     "format": "biome format --write ./src",
     "storybook": "storybook dev -p 6006",
@@ -15,10 +16,13 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@aspida/axios": "^1.14.0",
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@hookform/resolvers": "^3.3.4",
+    "aspida": "^1.14.0",
+    "axios": "^1.6.7",
     "chakra-react-select": "^4.7.6",
     "firebase": "^10.7.2",
     "framer-motion": "^10.16.16",

@@ -27,8 +27,13 @@ func (bu *bankAccountUseCase) UpsertBankAccount(c context.Context, bank *model.B
 }
 
 // GetBankAccountById implements BankAccountUseCase.
-func (*bankAccountUseCase) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
-	panic("unimplemented")
+func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
+	findBankAccount, err := bu.repository.GetBankAccountById(c, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return findBankAccount, nil
 }
 
 // UpdateBankAccount implements BankAccountUseCase.

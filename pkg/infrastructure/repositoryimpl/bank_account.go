@@ -23,8 +23,14 @@ func (br *bankAccountRepositoryImpl) UpsertBankAccount(c context.Context, bank *
 }
 
 // GetBankAccountById implements repository.BankAccountRepository.
-func (*bankAccountRepositoryImpl) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
-	panic("unimplemented")
+func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
+	findBankAccount := new(model.BankAccount)
+	result := br.DBEngine.Engine.Where("user_id = ?", user.ID).First(findBankAccount)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return findBankAccount, nil
 }
 
 // UpdateBankAccount implements repository.BankAccountRepository.

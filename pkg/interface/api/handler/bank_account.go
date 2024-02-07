@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/usecase"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type BankAccountHandler interface {
@@ -44,8 +46,29 @@ func (bh *bankAccountHandler) HandleUpsert(c *gin.Context) {
 }
 
 // HandleGet implements BankAccountHandler.
-func (*bankAccountHandler) HandleGet(c *gin.Context) {
-	panic("unimplemented")
+func (bh *bankAccountHandler) HandleGet(c *gin.Context) {
+	uid := ""
+	val, exsist := c.Get("uid")
+	if exsist {
+		uid = val.(string)
+	}
+
+	user := new(model.User)
+	user.ID = uid
+
+	findBankAccount, err := bh.useCase.GetBankAccountById(c, user)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		} else {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+	} else {
+		c.JSON(http.StatusOK, findBankAccount)
+		return
+	}
 }
 
 // HandleUpdate implements BankAccountHandler.

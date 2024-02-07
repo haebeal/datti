@@ -44,8 +44,8 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	// r.POST("/bank", bankAccountHandler.HandleUpsert)
 	me := r.Group("/bank")
 	{
-		me.GET("/", bankAccountHandler.HandleGet)
-		me.POST("/", bankAccountHandler.HandleUpsert)
+		me.GET("", bankAccountHandler.HandleGet)
+		me.POST("", bankAccountHandler.HandleUpsert)
 	}
 
 	// グループ

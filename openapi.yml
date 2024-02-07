@@ -18,6 +18,12 @@ paths:
         - Banks
       summary: 口座情報の登録
       description: 口座情報情報の登録
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestBankAccount'
       responses:
         '201':
           description: 正常処理のレスポンス
@@ -71,6 +77,19 @@ paths:
                   error: {type: string, example: "internal error message"}
 components:
   schemas:
+    RequestBankAccount:
+      type: object
+      properties:
+        accountCode:
+          type: string
+        bankCode:
+          type: string
+        branchCode:
+          type: string
+      required:
+        - accountCode
+        - bankCode
+        - branchCode
     BankAccount:
       type: object
       properties:

@@ -25,7 +25,7 @@ func (br *bankAccountRepositoryImpl) UpsertBankAccount(c context.Context, bank *
 // GetBankAccountById implements repository.BankAccountRepository.
 func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
 	findBankAccount := new(model.BankAccount)
-	result := br.DBEngine.Engine.Where("user_id = ?", user.ID).First(findBankAccount)
+	result := br.DBEngine.Engine.Where("user_id = ?", user.ID).Find(findBankAccount)
 	if result.Error != nil {
 		return nil, result.Error
 	}

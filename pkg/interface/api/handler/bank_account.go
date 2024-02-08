@@ -14,7 +14,7 @@ import (
 type BankAccountHandler interface {
 	HandleUpsert(c *gin.Context)
 	HandleGet(c *gin.Context)
-	HandleUpdate(c *gin.Context)
+	HandleDelete(c *gin.Context)
 }
 
 type bankAccountHandler struct {
@@ -72,8 +72,23 @@ func (bh *bankAccountHandler) HandleGet(c *gin.Context) {
 }
 
 // HandleUpdate implements BankAccountHandler.
-func (*bankAccountHandler) HandleUpdate(c *gin.Context) {
-	panic("unimplemented")
+func (bh *bankAccountHandler) HandleDelete(c *gin.Context) {
+	uid := ""
+	val, exsist := c.Get("uid")
+	if exsist {
+		uid = val.(string)
+	}
+
+	user := new(model.User)
+	user.ID = uid
+
+	err := bh.useCase.DeleteBankAccount(c, user)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	} else {
+		c.JSON(http.StatusOK, gin.H{"message": "delete successfuly"})
+	}
 }
 
 func NewBankAccountHandler(bankAccountUseCase usecase.BankAccountUseCase) BankAccountHandler {

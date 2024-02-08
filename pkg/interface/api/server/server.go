@@ -46,6 +46,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	{
 		me.GET("", bankAccountHandler.HandleGet)
 		me.POST("", bankAccountHandler.HandleUpsert)
+		me.DELETE("", bankAccountHandler.HandleDelete)
 	}
 
 	// グループ

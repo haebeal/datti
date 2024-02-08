@@ -11,6 +11,7 @@ import (
 type BankAccountUseCase interface {
 	UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error)
 	GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error)
+	DeleteBankAccount(c context.Context, user *model.User) error
 }
 
 type bankAccountUseCase struct {
@@ -43,6 +44,15 @@ func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, user *model.
 	}
 
 	return findBankAccount, nil
+}
+
+func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, user *model.User) error {
+	err := bu.repository.DeleteBankAccount(c, user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func NewBankAccountUseCase(bankAccountRepo repository.BankAccountRepository) BankAccountUseCase {

@@ -87,7 +87,7 @@ func (bh *bankAccountHandler) HandleDelete(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	} else {
-		c.JSON(http.StatusOK, gin.H{"message": "delete successfuly"})
+		c.JSON(http.StatusOK, gin.H{"message": "delete successfully"})
 	}
 }
 

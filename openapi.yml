@@ -12,7 +12,7 @@ security:
 - bearerAuth: []
 
 paths:
-  /bank/:
+  /bank:
     post:
       tags:
         - Banks
@@ -67,6 +67,28 @@ paths:
                 type: object
                 properties:
                   error: {type: string, example: "record not found"}
+        '500':
+          description: 内部エラーのレスポンス
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error: {type: string, example: "internal error message"}
+    delete:
+      tags:
+        - Banks
+      summary: 口座情報の削除
+      description: 口座情報情報の削除
+      responses:
+        '200':
+          description: 正常処理のレスポンス
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: {type: string, example: "delete successfully"}
         '500':
           description: 内部エラーのレスポンス
           content:

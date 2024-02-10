@@ -1,68 +1,75 @@
 import {
   Card,
   CardBody,
-  Heading,
+  Divider,
   Skeleton,
-  Tab,
-  TabList,
-  TabPanel,
-  TabPanels,
-  Tabs,
+  Stack,
+  VStack,
 } from "@chakra-ui/react";
-import { useSession } from "next-auth/react";
 
 import { BankAccountForm } from "@/components/BankAccountForm";
 import { ProfileForm } from "@/components/ProfileForm";
+import { ProfilePhotoUpload } from "@/components/ProfilePhotoUpload";
 import { useBankAccount } from "@/hooks/useBankAccount";
-import { useProfile } from "@/hooks/useProfile";
+import { useFirebase } from "@/hooks/useFirebase";
+import { profileSchema } from "@/schema";
 
 export const SettingPanel = () => {
   const {
     isLoading: isLoadingProfile,
     isUploading,
-    profile,
+    currentUser,
     updateProfile,
     uploadProfilePhoto,
-  } = useProfile();
+  } = useFirebase();
   const {
     isLoading: isLoadingBankAccount,
     bankAccount,
     updateBankAccount,
+    deleteBankAccount,
+    reloadBankAccount,
   } = useBankAccount();
 
   return (
-    <Card>
+    <Card mb={8}>
       <CardBody>
-        <Tabs>
-          <TabList>
-            <Tab>
-              <Heading size="sm">プロフィール</Heading>
-            </Tab>
-            <Tab>
-              <Heading size="sm">振込先口座</Heading>
-            </Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>
-              <Skeleton isLoaded={!isLoadingProfile}>
-                <ProfileForm
-                  isUploading={isUploading}
-                  uploadProfilePhoto={uploadProfilePhoto}
-                  defaultValues={profile ?? undefined}
-                  updateProfile={updateProfile}
-                />
-              </Skeleton>
-            </TabPanel>
-            <TabPanel>
-              <Skeleton isLoaded={!isLoadingBankAccount}>
-                <BankAccountForm
-                  defaultValues={bankAccount}
-                  updateBankAccount={updateBankAccount}
-                />
-              </Skeleton>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
+        <Stack
+          w="full"
+          align={{ base: "center", md: "start" }}
+          gap={9}
+          pt={5}
+          direction={{ base: "column", md: "row" }}
+        >
+          <ProfilePhotoUpload
+            photoUrl={currentUser?.photoURL ?? ""}
+            isLoading={isUploading}
+            updatePhoto={uploadProfilePhoto}
+          />
+          <VStack gap={5} w="full">
+            <Skeleton isLoaded={!isLoadingProfile} w="full">
+              <ProfileForm
+                isUploading={isUploading}
+                uploadProfilePhoto={uploadProfilePhoto}
+                defaultValues={
+                  currentUser ? profileSchema.parse(currentUser) : undefined
+                }
+                updateProfile={updateProfile}
+              />
+            </Skeleton>
+            <Divider />
+            <Skeleton
+              isLoaded={!isLoadingProfile && !isLoadingBankAccount}
+              w="full"
+            >
+              <BankAccountForm
+                defaultValues={bankAccount}
+                updateBankAccount={updateBankAccount}
+                deleteBankAccount={deleteBankAccount}
+                reloadBankAccount={reloadBankAccount}
+              />
+            </Skeleton>
+          </VStack>
+        </Stack>
       </CardBody>
     </Card>
   );

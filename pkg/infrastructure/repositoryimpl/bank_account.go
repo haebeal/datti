@@ -13,18 +13,34 @@ type bankAccountRepositoryImpl struct {
 }
 
 // CreateBankAccount implements repository.BankAccountRepository.
-func (*bankAccountRepositoryImpl) CreateBankAccount(c context.Context, user *model.User, bank *model.BankAccount) (*model.BankAccount, error) {
-	panic("unimplemented")
+func (br *bankAccountRepositoryImpl) UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error) {
+	result := br.DBEngine.Engine.Where("user_id = ?", bank.UserID).Save(bank).Scan(bank)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return bank, nil
 }
 
 // GetBankAccountById implements repository.BankAccountRepository.
-func (*bankAccountRepositoryImpl) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
-	panic("unimplemented")
+func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
+	findBankAccount := new(model.BankAccount)
+	result := br.DBEngine.Engine.Where("user_id = ?", user.ID).Find(findBankAccount)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return findBankAccount, nil
 }
 
-// UpdateBankAccount implements repository.BankAccountRepository.
-func (*bankAccountRepositoryImpl) UpdateBankAccount(c context.Context, user *model.User, bank *model.BankAccount) (*model.BankAccount, error) {
-	panic("unimplemented")
+func (br *bankAccountRepositoryImpl) DeleteBankAccount(c context.Context, user *model.User) error {
+	bankAccount := new(model.BankAccount)
+	result := br.DBEngine.Engine.Where("user_id = ?", user.ID).Delete(bankAccount)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
 
 func NewBankAccountRepository(engine *database.DBEngine) repository.BankAccountRepository {

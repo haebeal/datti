@@ -5,12 +5,13 @@ import (
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
+	"github.com/datti-api/pkg/validator"
 )
 
 type BankAccountUseCase interface {
-	CreateBankAccount(c context.Context, user *model.User, bank *model.BankAccount) (*model.BankAccount, error)
+	UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error)
 	GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error)
-	UpdateBankAccount(c context.Context, user *model.User, bank *model.BankAccount) (*model.BankAccount, error)
+	DeleteBankAccount(c context.Context, user *model.User) error
 }
 
 type bankAccountUseCase struct {
@@ -18,18 +19,40 @@ type bankAccountUseCase struct {
 }
 
 // CreateBankAccount implements BankAccountUseCase.
-func (*bankAccountUseCase) CreateBankAccount(c context.Context, user *model.User, bank *model.BankAccount) (*model.BankAccount, error) {
-	panic("unimplemented")
+func (bu *bankAccountUseCase) UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error) {
+	if err := validator.ValidatorAccountCode(bank.AccountCode); err != nil {
+		return nil, err
+	}
+	if err := validator.ValidatorBankCode(bank.BankCode); err != nil {
+		return nil, err
+	}
+	if err := validator.ValidatorBranchCode(bank.BranchCode); err != nil {
+		return nil, err
+	}
+	newBankAccount, err := bu.repository.UpsertBankAccount(c, bank)
+	if err != nil {
+		return nil, err
+	}
+	return newBankAccount, nil
 }
 
 // GetBankAccountById implements BankAccountUseCase.
-func (*bankAccountUseCase) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
-	panic("unimplemented")
+func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
+	findBankAccount, err := bu.repository.GetBankAccountById(c, user)
+	if err != nil {
+		return nil, err
+	}
+
+	return findBankAccount, nil
 }
 
-// UpdateBankAccount implements BankAccountUseCase.
-func (*bankAccountUseCase) UpdateBankAccount(c context.Context, user *model.User, bank *model.BankAccount) (*model.BankAccount, error) {
-	panic("unimplemented")
+func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, user *model.User) error {
+	err := bu.repository.DeleteBankAccount(c, user)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func NewBankAccountUseCase(bankAccountRepo repository.BankAccountRepository) BankAccountUseCase {

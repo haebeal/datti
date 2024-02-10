@@ -39,12 +39,14 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.Use(middleware.FirebaseAuthMiddleware)
 
 	// エンドポイントの設定
-	// ユーザー
-	me := r.Group("/me")
+	//
+	// r.GET("/bank", bankAccountHandler.HandleGet)
+	// r.POST("/bank", bankAccountHandler.HandleUpsert)
+	me := r.Group("/bank")
 	{
-		me.GET("/bank/", bankAccountHandler.HandleGet)
-		me.POST("/bank/", bankAccountHandler.HandleCreate)
-		me.PUT("/bank/", bankAccountHandler.HandleUpdate)
+		me.GET("", bankAccountHandler.HandleGet)
+		me.POST("", bankAccountHandler.HandleUpsert)
+		me.DELETE("", bankAccountHandler.HandleDelete)
 	}
 
 	// グループ

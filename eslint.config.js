@@ -1,18 +1,22 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import js from "@eslint/js";
-import typescriptPlugin from "@typescript-eslint/eslint-plugin";
-import typescriptParser from "@typescript-eslint/parser";
-import eslintConfigPrettier from "eslint-config-prettier";
-import importPlugin from "eslint-plugin-import";
-import reactJsxPlugin from "eslint-plugin-react/configs/jsx-runtime.js";
-import reactRecommended from "eslint-plugin-react/configs/recommended.js";
-import unusedImportPlugin from "eslint-plugin-unused-imports";
-import globals from "globals";
+const { FlatCompat } = require("@eslint/eslintrc");
+const js = require("@eslint/js");
+const typescriptPlugin = require("@typescript-eslint/eslint-plugin");
+const typescriptParser = require("@typescript-eslint/parser");
+const eslintConfigPrettier = require("eslint-config-prettier");
+const importPlugin = require("eslint-plugin-import");
+const reactJsxPlugin = require("eslint-plugin-react/configs/jsx-runtime.js");
+const reactRecommended = require("eslint-plugin-react/configs/recommended.js");
+const unusedImportPlugin = require("eslint-plugin-unused-imports");
+const globals = require("globals");
 
 const compat = new FlatCompat();
 
 /** @type { import("eslint").Linter.FlatConfig[] } */
-export default [
+module.exports = [
+  // *.d.tsは無視するように
+  {
+    ignores: ["**/*.d.ts"],
+  },
   // 全体項目設定
   {
     files: ["**/*.js", "**/*.ts", "**/*.jsx", "**/*.tsx"],

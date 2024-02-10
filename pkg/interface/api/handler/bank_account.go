@@ -75,10 +75,9 @@ func (bh *bankAccountHandler) HandleDelete(c echo.Context) error {
 	user.ID = uid
 
 	err := bh.useCase.DeleteBankAccount(c.Request().Context(), user)
-	errResponse.Error = err.Error()
 	if err != nil {
+		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
-
 	} else {
 		return c.JSON(http.StatusOK, struct {
 			Message string `json:"message"`

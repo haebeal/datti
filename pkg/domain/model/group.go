@@ -12,5 +12,5 @@ type Group struct {
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `json:"deletedAt" gorm:"index"`
 	Name      string         `gorm:"not null"`
-	GroupUser []GroupUser    `gorm:"foreignKey:GroupID"`
+	// GroupUser []GroupUser    `gorm:"foreignKey:GroupID"`
 }

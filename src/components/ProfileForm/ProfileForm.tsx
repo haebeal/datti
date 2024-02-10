@@ -1,19 +1,9 @@
-import {
-  Button,
-  Flex,
-  HStack,
-  Skeleton,
-  Stack,
-  VStack,
-} from "@chakra-ui/react";
+import { Button, Stack, VStack } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 
-import { watch } from "fs";
 import { FormInput } from "@/components/FormInput";
-import { ProfilePhotoUpload } from "@/components/ProfilePhotoUpload";
-import { Profile, profileScheme } from "@/features/profile";
-import { useState } from "react";
+import { Profile, profileSchema } from "@/schema";
 
 interface Props {
   defaultValues?: Profile;
@@ -22,19 +12,14 @@ interface Props {
   uploadProfilePhoto: (file: File) => Promise<void>;
 }
 
-export const ProfileForm = ({
-  defaultValues,
-  isUploading,
-  updateProfile,
-  uploadProfilePhoto,
-}: Props) => {
+export const ProfileForm = ({ defaultValues, updateProfile }: Props) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<Profile>({
     defaultValues: defaultValues,
-    resolver: zodResolver(profileScheme),
+    resolver: zodResolver(profileSchema),
   });
 
   const onSubmit: SubmitHandler<Profile> = async (data) => {
@@ -50,24 +35,12 @@ export const ProfileForm = ({
         pt={5}
         direction={{ base: "column", md: "row" }}
       >
-        <ProfilePhotoUpload
-          photoUrl={defaultValues?.picture ?? ""}
-          isLoading={isUploading}
-          updatePhoto={uploadProfilePhoto}
-        />
         <VStack w="full" bg="white" gap={5}>
-          <FormInput
-            label="Email"
-            readonly
-            placeholder="メールアドレスを入力"
-            register={register("email")}
-            error={errors.email}
-          />
           <FormInput
             label="ユーザー名"
             placeholder="ユーザー名を入力"
-            register={register("name")}
-            error={errors.name}
+            register={register("displayName")}
+            error={errors.displayName}
           />
         </VStack>
       </Stack>

@@ -1,4 +1,4 @@
-import { Button, VStack } from "@chakra-ui/react";
+import { Button, Flex, HStack, Spacer, Stack, VStack } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SingleValue } from "chakra-react-select";
 import { useEffect, useState } from "react";
@@ -7,6 +7,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { FormInput } from "@/components/FormInput";
 import { FormSelect } from "@/components/FormSelect";
 
+import { BankAccount } from "@/api/@types";
 import {
   Bank,
   Branch,
@@ -15,16 +16,20 @@ import {
   getBranch,
   getBranches,
 } from "@/features/bank";
-import { BankAccount, bankAccountScheme } from "@/features/bankAccount";
+import { bankAccountSchema } from "@/schema";
 
 interface Props {
   defaultValues?: BankAccount;
   updateBankAccount: SubmitHandler<BankAccount>;
+  deleteBankAccount: () => Promise<null | undefined>;
+  reloadBankAccount: () => Promise<void>;
 }
 
 export const BankAccountForm = ({
   defaultValues,
   updateBankAccount,
+  deleteBankAccount,
+  reloadBankAccount,
 }: Props) => {
   const {
     register,
@@ -35,7 +40,7 @@ export const BankAccountForm = ({
     watch,
   } = useForm<BankAccount>({
     defaultValues,
-    resolver: zodResolver(bankAccountScheme),
+    resolver: zodResolver(bankAccountSchema),
   });
 
   const [selectedBank, setSelectedBank] = useState<Bank>();
@@ -102,6 +107,17 @@ export const BankAccountForm = ({
       gap={5}
       onSubmit={handleSubmit(updateBankAccount)}
     >
+      <Flex w="full" gap={3}>
+        <Spacer />
+        {defaultValues?.uid && (
+          <Button onClick={deleteBankAccount} colorScheme="red">
+            削除
+          </Button>
+        )}
+        <Button onClick={reloadBankAccount} colorScheme="green">
+          再読み込み
+        </Button>
+      </Flex>
       <FormSelect<BankAccount, Bank>
         label="金融機関"
         placeholder="金融機関を選択"

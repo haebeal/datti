@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-export const bankAccountScheme = z.object({
+import { BankAccount } from "@/api/@types";
+import { ToZod } from "@/utils";
+
+export const bankAccountSchema = z.object<
+  Pick<ToZod<BankAccount>, "accountCode" | "bankCode" | "branchCode">
+>({
   accountCode: z.string().length(7, {
     message: "口座番号は7桁で入力してください",
   }),
@@ -16,5 +21,3 @@ export const bankAccountScheme = z.object({
     message: "支店を選択してください",
   }),
 });
-
-export type BankAccount = z.infer<typeof bankAccountScheme>;

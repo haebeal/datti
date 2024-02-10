@@ -1,30 +1,56 @@
+import axiosClient from "@aspida/axios";
+import useAspidaSWR from "@aspida/swr";
 import { useToast } from "@chakra-ui/react";
-import useSWR from "swr";
+import { AxiosError } from "axios";
+import { useState } from "react";
 
-import {
-  BankAccount,
-  getBankAccount,
-  putBankAccount,
-} from "@/features/bankAccount";
+import api from "@/api/$api";
+import { BankAccount } from "@/api/@types";
+import { useFirebase } from "@/hooks";
 
 export const useBankAccount = () => {
+  const { idToken } = useFirebase();
+  const [isUpdating, setUpdating] = useState(false);
+
+  const client = api(
+    axiosClient(undefined, {
+      baseURL: "https://datti-api-dev.fly.dev",
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
+    }),
+  );
   const toast = useToast();
+
   const {
     data: bankAccount,
-    isLoading,
+    isLoading: isFetching,
+    isValidating,
     mutate,
-  } = useSWR<BankAccount>("", getBankAccount);
+  } = useAspidaSWR(client.bank, {
+    enabled: idToken ? true : false,
+    onErrorRetry: (error: AxiosError) => {
+      if (error.response?.status === 404) return;
+    },
+  });
+
+  const reloadBankAccount = async () => {
+    await mutate();
+  };
 
   const updateBankAccount = async (value: BankAccount) => {
     try {
-      const result = await putBankAccount("", value);
+      setUpdating(true);
+      await client.bank.$post({
+        body: value,
+      });
       toast({
-        title: "プロフィールを更新しました",
+        title: "口座情報を更新しました",
         status: "success",
       });
-      return result;
+      await mutate();
     } catch (error: unknown) {
-      if (error instanceof Error) {
+      if (error instanceof AxiosError) {
         toast({
           status: "error",
           title: error.message,
@@ -37,9 +63,42 @@ export const useBankAccount = () => {
       }
       return null;
     } finally {
-      mutate();
+      setUpdating(false);
     }
   };
 
-  return { isLoading, bankAccount, updateBankAccount };
+  const deleteBankAccount = async () => {
+    try {
+      setUpdating(true);
+      await client.bank.$delete();
+      toast({
+        title: "口座情報を削除しました",
+        status: "info",
+      });
+      await mutate();
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        toast({
+          status: "error",
+          title: error.message,
+        });
+      } else {
+        toast({
+          status: "error",
+          title: "不明なエラーが発生しました",
+        });
+      }
+      return null;
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  return {
+    isLoading: isFetching || isUpdating || isValidating,
+    bankAccount,
+    updateBankAccount,
+    deleteBankAccount,
+    reloadBankAccount,
+  };
 };

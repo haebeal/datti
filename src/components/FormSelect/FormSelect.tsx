@@ -6,21 +6,17 @@ import {
   Skeleton,
   Stack,
 } from "@chakra-ui/react";
-import {
+import { AsyncSelect } from "chakra-react-select";
+import { useId } from "react";
+import { Controller } from "react-hook-form";
+
+import type {
   ActionMeta,
   AsyncProps,
-  AsyncSelect,
   GroupBase,
   SingleValue,
 } from "chakra-react-select";
-import { useId } from "react";
-import {
-  Control,
-  Controller,
-  FieldError,
-  FieldValues,
-  Path,
-} from "react-hook-form";
+import type { Control, FieldError, FieldValues, Path } from "react-hook-form";
 
 type Props<T extends FieldValues, U> = AsyncProps<U, true, GroupBase<U>> & {
   id?: string;
@@ -99,7 +95,7 @@ export const FormSelect = <T extends FieldValues, U>({
           />
         </Skeleton>
       </Stack>
-      {isError && <FormErrorMessage>{error?.message}</FormErrorMessage>}
+      {isError ? <FormErrorMessage>{error?.message}</FormErrorMessage> : null}
     </FormControl>
   );
 };

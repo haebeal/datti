@@ -1,11 +1,13 @@
 import { ChakraProvider, useToast } from "@chakra-ui/react";
-import { Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
-import type { AppPropsWithLayout } from "next/app";
 import { SWRConfig } from "swr";
 
-import { HttpError } from "@/errors";
+import type { AppPropsWithLayout } from "next/app";
+import type { Session } from "next-auth";
+
 import { theme } from "@/utils";
+
+import { HttpError } from "@/errors";
 
 const App = ({
   Component,

@@ -1,9 +1,13 @@
 import { Button, Stack, VStack } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
+
+import type { SubmitHandler } from "react-hook-form";
+
+import type { Profile } from "@/schema";
+import { profileSchema } from "@/schema";
 
 import { FormInput } from "@/components/FormInput";
-import { Profile, profileSchema } from "@/schema";
 
 interface Props {
   defaultValues?: Profile;

@@ -1,22 +1,18 @@
-import { Button, Flex, HStack, Spacer, Stack, VStack } from "@chakra-ui/react";
+import { Button, Flex, Spacer, VStack } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { SingleValue } from "chakra-react-select";
 import { useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
+
+import type { BankAccount } from "@/api/@types";
+import type { Bank, Branch } from "@/features/bank";
+import type { SingleValue } from "chakra-react-select";
+import type { SubmitHandler } from "react-hook-form";
+
+import { bankAccountSchema } from "@/schema";
 
 import { FormInput } from "@/components/FormInput";
 import { FormSelect } from "@/components/FormSelect";
-
-import { BankAccount } from "@/api/@types";
-import {
-  Bank,
-  Branch,
-  getBank,
-  getBanks,
-  getBranch,
-  getBranches,
-} from "@/features/bank";
-import { bankAccountSchema } from "@/schema";
+import { getBank, getBanks, getBranch, getBranches } from "@/features/bank";
 
 interface Props {
   defaultValues?: BankAccount;
@@ -109,11 +105,11 @@ export const BankAccountForm = ({
     >
       <Flex w="full" gap={3}>
         <Spacer />
-        {defaultValues?.uid && (
+        {defaultValues?.uid ? (
           <Button onClick={deleteBankAccount} colorScheme="red">
             削除
           </Button>
-        )}
+        ) : null}
         <Button onClick={reloadBankAccount} colorScheme="green">
           再読み込み
         </Button>
@@ -130,7 +126,7 @@ export const BankAccountForm = ({
         value={selectedBank}
         onChangeSelect={onChangeBankOption}
       />
-      {watch("bankCode") && (
+      {watch("bankCode") ? (
         <FormSelect<BankAccount, Branch>
           label="支店"
           isLoading={isLoadingBranch}
@@ -144,7 +140,7 @@ export const BankAccountForm = ({
           value={selectedBranch}
           onChangeSelect={onChangeBranch}
         />
-      )}
+      ) : null}
       <FormInput
         label="口座番号"
         placeholder="口座番号を入力"

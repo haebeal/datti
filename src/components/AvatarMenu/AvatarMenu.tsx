@@ -6,9 +6,10 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
-import { User } from "firebase/auth";
 import { motion } from "framer-motion";
 import Link from "next/link";
+
+import type { User } from "firebase/auth";
 
 interface Props {
   isLoading: boolean;
@@ -46,7 +47,9 @@ export const AvatarMenu = ({ isLoading, isMobile, user, signOut }: Props) => {
             <MenuItem as={Link} href="/setting">
               設定
             </MenuItem>
-            {isMobile && <MenuItem onClick={signOut}>ログアウト</MenuItem>}
+            {isMobile ? (
+              <MenuItem onClick={signOut}>ログアウト</MenuItem>
+            ) : null}
           </MenuGroup>
         </MenuList>
       </Menu>

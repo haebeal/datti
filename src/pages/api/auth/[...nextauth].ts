@@ -1,7 +1,8 @@
 import { google } from "googleapis";
 import NextAuth from "next-auth";
-import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
+
+import type { JWT } from "next-auth/jwt";
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,

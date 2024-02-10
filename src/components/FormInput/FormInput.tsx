@@ -6,8 +6,9 @@ import {
   Input,
   Stack,
 } from "@chakra-ui/react";
-import { HTMLInputTypeAttribute } from "react";
-import { FieldError, UseFormRegisterReturn } from "react-hook-form";
+
+import type { HTMLInputTypeAttribute } from "react";
+import type { FieldError, UseFormRegisterReturn } from "react-hook-form";
 
 interface Props {
   label: string;
@@ -51,7 +52,7 @@ export const FormInput = ({
           readOnly={readonly}
         />
       </Stack>
-      {isError && <FormErrorMessage>{error?.message}</FormErrorMessage>}
+      {isError ? <FormErrorMessage>{error?.message}</FormErrorMessage> : null}
     </FormControl>
   );
 };

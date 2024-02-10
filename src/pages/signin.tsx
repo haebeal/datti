@@ -8,8 +8,8 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { signIn } from "next-auth/react";
 import Head from "next/head";
+import { signIn } from "next-auth/react";
 
 const SignIn = () => {
   const onClickSigninWithGoogle = () => {

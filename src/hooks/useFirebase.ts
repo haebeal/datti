@@ -2,7 +2,6 @@ import { useToast } from "@chakra-ui/react";
 import { FirebaseError } from "firebase/app";
 import {
   GoogleAuthProvider,
-  User,
   onAuthStateChanged,
   signInWithCredential,
   signOut as signOutFirebase,
@@ -12,7 +11,10 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { signOut as signOutNextAuth, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-import { Profile } from "@/schema";
+import type { User } from "firebase/auth";
+
+import type { Profile } from "@/schema";
+
 import { auth, storage } from "@/utils/firebase";
 
 export const useFirebase = () => {

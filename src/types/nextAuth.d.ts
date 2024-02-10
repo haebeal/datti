@@ -1,6 +1,3 @@
-import { User } from "firebase/auth";
-import { DefaultSession } from "next-auth";
-
 interface GoogleCredential {
   idToken?: string | null;
   accessToken?: string | null;

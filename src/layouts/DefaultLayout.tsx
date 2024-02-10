@@ -1,7 +1,8 @@
 import { Center, CircularProgress, Container } from "@chakra-ui/react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { ReactNode } from "react";
+import { useSession } from "next-auth/react";
+
+import type { ReactNode } from "react";
 
 import { Header } from "@/components/Header";
 import { NotFound } from "@/components/NotFound";

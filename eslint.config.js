@@ -48,10 +48,6 @@ export default [
       },
     },
     rules: {
-      "@typescript-eslint/strict-boolean-expressions": [
-        "warn",
-        { allowString: false, allowNumber: false, allowNullableObject: false },
-      ],
       "@typescript-eslint/consistent-type-imports": [
         "error",
         { prefer: "type-imports" },

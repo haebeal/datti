@@ -24,8 +24,8 @@ type bankAccountHandler struct {
 
 // HandleCreate implements BankAccountHandler.
 func (bh *bankAccountHandler) HandleUpsert(c echo.Context) error {
-	uid := c.Get("uid").(string)
 	errRespons := new(response.Error)
+	uid := c.Get("uid").(string)
 
 	bankAccount := new(model.BankAccount)
 	if err := c.Bind(&bankAccount); err != nil {
@@ -49,10 +49,7 @@ func (bh *bankAccountHandler) HandleGet(c echo.Context) error {
 	errResponse := new(response.Error)
 	uid := c.Get("uid").(string)
 
-	user := new(model.User)
-	user.ID = uid
-
-	findBankAccount, err := bh.useCase.GetBankAccountById(c.Request().Context(), user)
+	findBankAccount, err := bh.useCase.GetBankAccountById(c.Request().Context(), uid)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			errResponse.Error = err.Error()
@@ -71,10 +68,7 @@ func (bh *bankAccountHandler) HandleDelete(c echo.Context) error {
 	errResponse := new(response.Error)
 	uid := c.Get("uid").(string)
 
-	user := new(model.User)
-	user.ID = uid
-
-	err := bh.useCase.DeleteBankAccount(c.Request().Context(), user)
+	err := bh.useCase.DeleteBankAccount(c.Request().Context(), uid)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)

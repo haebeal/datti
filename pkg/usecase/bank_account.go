@@ -10,8 +10,8 @@ import (
 
 type BankAccountUseCase interface {
 	UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error)
-	GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error)
-	DeleteBankAccount(c context.Context, user *model.User) error
+	GetBankAccountById(c context.Context, uid string) (*model.BankAccount, error)
+	DeleteBankAccount(c context.Context, uid string) error
 }
 
 type bankAccountUseCase struct {
@@ -37,8 +37,8 @@ func (bu *bankAccountUseCase) UpsertBankAccount(c context.Context, bank *model.B
 }
 
 // GetBankAccountById implements BankAccountUseCase.
-func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
-	findBankAccount, err := bu.repository.GetBankAccountById(c, user)
+func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, uid string) (*model.BankAccount, error) {
+	findBankAccount, err := bu.repository.GetBankAccountById(c, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +46,8 @@ func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, user *model.
 	return findBankAccount, nil
 }
 
-func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, user *model.User) error {
-	err := bu.repository.DeleteBankAccount(c, user)
+func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, uid string) error {
+	err := bu.repository.DeleteBankAccount(c, uid)
 	if err != nil {
 		return err
 	}

@@ -80,7 +80,11 @@ func (bh *bankAccountHandler) HandleDelete(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, errResponse)
 
 	} else {
-		return c.JSON(http.StatusOK, nil)
+		return c.JSON(http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "delete successfully",
+		})
 	}
 }
 

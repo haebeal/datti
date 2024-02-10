@@ -8,15 +8,13 @@ import {
   Spacer,
   useMediaQuery,
 } from "@chakra-ui/react";
-import { signOut, useSession } from "next-auth/react";
 
 import { AvatarMenu } from "@/components/AvatarMenu";
-import { useProfile } from "@/hooks/useProfile";
+import { useFirebase } from "@/hooks";
 
 export const Header = () => {
-  const { status, data: session } = useSession();
   const [isMobile] = useMediaQuery("(max-width: 48em)");
-  const { profile } = useProfile();
+  const { isLoading, currentUser, signOut } = useFirebase();
 
   return (
     <Box as="header" h="80px" bg="white">
@@ -26,17 +24,18 @@ export const Header = () => {
             Datti
           </Heading>
           <Spacer />
-          {status !== "unauthenticated" && (
+          {currentUser !== null && (
             <>
-              {profile && (
+              {currentUser && (
                 <AvatarMenu
-                  isLoading={status === "loading"}
+                  isLoading={isLoading}
                   isMobile={isMobile}
-                  profile={profile}
+                  user={currentUser}
+                  signOut={signOut}
                 />
               )}
               {!isMobile && (
-                <Button colorScheme="red" onClick={() => signOut()}>
+                <Button colorScheme="red" onClick={signOut}>
                   ログアウト
                 </Button>
               )}

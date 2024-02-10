@@ -2,14 +2,14 @@ package handler
 
 import (
 	"github.com/datti-api/pkg/usecase"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 )
 
 type GroupHandler interface {
-	HandleCreate(c *gin.Context)
-	HandleGetById(c *gin.Context)
-	HandleGet(c *gin.Context)
-	HandleUpdate(c *gin.Context)
+	HandleCreate(c echo.Context) error
+	HandleGetById(c echo.Context) error
+	HandleGet(c echo.Context) error
+	HandleUpdate(c echo.Context) error
 }
 
 type groupHandler struct {
@@ -23,21 +23,21 @@ func NewGroupHandler(groupUseCase usecase.GroupUseCase) GroupHandler {
 }
 
 // HandleCreate implements GroupHandler.
-func (*groupHandler) HandleCreate(c *gin.Context) {
+func (*groupHandler) HandleCreate(c echo.Context) error {
 	panic("unimplemented")
 }
 
 // HandleGet implements GroupHandler.
-func (*groupHandler) HandleGet(c *gin.Context) {
+func (*groupHandler) HandleGet(c echo.Context) error {
 	panic("unimplemented")
 }
 
 // HandleGetById implements GroupHandler.
-func (*groupHandler) HandleGetById(c *gin.Context) {
+func (*groupHandler) HandleGetById(c echo.Context) error {
 	panic("unimplemented")
 }
 
 // HandleUpdate implements GroupHandler.
-func (*groupHandler) HandleUpdate(c *gin.Context) {
+func (*groupHandler) HandleUpdate(c echo.Context) error {
 	panic("unimplemented")
 }

@@ -39,7 +39,6 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.4.1",
     "@chakra-ui/storybook-addon": "^5.1.0",
     "@eslint/eslintrc": "^3.0.1",
     "@eslint/js": "^8.56.0",

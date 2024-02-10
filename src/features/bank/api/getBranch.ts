@@ -1,14 +1,13 @@
-import { fetcher } from "@/utils";
-
 import type { Branch } from "../types";
+
+import { fetcher } from "@/utils";
 
 export const getBranch = (
   bankCode: string,
   branchCode: string,
-): Promise<Branch> => {
-  return fetcher<Branch>(
+): Promise<Branch> =>
+  fetcher<Branch>(
     `https://bank.teraren.com/banks/${bankCode}/branches/${branchCode}.json`,
     null,
     "GET",
   );
-};

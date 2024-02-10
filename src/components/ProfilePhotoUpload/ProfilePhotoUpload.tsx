@@ -1,4 +1,4 @@
-import { Box, Center, Image, Skeleton } from "@chakra-ui/react";
+import { Center, Image, Skeleton } from "@chakra-ui/react";
 import { useRef } from "react";
 
 interface Props {

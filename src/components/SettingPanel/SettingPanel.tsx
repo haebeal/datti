@@ -7,12 +7,13 @@ import {
   VStack,
 } from "@chakra-ui/react";
 
+import { profileSchema } from "@/schema";
+
 import { BankAccountForm } from "@/components/BankAccountForm";
 import { ProfileForm } from "@/components/ProfileForm";
 import { ProfilePhotoUpload } from "@/components/ProfilePhotoUpload";
 import { useBankAccount } from "@/hooks/useBankAccount";
 import { useFirebase } from "@/hooks/useFirebase";
-import { profileSchema } from "@/schema";
 
 export const SettingPanel = () => {
   const {

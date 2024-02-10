@@ -9,8 +9,9 @@ import {
   useMediaQuery,
 } from "@chakra-ui/react";
 
-import { AvatarMenu } from "@/components/AvatarMenu";
 import { useFirebase } from "@/hooks";
+
+import { AvatarMenu } from "@/components/AvatarMenu";
 
 export const Header = () => {
   const [isMobile] = useMediaQuery("(max-width: 48em)");
@@ -26,14 +27,14 @@ export const Header = () => {
           <Spacer />
           {currentUser !== null && (
             <>
-              {currentUser && (
+              {currentUser ? (
                 <AvatarMenu
                   isLoading={isLoading}
                   isMobile={isMobile}
                   user={currentUser}
                   signOut={signOut}
                 />
-              )}
+              ) : null}
               {!isMobile && (
                 <Button colorScheme="red" onClick={signOut}>
                   ログアウト

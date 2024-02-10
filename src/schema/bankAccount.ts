@@ -1,7 +1,8 @@
 import { z } from "zod";
 
-import { BankAccount } from "@/api/@types";
-import { ToZod } from "@/utils";
+import type { BankAccount } from "@/api/@types";
+
+import type { ToZod } from "@/utils";
 
 export const bankAccountSchema = z.object<
   Pick<ToZod<BankAccount>, "accountCode" | "bankCode" | "branchCode">

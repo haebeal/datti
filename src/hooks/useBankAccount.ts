@@ -4,9 +4,11 @@ import { useToast } from "@chakra-ui/react";
 import { AxiosError } from "axios";
 import { useState } from "react";
 
-import api from "@/api/$api";
-import { BankAccount } from "@/api/@types";
+import type { BankAccount } from "@/api/@types";
+
 import { useFirebase } from "@/hooks";
+
+import api from "@/api/$api";
 
 export const useBankAccount = () => {
   const { idToken } = useFirebase();

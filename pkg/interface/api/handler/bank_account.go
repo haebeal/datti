@@ -6,15 +6,16 @@ import (
 	"net/http"
 
 	"github.com/datti-api/pkg/domain/model"
+	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
-	"github.com/gin-gonic/gin"
+	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
 type BankAccountHandler interface {
-	HandleUpsert(c *gin.Context)
-	HandleGet(c *gin.Context)
-	HandleDelete(c *gin.Context)
+	HandleUpsert(c echo.Context) error
+	HandleGet(c echo.Context) error
+	HandleDelete(c echo.Context) error
 }
 
 type bankAccountHandler struct {
@@ -22,72 +23,67 @@ type bankAccountHandler struct {
 }
 
 // HandleCreate implements BankAccountHandler.
-func (bh *bankAccountHandler) HandleUpsert(c *gin.Context) {
-	uid := ""
-	val, exsist := c.Get("uid")
-	if exsist {
-		uid = val.(string)
-	}
+func (bh *bankAccountHandler) HandleUpsert(c echo.Context) error {
+	uid := c.Get("uid").(string)
+	errRespons := new(response.Error)
 
 	bankAccount := new(model.BankAccount)
-	if err := c.BindJSON(&bankAccount); err != nil {
+	if err := c.Bind(&bankAccount); err != nil {
 		log.Print("failed json bind")
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "リクエストボディの値が不正"})
-		return
+		errRespons.Error = err.Error()
+		return c.JSON(http.StatusBadRequest, errRespons)
 	}
 
 	bankAccount.UserID = uid
-	newBankAccount, err := bh.useCase.UpsertBankAccount(c, bankAccount)
+	newBankAccount, err := bh.useCase.UpsertBankAccount(c.Request().Context(), bankAccount)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		errRespons.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errRespons)
 	} else {
-		c.JSON(http.StatusCreated, newBankAccount)
+		return c.JSON(http.StatusCreated, newBankAccount)
 	}
 }
 
 // HandleGet implements BankAccountHandler.
-func (bh *bankAccountHandler) HandleGet(c *gin.Context) {
-	uid := ""
-	val, exsist := c.Get("uid")
-	if exsist {
-		uid = val.(string)
-	}
+func (bh *bankAccountHandler) HandleGet(c echo.Context) error {
+	errResponse := new(response.Error)
+	uid := c.Get("uid").(string)
 
 	user := new(model.User)
 	user.ID = uid
 
-	findBankAccount, err := bh.useCase.GetBankAccountById(c, user)
+	findBankAccount, err := bh.useCase.GetBankAccountById(c.Request().Context(), user)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"error": err.Error()})
-			return
+			errResponse.Error = err.Error()
+			return c.JSON(http.StatusNotFound, errResponse)
 		} else {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
+			errResponse.Error = err.Error()
+			return c.JSON(http.StatusInternalServerError, errResponse)
 		}
 	} else {
-		c.JSON(http.StatusOK, findBankAccount)
-		return
+		return c.JSON(http.StatusOK, findBankAccount)
 	}
 }
 
 // HandleUpdate implements BankAccountHandler.
-func (bh *bankAccountHandler) HandleDelete(c *gin.Context) {
-	uid := ""
-	val, exsist := c.Get("uid")
-	if exsist {
-		uid = val.(string)
-	}
+func (bh *bankAccountHandler) HandleDelete(c echo.Context) error {
+	errResponse := new(response.Error)
+	uid := c.Get("uid").(string)
 
 	user := new(model.User)
 	user.ID = uid
 
-	err := bh.useCase.DeleteBankAccount(c, user)
+	err := bh.useCase.DeleteBankAccount(c.Request().Context(), user)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		c.JSON(http.StatusOK, gin.H{"message": "delete successfully"})
+		return c.JSON(http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "delete successfully",
+		})
 	}
 }
 

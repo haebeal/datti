@@ -1,4 +1,3 @@
-import { Profile } from "@/features/profile";
 import {
   Avatar,
   Menu,
@@ -7,17 +6,18 @@ import {
   MenuItem,
   MenuList,
 } from "@chakra-ui/react";
+import { User } from "firebase/auth";
 import { motion } from "framer-motion";
-import { signOut } from "next-auth/react";
 import Link from "next/link";
 
 interface Props {
   isLoading: boolean;
   isMobile: boolean;
-  profile?: Profile;
+  user?: User;
+  signOut: () => Promise<void>;
 }
 
-export const AvatarMenu = ({ isLoading, isMobile, profile }: Props) => {
+export const AvatarMenu = ({ isLoading, isMobile, user, signOut }: Props) => {
   if (isLoading) return;
 
   return (
@@ -39,16 +39,14 @@ export const AvatarMenu = ({ isLoading, isMobile, profile }: Props) => {
     >
       <Menu>
         <MenuButton>
-          <Avatar borderColor="gray.100" src={profile?.picture ?? ""} />
+          <Avatar borderColor="gray.100" src={user?.photoURL ?? ""} />
         </MenuButton>
         <MenuList>
-          <MenuGroup title={profile?.name ?? "未ログイン"}>
+          <MenuGroup title={user?.displayName ?? "未ログイン"}>
             <MenuItem as={Link} href="/setting">
               設定
             </MenuItem>
-            {isMobile && (
-              <MenuItem onClick={() => signOut()}>ログアウト</MenuItem>
-            )}
+            {isMobile && <MenuItem onClick={signOut}>ログアウト</MenuItem>}
           </MenuGroup>
         </MenuList>
       </Menu>

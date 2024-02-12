@@ -46,35 +46,4 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.POST("/bank", bankAccountHandler.HandleUpsert)
 	r.DELETE("/bank", bankAccountHandler.HandleDelete)
 	r.Start("0.0.0.0:8080")
-	// ルーターの生成
-	// r := gin.Default()
-
-	// // corsとミドルウェアの設定
-	// config := cors.DefaultConfig()
-	// config.AllowAllOrigins = true
-	// config.AddAllowHeaders("Authorization")
-	// r.Use(cors.New(config))
-	// r.Use(middleware.FirebaseAuthMiddleware)
-
-	// // エンドポイントの設定
-	// //
-	// me := r.Group("/bank")
-	// {
-	// 	me.GET("", bankAccountHandler.HandleGet)
-	// 	me.POST("", bankAccountHandler.HandleUpsert)
-	// 	me.DELETE("", bankAccountHandler.HandleDelete)
-	// }
-
-	// // グループ
-	// groups := r.Group("/groups")
-	// {
-	// 	groups.GET("/", groupHandler.HandleGet)
-	// 	groups.POST("/", groupHandler.HandleCreate)
-	// 	groups.GET("/:id/", groupHandler.HandleGetById)
-	// 	groups.PUT("/:id/", groupHandler.HandleUpdate)
-	// }
-
-	// if err := r.Run(hostName + ":8080"); err != nil {
-	// 	panic(err)
-	// }
 }

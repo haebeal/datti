@@ -5,6 +5,7 @@ import (
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
+	"github.com/datti-api/pkg/validator"
 )
 
 type BankAccountUseCase interface {
@@ -21,23 +22,22 @@ type bankAccountUseCase struct {
 // CreateBankAccount implements BankAccountUseCase.
 func (bu *bankAccountUseCase) UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error) {
 	v, err := bu.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
+		if err := validator.ValidatorAccountCode(bank.AccountCode); err != nil {
+			return nil, err
+		}
+		if err := validator.ValidatorBankCode(bank.BankCode); err != nil {
+			return nil, err
+		}
+		if err := validator.ValidatorBranchCode(bank.BranchCode); err != nil {
+			return nil, err
+		}
 		return bu.repository.UpsertBankAccount(c, bank)
 	})
+	if err != nil {
+		return nil, err
+	}
 
-	// if err := validator.ValidatorAccountCode(bank.AccountCode); err != nil {
-	// 	return nil, err
-	// }
-	// if err := validator.ValidatorBankCode(bank.BankCode); err != nil {
-	// 	return nil, err
-	// }
-	// if err := validator.ValidatorBranchCode(bank.BranchCode); err != nil {
-	// 	return nil, err
-	// }
-	// newBankAccount, err := bu.repository.UpsertBankAccount(c, bank)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	return v.(*model.BankAccount), err
+	return v.(*model.BankAccount), nil
 }
 
 // GetBankAccountById implements BankAccountUseCase.
@@ -51,7 +51,9 @@ func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, uid string) 
 }
 
 func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, uid string) error {
-	err := bu.repository.DeleteBankAccount(c, uid)
+	_, err := bu.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
+		return bu.repository.DeleteBankAccount(c, uid)
+	})
 	if err != nil {
 		return err
 	}

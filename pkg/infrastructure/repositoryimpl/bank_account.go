@@ -23,9 +23,9 @@ func (br *bankAccountRepositoryImpl) UpsertBankAccount(c context.Context, bank *
 }
 
 // GetBankAccountById implements repository.BankAccountRepository.
-func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
+func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, uid string) (*model.BankAccount, error) {
 	findBankAccount := new(model.BankAccount)
-	result := br.DBEngine.Engine.Where("user_id = ?", user.ID).Find(findBankAccount)
+	result := br.DBEngine.Engine.Where("user_id = ?", uid).Find(findBankAccount)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -33,14 +33,14 @@ func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, user 
 	return findBankAccount, nil
 }
 
-func (br *bankAccountRepositoryImpl) DeleteBankAccount(c context.Context, user *model.User) error {
+func (br *bankAccountRepositoryImpl) DeleteBankAccount(c context.Context, uid string) (*model.BankAccount, error) {
 	bankAccount := new(model.BankAccount)
-	result := br.DBEngine.Engine.Where("user_id = ?", user.ID).Delete(bankAccount)
+	result := br.DBEngine.Engine.Where("user_id = ?", uid).Delete(bankAccount).Scan(bankAccount)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
 
-	return nil
+	return bankAccount, nil
 }
 
 func NewBankAccountRepository(engine *database.DBEngine) repository.BankAccountRepository {

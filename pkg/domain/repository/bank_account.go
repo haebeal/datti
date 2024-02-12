@@ -8,6 +8,6 @@ import (
 
 type BankAccountRepository interface {
 	UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error)
-	GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error)
-	DeleteBankAccount(c context.Context, user *model.User) error
+	GetBankAccountById(c context.Context, uid string) (*model.BankAccount, error)
+	DeleteBankAccount(c context.Context, uid string) (*model.BankAccount, error)
 }

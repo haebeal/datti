@@ -10,35 +10,39 @@ import (
 
 type BankAccountUseCase interface {
 	UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error)
-	GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error)
-	DeleteBankAccount(c context.Context, user *model.User) error
+	GetBankAccountById(c context.Context, uid string) (*model.BankAccount, error)
+	DeleteBankAccount(c context.Context, uid string) error
 }
 
 type bankAccountUseCase struct {
-	repository repository.BankAccountRepository
+	repository  repository.BankAccountRepository
+	transaction repository.Transaction
 }
 
 // CreateBankAccount implements BankAccountUseCase.
 func (bu *bankAccountUseCase) UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error) {
-	if err := validator.ValidatorAccountCode(bank.AccountCode); err != nil {
-		return nil, err
-	}
-	if err := validator.ValidatorBankCode(bank.BankCode); err != nil {
-		return nil, err
-	}
-	if err := validator.ValidatorBranchCode(bank.BranchCode); err != nil {
-		return nil, err
-	}
-	newBankAccount, err := bu.repository.UpsertBankAccount(c, bank)
+	v, err := bu.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
+		if err := validator.ValidatorAccountCode(bank.AccountCode); err != nil {
+			return nil, err
+		}
+		if err := validator.ValidatorBankCode(bank.BankCode); err != nil {
+			return nil, err
+		}
+		if err := validator.ValidatorBranchCode(bank.BranchCode); err != nil {
+			return nil, err
+		}
+		return bu.repository.UpsertBankAccount(c, bank)
+	})
 	if err != nil {
 		return nil, err
 	}
-	return newBankAccount, nil
+
+	return v.(*model.BankAccount), nil
 }
 
 // GetBankAccountById implements BankAccountUseCase.
-func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, user *model.User) (*model.BankAccount, error) {
-	findBankAccount, err := bu.repository.GetBankAccountById(c, user)
+func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, uid string) (*model.BankAccount, error) {
+	findBankAccount, err := bu.repository.GetBankAccountById(c, uid)
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +50,10 @@ func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, user *model.
 	return findBankAccount, nil
 }
 
-func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, user *model.User) error {
-	err := bu.repository.DeleteBankAccount(c, user)
+func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, uid string) error {
+	_, err := bu.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
+		return bu.repository.DeleteBankAccount(c, uid)
+	})
 	if err != nil {
 		return err
 	}
@@ -55,8 +61,9 @@ func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, user *model.U
 	return nil
 }
 
-func NewBankAccountUseCase(bankAccountRepo repository.BankAccountRepository) BankAccountUseCase {
+func NewBankAccountUseCase(bankAccountRepo repository.BankAccountRepository, tx repository.Transaction) BankAccountUseCase {
 	return &bankAccountUseCase{
-		repository: bankAccountRepo,
+		repository:  bankAccountRepo,
+		transaction: tx,
 	}
 }

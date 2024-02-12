@@ -33,14 +33,14 @@ func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, uid s
 	return findBankAccount, nil
 }
 
-func (br *bankAccountRepositoryImpl) DeleteBankAccount(c context.Context, uid string) error {
+func (br *bankAccountRepositoryImpl) DeleteBankAccount(c context.Context, uid string) (*model.BankAccount, error) {
 	bankAccount := new(model.BankAccount)
-	result := br.DBEngine.Engine.Where("user_id = ?", uid).Delete(bankAccount)
+	result := br.DBEngine.Engine.Where("user_id = ?", uid).Delete(bankAccount).Scan(bankAccount)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
 
-	return nil
+	return bankAccount, nil
 }
 
 func NewBankAccountRepository(engine *database.DBEngine) repository.BankAccountRepository {

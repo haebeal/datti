@@ -25,8 +25,10 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	// groupUseCase := usecase.NewGroupUseCase(groupRepository)
 	// groupHandler := handler.NewGroupHandler(groupUseCase)
 
+	transaction := repositoryimpl.NewTransaction(dbEngine.Engine)
+
 	bankAccountRepository := repositoryimpl.NewBankAccountRepository(dbEngine)
-	bankAccountUseCase := usecase.NewBankAccountUseCase(bankAccountRepository)
+	bankAccountUseCase := usecase.NewBankAccountUseCase(bankAccountRepository, transaction)
 	bankAccountHandler := handler.NewBankAccountHandler(bankAccountUseCase)
 
 	r := echo.New()

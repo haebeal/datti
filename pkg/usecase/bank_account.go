@@ -5,7 +5,6 @@ import (
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
-	"github.com/datti-api/pkg/validator"
 )
 
 type BankAccountUseCase interface {
@@ -15,25 +14,30 @@ type BankAccountUseCase interface {
 }
 
 type bankAccountUseCase struct {
-	repository repository.BankAccountRepository
+	repository  repository.BankAccountRepository
+	transaction repository.Transaction
 }
 
 // CreateBankAccount implements BankAccountUseCase.
 func (bu *bankAccountUseCase) UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error) {
-	if err := validator.ValidatorAccountCode(bank.AccountCode); err != nil {
-		return nil, err
-	}
-	if err := validator.ValidatorBankCode(bank.BankCode); err != nil {
-		return nil, err
-	}
-	if err := validator.ValidatorBranchCode(bank.BranchCode); err != nil {
-		return nil, err
-	}
-	newBankAccount, err := bu.repository.UpsertBankAccount(c, bank)
-	if err != nil {
-		return nil, err
-	}
-	return newBankAccount, nil
+	v, err := bu.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
+		return bu.repository.UpsertBankAccount(c, bank)
+	})
+
+	// if err := validator.ValidatorAccountCode(bank.AccountCode); err != nil {
+	// 	return nil, err
+	// }
+	// if err := validator.ValidatorBankCode(bank.BankCode); err != nil {
+	// 	return nil, err
+	// }
+	// if err := validator.ValidatorBranchCode(bank.BranchCode); err != nil {
+	// 	return nil, err
+	// }
+	// newBankAccount, err := bu.repository.UpsertBankAccount(c, bank)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	return v.(*model.BankAccount), err
 }
 
 // GetBankAccountById implements BankAccountUseCase.
@@ -55,8 +59,9 @@ func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, uid string) e
 	return nil
 }
 
-func NewBankAccountUseCase(bankAccountRepo repository.BankAccountRepository) BankAccountUseCase {
+func NewBankAccountUseCase(bankAccountRepo repository.BankAccountRepository, tx repository.Transaction) BankAccountUseCase {
 	return &bankAccountUseCase{
-		repository: bankAccountRepo,
+		repository:  bankAccountRepo,
+		transaction: tx,
 	}
 }

@@ -20,12 +20,21 @@ func Sever(dsn string, hostName string, dbInit bool) {
 		log.Print(err.Error())
 	}
 
+	tenantClient, err := database.NewFireBaseClient()
+	if err != nil {
+		log.Print(err.Error())
+	}
+
 	// 依存性の解決
 	// groupRepository := repositoryimpl.NewGropuRepoImpl(dbEngine)
 	// groupUseCase := usecase.NewGroupUseCase(groupRepository)
 	// groupHandler := handler.NewGroupHandler(groupUseCase)
 
 	transaction := repositoryimpl.NewTransaction(dbEngine.Engine)
+
+	profileRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
+	profileUseCase := usecase.NewProfileUseCase(profileRepository)
+	profileHandler := handler.NewProfileHandler(profileUseCase)
 
 	bankAccountRepository := repositoryimpl.NewBankAccountRepository(dbEngine)
 	bankAccountUseCase := usecase.NewBankAccountUseCase(bankAccountRepository, transaction)
@@ -41,6 +50,9 @@ func Sever(dsn string, hostName string, dbInit bool) {
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodHead},
 	}))
 	r.Use(auth.FirebaseAuthMiddleware())
+
+	r.GET("/me", profileHandler.HandleGet)
+	r.PUT("/me", profileHandler.HandleUpdate)
 
 	r.GET("/bank", bankAccountHandler.HandleGet)
 	r.POST("/bank", bankAccountHandler.HandleUpsert)

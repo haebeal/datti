@@ -43,7 +43,7 @@ func InitDB(db *gorm.DB) (*gorm.DB, error) {
 		return nil, err
 	}
 	// テーブルのマイグレーション
-	if err := db.AutoMigrate(&model.User{}, &model.BankAccount{}, &model.Group{}, &model.GroupUser{}); err != nil {
+	if err := db.AutoMigrate(&model.BankAccount{}, &model.Group{}, &model.GroupUser{}); err != nil {
 		return nil, err
 	}
 

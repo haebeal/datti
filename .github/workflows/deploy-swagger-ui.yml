@@ -3,8 +3,8 @@ name: Deploy OpenAPI
 on:
   push:
     branches: [feature/**, develop, main]
-    paths:
-      - openapi/**
+    # paths:
+    #   - openapi/**
 
 jobs:
   deploy-to-github-pages:

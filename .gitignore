@@ -1,6 +1,14 @@
 # Created by https://www.toptal.com/developers/gitignore/api/go,windows,linux,macos,visualstudiocode,jetbrains
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,windows,linux,macos,visualstudiocode,jetbrains
 
+### Node.js ###
+#
+# Dependency directories
+node_modules/
+
+# TypeSpec output directories
+tsp-output/
+
 ### Go ###
 # If you prefer the allow list template instead of the deny list, see community template:
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
@@ -18,8 +26,6 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-# Dependency directories (remove the comment below to include it)
-# vendor/
 
 # Go workspace file
 go.work

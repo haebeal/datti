@@ -1,0 +1,40 @@
+import "@typespec/http";
+
+using TypeSpec.Http;
+
+namespace Utils.Error;
+
+/**
+ * エラーレスポンスのボディ
+ */
+model ErrorBody<T extends string = string> {
+  error: T;
+}
+
+/**
+ * 401エラー
+ */
+@error
+model UnauthorizedError {
+  @statusCode statusCode: 401;
+  @body body: ErrorBody;
+}
+
+/**
+ * 500エラー
+ */
+@error
+model InternalServerError {
+  @statusCode statusCode: 500;
+  @body body: ErrorBody;
+}
+
+/**
+ * 401エラー
+ */
+@error
+model NotFoundError {
+  @statusCode statusCode: 401;
+  @body body: ErrorBody;
+}
+

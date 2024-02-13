@@ -12,7 +12,7 @@ import (
 )
 
 type FireBaseTenantClient struct {
-	tenantClient *auth.TenantClient
+	Client *auth.TenantClient
 }
 
 func NewFireBaseClient() (*FireBaseTenantClient, error) {
@@ -44,6 +44,6 @@ func NewFireBaseClient() (*FireBaseTenantClient, error) {
 	}
 
 	return &FireBaseTenantClient{
-		tenantClient: tenantClient,
+		Client: tenantClient,
 	}, nil
 }

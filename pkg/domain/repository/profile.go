@@ -7,6 +7,6 @@ import (
 )
 
 type ProfileRepository interface {
-	GetProfile(c context.Context, uid string) (*model.Profile, error)
-	UpdateProfile(c context.Context, uid string, name string, url string) (*model.Profile, error)
+	GetProfile(c context.Context, idToken string, uid string) (*model.Profile, error)
+	UpdateProfile(c context.Context, idToken string, uid string, name string, url string) (*model.Profile, error)
 }

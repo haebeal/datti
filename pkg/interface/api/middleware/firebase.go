@@ -69,6 +69,7 @@ func FirebaseAuthMiddleware() echo.MiddlewareFunc {
 
 			uid := u.UID
 			c.Set("uid", uid)
+			c.Set("idToken", idToken)
 
 			return next(c)
 		}

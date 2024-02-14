@@ -20,12 +20,21 @@ func Sever(dsn string, hostName string, dbInit bool) {
 		log.Print(err.Error())
 	}
 
+	tenantClient, err := database.NewFireBaseClient()
+	if err != nil {
+		log.Print(err.Error())
+	}
+
 	// 依存性の解決
 	// groupRepository := repositoryimpl.NewGropuRepoImpl(dbEngine)
 	// groupUseCase := usecase.NewGroupUseCase(groupRepository)
 	// groupHandler := handler.NewGroupHandler(groupUseCase)
 
 	transaction := repositoryimpl.NewTransaction(dbEngine.Engine)
+
+	profileRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
+	profileUseCase := usecase.NewProfileUseCase(profileRepository)
+	profileHandler := handler.NewProfileHandler(profileUseCase)
 
 	bankAccountRepository := repositoryimpl.NewBankAccountRepository(dbEngine)
 	bankAccountUseCase := usecase.NewBankAccountUseCase(bankAccountRepository, transaction)
@@ -42,39 +51,11 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	}))
 	r.Use(auth.FirebaseAuthMiddleware())
 
+	r.GET("/me", profileHandler.HandleGet)
+	r.PUT("/me", profileHandler.HandleUpdate)
+
 	r.GET("/bank", bankAccountHandler.HandleGet)
 	r.POST("/bank", bankAccountHandler.HandleUpsert)
 	r.DELETE("/bank", bankAccountHandler.HandleDelete)
 	r.Start("0.0.0.0:8080")
-	// ルーターの生成
-	// r := gin.Default()
-
-	// // corsとミドルウェアの設定
-	// config := cors.DefaultConfig()
-	// config.AllowAllOrigins = true
-	// config.AddAllowHeaders("Authorization")
-	// r.Use(cors.New(config))
-	// r.Use(middleware.FirebaseAuthMiddleware)
-
-	// // エンドポイントの設定
-	// //
-	// me := r.Group("/bank")
-	// {
-	// 	me.GET("", bankAccountHandler.HandleGet)
-	// 	me.POST("", bankAccountHandler.HandleUpsert)
-	// 	me.DELETE("", bankAccountHandler.HandleDelete)
-	// }
-
-	// // グループ
-	// groups := r.Group("/groups")
-	// {
-	// 	groups.GET("/", groupHandler.HandleGet)
-	// 	groups.POST("/", groupHandler.HandleCreate)
-	// 	groups.GET("/:id/", groupHandler.HandleGetById)
-	// 	groups.PUT("/:id/", groupHandler.HandleUpdate)
-	// }
-
-	// if err := r.Run(hostName + ":8080"); err != nil {
-	// 	panic(err)
-	// }
 }

@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/datti-api/pkg/interface/request"
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
 	"github.com/labstack/echo/v4"
@@ -35,25 +36,21 @@ func (ph *profileHandler) HandleGet(c echo.Context) error {
 
 // HandleUpdateName implements ProfileHandler.
 func (ph *profileHandler) HandleUpdate(c echo.Context) error {
-	type request struct {
-		Name string `json:"name"`
-		Url  string `json:"photoUrl"`
-	}
-	req := new(request)
-	errResponse := new(response.Error)
+	req := new(request.ProfileRequest)
+	errRes := new(response.Error)
 	uid := c.Get("uid").(string)
 	idToken := c.Get("idToken").(string)
 
 	if err := c.Bind(req); err != nil {
 		log.Print("failed json bind")
-		errResponse.Error = err.Error()
-		return c.JSON(http.StatusBadRequest, errResponse)
+		errRes.Error = err.Error()
+		return c.JSON(http.StatusBadRequest, errRes)
 	}
 
 	profile, err := ph.useCase.UpdateProfile(c.Request().Context(), idToken, uid, req.Name, req.Url)
 	if err != nil {
-		errResponse.Error = err.Error()
-		return c.JSON(http.StatusInternalServerError, errResponse)
+		errRes.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errRes)
 	} else {
 		return c.JSON(http.StatusOK, profile)
 	}

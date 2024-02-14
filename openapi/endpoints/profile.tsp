@@ -16,7 +16,7 @@ namespace Profiles {
   @summary("プロフィール情報の取得")
   @get
   op getProfile():
-  | Utils.Response.OKResponse<Profile>
+  | Profile
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
   
@@ -26,12 +26,16 @@ namespace Profiles {
   @summary("プロフィール情報の更新")
   @put
   op updateProfile(...Profile):
-  | Utils.Response.OKMessage
+  | Profile
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 }
 
 model Profile {
+  /**
+   * ユーザーID
+   */
+  userId: string;
   /**
    * ユーザー名
    */

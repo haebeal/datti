@@ -10,9 +10,9 @@ namespace DattiAPI;
 @tag("Profile")
 @route("me")
 namespace Profiles {
-/**
- * 登録されてるプロフィール情報の取得
- */
+  /**
+   * 登録されてるプロフィール情報の取得
+   */
   @summary("プロフィール情報の取得")
   @get
   op getProfile():
@@ -35,7 +35,9 @@ model Profile {
   /**
    * ユーザーID
    */
-  userId: string;
+  @minLength(28)
+  @maxLength(28)
+  uid: string;
   /**
    * ユーザー名
    */

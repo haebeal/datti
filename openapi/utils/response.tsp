@@ -43,9 +43,9 @@ model ResponseBody<T> {
   /**
    * ユーザーID
    */
-  @minLength(28)
-  @maxLength(28)
-  uid: string;
+  // @minLength(28)
+  // @maxLength(28)
+  // uid: string;
 
   ...T;
 

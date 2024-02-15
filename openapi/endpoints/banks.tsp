@@ -43,6 +43,12 @@ namespace Banks {
 
 model Bank {
   /**
+   * ユーザーID
+   */
+  @minLength(28)
+  @maxLength(28)
+  uid: string;
+  /**
    * 金融機関コード
   */
   @minLength(4)

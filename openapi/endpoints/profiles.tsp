@@ -7,7 +7,7 @@ namespace DattiAPI;
 /**
  * ユーザーのプロフィール情報に関する操作
  */
-@tag("Profile")
+@tag("Profiles")
 @route("me")
 namespace Profiles {
   /**

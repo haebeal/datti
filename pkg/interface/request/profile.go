@@ -1,6 +1,10 @@
 package request
 
-type ProfileRequest struct {
+type UpdateProfileRequest struct {
 	Name string `json:"name"`
 	Url  string `json:"photoUrl"`
+}
+
+type GetByEmailRequest struct {
+	Email string `json:"email"`
 }

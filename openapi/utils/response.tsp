@@ -40,13 +40,6 @@ model NoContentMessage {
  * 正常完了時、レコードを返す場合のボディ
  */
 model ResponseBody<T> {
-  /**
-   * ユーザーID
-   */
-  // @minLength(28)
-  // @maxLength(28)
-  // uid: string;
-
   ...T;
 
   /**

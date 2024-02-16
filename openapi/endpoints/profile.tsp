@@ -5,7 +5,7 @@ using Utils;
 
 namespace DattiAPI;
 /**
- * ユーザーの振込先口座情報に関する操作
+ * ユーザーのプロフィール情報に関する操作
  */
 @tag("Profile")
 @route("me")

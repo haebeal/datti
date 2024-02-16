@@ -28,6 +28,21 @@ func (pr *profileRepoImpl) GetProfile(c context.Context, idToken string, uid str
 	return profile, nil
 }
 
+// GetProfileByEmail implements repository.ProfileRepository.
+func (pr *profileRepoImpl) GetProfileByEmail(c context.Context, idToken string, email string) (*model.Profile, error) {
+	profile := new(model.Profile)
+	u, err := pr.TenantClient.Client.GetUserByEmail(c, email)
+	if err != nil {
+		return nil, err
+	}
+	
+	profile.ID = u.UID
+	profile.Name = u.DisplayName
+	profile.PhotoUrl = u.PhotoURL
+
+	return profile, nil
+}
+
 // UpdateName implements repository.ProfileRepository.
 func (pr *profileRepoImpl) UpdateProfile(c context.Context, idToken string, uid string, name string, url string) (*model.Profile, error) {
 	updateProfile := new(model.Profile)

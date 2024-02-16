@@ -1,2 +1,3 @@
 import "./banks.tsp";
-import "./profile.tsp";
+import "./profiles.tsp";
+import "./users.tsp";

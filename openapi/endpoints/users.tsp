@@ -15,10 +15,17 @@ namespace Users {
    */
   @summary("ユーザー情報の取得")
   @get
-  op getUser():
+  op getUser(...Request):
   | User
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
+}
+
+model Request {
+  /**
+   * メールアドレス
+   */
+  email: string;
 }
 
 model User {

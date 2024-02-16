@@ -54,6 +54,8 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.GET("/me", profileHandler.HandleGet)
 	r.PUT("/me", profileHandler.HandleUpdate)
 
+	r.GET("/users", profileHandler.HandleGetByEmail)
+
 	r.GET("/bank", bankAccountHandler.HandleGet)
 	r.POST("/bank", bankAccountHandler.HandleUpsert)
 	r.DELETE("/bank", bankAccountHandler.HandleDelete)

@@ -12,6 +12,7 @@ import (
 
 type ProfileHandler interface {
 	HandleGet(c echo.Context) error
+	HandleGetByEmail(c echo.Context) error
 	HandleUpdate(c echo.Context) error
 }
 
@@ -34,9 +35,30 @@ func (ph *profileHandler) HandleGet(c echo.Context) error {
 	}
 }
 
+// HandleGetByEmail implements ProfileHandler.
+func (ph *profileHandler) HandleGetByEmail(c echo.Context) error {
+	req := new(request.GetByEmailRequest)
+	errRes := new(response.Error)
+	idToken := c.Get("idToken").(string)
+
+	if err := c.Bind(req); err != nil {
+		log.Print("failed json bind")
+		errRes.Error = err.Error()
+		return c.JSON(http.StatusBadRequest, errRes)
+	}
+
+	profile, err := ph.useCase.GetProfileByEmail(c.Request().Context(), idToken, "")
+	if err != nil {
+		errRes.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errRes)
+	} else {
+		return c.JSON(http.StatusOK, profile)
+	}
+}
+
 // HandleUpdateName implements ProfileHandler.
 func (ph *profileHandler) HandleUpdate(c echo.Context) error {
-	req := new(request.ProfileRequest)
+	req := new(request.UpdateProfileRequest)
 	errRes := new(response.Error)
 	uid := c.Get("uid").(string)
 	idToken := c.Get("idToken").(string)

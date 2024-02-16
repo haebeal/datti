@@ -9,6 +9,7 @@ import (
 
 type ProflielUseCase interface {
 	GetProfile(c context.Context, idToken string, uid string) (*model.Profile, error)
+	GetProfileByEmail(c context.Context, idToken string, email string) (*model.Profile, error)
 	UpdateProfile(c context.Context, idToken string, uid string, name string, url string) (*model.Profile, error)
 }
 
@@ -19,6 +20,16 @@ type profilelUsecase struct {
 // GetProfile implements ProflielUseCase.
 func (pu *profilelUsecase) GetProfile(c context.Context, idToken string, uid string) (*model.Profile, error) {
 	profile, err := pu.repository.GetProfile(c, idToken, uid)
+	if err != nil {
+		return nil, err
+	}
+	
+	return profile, nil
+}
+
+// GetProfileByEmail implements ProflielUseCase.
+func (pu *profilelUsecase) GetProfileByEmail(c context.Context, idToken string, email string) (*model.Profile, error) {
+	profile, err := pu.repository.GetProfileByEmail(c, idToken, email)
 	if err != nil {
 		return nil, err
 	}

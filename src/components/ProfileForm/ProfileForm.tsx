@@ -1,22 +1,28 @@
-import { Button, Stack, VStack } from "@chakra-ui/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  Grid,
+  GridItem,
+  VStack,
+} from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
+import type { Profile } from "@/api/@types";
 import type { SubmitHandler } from "react-hook-form";
 
-import type { Profile } from "@/schema";
 import { profileSchema } from "@/schema";
 
 import { FormInput } from "@/components/FormInput";
+import { ProfilePhotoUpload } from "@/components/ProfilePhotoUpload";
 
 interface Props {
   defaultValues?: Profile;
-  isUploading: boolean;
-  updateProfile: (value: Profile) => Promise<void>;
-  uploadProfilePhoto: (file: File) => Promise<void>;
+  onSubmit: SubmitHandler<Profile>;
 }
 
-export const ProfileForm = ({ defaultValues, updateProfile }: Props) => {
+export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
   const {
     register,
     handleSubmit,
@@ -26,31 +32,28 @@ export const ProfileForm = ({ defaultValues, updateProfile }: Props) => {
     resolver: zodResolver(profileSchema),
   });
 
-  const onSubmit: SubmitHandler<Profile> = async (data) => {
-    await updateProfile(data);
-  };
-
   return (
-    <VStack as="form" onSubmit={handleSubmit(onSubmit)}>
-      <Stack
-        w="full"
-        align="center"
-        gap={9}
-        pt={5}
-        direction={{ base: "column", md: "row" }}
-      >
-        <VStack w="full" bg="white" gap={5}>
-          <FormInput
-            label="ユーザー名"
-            placeholder="ユーザー名を入力"
-            register={register("displayName")}
-            error={errors.displayName}
-          />
-        </VStack>
-      </Stack>
-      <Button mt={5} minW="30%" type="submit" colorScheme="twitter">
-        更新
-      </Button>
-    </VStack>
+    <Card as="form" onSubmit={handleSubmit(onSubmit)}>
+      <CardBody p={10}>
+        <Grid templateColumns="repeat(12, 1fr)" gap={5}>
+          <GridItem colSpan={2}>
+            <ProfilePhotoUpload photoUrl={defaultValues?.photoUrl} />
+          </GridItem>
+          <GridItem colSpan={10}>
+            <VStack w="full" gap={5}>
+              <FormInput
+                label="ユーザー名"
+                placeholder="ユーザー名を入力"
+                register={register("name")}
+                error={errors.name}
+              />
+              <Button mt={5} minW="30%" type="submit" colorScheme="twitter">
+                更新
+              </Button>
+            </VStack>
+          </GridItem>
+        </Grid>
+      </CardBody>
+    </Card>
   );
 };

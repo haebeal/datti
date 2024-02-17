@@ -1,29 +1,68 @@
 /* eslint-disable */
-import type * as Types from "../@types";
+import type * as Types from '../@types'
 
 export type Methods = {
-  /** 口座情報情報の登録 */
-  post: {
-    status: 201;
-    /** 正常処理のレスポンス */
-    resBody: Types.BankAccount;
-    reqBody: Types.RequestBankAccount;
-  };
-
-  /** 口座情報情報の参照 */
+  /** 登録されている口座情報の取得 */
   get: {
-    status: 200;
-    /** 正常処理のレスポンス */
-    resBody: Types.BankAccount;
-  };
+    status: 200
 
-  /** 口座情報情報の削除 */
-  delete: {
-    status: 200;
-
-    /** 正常処理のレスポンス */
+    /** 200レスポンス */
     resBody: {
-      message?: string | undefined;
-    };
-  };
-};
+      /** ユーザーID */
+      uid: string
+      /** 金融機関コード */
+      bankCode: string
+      /** 支店番号 */
+      branchCode: string
+      /** 口座番号 */
+      accountCode: string
+      /** 作成時間 */
+      createdAt: string
+      /** 更新時間 */
+      updatedAt: string
+      /**
+       * 削除時間
+       * 論理削除されていない場合はnull
+       */
+      deletedAt: string | null
+    }
+  }
+
+  /** 口座情報の登録・更新 */
+  post: {
+    status: 201
+
+    /** 201レスポンス */
+    resBody: {
+      /** ユーザーID */
+      uid: string
+      /** 金融機関コード */
+      bankCode: string
+      /** 支店番号 */
+      branchCode: string
+      /** 口座番号 */
+      accountCode: string
+      /** 作成時間 */
+      createdAt: string
+      /** 更新時間 */
+      updatedAt: string
+      /**
+       * 削除時間
+       * 論理削除されていない場合はnull
+       */
+      deletedAt: string | null
+    }
+
+    reqBody: Types.Bank
+  }
+
+  /** 登録されている口座情報の削除 */
+  delete: {
+    status: 200
+
+    /** 200レスポンス */
+    resBody: {
+      message: string
+    }
+  }
+}

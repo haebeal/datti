@@ -5,8 +5,7 @@ import GoogleProvider from "next-auth/providers/google";
 import type { AuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
-import api from "@/api/$api";
-import { createClient } from "@/utils/axiosClient";
+import { createClient } from "@/utils/apiClient";
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -96,8 +95,9 @@ export const authOptions: AuthOptions = {
       if (!googleIdToken) {
         throw new Error("Google IDToken の取得に失敗しました");
       }
-      session.idToken = await getFirebaseIdToken(googleIdToken);
-      session.user = await api(createClient(session.idToken)).me.$get();
+      const idToken = await getFirebaseIdToken(googleIdToken);
+      session.idToken = idToken;
+      session.user = await createClient(idToken).me.$get();
       return session;
     },
   },

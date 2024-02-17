@@ -10,10 +10,13 @@ interface PageProps {
   session: Session;
 }
 
-const App = ({ Component, pageProps: { session } }: AppProps<PageProps>) => (
+const App = ({
+  Component,
+  pageProps: { session, ...pageProps },
+}: AppProps<PageProps>) => (
   <SessionProvider session={session}>
     <ChakraProvider theme={theme}>
-      <Component />
+      <Component {...pageProps} />
     </ChakraProvider>
   </SessionProvider>
 );

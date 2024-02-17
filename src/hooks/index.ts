@@ -1,2 +1,1 @@
-export * from "./useBankAccount";
-export * from "./useFirebase";
+export * from "./useProfile";

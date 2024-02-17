@@ -7,9 +7,10 @@ import type { Profile } from "@/api/@types";
 import type { NextPage } from "next";
 import type { SubmitHandler } from "react-hook-form";
 
+import { useProfile } from "@/hooks";
+
 import { Header } from "@/components/Header";
 import { ProfileForm } from "@/components/ProfileForm";
-import { useProfile } from "@/hooks/useProfile";
 
 const ProfileSetting: NextPage = () => {
   const { data: session, status } = useSession();

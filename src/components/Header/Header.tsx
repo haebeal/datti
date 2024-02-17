@@ -16,16 +16,9 @@ import {
 } from "@chakra-ui/react";
 import { signOut, useSession } from "next-auth/react";
 
-import { useProfile } from "@/hooks/useProfile";
-
 export const Header = () => {
   const [isMobile] = useMediaQuery("(max-width: 48em)");
-
-  const { data: session, status } = useSession();
-
-  if (status !== "authenticated") return;
-
-  const { profile } = useProfile(session.idToken);
+  const { data: session } = useSession();
 
   const onClickSignOut = () => {
     signOut();
@@ -41,11 +34,11 @@ export const Header = () => {
           <Spacer />
           <Menu>
             <MenuButton>
-              <Avatar borderColor="gray.100" src={profile?.photoUrl} />
+              <Avatar borderColor="gray.100" src={session?.user.photoUrl} />
             </MenuButton>
             <MenuList>
-              <MenuGroup title={profile?.name}>
-                <MenuItem as={Link} href="/setting">
+              <MenuGroup title={session?.user.name}>
+                <MenuItem as={Link} href="/settings/profile">
                   設定
                 </MenuItem>
                 {isMobile ? (

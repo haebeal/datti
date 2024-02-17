@@ -5,7 +5,7 @@ import type { Methods as Methods_1uc1f5c } from './me';
 import type { Methods as Methods_1xhiioa } from './users';
 
 const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
-  const prefix = (baseURL === undefined ? 'https://datti-api-dev.fly.dev' : baseURL).replace(/\/$/, '');
+  const prefix = (baseURL === undefined ? '' : baseURL).replace(/\/$/, '');
   const PATH0 = '/bank';
   const PATH1 = '/friends';
   const PATH2 = '/me';

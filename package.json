@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "create-client": "rm -rf ./src/api/* && npx openapi2aspida -i https://haebeal.github.io/datti-api/openapi.yaml -o ./src/api",
+    "api:build": "rm -rf ./src/api/datti/* && npx openapi2aspida && aspida",
     "lint": "eslint --no-warn-ignored src/**/*",
     "lint:fix": "eslint --no-warn-ignored --fix src/**/*",
     "format": "prettier --write src/**/*",

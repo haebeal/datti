@@ -40,7 +40,7 @@ const getFirebaseIdToken = async (googleIdToken: string) => {
   const response = await axios.post(
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${process.env.FIREBASE_API_KEY}`,
     {
-      requestUri: "http://localhost:3000",
+      requestUri: process.env.NEXTAUTH_URL,
       tenantId: process.env.FIREBASE_TENANT_ID,
       postBody: `id_token=${googleIdToken}&providerId=google.com`,
       returnSecureToken: true,

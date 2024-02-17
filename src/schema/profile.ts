@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-export const profileSchema = z.object({
-  displayName: z.string().min(1, {
-    message: "ユーザー名を入力してください",
-  }),
-  photoURL: z.string().url({
-    message: "URLの形式が誤っています",
-  }),
-});
+import type { Profile } from "@/api/@types";
 
-export type Profile = z.infer<typeof profileSchema>;
+import type { ToZod } from "@/utils";
+
+export const profileSchema = z.object<
+  Pick<ToZod<Profile>, "name" | "photoUrl">
+>({
+  name: z.string(),
+  photoUrl: z.string().url(),
+});

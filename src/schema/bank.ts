@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-import type { BankAccount } from "@/api/@types";
+import type { Bank } from "@/api/@types";
 
 import type { ToZod } from "@/utils";
 
 export const bankAccountSchema = z.object<
-  Pick<ToZod<BankAccount>, "accountCode" | "bankCode" | "branchCode">
+  Pick<ToZod<Bank>, "accountCode" | "bankCode" | "branchCode">
 >({
   accountCode: z.string().length(7, {
     message: "口座番号は7桁で入力してください",

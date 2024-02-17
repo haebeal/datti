@@ -9,7 +9,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
-import type { Profile } from "@/api/@types";
+import type { Profile } from "@/api/datti/@types";
 import type { SubmitHandler } from "react-hook-form";
 
 import { profileSchema } from "@/schema";

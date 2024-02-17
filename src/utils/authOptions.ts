@@ -5,7 +5,7 @@ import GoogleProvider from "next-auth/providers/google";
 import type { AuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 
-import { createClient } from "@/utils";
+import { createDattiClient } from "@/utils";
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
@@ -97,7 +97,7 @@ export const authOptions: AuthOptions = {
       }
       const idToken = await getFirebaseIdToken(googleIdToken);
       session.idToken = idToken;
-      session.user = await createClient(idToken).me.$get();
+      session.user = await createDattiClient(idToken).me.$get();
       return session;
     },
   },

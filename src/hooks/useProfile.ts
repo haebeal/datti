@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-import type { Profile } from "@/api/@types";
+import type { Profile } from "@/api/datti/@types";
 
-import { createClient } from "@/utils";
+import { createDattiClient } from "@/utils";
 
 export const useProfile = () => {
   const [isLoading, setLoading] = useState(false);
@@ -10,7 +10,7 @@ export const useProfile = () => {
 
   const fetchProfile = async (idToken: string) => {
     setLoading(true);
-    const client = createClient(idToken);
+    const client = createDattiClient(idToken);
     const response = await client.me.$get();
     setProfile(response);
     setLoading(false);
@@ -18,7 +18,7 @@ export const useProfile = () => {
 
   const updateProfile = async (idToken: string, data: Profile) => {
     setLoading(true);
-    const client = createClient(idToken);
+    const client = createDattiClient(idToken);
     const response = await client.me.$put({
       body: data,
     });

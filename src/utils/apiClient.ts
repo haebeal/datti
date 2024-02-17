@@ -1,15 +1,16 @@
 import axiosClient from "@aspida/axios";
 
-import api from "@/api/$api";
+import banksApi from "@/api/banks/$api";
+import dattiApi from "@/api/datti/$api";
 
-export const createClient = (idToken?: string) =>
-  api(
+export const createDattiClient = (idToken: string) =>
+  dattiApi(
     axiosClient(undefined, {
       baseURL: "https://datti-api-dev.fly.dev",
-      headers: idToken
-        ? {
-            Authorization: `Bearer ${idToken}`,
-          }
-        : undefined,
+      headers: {
+        Authorization: `Bearer ${idToken}`,
+      },
     })
   );
+
+export const createBankClient = () => banksApi(axiosClient());

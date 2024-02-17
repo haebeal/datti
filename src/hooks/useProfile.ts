@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import type { Profile } from "@/api/@types";
 
-import { createClient } from "@/utils/apiClient";
+import { createClient } from "@/utils";
 
 export const useProfile = () => {
   const [isLoading, setLoading] = useState(false);

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { Bank } from "@/api/@types";
+import type { Bank } from "@/api/datti/@types";
 
 import type { ToZod } from "@/utils";
 

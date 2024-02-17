@@ -13,4 +13,4 @@ export const createDattiClient = (idToken: string) =>
     })
   );
 
-export const createBankClient = () => banksApi(axiosClient());
+export const createBanksClient = () => banksApi(axiosClient());

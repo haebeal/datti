@@ -3,7 +3,7 @@ import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 
-import type { Profile } from "@/api/@types";
+import type { Profile } from "@/api/datti/@types";
 import type { NextPage } from "next";
 import type { SubmitHandler } from "react-hook-form";
 

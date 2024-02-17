@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { Profile } from "@/api/@types";
+import type { Profile } from "@/api/datti/@types";
 
 import type { ToZod } from "@/utils";
 

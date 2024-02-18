@@ -93,9 +93,10 @@ export const BankForm = ({ defaultValues, onSubmit, onDelete }: Props) => {
         value={selectedBank}
         onChangeSelect={(data) => {
           if (data) {
-            setSelectedBank(data);
             setValue("bankCode", data?.code);
+            setSelectedBank(data);
             setValue("branchCode", "");
+            setSelectedBranch(null);
             loadBranch();
           } else {
             setValue("bankCode", "");

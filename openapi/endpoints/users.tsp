@@ -16,7 +16,7 @@ namespace Users {
   @summary("ユーザー情報の取得")
   @get
   op getUser(...UserGetRequest):
-  | User[]
+  | User
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 }

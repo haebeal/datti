@@ -27,6 +27,7 @@ export const ProfilePhotoUpload = ({ photoUrl }: Props) => {
         boxSize="80px"
         _hover={{
           cursor: "pointer",
+          opacity: 0.5,
         }}
         onClick={onClickUpload}
         src={photoUrl}

@@ -4,6 +4,7 @@ import {
   CardHeader,
   Container,
   Heading,
+  Link,
   Skeleton,
   Tab,
   TabList,
@@ -12,32 +13,37 @@ import {
   Tabs,
 } from "@chakra-ui/react";
 import Head from "next/head";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 
-import type { Profile } from "@/api/datti/@types";
+import type { Bank } from "@/api/datti/@types";
 import type { NextPage } from "next";
 import type { SubmitHandler } from "react-hook-form";
 
 import { useProfile } from "@/hooks";
 
+import { BankForm } from "@/components/BankForm";
 import { Header } from "@/components/Header";
-import { ProfileForm } from "@/components/ProfileForm";
 
-const ProfileSetting: NextPage = () => {
+const BankSetting: NextPage = () => {
   const { data: session, status } = useSession();
-  const { isLoading, profile, fetchProfile, updateProfile } = useProfile();
+  const { isLoading, bank, fetchBank, updateBank, deleteBank } = useProfile();
 
   useEffect(() => {
     if (status === "authenticated") {
-      fetchProfile(session.idToken);
+      fetchBank(session.idToken);
     }
   }, [status]);
 
-  const onSubmit: SubmitHandler<Profile> = async (data) => {
+  const onSubmit: SubmitHandler<Bank> = async (data) => {
     if (session?.idToken) {
-      await updateProfile(session.idToken, data);
+      await updateBank(session.idToken, data);
+    }
+  };
+
+  const onDelete = async () => {
+    if (session?.idToken) {
+      await deleteBank(session.idToken);
     }
   };
 
@@ -53,7 +59,7 @@ const ProfileSetting: NextPage = () => {
         <Header />
         <Container maxW="container.xl" p={10}>
           <Card>
-            <Tabs index={0}>
+            <Tabs index={1}>
               <CardHeader>
                 <TabList>
                   <Tab as={Link} href="/settings/profile">
@@ -66,17 +72,19 @@ const ProfileSetting: NextPage = () => {
               </CardHeader>
               <CardBody>
                 <TabPanels>
+                  <TabPanel />
                   <TabPanel>
                     <Skeleton
                       isLoaded={
                         status === "authenticated" &&
-                        profile !== undefined &&
+                        bank !== undefined &&
                         !isLoading
                       }
                     >
-                      <ProfileForm
-                        defaultValues={profile}
+                      <BankForm
+                        defaultValues={bank}
                         onSubmit={onSubmit}
+                        onDelete={onDelete}
                       />
                     </Skeleton>
                   </TabPanel>
@@ -90,4 +98,4 @@ const ProfileSetting: NextPage = () => {
   );
 };
 
-export default ProfileSetting;
+export default BankSetting;

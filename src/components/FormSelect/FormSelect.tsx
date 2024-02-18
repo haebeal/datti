@@ -7,7 +7,6 @@ import {
   Stack,
 } from "@chakra-ui/react";
 import { AsyncSelect } from "chakra-react-select";
-import { useId } from "react";
 import { Controller } from "react-hook-form";
 
 import type {
@@ -29,11 +28,12 @@ type Props<T extends FieldValues, U> = AsyncProps<U, true, GroupBase<U>> & {
   name: Path<T>;
   onChangeSelect?: (
     newValue: SingleValue<U>,
-    actionMeta: ActionMeta<U>,
+    actionMeta: ActionMeta<U>
   ) => void;
 };
 
 export const FormSelect = <T extends FieldValues, U>({
+  id,
   label,
   placeholder,
   readonly = false,
@@ -47,7 +47,6 @@ export const FormSelect = <T extends FieldValues, U>({
   value,
   onChangeSelect,
 }: Props<T, U>) => {
-  const id = useId();
   const isError = error ? true : false;
 
   return (
@@ -69,7 +68,7 @@ export const FormSelect = <T extends FieldValues, U>({
             render={({ field }) => (
               <AsyncSelect<U, false>
                 {...field}
-                instanceId={id}
+                instanceId={`select-${id}`}
                 placeholder={placeholder}
                 getOptionLabel={getOptionLabel}
                 getOptionValue={getOptionValue}

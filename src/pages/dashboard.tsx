@@ -1,11 +1,11 @@
-import { Grid, GridItem, Heading } from "@chakra-ui/react";
+import { Container, Grid, GridItem, Heading } from "@chakra-ui/react";
 import Head from "next/head";
 
-import type { NextPageWithLayout } from "next";
+import type { NextPage } from "next";
 
-import { DefaultLayout } from "@/layouts";
+import { Header } from "@/components/Header";
 
-const Home: NextPageWithLayout = () => (
+const Home: NextPage = () => (
   <>
     <Head>
       <title>Datti - ダッシュボード</title>
@@ -14,17 +14,18 @@ const Home: NextPageWithLayout = () => (
       <link rel="icon" href="/favicon.ico" />
     </Head>
     <main>
-      <Grid templateColumns="repeat(12, 1fr)" gap={5}>
-        <GridItem colSpan={12}>
-          <Heading size="lg" mt={10}>
-            ダッシュボード
-          </Heading>
-        </GridItem>
-      </Grid>
+      <Header />
+      <Container maxW="container.xl">
+        <Grid templateColumns="repeat(12, 1fr)" gap={5}>
+          <GridItem colSpan={12}>
+            <Heading size="lg" mt={10}>
+              ダッシュボード
+            </Heading>
+          </GridItem>
+        </Grid>
+      </Container>
     </main>
   </>
 );
-
-Home.getLayout = (page) => <DefaultLayout>{page}</DefaultLayout>;
 
 export default Home;

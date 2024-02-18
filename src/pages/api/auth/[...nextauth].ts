@@ -1,13 +1,17 @@
+import axios from "axios";
 import { google } from "googleapis";
-import NextAuth from "next-auth";
+import NextAuth from "next-auth/next";
 import GoogleProvider from "next-auth/providers/google";
 
+import type { AuthOptions } from "next-auth";
 import type { JWT } from "next-auth/jwt";
+
+import { createDattiClient } from "@/utils";
 
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  `${process.env.NEXTAUTH_URL}/api/auth/callback/google`,
+  `${process.env.NEXTAUTH_URL}/api/auth/callback/google`
 );
 
 const refreshoken = async (token: JWT): Promise<JWT> => {
@@ -32,7 +36,21 @@ const refreshoken = async (token: JWT): Promise<JWT> => {
   return token;
 };
 
-export default NextAuth({
+const getFirebaseIdToken = async (googleIdToken: string) => {
+  const response = await axios.post(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${process.env.FIREBASE_API_KEY}`,
+    {
+      requestUri: process.env.NEXTAUTH_URL,
+      tenantId: process.env.FIREBASE_TENANT_ID,
+      postBody: `id_token=${googleIdToken}&providerId=google.com`,
+      returnSecureToken: true,
+      returnIdpCredential: false,
+    }
+  );
+  return response.data.idToken as string;
+};
+
+export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -74,8 +92,16 @@ export default NextAuth({
       return token;
     },
     session: async ({ session, token }) => {
-      session.credential = token.credential;
+      const googleIdToken = token.credential.idToken;
+      if (!googleIdToken) {
+        throw new Error("Google IDToken の取得に失敗しました");
+      }
+      const idToken = await getFirebaseIdToken(googleIdToken);
+      session.idToken = idToken;
+      session.user = await createDattiClient(idToken).me.$get();
       return session;
     },
   },
-});
+};
+
+export default NextAuth(authOptions);

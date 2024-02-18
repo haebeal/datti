@@ -1,17 +1,11 @@
-import { Center, Image, Skeleton } from "@chakra-ui/react";
+import { Center, Image } from "@chakra-ui/react";
 import { useRef } from "react";
 
 interface Props {
-  isLoading: boolean;
-  photoUrl: string;
-  updatePhoto: (file: File) => Promise<void>;
+  photoUrl?: string;
 }
 
-export const ProfilePhotoUpload = ({
-  isLoading,
-  photoUrl,
-  updatePhoto,
-}: Props) => {
+export const ProfilePhotoUpload = ({ photoUrl }: Props) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const onClickUpload = () => {
@@ -20,35 +14,32 @@ export const ProfilePhotoUpload = ({
 
   const onChangeFile = () => {
     const files = inputRef.current?.files;
-    if (files?.length === 1) {
-      updatePhoto(files[0]);
-    }
+    console.log(files);
   };
 
   return (
-    <Skeleton isLoaded={!isLoading}>
-      <Center h="150px" w="150px">
-        <Image
-          borderStyle="solid"
-          borderRadius="full"
-          borderColor="gray.90"
-          borderWidth={2}
-          boxSize="120px"
-          _hover={{
-            cursor: "pointer",
-          }}
-          onClick={onClickUpload}
-          src={photoUrl}
-          alt="Profile Photo"
-        />
-        <input
-          ref={inputRef}
-          hidden
-          type="file"
-          accept=".png, .jpeg, .webp"
-          onChange={onChangeFile}
-        />
-      </Center>
-    </Skeleton>
+    <Center>
+      <Image
+        borderStyle="solid"
+        borderRadius="full"
+        borderColor="gray.90"
+        borderWidth={2}
+        boxSize="80px"
+        _hover={{
+          cursor: "pointer",
+          opacity: 0.5,
+        }}
+        onClick={onClickUpload}
+        src={photoUrl}
+        alt="Profile Photo"
+      />
+      <input
+        ref={inputRef}
+        hidden
+        type="file"
+        accept=".png, .jpeg, .webp"
+        onChange={onChangeFile}
+      />
+    </Center>
   );
 };

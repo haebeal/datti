@@ -1,42 +1,24 @@
-import { ChakraProvider, useToast } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import { SessionProvider } from "next-auth/react";
-import { SWRConfig } from "swr";
 
-import type { AppPropsWithLayout } from "next/app";
+import type { AppProps } from "next/app";
 import type { Session } from "next-auth";
 
 import { theme } from "@/utils";
 
-import { HttpError } from "@/errors";
+interface PageProps {
+  session: Session;
+}
 
 const App = ({
   Component,
-  pageProps: { session },
-}: AppPropsWithLayout<{ session: Session }>) => {
-  const getLayout = Component.getLayout ?? ((page) => page);
-
-  const toast = useToast();
-
-  return (
-    <SessionProvider session={session}>
-      <ChakraProvider theme={theme}>
-        <SWRConfig
-          value={{
-            onError: (error) => {
-              if (error instanceof HttpError) {
-                toast({
-                  status: "error",
-                  title: error.message,
-                });
-              }
-            },
-          }}
-        >
-          {getLayout(<Component />)}
-        </SWRConfig>
-      </ChakraProvider>
-    </SessionProvider>
-  );
-};
+  pageProps: { session, ...pageProps },
+}: AppProps<PageProps>) => (
+  <SessionProvider session={session}>
+    <ChakraProvider theme={theme}>
+      <Component {...pageProps} />
+    </ChakraProvider>
+  </SessionProvider>
+);
 
 export default App;

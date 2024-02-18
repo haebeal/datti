@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/datti-api/pkg/domain/model"
+	"github.com/datti-api/pkg/interface/request"
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
 	"github.com/labstack/echo/v4"
@@ -24,17 +25,22 @@ type bankAccountHandler struct {
 
 // HandleCreate implements BankAccountHandler.
 func (bh *bankAccountHandler) HandleUpsert(c echo.Context) error {
+	req := new(request.BankAccountPostRequest)
 	errRespons := new(response.Error)
 	uid := c.Get("uid").(string)
-
 	bankAccount := new(model.BankAccount)
-	if err := c.Bind(&bankAccount); err != nil {
+
+	if err := c.Bind(&req); err != nil {
 		log.Print("failed json bind")
 		errRespons.Error = err.Error()
 		return c.JSON(http.StatusBadRequest, errRespons)
 	}
 
 	bankAccount.UserID = uid
+	bankAccount.BankCode = req.BankCode
+	bankAccount.BranchCode = req.BranchCode
+	bankAccount.AccountCode = req.AccountCode
+
 	newBankAccount, err := bh.useCase.UpsertBankAccount(c.Request().Context(), bankAccount)
 	if err != nil {
 		errRespons.Error = err.Error()

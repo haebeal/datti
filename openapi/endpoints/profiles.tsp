@@ -25,7 +25,7 @@ namespace Profiles {
    */
   @summary("プロフィール情報の更新")
   @put
-  op updateProfile(...Profile):
+  op updateProfile(...ProfileUpdateRequest):
   | Profile
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -38,6 +38,18 @@ model Profile {
   @minLength(28)
   @maxLength(28)
   uid: string;
+  /**
+   * ユーザー名
+   */
+  name: string;
+
+  /**
+   * 画像URL
+   */
+  photoUrl: string;
+}
+
+model ProfileUpdateRequest{
   /**
    * ユーザー名
    */

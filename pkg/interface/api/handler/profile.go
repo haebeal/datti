@@ -37,7 +37,7 @@ func (ph *profileHandler) HandleGet(c echo.Context) error {
 
 // HandleGetByEmail implements ProfileHandler.
 func (ph *profileHandler) HandleGetByEmail(c echo.Context) error {
-	req := new(request.GetByEmailRequest)
+	req := new(request.ProfileGetByEmailRequest)
 	errRes := new(response.Error)
 	idToken := c.Get("idToken").(string)
 
@@ -58,7 +58,7 @@ func (ph *profileHandler) HandleGetByEmail(c echo.Context) error {
 
 // HandleUpdateName implements ProfileHandler.
 func (ph *profileHandler) HandleUpdate(c echo.Context) error {
-	req := new(request.UpdateProfileRequest)
+	req := new(request.ProfileUpdateRequest)
 	errRes := new(response.Error)
 	uid := c.Get("uid").(string)
 	idToken := c.Get("idToken").(string)

@@ -36,18 +36,12 @@ namespace Banks {
   @summary("口座情報の削除")
   @delete
   op deleteMyBank():
-    | Utils.Response.OKMessage
+    | Utils.Response.OKResponse<Bank>
     | Utils.Error.UnauthorizedError
     | Utils.Error.InternalServerError;
 }
 
 model Bank {
-  /**
-   * ユーザーID
-   */
-  @minLength(28)
-  @maxLength(28)
-  uid: string;
   /**
    * 金融機関コード
   */
@@ -69,4 +63,3 @@ model Bank {
   @maxLength(7)
   accountCode: string;
 }
-

@@ -15,7 +15,7 @@ const compat = new FlatCompat();
 module.exports = [
   // *.d.tsは無視するように
   {
-    ignores: ["**/*.d.ts"],
+    ignores: ["**/*.d.ts", "!.storybook"],
   },
   // 全体項目設定
   {
@@ -39,7 +39,10 @@ module.exports = [
   // 推薦項目の設定
   js.configs.recommended,
   // TypeScript 向け設定
-  ...compat.extends("plugin:@typescript-eslint/eslint-recommended"),
+  ...compat.extends(
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:storybook/recommended"
+  ),
   {
     files: ["**/*.ts", "**/*.tsx"],
     plugins: {

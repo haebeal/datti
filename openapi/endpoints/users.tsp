@@ -15,17 +15,10 @@ namespace Users {
    */
   @summary("ユーザー情報の取得")
   @get
-  op getUser(...Request):
-  | User
+  op getUser(...UserGetRequest):
+  | User[]
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
-}
-
-model Request {
-  /**
-   * メールアドレス
-   */
-  email: string;
 }
 
 model User {
@@ -35,6 +28,7 @@ model User {
   @minLength(28)
   @maxLength(28)
   uid: string;
+
   /**
    * ユーザー名
    */
@@ -44,4 +38,11 @@ model User {
    * 画像URL
    */
   photoUrl: string;
+}
+
+model UserGetRequest {
+  /**
+   * メールアドレス
+   */
+  email: string;
 }

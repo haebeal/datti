@@ -16,19 +16,8 @@ jobs:
       environment: dev
       ref: ${{ github.sha }}
     secrets: inherit
-  # deploy-aws-feat:
-  #   name: deploy aws to dev environment
-  #   if: startsWith(github.ref, 'refs/heads/feature/')
-  #   uses: ./.github/workflows/aws_deploy.yml
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   with:
-  #     environment: dev
-  #     ref: ${{ github.sha }}
-  #   secrets: inherit
   deploy-fly-main:
-    name: deploy cloudrun to prod environment
+    name: deploy fly to prod environment
     if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
     uses: ./.github/workflows/fly_deploy.yml
     permissions:
@@ -38,14 +27,3 @@ jobs:
       environment: prod
       ref: ${{ github.sha }}
     secrets: inherit
-  # deploy-aws-main:
-  #   name: deploy aws to prod environment
-  #   if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
-  #   uses: ./.github/workflows/aws_deploy.yml
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   with:
-  #     environment: prod
-  #     ref: ${{ github.sha }}
-  #   secrets: inherit

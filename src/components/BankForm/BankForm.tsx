@@ -11,8 +11,8 @@ import { bankAccountSchema } from "@/schema";
 
 import { createBanksClient } from "@/utils";
 
-import { FormInput } from "@/components/FormInput";
 import { FormSelect } from "@/components/FormSelect";
+import { FormInput } from "@/components/atoms/FormInput";
 
 interface Props {
   defaultValues?: Bank;
@@ -138,8 +138,9 @@ export const BankForm = ({ defaultValues, onSubmit, onDelete }: Props) => {
       <FormInput
         label="口座番号"
         placeholder="口座番号を入力"
-        register={register("accountCode")}
-        error={errors.accountCode}
+        {...register("accountCode")}
+        type="text"
+        error={errors.accountCode?.message}
       />
       <Button mt={5} minW="30%" type="submit" colorScheme="twitter">
         更新

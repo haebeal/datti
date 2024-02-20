@@ -7,7 +7,7 @@ import type { SubmitHandler } from "react-hook-form";
 
 import { profileSchema } from "@/schema";
 
-import { FormInput } from "@/components/FormInput";
+import { FormInput } from "@/components/atoms/FormInput";
 import { ProfilePhotoUpload } from "@/components/ProfilePhotoUpload";
 
 interface Props {
@@ -35,8 +35,8 @@ export const ProfileForm = ({ defaultValues, onSubmit }: Props) => {
           <FormInput
             label="ユーザー名"
             placeholder="ユーザー名を入力"
-            register={register("name")}
-            error={errors.name}
+            {...register("name")}
+            error={errors.name?.message}
           />
           <Button mt={5} minW="30%" type="submit" colorScheme="twitter">
             更新

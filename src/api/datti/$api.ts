@@ -1,8 +1,8 @@
-import type { AspidaClient, BasicHeaders } from 'aspida';
 import type { Methods as Methods_on2dq4 } from './bank';
 import type { Methods as Methods_143531r } from './friends';
 import type { Methods as Methods_1uc1f5c } from './me';
 import type { Methods as Methods_1xhiioa } from './users';
+import type { AspidaClient, BasicHeaders } from 'aspida';
 
 const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
   const prefix = (baseURL === undefined ? '' : baseURL).replace(/\/$/, '');

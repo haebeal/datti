@@ -17,9 +17,9 @@ func (Group) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").NotEmpty(),
 		field.String("name").NotEmpty(),
-		field.Time("create_at").Default(time.Now).Immutable(),
-		field.Time("update_at").Default(time.Now).UpdateDefault(time.Now),
-		field.Time("delete_at").Nillable().Optional(),
+		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
+		field.Time("deleted_at").Nillable().Optional(),
 	}
 }
 

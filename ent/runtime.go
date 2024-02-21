@@ -72,16 +72,16 @@ func init() {
 			return nil
 		}
 	}()
-	// bankaccountDescCreateAt is the schema descriptor for create_at field.
-	bankaccountDescCreateAt := bankaccountFields[4].Descriptor()
-	// bankaccount.DefaultCreateAt holds the default value on creation for the create_at field.
-	bankaccount.DefaultCreateAt = bankaccountDescCreateAt.Default.(func() time.Time)
-	// bankaccountDescUpdateAt is the schema descriptor for update_at field.
-	bankaccountDescUpdateAt := bankaccountFields[5].Descriptor()
-	// bankaccount.DefaultUpdateAt holds the default value on creation for the update_at field.
-	bankaccount.DefaultUpdateAt = bankaccountDescUpdateAt.Default.(func() time.Time)
-	// bankaccount.UpdateDefaultUpdateAt holds the default value on update for the update_at field.
-	bankaccount.UpdateDefaultUpdateAt = bankaccountDescUpdateAt.UpdateDefault.(func() time.Time)
+	// bankaccountDescCreatedAt is the schema descriptor for created_at field.
+	bankaccountDescCreatedAt := bankaccountFields[4].Descriptor()
+	// bankaccount.DefaultCreatedAt holds the default value on creation for the created_at field.
+	bankaccount.DefaultCreatedAt = bankaccountDescCreatedAt.Default.(func() time.Time)
+	// bankaccountDescUpdatedAt is the schema descriptor for updated_at field.
+	bankaccountDescUpdatedAt := bankaccountFields[5].Descriptor()
+	// bankaccount.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	bankaccount.DefaultUpdatedAt = bankaccountDescUpdatedAt.Default.(func() time.Time)
+	// bankaccount.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	bankaccount.UpdateDefaultUpdatedAt = bankaccountDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// bankaccountDescID is the schema descriptor for id field.
 	bankaccountDescID := bankaccountFields[0].Descriptor()
 	// bankaccount.IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -141,32 +141,32 @@ func init() {
 			return nil
 		}
 	}()
-	// friendDescCreateAt is the schema descriptor for create_at field.
-	friendDescCreateAt := friendFields[2].Descriptor()
-	// friend.DefaultCreateAt holds the default value on creation for the create_at field.
-	friend.DefaultCreateAt = friendDescCreateAt.Default.(func() time.Time)
-	// friendDescUpdateAt is the schema descriptor for update_at field.
-	friendDescUpdateAt := friendFields[3].Descriptor()
-	// friend.DefaultUpdateAt holds the default value on creation for the update_at field.
-	friend.DefaultUpdateAt = friendDescUpdateAt.Default.(func() time.Time)
-	// friend.UpdateDefaultUpdateAt holds the default value on update for the update_at field.
-	friend.UpdateDefaultUpdateAt = friendDescUpdateAt.UpdateDefault.(func() time.Time)
+	// friendDescCreatedAt is the schema descriptor for created_at field.
+	friendDescCreatedAt := friendFields[2].Descriptor()
+	// friend.DefaultCreatedAt holds the default value on creation for the created_at field.
+	friend.DefaultCreatedAt = friendDescCreatedAt.Default.(func() time.Time)
+	// friendDescUpdatedAt is the schema descriptor for updated_at field.
+	friendDescUpdatedAt := friendFields[3].Descriptor()
+	// friend.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	friend.DefaultUpdatedAt = friendDescUpdatedAt.Default.(func() time.Time)
+	// friend.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	friend.UpdateDefaultUpdatedAt = friendDescUpdatedAt.UpdateDefault.(func() time.Time)
 	groupFields := schema.Group{}.Fields()
 	_ = groupFields
 	// groupDescName is the schema descriptor for name field.
 	groupDescName := groupFields[1].Descriptor()
 	// group.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	group.NameValidator = groupDescName.Validators[0].(func(string) error)
-	// groupDescCreateAt is the schema descriptor for create_at field.
-	groupDescCreateAt := groupFields[2].Descriptor()
-	// group.DefaultCreateAt holds the default value on creation for the create_at field.
-	group.DefaultCreateAt = groupDescCreateAt.Default.(func() time.Time)
-	// groupDescUpdateAt is the schema descriptor for update_at field.
-	groupDescUpdateAt := groupFields[3].Descriptor()
-	// group.DefaultUpdateAt holds the default value on creation for the update_at field.
-	group.DefaultUpdateAt = groupDescUpdateAt.Default.(func() time.Time)
-	// group.UpdateDefaultUpdateAt holds the default value on update for the update_at field.
-	group.UpdateDefaultUpdateAt = groupDescUpdateAt.UpdateDefault.(func() time.Time)
+	// groupDescCreatedAt is the schema descriptor for created_at field.
+	groupDescCreatedAt := groupFields[2].Descriptor()
+	// group.DefaultCreatedAt holds the default value on creation for the created_at field.
+	group.DefaultCreatedAt = groupDescCreatedAt.Default.(func() time.Time)
+	// groupDescUpdatedAt is the schema descriptor for updated_at field.
+	groupDescUpdatedAt := groupFields[3].Descriptor()
+	// group.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	group.DefaultUpdatedAt = groupDescUpdatedAt.Default.(func() time.Time)
+	// group.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	group.UpdateDefaultUpdatedAt = groupDescUpdatedAt.UpdateDefault.(func() time.Time)
 	// groupDescID is the schema descriptor for id field.
 	groupDescID := groupFields[0].Descriptor()
 	// group.IDValidator is a validator for the "id" field. It is called by the builders before save.
@@ -196,14 +196,14 @@ func init() {
 	groupuserDescGroupID := groupuserFields[1].Descriptor()
 	// groupuser.GroupIDValidator is a validator for the "group_id" field. It is called by the builders before save.
 	groupuser.GroupIDValidator = groupuserDescGroupID.Validators[0].(func(string) error)
-	// groupuserDescCreateAt is the schema descriptor for create_at field.
-	groupuserDescCreateAt := groupuserFields[3].Descriptor()
-	// groupuser.DefaultCreateAt holds the default value on creation for the create_at field.
-	groupuser.DefaultCreateAt = groupuserDescCreateAt.Default.(func() time.Time)
-	// groupuserDescUpdateAt is the schema descriptor for update_at field.
-	groupuserDescUpdateAt := groupuserFields[4].Descriptor()
-	// groupuser.DefaultUpdateAt holds the default value on creation for the update_at field.
-	groupuser.DefaultUpdateAt = groupuserDescUpdateAt.Default.(func() time.Time)
-	// groupuser.UpdateDefaultUpdateAt holds the default value on update for the update_at field.
-	groupuser.UpdateDefaultUpdateAt = groupuserDescUpdateAt.UpdateDefault.(func() time.Time)
+	// groupuserDescCreatedAt is the schema descriptor for created_at field.
+	groupuserDescCreatedAt := groupuserFields[3].Descriptor()
+	// groupuser.DefaultCreatedAt holds the default value on creation for the created_at field.
+	groupuser.DefaultCreatedAt = groupuserDescCreatedAt.Default.(func() time.Time)
+	// groupuserDescUpdatedAt is the schema descriptor for updated_at field.
+	groupuserDescUpdatedAt := groupuserFields[4].Descriptor()
+	// groupuser.DefaultUpdatedAt holds the default value on creation for the updated_at field.
+	groupuser.DefaultUpdatedAt = groupuserDescUpdatedAt.Default.(func() time.Time)
+	// groupuser.UpdateDefaultUpdatedAt holds the default value on update for the updated_at field.
+	groupuser.UpdateDefaultUpdatedAt = groupuserDescUpdatedAt.UpdateDefault.(func() time.Time)
 }

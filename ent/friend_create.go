@@ -32,44 +32,44 @@ func (fc *FriendCreate) SetFriendUID(s string) *FriendCreate {
 	return fc
 }
 
-// SetCreateAt sets the "create_at" field.
-func (fc *FriendCreate) SetCreateAt(t time.Time) *FriendCreate {
-	fc.mutation.SetCreateAt(t)
+// SetCreatedAt sets the "created_at" field.
+func (fc *FriendCreate) SetCreatedAt(t time.Time) *FriendCreate {
+	fc.mutation.SetCreatedAt(t)
 	return fc
 }
 
-// SetNillableCreateAt sets the "create_at" field if the given value is not nil.
-func (fc *FriendCreate) SetNillableCreateAt(t *time.Time) *FriendCreate {
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (fc *FriendCreate) SetNillableCreatedAt(t *time.Time) *FriendCreate {
 	if t != nil {
-		fc.SetCreateAt(*t)
+		fc.SetCreatedAt(*t)
 	}
 	return fc
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (fc *FriendCreate) SetUpdateAt(t time.Time) *FriendCreate {
-	fc.mutation.SetUpdateAt(t)
+// SetUpdatedAt sets the "updated_at" field.
+func (fc *FriendCreate) SetUpdatedAt(t time.Time) *FriendCreate {
+	fc.mutation.SetUpdatedAt(t)
 	return fc
 }
 
-// SetNillableUpdateAt sets the "update_at" field if the given value is not nil.
-func (fc *FriendCreate) SetNillableUpdateAt(t *time.Time) *FriendCreate {
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (fc *FriendCreate) SetNillableUpdatedAt(t *time.Time) *FriendCreate {
 	if t != nil {
-		fc.SetUpdateAt(*t)
+		fc.SetUpdatedAt(*t)
 	}
 	return fc
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (fc *FriendCreate) SetDeleteAt(t time.Time) *FriendCreate {
-	fc.mutation.SetDeleteAt(t)
+// SetDeletedAt sets the "deleted_at" field.
+func (fc *FriendCreate) SetDeletedAt(t time.Time) *FriendCreate {
+	fc.mutation.SetDeletedAt(t)
 	return fc
 }
 
-// SetNillableDeleteAt sets the "delete_at" field if the given value is not nil.
-func (fc *FriendCreate) SetNillableDeleteAt(t *time.Time) *FriendCreate {
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (fc *FriendCreate) SetNillableDeletedAt(t *time.Time) *FriendCreate {
 	if t != nil {
-		fc.SetDeleteAt(*t)
+		fc.SetDeletedAt(*t)
 	}
 	return fc
 }
@@ -109,13 +109,13 @@ func (fc *FriendCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (fc *FriendCreate) defaults() {
-	if _, ok := fc.mutation.CreateAt(); !ok {
-		v := friend.DefaultCreateAt()
-		fc.mutation.SetCreateAt(v)
+	if _, ok := fc.mutation.CreatedAt(); !ok {
+		v := friend.DefaultCreatedAt()
+		fc.mutation.SetCreatedAt(v)
 	}
-	if _, ok := fc.mutation.UpdateAt(); !ok {
-		v := friend.DefaultUpdateAt()
-		fc.mutation.SetUpdateAt(v)
+	if _, ok := fc.mutation.UpdatedAt(); !ok {
+		v := friend.DefaultUpdatedAt()
+		fc.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -137,11 +137,11 @@ func (fc *FriendCreate) check() error {
 			return &ValidationError{Name: "friend_uid", err: fmt.Errorf(`ent: validator failed for field "Friend.friend_uid": %w`, err)}
 		}
 	}
-	if _, ok := fc.mutation.CreateAt(); !ok {
-		return &ValidationError{Name: "create_at", err: errors.New(`ent: missing required field "Friend.create_at"`)}
+	if _, ok := fc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Friend.created_at"`)}
 	}
-	if _, ok := fc.mutation.UpdateAt(); !ok {
-		return &ValidationError{Name: "update_at", err: errors.New(`ent: missing required field "Friend.update_at"`)}
+	if _, ok := fc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "Friend.updated_at"`)}
 	}
 	return nil
 }
@@ -177,17 +177,17 @@ func (fc *FriendCreate) createSpec() (*Friend, *sqlgraph.CreateSpec) {
 		_spec.SetField(friend.FieldFriendUID, field.TypeString, value)
 		_node.FriendUID = value
 	}
-	if value, ok := fc.mutation.CreateAt(); ok {
-		_spec.SetField(friend.FieldCreateAt, field.TypeTime, value)
-		_node.CreateAt = value
+	if value, ok := fc.mutation.CreatedAt(); ok {
+		_spec.SetField(friend.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
 	}
-	if value, ok := fc.mutation.UpdateAt(); ok {
-		_spec.SetField(friend.FieldUpdateAt, field.TypeTime, value)
-		_node.UpdateAt = value
+	if value, ok := fc.mutation.UpdatedAt(); ok {
+		_spec.SetField(friend.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
 	}
-	if value, ok := fc.mutation.DeleteAt(); ok {
-		_spec.SetField(friend.FieldDeleteAt, field.TypeTime, value)
-		_node.DeleteAt = &value
+	if value, ok := fc.mutation.DeletedAt(); ok {
+		_spec.SetField(friend.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	return _node, _spec
 }

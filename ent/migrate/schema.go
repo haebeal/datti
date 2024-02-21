@@ -14,9 +14,9 @@ var (
 		{Name: "account_code", Type: field.TypeString, Size: 7},
 		{Name: "bank_code", Type: field.TypeString, Size: 3},
 		{Name: "branch_code", Type: field.TypeString, Size: 4},
-		{Name: "create_at", Type: field.TypeTime},
-		{Name: "update_at", Type: field.TypeTime},
-		{Name: "delete_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// BankAccountsTable holds the schema information for the "bank_accounts" table.
 	BankAccountsTable = &schema.Table{
@@ -29,9 +29,9 @@ var (
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "uid", Type: field.TypeString, Size: 28},
 		{Name: "friend_uid", Type: field.TypeString, Size: 28},
-		{Name: "create_at", Type: field.TypeTime},
-		{Name: "update_at", Type: field.TypeTime},
-		{Name: "delete_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// FriendsTable holds the schema information for the "friends" table.
 	FriendsTable = &schema.Table{
@@ -43,9 +43,9 @@ var (
 	GroupsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString},
-		{Name: "create_at", Type: field.TypeTime},
-		{Name: "update_at", Type: field.TypeTime},
-		{Name: "delete_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// GroupsTable holds the schema information for the "groups" table.
 	GroupsTable = &schema.Table{
@@ -59,9 +59,9 @@ var (
 		{Name: "uid", Type: field.TypeString, Unique: true, Size: 28},
 		{Name: "group_id", Type: field.TypeString, Unique: true},
 		{Name: "owner", Type: field.TypeBool},
-		{Name: "create_at", Type: field.TypeTime},
-		{Name: "update_at", Type: field.TypeTime},
-		{Name: "delete_at", Type: field.TypeTime, Nullable: true},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "updated_at", Type: field.TypeTime},
+		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},
 	}
 	// GroupUsersTable holds the schema information for the "group_users" table.
 	GroupUsersTable = &schema.Table{

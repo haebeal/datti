@@ -64,19 +64,19 @@ func FriendUID(v string) predicate.Friend {
 	return predicate.Friend(sql.FieldEQ(FieldFriendUID, v))
 }
 
-// CreateAt applies equality check predicate on the "create_at" field. It's identical to CreateAtEQ.
-func CreateAt(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldEQ(FieldCreateAt, v))
+// CreatedAt applies equality check predicate on the "created_at" field. It's identical to CreatedAtEQ.
+func CreatedAt(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldEQ(FieldCreatedAt, v))
 }
 
-// UpdateAt applies equality check predicate on the "update_at" field. It's identical to UpdateAtEQ.
-func UpdateAt(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldEQ(FieldUpdateAt, v))
+// UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
+func UpdatedAt(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
-// DeleteAt applies equality check predicate on the "delete_at" field. It's identical to DeleteAtEQ.
-func DeleteAt(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldEQ(FieldDeleteAt, v))
+// DeletedAt applies equality check predicate on the "deleted_at" field. It's identical to DeletedAtEQ.
+func DeletedAt(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldEQ(FieldDeletedAt, v))
 }
 
 // UIDEQ applies the EQ predicate on the "uid" field.
@@ -209,134 +209,134 @@ func FriendUIDContainsFold(v string) predicate.Friend {
 	return predicate.Friend(sql.FieldContainsFold(FieldFriendUID, v))
 }
 
-// CreateAtEQ applies the EQ predicate on the "create_at" field.
-func CreateAtEQ(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldEQ(FieldCreateAt, v))
+// CreatedAtEQ applies the EQ predicate on the "created_at" field.
+func CreatedAtEQ(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldEQ(FieldCreatedAt, v))
 }
 
-// CreateAtNEQ applies the NEQ predicate on the "create_at" field.
-func CreateAtNEQ(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldNEQ(FieldCreateAt, v))
+// CreatedAtNEQ applies the NEQ predicate on the "created_at" field.
+func CreatedAtNEQ(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldNEQ(FieldCreatedAt, v))
 }
 
-// CreateAtIn applies the In predicate on the "create_at" field.
-func CreateAtIn(vs ...time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldIn(FieldCreateAt, vs...))
+// CreatedAtIn applies the In predicate on the "created_at" field.
+func CreatedAtIn(vs ...time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldIn(FieldCreatedAt, vs...))
 }
 
-// CreateAtNotIn applies the NotIn predicate on the "create_at" field.
-func CreateAtNotIn(vs ...time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldNotIn(FieldCreateAt, vs...))
+// CreatedAtNotIn applies the NotIn predicate on the "created_at" field.
+func CreatedAtNotIn(vs ...time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldNotIn(FieldCreatedAt, vs...))
 }
 
-// CreateAtGT applies the GT predicate on the "create_at" field.
-func CreateAtGT(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldGT(FieldCreateAt, v))
+// CreatedAtGT applies the GT predicate on the "created_at" field.
+func CreatedAtGT(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldGT(FieldCreatedAt, v))
 }
 
-// CreateAtGTE applies the GTE predicate on the "create_at" field.
-func CreateAtGTE(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldGTE(FieldCreateAt, v))
+// CreatedAtGTE applies the GTE predicate on the "created_at" field.
+func CreatedAtGTE(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldGTE(FieldCreatedAt, v))
 }
 
-// CreateAtLT applies the LT predicate on the "create_at" field.
-func CreateAtLT(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldLT(FieldCreateAt, v))
+// CreatedAtLT applies the LT predicate on the "created_at" field.
+func CreatedAtLT(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldLT(FieldCreatedAt, v))
 }
 
-// CreateAtLTE applies the LTE predicate on the "create_at" field.
-func CreateAtLTE(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldLTE(FieldCreateAt, v))
+// CreatedAtLTE applies the LTE predicate on the "created_at" field.
+func CreatedAtLTE(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldLTE(FieldCreatedAt, v))
 }
 
-// UpdateAtEQ applies the EQ predicate on the "update_at" field.
-func UpdateAtEQ(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldEQ(FieldUpdateAt, v))
+// UpdatedAtEQ applies the EQ predicate on the "updated_at" field.
+func UpdatedAtEQ(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldEQ(FieldUpdatedAt, v))
 }
 
-// UpdateAtNEQ applies the NEQ predicate on the "update_at" field.
-func UpdateAtNEQ(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldNEQ(FieldUpdateAt, v))
+// UpdatedAtNEQ applies the NEQ predicate on the "updated_at" field.
+func UpdatedAtNEQ(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldNEQ(FieldUpdatedAt, v))
 }
 
-// UpdateAtIn applies the In predicate on the "update_at" field.
-func UpdateAtIn(vs ...time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldIn(FieldUpdateAt, vs...))
+// UpdatedAtIn applies the In predicate on the "updated_at" field.
+func UpdatedAtIn(vs ...time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldIn(FieldUpdatedAt, vs...))
 }
 
-// UpdateAtNotIn applies the NotIn predicate on the "update_at" field.
-func UpdateAtNotIn(vs ...time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldNotIn(FieldUpdateAt, vs...))
+// UpdatedAtNotIn applies the NotIn predicate on the "updated_at" field.
+func UpdatedAtNotIn(vs ...time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldNotIn(FieldUpdatedAt, vs...))
 }
 
-// UpdateAtGT applies the GT predicate on the "update_at" field.
-func UpdateAtGT(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldGT(FieldUpdateAt, v))
+// UpdatedAtGT applies the GT predicate on the "updated_at" field.
+func UpdatedAtGT(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldGT(FieldUpdatedAt, v))
 }
 
-// UpdateAtGTE applies the GTE predicate on the "update_at" field.
-func UpdateAtGTE(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldGTE(FieldUpdateAt, v))
+// UpdatedAtGTE applies the GTE predicate on the "updated_at" field.
+func UpdatedAtGTE(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldGTE(FieldUpdatedAt, v))
 }
 
-// UpdateAtLT applies the LT predicate on the "update_at" field.
-func UpdateAtLT(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldLT(FieldUpdateAt, v))
+// UpdatedAtLT applies the LT predicate on the "updated_at" field.
+func UpdatedAtLT(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldLT(FieldUpdatedAt, v))
 }
 
-// UpdateAtLTE applies the LTE predicate on the "update_at" field.
-func UpdateAtLTE(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldLTE(FieldUpdateAt, v))
+// UpdatedAtLTE applies the LTE predicate on the "updated_at" field.
+func UpdatedAtLTE(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
-// DeleteAtEQ applies the EQ predicate on the "delete_at" field.
-func DeleteAtEQ(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldEQ(FieldDeleteAt, v))
+// DeletedAtEQ applies the EQ predicate on the "deleted_at" field.
+func DeletedAtEQ(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldEQ(FieldDeletedAt, v))
 }
 
-// DeleteAtNEQ applies the NEQ predicate on the "delete_at" field.
-func DeleteAtNEQ(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldNEQ(FieldDeleteAt, v))
+// DeletedAtNEQ applies the NEQ predicate on the "deleted_at" field.
+func DeletedAtNEQ(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldNEQ(FieldDeletedAt, v))
 }
 
-// DeleteAtIn applies the In predicate on the "delete_at" field.
-func DeleteAtIn(vs ...time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldIn(FieldDeleteAt, vs...))
+// DeletedAtIn applies the In predicate on the "deleted_at" field.
+func DeletedAtIn(vs ...time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldIn(FieldDeletedAt, vs...))
 }
 
-// DeleteAtNotIn applies the NotIn predicate on the "delete_at" field.
-func DeleteAtNotIn(vs ...time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldNotIn(FieldDeleteAt, vs...))
+// DeletedAtNotIn applies the NotIn predicate on the "deleted_at" field.
+func DeletedAtNotIn(vs ...time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldNotIn(FieldDeletedAt, vs...))
 }
 
-// DeleteAtGT applies the GT predicate on the "delete_at" field.
-func DeleteAtGT(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldGT(FieldDeleteAt, v))
+// DeletedAtGT applies the GT predicate on the "deleted_at" field.
+func DeletedAtGT(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldGT(FieldDeletedAt, v))
 }
 
-// DeleteAtGTE applies the GTE predicate on the "delete_at" field.
-func DeleteAtGTE(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldGTE(FieldDeleteAt, v))
+// DeletedAtGTE applies the GTE predicate on the "deleted_at" field.
+func DeletedAtGTE(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldGTE(FieldDeletedAt, v))
 }
 
-// DeleteAtLT applies the LT predicate on the "delete_at" field.
-func DeleteAtLT(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldLT(FieldDeleteAt, v))
+// DeletedAtLT applies the LT predicate on the "deleted_at" field.
+func DeletedAtLT(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldLT(FieldDeletedAt, v))
 }
 
-// DeleteAtLTE applies the LTE predicate on the "delete_at" field.
-func DeleteAtLTE(v time.Time) predicate.Friend {
-	return predicate.Friend(sql.FieldLTE(FieldDeleteAt, v))
+// DeletedAtLTE applies the LTE predicate on the "deleted_at" field.
+func DeletedAtLTE(v time.Time) predicate.Friend {
+	return predicate.Friend(sql.FieldLTE(FieldDeletedAt, v))
 }
 
-// DeleteAtIsNil applies the IsNil predicate on the "delete_at" field.
-func DeleteAtIsNil() predicate.Friend {
-	return predicate.Friend(sql.FieldIsNull(FieldDeleteAt))
+// DeletedAtIsNil applies the IsNil predicate on the "deleted_at" field.
+func DeletedAtIsNil() predicate.Friend {
+	return predicate.Friend(sql.FieldIsNull(FieldDeletedAt))
 }
 
-// DeleteAtNotNil applies the NotNil predicate on the "delete_at" field.
-func DeleteAtNotNil() predicate.Friend {
-	return predicate.Friend(sql.FieldNotNull(FieldDeleteAt))
+// DeletedAtNotNil applies the NotNil predicate on the "deleted_at" field.
+func DeletedAtNotNil() predicate.Friend {
+	return predicate.Friend(sql.FieldNotNull(FieldDeletedAt))
 }
 
 // And groups predicates with the AND operator between them.

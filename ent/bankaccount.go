@@ -23,12 +23,12 @@ type BankAccount struct {
 	BankCode string `json:"bank_code,omitempty"`
 	// BranchCode holds the value of the "branch_code" field.
 	BranchCode string `json:"branch_code,omitempty"`
-	// CreateAt holds the value of the "create_at" field.
-	CreateAt time.Time `json:"create_at,omitempty"`
-	// UpdateAt holds the value of the "update_at" field.
-	UpdateAt time.Time `json:"update_at,omitempty"`
-	// DeleteAt holds the value of the "delete_at" field.
-	DeleteAt     *time.Time `json:"delete_at,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -39,7 +39,7 @@ func (*BankAccount) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case bankaccount.FieldID, bankaccount.FieldAccountCode, bankaccount.FieldBankCode, bankaccount.FieldBranchCode:
 			values[i] = new(sql.NullString)
-		case bankaccount.FieldCreateAt, bankaccount.FieldUpdateAt, bankaccount.FieldDeleteAt:
+		case bankaccount.FieldCreatedAt, bankaccount.FieldUpdatedAt, bankaccount.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -80,24 +80,24 @@ func (ba *BankAccount) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				ba.BranchCode = value.String
 			}
-		case bankaccount.FieldCreateAt:
+		case bankaccount.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_at", values[i])
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				ba.CreateAt = value.Time
+				ba.CreatedAt = value.Time
 			}
-		case bankaccount.FieldUpdateAt:
+		case bankaccount.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_at", values[i])
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				ba.UpdateAt = value.Time
+				ba.UpdatedAt = value.Time
 			}
-		case bankaccount.FieldDeleteAt:
+		case bankaccount.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field delete_at", values[i])
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				ba.DeleteAt = new(time.Time)
-				*ba.DeleteAt = value.Time
+				ba.DeletedAt = new(time.Time)
+				*ba.DeletedAt = value.Time
 			}
 		default:
 			ba.selectValues.Set(columns[i], values[i])
@@ -144,14 +144,14 @@ func (ba *BankAccount) String() string {
 	builder.WriteString("branch_code=")
 	builder.WriteString(ba.BranchCode)
 	builder.WriteString(", ")
-	builder.WriteString("create_at=")
-	builder.WriteString(ba.CreateAt.Format(time.ANSIC))
+	builder.WriteString("created_at=")
+	builder.WriteString(ba.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("update_at=")
-	builder.WriteString(ba.UpdateAt.Format(time.ANSIC))
+	builder.WriteString("updated_at=")
+	builder.WriteString(ba.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := ba.DeleteAt; v != nil {
-		builder.WriteString("delete_at=")
+	if v := ba.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteByte(')')

@@ -19,9 +19,9 @@ func (BankAccount) Fields() []ent.Field {
 		field.String("account_code").MinLen(7).MaxLen(7),
 		field.String("bank_code").MinLen(3).MaxLen(3),
 		field.String("branch_code").MinLen(4).MaxLen(4),
-		field.Time("create_at").Default(time.Now).Immutable(),
-		field.Time("update_at").Default(time.Now).UpdateDefault(time.Now),
-		field.Time("delete_at").Nillable().Optional(),
+		field.Time("created_at").Default(time.Now).Immutable(),
+		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
+		field.Time("deleted_at").Nillable().Optional(),
 	}
 }
 

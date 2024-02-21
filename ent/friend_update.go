@@ -56,29 +56,29 @@ func (fu *FriendUpdate) SetNillableFriendUID(s *string) *FriendUpdate {
 	return fu
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (fu *FriendUpdate) SetUpdateAt(t time.Time) *FriendUpdate {
-	fu.mutation.SetUpdateAt(t)
+// SetUpdatedAt sets the "updated_at" field.
+func (fu *FriendUpdate) SetUpdatedAt(t time.Time) *FriendUpdate {
+	fu.mutation.SetUpdatedAt(t)
 	return fu
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (fu *FriendUpdate) SetDeleteAt(t time.Time) *FriendUpdate {
-	fu.mutation.SetDeleteAt(t)
+// SetDeletedAt sets the "deleted_at" field.
+func (fu *FriendUpdate) SetDeletedAt(t time.Time) *FriendUpdate {
+	fu.mutation.SetDeletedAt(t)
 	return fu
 }
 
-// SetNillableDeleteAt sets the "delete_at" field if the given value is not nil.
-func (fu *FriendUpdate) SetNillableDeleteAt(t *time.Time) *FriendUpdate {
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (fu *FriendUpdate) SetNillableDeletedAt(t *time.Time) *FriendUpdate {
 	if t != nil {
-		fu.SetDeleteAt(*t)
+		fu.SetDeletedAt(*t)
 	}
 	return fu
 }
 
-// ClearDeleteAt clears the value of the "delete_at" field.
-func (fu *FriendUpdate) ClearDeleteAt() *FriendUpdate {
-	fu.mutation.ClearDeleteAt()
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (fu *FriendUpdate) ClearDeletedAt() *FriendUpdate {
+	fu.mutation.ClearDeletedAt()
 	return fu
 }
 
@@ -117,9 +117,9 @@ func (fu *FriendUpdate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (fu *FriendUpdate) defaults() {
-	if _, ok := fu.mutation.UpdateAt(); !ok {
-		v := friend.UpdateDefaultUpdateAt()
-		fu.mutation.SetUpdateAt(v)
+	if _, ok := fu.mutation.UpdatedAt(); !ok {
+		v := friend.UpdateDefaultUpdatedAt()
+		fu.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -156,14 +156,14 @@ func (fu *FriendUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := fu.mutation.FriendUID(); ok {
 		_spec.SetField(friend.FieldFriendUID, field.TypeString, value)
 	}
-	if value, ok := fu.mutation.UpdateAt(); ok {
-		_spec.SetField(friend.FieldUpdateAt, field.TypeTime, value)
+	if value, ok := fu.mutation.UpdatedAt(); ok {
+		_spec.SetField(friend.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := fu.mutation.DeleteAt(); ok {
-		_spec.SetField(friend.FieldDeleteAt, field.TypeTime, value)
+	if value, ok := fu.mutation.DeletedAt(); ok {
+		_spec.SetField(friend.FieldDeletedAt, field.TypeTime, value)
 	}
-	if fu.mutation.DeleteAtCleared() {
-		_spec.ClearField(friend.FieldDeleteAt, field.TypeTime)
+	if fu.mutation.DeletedAtCleared() {
+		_spec.ClearField(friend.FieldDeletedAt, field.TypeTime)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, fu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -213,29 +213,29 @@ func (fuo *FriendUpdateOne) SetNillableFriendUID(s *string) *FriendUpdateOne {
 	return fuo
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (fuo *FriendUpdateOne) SetUpdateAt(t time.Time) *FriendUpdateOne {
-	fuo.mutation.SetUpdateAt(t)
+// SetUpdatedAt sets the "updated_at" field.
+func (fuo *FriendUpdateOne) SetUpdatedAt(t time.Time) *FriendUpdateOne {
+	fuo.mutation.SetUpdatedAt(t)
 	return fuo
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (fuo *FriendUpdateOne) SetDeleteAt(t time.Time) *FriendUpdateOne {
-	fuo.mutation.SetDeleteAt(t)
+// SetDeletedAt sets the "deleted_at" field.
+func (fuo *FriendUpdateOne) SetDeletedAt(t time.Time) *FriendUpdateOne {
+	fuo.mutation.SetDeletedAt(t)
 	return fuo
 }
 
-// SetNillableDeleteAt sets the "delete_at" field if the given value is not nil.
-func (fuo *FriendUpdateOne) SetNillableDeleteAt(t *time.Time) *FriendUpdateOne {
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (fuo *FriendUpdateOne) SetNillableDeletedAt(t *time.Time) *FriendUpdateOne {
 	if t != nil {
-		fuo.SetDeleteAt(*t)
+		fuo.SetDeletedAt(*t)
 	}
 	return fuo
 }
 
-// ClearDeleteAt clears the value of the "delete_at" field.
-func (fuo *FriendUpdateOne) ClearDeleteAt() *FriendUpdateOne {
-	fuo.mutation.ClearDeleteAt()
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (fuo *FriendUpdateOne) ClearDeletedAt() *FriendUpdateOne {
+	fuo.mutation.ClearDeletedAt()
 	return fuo
 }
 
@@ -287,9 +287,9 @@ func (fuo *FriendUpdateOne) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (fuo *FriendUpdateOne) defaults() {
-	if _, ok := fuo.mutation.UpdateAt(); !ok {
-		v := friend.UpdateDefaultUpdateAt()
-		fuo.mutation.SetUpdateAt(v)
+	if _, ok := fuo.mutation.UpdatedAt(); !ok {
+		v := friend.UpdateDefaultUpdatedAt()
+		fuo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -343,14 +343,14 @@ func (fuo *FriendUpdateOne) sqlSave(ctx context.Context) (_node *Friend, err err
 	if value, ok := fuo.mutation.FriendUID(); ok {
 		_spec.SetField(friend.FieldFriendUID, field.TypeString, value)
 	}
-	if value, ok := fuo.mutation.UpdateAt(); ok {
-		_spec.SetField(friend.FieldUpdateAt, field.TypeTime, value)
+	if value, ok := fuo.mutation.UpdatedAt(); ok {
+		_spec.SetField(friend.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := fuo.mutation.DeleteAt(); ok {
-		_spec.SetField(friend.FieldDeleteAt, field.TypeTime, value)
+	if value, ok := fuo.mutation.DeletedAt(); ok {
+		_spec.SetField(friend.FieldDeletedAt, field.TypeTime, value)
 	}
-	if fuo.mutation.DeleteAtCleared() {
-		_spec.ClearField(friend.FieldDeleteAt, field.TypeTime)
+	if fuo.mutation.DeletedAtCleared() {
+		_spec.ClearField(friend.FieldDeletedAt, field.TypeTime)
 	}
 	_node = &Friend{config: fuo.config}
 	_spec.Assign = _node.assignValues

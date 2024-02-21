@@ -42,9 +42,9 @@ type BankAccountMutation struct {
 	account_code  *string
 	bank_code     *string
 	branch_code   *string
-	create_at     *time.Time
-	update_at     *time.Time
-	delete_at     *time.Time
+	created_at    *time.Time
+	updated_at    *time.Time
+	deleted_at    *time.Time
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*BankAccount, error)
@@ -263,125 +263,125 @@ func (m *BankAccountMutation) ResetBranchCode() {
 	m.branch_code = nil
 }
 
-// SetCreateAt sets the "create_at" field.
-func (m *BankAccountMutation) SetCreateAt(t time.Time) {
-	m.create_at = &t
+// SetCreatedAt sets the "created_at" field.
+func (m *BankAccountMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
 }
 
-// CreateAt returns the value of the "create_at" field in the mutation.
-func (m *BankAccountMutation) CreateAt() (r time.Time, exists bool) {
-	v := m.create_at
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *BankAccountMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCreateAt returns the old "create_at" field's value of the BankAccount entity.
+// OldCreatedAt returns the old "created_at" field's value of the BankAccount entity.
 // If the BankAccount object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BankAccountMutation) OldCreateAt(ctx context.Context) (v time.Time, err error) {
+func (m *BankAccountMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateAt requires an ID field in the mutation")
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
 	}
-	return oldValue.CreateAt, nil
+	return oldValue.CreatedAt, nil
 }
 
-// ResetCreateAt resets all changes to the "create_at" field.
-func (m *BankAccountMutation) ResetCreateAt() {
-	m.create_at = nil
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *BankAccountMutation) ResetCreatedAt() {
+	m.created_at = nil
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (m *BankAccountMutation) SetUpdateAt(t time.Time) {
-	m.update_at = &t
+// SetUpdatedAt sets the "updated_at" field.
+func (m *BankAccountMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
 }
 
-// UpdateAt returns the value of the "update_at" field in the mutation.
-func (m *BankAccountMutation) UpdateAt() (r time.Time, exists bool) {
-	v := m.update_at
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *BankAccountMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUpdateAt returns the old "update_at" field's value of the BankAccount entity.
+// OldUpdatedAt returns the old "updated_at" field's value of the BankAccount entity.
 // If the BankAccount object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BankAccountMutation) OldUpdateAt(ctx context.Context) (v time.Time, err error) {
+func (m *BankAccountMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateAt requires an ID field in the mutation")
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
 	}
-	return oldValue.UpdateAt, nil
+	return oldValue.UpdatedAt, nil
 }
 
-// ResetUpdateAt resets all changes to the "update_at" field.
-func (m *BankAccountMutation) ResetUpdateAt() {
-	m.update_at = nil
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *BankAccountMutation) ResetUpdatedAt() {
+	m.updated_at = nil
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (m *BankAccountMutation) SetDeleteAt(t time.Time) {
-	m.delete_at = &t
+// SetDeletedAt sets the "deleted_at" field.
+func (m *BankAccountMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
 }
 
-// DeleteAt returns the value of the "delete_at" field in the mutation.
-func (m *BankAccountMutation) DeleteAt() (r time.Time, exists bool) {
-	v := m.delete_at
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *BankAccountMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDeleteAt returns the old "delete_at" field's value of the BankAccount entity.
+// OldDeletedAt returns the old "deleted_at" field's value of the BankAccount entity.
 // If the BankAccount object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *BankAccountMutation) OldDeleteAt(ctx context.Context) (v *time.Time, err error) {
+func (m *BankAccountMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeleteAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeleteAt requires an ID field in the mutation")
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeleteAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
 	}
-	return oldValue.DeleteAt, nil
+	return oldValue.DeletedAt, nil
 }
 
-// ClearDeleteAt clears the value of the "delete_at" field.
-func (m *BankAccountMutation) ClearDeleteAt() {
-	m.delete_at = nil
-	m.clearedFields[bankaccount.FieldDeleteAt] = struct{}{}
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *BankAccountMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[bankaccount.FieldDeletedAt] = struct{}{}
 }
 
-// DeleteAtCleared returns if the "delete_at" field was cleared in this mutation.
-func (m *BankAccountMutation) DeleteAtCleared() bool {
-	_, ok := m.clearedFields[bankaccount.FieldDeleteAt]
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *BankAccountMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[bankaccount.FieldDeletedAt]
 	return ok
 }
 
-// ResetDeleteAt resets all changes to the "delete_at" field.
-func (m *BankAccountMutation) ResetDeleteAt() {
-	m.delete_at = nil
-	delete(m.clearedFields, bankaccount.FieldDeleteAt)
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *BankAccountMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, bankaccount.FieldDeletedAt)
 }
 
 // Where appends a list predicates to the BankAccountMutation builder.
@@ -428,14 +428,14 @@ func (m *BankAccountMutation) Fields() []string {
 	if m.branch_code != nil {
 		fields = append(fields, bankaccount.FieldBranchCode)
 	}
-	if m.create_at != nil {
-		fields = append(fields, bankaccount.FieldCreateAt)
+	if m.created_at != nil {
+		fields = append(fields, bankaccount.FieldCreatedAt)
 	}
-	if m.update_at != nil {
-		fields = append(fields, bankaccount.FieldUpdateAt)
+	if m.updated_at != nil {
+		fields = append(fields, bankaccount.FieldUpdatedAt)
 	}
-	if m.delete_at != nil {
-		fields = append(fields, bankaccount.FieldDeleteAt)
+	if m.deleted_at != nil {
+		fields = append(fields, bankaccount.FieldDeletedAt)
 	}
 	return fields
 }
@@ -451,12 +451,12 @@ func (m *BankAccountMutation) Field(name string) (ent.Value, bool) {
 		return m.BankCode()
 	case bankaccount.FieldBranchCode:
 		return m.BranchCode()
-	case bankaccount.FieldCreateAt:
-		return m.CreateAt()
-	case bankaccount.FieldUpdateAt:
-		return m.UpdateAt()
-	case bankaccount.FieldDeleteAt:
-		return m.DeleteAt()
+	case bankaccount.FieldCreatedAt:
+		return m.CreatedAt()
+	case bankaccount.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case bankaccount.FieldDeletedAt:
+		return m.DeletedAt()
 	}
 	return nil, false
 }
@@ -472,12 +472,12 @@ func (m *BankAccountMutation) OldField(ctx context.Context, name string) (ent.Va
 		return m.OldBankCode(ctx)
 	case bankaccount.FieldBranchCode:
 		return m.OldBranchCode(ctx)
-	case bankaccount.FieldCreateAt:
-		return m.OldCreateAt(ctx)
-	case bankaccount.FieldUpdateAt:
-		return m.OldUpdateAt(ctx)
-	case bankaccount.FieldDeleteAt:
-		return m.OldDeleteAt(ctx)
+	case bankaccount.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case bankaccount.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case bankaccount.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown BankAccount field %s", name)
 }
@@ -508,26 +508,26 @@ func (m *BankAccountMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetBranchCode(v)
 		return nil
-	case bankaccount.FieldCreateAt:
+	case bankaccount.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCreateAt(v)
+		m.SetCreatedAt(v)
 		return nil
-	case bankaccount.FieldUpdateAt:
+	case bankaccount.FieldUpdatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUpdateAt(v)
+		m.SetUpdatedAt(v)
 		return nil
-	case bankaccount.FieldDeleteAt:
+	case bankaccount.FieldDeletedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDeleteAt(v)
+		m.SetDeletedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown BankAccount field %s", name)
@@ -559,8 +559,8 @@ func (m *BankAccountMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *BankAccountMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(bankaccount.FieldDeleteAt) {
-		fields = append(fields, bankaccount.FieldDeleteAt)
+	if m.FieldCleared(bankaccount.FieldDeletedAt) {
+		fields = append(fields, bankaccount.FieldDeletedAt)
 	}
 	return fields
 }
@@ -576,8 +576,8 @@ func (m *BankAccountMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *BankAccountMutation) ClearField(name string) error {
 	switch name {
-	case bankaccount.FieldDeleteAt:
-		m.ClearDeleteAt()
+	case bankaccount.FieldDeletedAt:
+		m.ClearDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown BankAccount nullable field %s", name)
@@ -596,14 +596,14 @@ func (m *BankAccountMutation) ResetField(name string) error {
 	case bankaccount.FieldBranchCode:
 		m.ResetBranchCode()
 		return nil
-	case bankaccount.FieldCreateAt:
-		m.ResetCreateAt()
+	case bankaccount.FieldCreatedAt:
+		m.ResetCreatedAt()
 		return nil
-	case bankaccount.FieldUpdateAt:
-		m.ResetUpdateAt()
+	case bankaccount.FieldUpdatedAt:
+		m.ResetUpdatedAt()
 		return nil
-	case bankaccount.FieldDeleteAt:
-		m.ResetDeleteAt()
+	case bankaccount.FieldDeletedAt:
+		m.ResetDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown BankAccount field %s", name)
@@ -665,9 +665,9 @@ type FriendMutation struct {
 	id            *int
 	uid           *string
 	friend_uid    *string
-	create_at     *time.Time
-	update_at     *time.Time
-	delete_at     *time.Time
+	created_at    *time.Time
+	updated_at    *time.Time
+	deleted_at    *time.Time
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Friend, error)
@@ -844,125 +844,125 @@ func (m *FriendMutation) ResetFriendUID() {
 	m.friend_uid = nil
 }
 
-// SetCreateAt sets the "create_at" field.
-func (m *FriendMutation) SetCreateAt(t time.Time) {
-	m.create_at = &t
+// SetCreatedAt sets the "created_at" field.
+func (m *FriendMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
 }
 
-// CreateAt returns the value of the "create_at" field in the mutation.
-func (m *FriendMutation) CreateAt() (r time.Time, exists bool) {
-	v := m.create_at
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *FriendMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCreateAt returns the old "create_at" field's value of the Friend entity.
+// OldCreatedAt returns the old "created_at" field's value of the Friend entity.
 // If the Friend object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FriendMutation) OldCreateAt(ctx context.Context) (v time.Time, err error) {
+func (m *FriendMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateAt requires an ID field in the mutation")
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
 	}
-	return oldValue.CreateAt, nil
+	return oldValue.CreatedAt, nil
 }
 
-// ResetCreateAt resets all changes to the "create_at" field.
-func (m *FriendMutation) ResetCreateAt() {
-	m.create_at = nil
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *FriendMutation) ResetCreatedAt() {
+	m.created_at = nil
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (m *FriendMutation) SetUpdateAt(t time.Time) {
-	m.update_at = &t
+// SetUpdatedAt sets the "updated_at" field.
+func (m *FriendMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
 }
 
-// UpdateAt returns the value of the "update_at" field in the mutation.
-func (m *FriendMutation) UpdateAt() (r time.Time, exists bool) {
-	v := m.update_at
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *FriendMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUpdateAt returns the old "update_at" field's value of the Friend entity.
+// OldUpdatedAt returns the old "updated_at" field's value of the Friend entity.
 // If the Friend object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FriendMutation) OldUpdateAt(ctx context.Context) (v time.Time, err error) {
+func (m *FriendMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateAt requires an ID field in the mutation")
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
 	}
-	return oldValue.UpdateAt, nil
+	return oldValue.UpdatedAt, nil
 }
 
-// ResetUpdateAt resets all changes to the "update_at" field.
-func (m *FriendMutation) ResetUpdateAt() {
-	m.update_at = nil
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *FriendMutation) ResetUpdatedAt() {
+	m.updated_at = nil
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (m *FriendMutation) SetDeleteAt(t time.Time) {
-	m.delete_at = &t
+// SetDeletedAt sets the "deleted_at" field.
+func (m *FriendMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
 }
 
-// DeleteAt returns the value of the "delete_at" field in the mutation.
-func (m *FriendMutation) DeleteAt() (r time.Time, exists bool) {
-	v := m.delete_at
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *FriendMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDeleteAt returns the old "delete_at" field's value of the Friend entity.
+// OldDeletedAt returns the old "deleted_at" field's value of the Friend entity.
 // If the Friend object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *FriendMutation) OldDeleteAt(ctx context.Context) (v *time.Time, err error) {
+func (m *FriendMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeleteAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeleteAt requires an ID field in the mutation")
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeleteAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
 	}
-	return oldValue.DeleteAt, nil
+	return oldValue.DeletedAt, nil
 }
 
-// ClearDeleteAt clears the value of the "delete_at" field.
-func (m *FriendMutation) ClearDeleteAt() {
-	m.delete_at = nil
-	m.clearedFields[friend.FieldDeleteAt] = struct{}{}
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *FriendMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[friend.FieldDeletedAt] = struct{}{}
 }
 
-// DeleteAtCleared returns if the "delete_at" field was cleared in this mutation.
-func (m *FriendMutation) DeleteAtCleared() bool {
-	_, ok := m.clearedFields[friend.FieldDeleteAt]
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *FriendMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[friend.FieldDeletedAt]
 	return ok
 }
 
-// ResetDeleteAt resets all changes to the "delete_at" field.
-func (m *FriendMutation) ResetDeleteAt() {
-	m.delete_at = nil
-	delete(m.clearedFields, friend.FieldDeleteAt)
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *FriendMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, friend.FieldDeletedAt)
 }
 
 // Where appends a list predicates to the FriendMutation builder.
@@ -1006,14 +1006,14 @@ func (m *FriendMutation) Fields() []string {
 	if m.friend_uid != nil {
 		fields = append(fields, friend.FieldFriendUID)
 	}
-	if m.create_at != nil {
-		fields = append(fields, friend.FieldCreateAt)
+	if m.created_at != nil {
+		fields = append(fields, friend.FieldCreatedAt)
 	}
-	if m.update_at != nil {
-		fields = append(fields, friend.FieldUpdateAt)
+	if m.updated_at != nil {
+		fields = append(fields, friend.FieldUpdatedAt)
 	}
-	if m.delete_at != nil {
-		fields = append(fields, friend.FieldDeleteAt)
+	if m.deleted_at != nil {
+		fields = append(fields, friend.FieldDeletedAt)
 	}
 	return fields
 }
@@ -1027,12 +1027,12 @@ func (m *FriendMutation) Field(name string) (ent.Value, bool) {
 		return m.UID()
 	case friend.FieldFriendUID:
 		return m.FriendUID()
-	case friend.FieldCreateAt:
-		return m.CreateAt()
-	case friend.FieldUpdateAt:
-		return m.UpdateAt()
-	case friend.FieldDeleteAt:
-		return m.DeleteAt()
+	case friend.FieldCreatedAt:
+		return m.CreatedAt()
+	case friend.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case friend.FieldDeletedAt:
+		return m.DeletedAt()
 	}
 	return nil, false
 }
@@ -1046,12 +1046,12 @@ func (m *FriendMutation) OldField(ctx context.Context, name string) (ent.Value, 
 		return m.OldUID(ctx)
 	case friend.FieldFriendUID:
 		return m.OldFriendUID(ctx)
-	case friend.FieldCreateAt:
-		return m.OldCreateAt(ctx)
-	case friend.FieldUpdateAt:
-		return m.OldUpdateAt(ctx)
-	case friend.FieldDeleteAt:
-		return m.OldDeleteAt(ctx)
+	case friend.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case friend.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case friend.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Friend field %s", name)
 }
@@ -1075,26 +1075,26 @@ func (m *FriendMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetFriendUID(v)
 		return nil
-	case friend.FieldCreateAt:
+	case friend.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCreateAt(v)
+		m.SetCreatedAt(v)
 		return nil
-	case friend.FieldUpdateAt:
+	case friend.FieldUpdatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUpdateAt(v)
+		m.SetUpdatedAt(v)
 		return nil
-	case friend.FieldDeleteAt:
+	case friend.FieldDeletedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDeleteAt(v)
+		m.SetDeletedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Friend field %s", name)
@@ -1126,8 +1126,8 @@ func (m *FriendMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *FriendMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(friend.FieldDeleteAt) {
-		fields = append(fields, friend.FieldDeleteAt)
+	if m.FieldCleared(friend.FieldDeletedAt) {
+		fields = append(fields, friend.FieldDeletedAt)
 	}
 	return fields
 }
@@ -1143,8 +1143,8 @@ func (m *FriendMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *FriendMutation) ClearField(name string) error {
 	switch name {
-	case friend.FieldDeleteAt:
-		m.ClearDeleteAt()
+	case friend.FieldDeletedAt:
+		m.ClearDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Friend nullable field %s", name)
@@ -1160,14 +1160,14 @@ func (m *FriendMutation) ResetField(name string) error {
 	case friend.FieldFriendUID:
 		m.ResetFriendUID()
 		return nil
-	case friend.FieldCreateAt:
-		m.ResetCreateAt()
+	case friend.FieldCreatedAt:
+		m.ResetCreatedAt()
 		return nil
-	case friend.FieldUpdateAt:
-		m.ResetUpdateAt()
+	case friend.FieldUpdatedAt:
+		m.ResetUpdatedAt()
 		return nil
-	case friend.FieldDeleteAt:
-		m.ResetDeleteAt()
+	case friend.FieldDeletedAt:
+		m.ResetDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Friend field %s", name)
@@ -1228,9 +1228,9 @@ type GroupMutation struct {
 	typ           string
 	id            *string
 	name          *string
-	create_at     *time.Time
-	update_at     *time.Time
-	delete_at     *time.Time
+	created_at    *time.Time
+	updated_at    *time.Time
+	deleted_at    *time.Time
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*Group, error)
@@ -1377,125 +1377,125 @@ func (m *GroupMutation) ResetName() {
 	m.name = nil
 }
 
-// SetCreateAt sets the "create_at" field.
-func (m *GroupMutation) SetCreateAt(t time.Time) {
-	m.create_at = &t
+// SetCreatedAt sets the "created_at" field.
+func (m *GroupMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
 }
 
-// CreateAt returns the value of the "create_at" field in the mutation.
-func (m *GroupMutation) CreateAt() (r time.Time, exists bool) {
-	v := m.create_at
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *GroupMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCreateAt returns the old "create_at" field's value of the Group entity.
+// OldCreatedAt returns the old "created_at" field's value of the Group entity.
 // If the Group object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupMutation) OldCreateAt(ctx context.Context) (v time.Time, err error) {
+func (m *GroupMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateAt requires an ID field in the mutation")
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
 	}
-	return oldValue.CreateAt, nil
+	return oldValue.CreatedAt, nil
 }
 
-// ResetCreateAt resets all changes to the "create_at" field.
-func (m *GroupMutation) ResetCreateAt() {
-	m.create_at = nil
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *GroupMutation) ResetCreatedAt() {
+	m.created_at = nil
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (m *GroupMutation) SetUpdateAt(t time.Time) {
-	m.update_at = &t
+// SetUpdatedAt sets the "updated_at" field.
+func (m *GroupMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
 }
 
-// UpdateAt returns the value of the "update_at" field in the mutation.
-func (m *GroupMutation) UpdateAt() (r time.Time, exists bool) {
-	v := m.update_at
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *GroupMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUpdateAt returns the old "update_at" field's value of the Group entity.
+// OldUpdatedAt returns the old "updated_at" field's value of the Group entity.
 // If the Group object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupMutation) OldUpdateAt(ctx context.Context) (v time.Time, err error) {
+func (m *GroupMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateAt requires an ID field in the mutation")
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
 	}
-	return oldValue.UpdateAt, nil
+	return oldValue.UpdatedAt, nil
 }
 
-// ResetUpdateAt resets all changes to the "update_at" field.
-func (m *GroupMutation) ResetUpdateAt() {
-	m.update_at = nil
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *GroupMutation) ResetUpdatedAt() {
+	m.updated_at = nil
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (m *GroupMutation) SetDeleteAt(t time.Time) {
-	m.delete_at = &t
+// SetDeletedAt sets the "deleted_at" field.
+func (m *GroupMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
 }
 
-// DeleteAt returns the value of the "delete_at" field in the mutation.
-func (m *GroupMutation) DeleteAt() (r time.Time, exists bool) {
-	v := m.delete_at
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *GroupMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDeleteAt returns the old "delete_at" field's value of the Group entity.
+// OldDeletedAt returns the old "deleted_at" field's value of the Group entity.
 // If the Group object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupMutation) OldDeleteAt(ctx context.Context) (v *time.Time, err error) {
+func (m *GroupMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeleteAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeleteAt requires an ID field in the mutation")
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeleteAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
 	}
-	return oldValue.DeleteAt, nil
+	return oldValue.DeletedAt, nil
 }
 
-// ClearDeleteAt clears the value of the "delete_at" field.
-func (m *GroupMutation) ClearDeleteAt() {
-	m.delete_at = nil
-	m.clearedFields[group.FieldDeleteAt] = struct{}{}
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *GroupMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[group.FieldDeletedAt] = struct{}{}
 }
 
-// DeleteAtCleared returns if the "delete_at" field was cleared in this mutation.
-func (m *GroupMutation) DeleteAtCleared() bool {
-	_, ok := m.clearedFields[group.FieldDeleteAt]
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *GroupMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[group.FieldDeletedAt]
 	return ok
 }
 
-// ResetDeleteAt resets all changes to the "delete_at" field.
-func (m *GroupMutation) ResetDeleteAt() {
-	m.delete_at = nil
-	delete(m.clearedFields, group.FieldDeleteAt)
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *GroupMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, group.FieldDeletedAt)
 }
 
 // Where appends a list predicates to the GroupMutation builder.
@@ -1536,14 +1536,14 @@ func (m *GroupMutation) Fields() []string {
 	if m.name != nil {
 		fields = append(fields, group.FieldName)
 	}
-	if m.create_at != nil {
-		fields = append(fields, group.FieldCreateAt)
+	if m.created_at != nil {
+		fields = append(fields, group.FieldCreatedAt)
 	}
-	if m.update_at != nil {
-		fields = append(fields, group.FieldUpdateAt)
+	if m.updated_at != nil {
+		fields = append(fields, group.FieldUpdatedAt)
 	}
-	if m.delete_at != nil {
-		fields = append(fields, group.FieldDeleteAt)
+	if m.deleted_at != nil {
+		fields = append(fields, group.FieldDeletedAt)
 	}
 	return fields
 }
@@ -1555,12 +1555,12 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case group.FieldName:
 		return m.Name()
-	case group.FieldCreateAt:
-		return m.CreateAt()
-	case group.FieldUpdateAt:
-		return m.UpdateAt()
-	case group.FieldDeleteAt:
-		return m.DeleteAt()
+	case group.FieldCreatedAt:
+		return m.CreatedAt()
+	case group.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case group.FieldDeletedAt:
+		return m.DeletedAt()
 	}
 	return nil, false
 }
@@ -1572,12 +1572,12 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 	switch name {
 	case group.FieldName:
 		return m.OldName(ctx)
-	case group.FieldCreateAt:
-		return m.OldCreateAt(ctx)
-	case group.FieldUpdateAt:
-		return m.OldUpdateAt(ctx)
-	case group.FieldDeleteAt:
-		return m.OldDeleteAt(ctx)
+	case group.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case group.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case group.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown Group field %s", name)
 }
@@ -1594,26 +1594,26 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetName(v)
 		return nil
-	case group.FieldCreateAt:
+	case group.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCreateAt(v)
+		m.SetCreatedAt(v)
 		return nil
-	case group.FieldUpdateAt:
+	case group.FieldUpdatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUpdateAt(v)
+		m.SetUpdatedAt(v)
 		return nil
-	case group.FieldDeleteAt:
+	case group.FieldDeletedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDeleteAt(v)
+		m.SetDeletedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Group field %s", name)
@@ -1645,8 +1645,8 @@ func (m *GroupMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *GroupMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(group.FieldDeleteAt) {
-		fields = append(fields, group.FieldDeleteAt)
+	if m.FieldCleared(group.FieldDeletedAt) {
+		fields = append(fields, group.FieldDeletedAt)
 	}
 	return fields
 }
@@ -1662,8 +1662,8 @@ func (m *GroupMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *GroupMutation) ClearField(name string) error {
 	switch name {
-	case group.FieldDeleteAt:
-		m.ClearDeleteAt()
+	case group.FieldDeletedAt:
+		m.ClearDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Group nullable field %s", name)
@@ -1676,14 +1676,14 @@ func (m *GroupMutation) ResetField(name string) error {
 	case group.FieldName:
 		m.ResetName()
 		return nil
-	case group.FieldCreateAt:
-		m.ResetCreateAt()
+	case group.FieldCreatedAt:
+		m.ResetCreatedAt()
 		return nil
-	case group.FieldUpdateAt:
-		m.ResetUpdateAt()
+	case group.FieldUpdatedAt:
+		m.ResetUpdatedAt()
 		return nil
-	case group.FieldDeleteAt:
-		m.ResetDeleteAt()
+	case group.FieldDeletedAt:
+		m.ResetDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown Group field %s", name)
@@ -1746,9 +1746,9 @@ type GroupUserMutation struct {
 	uid           *string
 	group_id      *string
 	owner         *bool
-	create_at     *time.Time
-	update_at     *time.Time
-	delete_at     *time.Time
+	created_at    *time.Time
+	updated_at    *time.Time
+	deleted_at    *time.Time
 	clearedFields map[string]struct{}
 	done          bool
 	oldValue      func(context.Context) (*GroupUser, error)
@@ -1961,125 +1961,125 @@ func (m *GroupUserMutation) ResetOwner() {
 	m.owner = nil
 }
 
-// SetCreateAt sets the "create_at" field.
-func (m *GroupUserMutation) SetCreateAt(t time.Time) {
-	m.create_at = &t
+// SetCreatedAt sets the "created_at" field.
+func (m *GroupUserMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
 }
 
-// CreateAt returns the value of the "create_at" field in the mutation.
-func (m *GroupUserMutation) CreateAt() (r time.Time, exists bool) {
-	v := m.create_at
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *GroupUserMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldCreateAt returns the old "create_at" field's value of the GroupUser entity.
+// OldCreatedAt returns the old "created_at" field's value of the GroupUser entity.
 // If the GroupUser object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupUserMutation) OldCreateAt(ctx context.Context) (v time.Time, err error) {
+func (m *GroupUserMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldCreateAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldCreateAt requires an ID field in the mutation")
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldCreateAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
 	}
-	return oldValue.CreateAt, nil
+	return oldValue.CreatedAt, nil
 }
 
-// ResetCreateAt resets all changes to the "create_at" field.
-func (m *GroupUserMutation) ResetCreateAt() {
-	m.create_at = nil
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *GroupUserMutation) ResetCreatedAt() {
+	m.created_at = nil
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (m *GroupUserMutation) SetUpdateAt(t time.Time) {
-	m.update_at = &t
+// SetUpdatedAt sets the "updated_at" field.
+func (m *GroupUserMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
 }
 
-// UpdateAt returns the value of the "update_at" field in the mutation.
-func (m *GroupUserMutation) UpdateAt() (r time.Time, exists bool) {
-	v := m.update_at
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *GroupUserMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldUpdateAt returns the old "update_at" field's value of the GroupUser entity.
+// OldUpdatedAt returns the old "updated_at" field's value of the GroupUser entity.
 // If the GroupUser object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupUserMutation) OldUpdateAt(ctx context.Context) (v time.Time, err error) {
+func (m *GroupUserMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldUpdateAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldUpdateAt requires an ID field in the mutation")
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldUpdateAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
 	}
-	return oldValue.UpdateAt, nil
+	return oldValue.UpdatedAt, nil
 }
 
-// ResetUpdateAt resets all changes to the "update_at" field.
-func (m *GroupUserMutation) ResetUpdateAt() {
-	m.update_at = nil
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *GroupUserMutation) ResetUpdatedAt() {
+	m.updated_at = nil
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (m *GroupUserMutation) SetDeleteAt(t time.Time) {
-	m.delete_at = &t
+// SetDeletedAt sets the "deleted_at" field.
+func (m *GroupUserMutation) SetDeletedAt(t time.Time) {
+	m.deleted_at = &t
 }
 
-// DeleteAt returns the value of the "delete_at" field in the mutation.
-func (m *GroupUserMutation) DeleteAt() (r time.Time, exists bool) {
-	v := m.delete_at
+// DeletedAt returns the value of the "deleted_at" field in the mutation.
+func (m *GroupUserMutation) DeletedAt() (r time.Time, exists bool) {
+	v := m.deleted_at
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldDeleteAt returns the old "delete_at" field's value of the GroupUser entity.
+// OldDeletedAt returns the old "deleted_at" field's value of the GroupUser entity.
 // If the GroupUser object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *GroupUserMutation) OldDeleteAt(ctx context.Context) (v *time.Time, err error) {
+func (m *GroupUserMutation) OldDeletedAt(ctx context.Context) (v *time.Time, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldDeleteAt is only allowed on UpdateOne operations")
+		return v, errors.New("OldDeletedAt is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldDeleteAt requires an ID field in the mutation")
+		return v, errors.New("OldDeletedAt requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldDeleteAt: %w", err)
+		return v, fmt.Errorf("querying old value for OldDeletedAt: %w", err)
 	}
-	return oldValue.DeleteAt, nil
+	return oldValue.DeletedAt, nil
 }
 
-// ClearDeleteAt clears the value of the "delete_at" field.
-func (m *GroupUserMutation) ClearDeleteAt() {
-	m.delete_at = nil
-	m.clearedFields[groupuser.FieldDeleteAt] = struct{}{}
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (m *GroupUserMutation) ClearDeletedAt() {
+	m.deleted_at = nil
+	m.clearedFields[groupuser.FieldDeletedAt] = struct{}{}
 }
 
-// DeleteAtCleared returns if the "delete_at" field was cleared in this mutation.
-func (m *GroupUserMutation) DeleteAtCleared() bool {
-	_, ok := m.clearedFields[groupuser.FieldDeleteAt]
+// DeletedAtCleared returns if the "deleted_at" field was cleared in this mutation.
+func (m *GroupUserMutation) DeletedAtCleared() bool {
+	_, ok := m.clearedFields[groupuser.FieldDeletedAt]
 	return ok
 }
 
-// ResetDeleteAt resets all changes to the "delete_at" field.
-func (m *GroupUserMutation) ResetDeleteAt() {
-	m.delete_at = nil
-	delete(m.clearedFields, groupuser.FieldDeleteAt)
+// ResetDeletedAt resets all changes to the "deleted_at" field.
+func (m *GroupUserMutation) ResetDeletedAt() {
+	m.deleted_at = nil
+	delete(m.clearedFields, groupuser.FieldDeletedAt)
 }
 
 // Where appends a list predicates to the GroupUserMutation builder.
@@ -2126,14 +2126,14 @@ func (m *GroupUserMutation) Fields() []string {
 	if m.owner != nil {
 		fields = append(fields, groupuser.FieldOwner)
 	}
-	if m.create_at != nil {
-		fields = append(fields, groupuser.FieldCreateAt)
+	if m.created_at != nil {
+		fields = append(fields, groupuser.FieldCreatedAt)
 	}
-	if m.update_at != nil {
-		fields = append(fields, groupuser.FieldUpdateAt)
+	if m.updated_at != nil {
+		fields = append(fields, groupuser.FieldUpdatedAt)
 	}
-	if m.delete_at != nil {
-		fields = append(fields, groupuser.FieldDeleteAt)
+	if m.deleted_at != nil {
+		fields = append(fields, groupuser.FieldDeletedAt)
 	}
 	return fields
 }
@@ -2149,12 +2149,12 @@ func (m *GroupUserMutation) Field(name string) (ent.Value, bool) {
 		return m.GroupID()
 	case groupuser.FieldOwner:
 		return m.Owner()
-	case groupuser.FieldCreateAt:
-		return m.CreateAt()
-	case groupuser.FieldUpdateAt:
-		return m.UpdateAt()
-	case groupuser.FieldDeleteAt:
-		return m.DeleteAt()
+	case groupuser.FieldCreatedAt:
+		return m.CreatedAt()
+	case groupuser.FieldUpdatedAt:
+		return m.UpdatedAt()
+	case groupuser.FieldDeletedAt:
+		return m.DeletedAt()
 	}
 	return nil, false
 }
@@ -2170,12 +2170,12 @@ func (m *GroupUserMutation) OldField(ctx context.Context, name string) (ent.Valu
 		return m.OldGroupID(ctx)
 	case groupuser.FieldOwner:
 		return m.OldOwner(ctx)
-	case groupuser.FieldCreateAt:
-		return m.OldCreateAt(ctx)
-	case groupuser.FieldUpdateAt:
-		return m.OldUpdateAt(ctx)
-	case groupuser.FieldDeleteAt:
-		return m.OldDeleteAt(ctx)
+	case groupuser.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case groupuser.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	case groupuser.FieldDeletedAt:
+		return m.OldDeletedAt(ctx)
 	}
 	return nil, fmt.Errorf("unknown GroupUser field %s", name)
 }
@@ -2206,26 +2206,26 @@ func (m *GroupUserMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetOwner(v)
 		return nil
-	case groupuser.FieldCreateAt:
+	case groupuser.FieldCreatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetCreateAt(v)
+		m.SetCreatedAt(v)
 		return nil
-	case groupuser.FieldUpdateAt:
+	case groupuser.FieldUpdatedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetUpdateAt(v)
+		m.SetUpdatedAt(v)
 		return nil
-	case groupuser.FieldDeleteAt:
+	case groupuser.FieldDeletedAt:
 		v, ok := value.(time.Time)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetDeleteAt(v)
+		m.SetDeletedAt(v)
 		return nil
 	}
 	return fmt.Errorf("unknown GroupUser field %s", name)
@@ -2257,8 +2257,8 @@ func (m *GroupUserMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *GroupUserMutation) ClearedFields() []string {
 	var fields []string
-	if m.FieldCleared(groupuser.FieldDeleteAt) {
-		fields = append(fields, groupuser.FieldDeleteAt)
+	if m.FieldCleared(groupuser.FieldDeletedAt) {
+		fields = append(fields, groupuser.FieldDeletedAt)
 	}
 	return fields
 }
@@ -2274,8 +2274,8 @@ func (m *GroupUserMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *GroupUserMutation) ClearField(name string) error {
 	switch name {
-	case groupuser.FieldDeleteAt:
-		m.ClearDeleteAt()
+	case groupuser.FieldDeletedAt:
+		m.ClearDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown GroupUser nullable field %s", name)
@@ -2294,14 +2294,14 @@ func (m *GroupUserMutation) ResetField(name string) error {
 	case groupuser.FieldOwner:
 		m.ResetOwner()
 		return nil
-	case groupuser.FieldCreateAt:
-		m.ResetCreateAt()
+	case groupuser.FieldCreatedAt:
+		m.ResetCreatedAt()
 		return nil
-	case groupuser.FieldUpdateAt:
-		m.ResetUpdateAt()
+	case groupuser.FieldUpdatedAt:
+		m.ResetUpdatedAt()
 		return nil
-	case groupuser.FieldDeleteAt:
-		m.ResetDeleteAt()
+	case groupuser.FieldDeletedAt:
+		m.ResetDeletedAt()
 		return nil
 	}
 	return fmt.Errorf("unknown GroupUser field %s", name)

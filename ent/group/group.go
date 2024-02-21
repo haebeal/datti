@@ -15,12 +15,12 @@ const (
 	FieldID = "id"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
-	// FieldCreateAt holds the string denoting the create_at field in the database.
-	FieldCreateAt = "create_at"
-	// FieldUpdateAt holds the string denoting the update_at field in the database.
-	FieldUpdateAt = "update_at"
-	// FieldDeleteAt holds the string denoting the delete_at field in the database.
-	FieldDeleteAt = "delete_at"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
+	FieldUpdatedAt = "updated_at"
+	// FieldDeletedAt holds the string denoting the deleted_at field in the database.
+	FieldDeletedAt = "deleted_at"
 	// Table holds the table name of the group in the database.
 	Table = "groups"
 )
@@ -29,9 +29,9 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldName,
-	FieldCreateAt,
-	FieldUpdateAt,
-	FieldDeleteAt,
+	FieldCreatedAt,
+	FieldUpdatedAt,
+	FieldDeletedAt,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -47,12 +47,12 @@ func ValidColumn(column string) bool {
 var (
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
-	// DefaultCreateAt holds the default value on creation for the "create_at" field.
-	DefaultCreateAt func() time.Time
-	// DefaultUpdateAt holds the default value on creation for the "update_at" field.
-	DefaultUpdateAt func() time.Time
-	// UpdateDefaultUpdateAt holds the default value on update for the "update_at" field.
-	UpdateDefaultUpdateAt func() time.Time
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
+	DefaultUpdatedAt func() time.Time
+	// UpdateDefaultUpdatedAt holds the default value on update for the "updated_at" field.
+	UpdateDefaultUpdatedAt func() time.Time
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -70,17 +70,17 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
 }
 
-// ByCreateAt orders the results by the create_at field.
-func ByCreateAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCreateAt, opts...).ToFunc()
+// ByCreatedAt orders the results by the created_at field.
+func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
 }
 
-// ByUpdateAt orders the results by the update_at field.
-func ByUpdateAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldUpdateAt, opts...).ToFunc()
+// ByUpdatedAt orders the results by the updated_at field.
+func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
-// ByDeleteAt orders the results by the delete_at field.
-func ByDeleteAt(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldDeleteAt, opts...).ToFunc()
+// ByDeletedAt orders the results by the deleted_at field.
+func ByDeletedAt(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletedAt, opts...).ToFunc()
 }

@@ -70,29 +70,29 @@ func (bau *BankAccountUpdate) SetNillableBranchCode(s *string) *BankAccountUpdat
 	return bau
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (bau *BankAccountUpdate) SetUpdateAt(t time.Time) *BankAccountUpdate {
-	bau.mutation.SetUpdateAt(t)
+// SetUpdatedAt sets the "updated_at" field.
+func (bau *BankAccountUpdate) SetUpdatedAt(t time.Time) *BankAccountUpdate {
+	bau.mutation.SetUpdatedAt(t)
 	return bau
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (bau *BankAccountUpdate) SetDeleteAt(t time.Time) *BankAccountUpdate {
-	bau.mutation.SetDeleteAt(t)
+// SetDeletedAt sets the "deleted_at" field.
+func (bau *BankAccountUpdate) SetDeletedAt(t time.Time) *BankAccountUpdate {
+	bau.mutation.SetDeletedAt(t)
 	return bau
 }
 
-// SetNillableDeleteAt sets the "delete_at" field if the given value is not nil.
-func (bau *BankAccountUpdate) SetNillableDeleteAt(t *time.Time) *BankAccountUpdate {
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (bau *BankAccountUpdate) SetNillableDeletedAt(t *time.Time) *BankAccountUpdate {
 	if t != nil {
-		bau.SetDeleteAt(*t)
+		bau.SetDeletedAt(*t)
 	}
 	return bau
 }
 
-// ClearDeleteAt clears the value of the "delete_at" field.
-func (bau *BankAccountUpdate) ClearDeleteAt() *BankAccountUpdate {
-	bau.mutation.ClearDeleteAt()
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (bau *BankAccountUpdate) ClearDeletedAt() *BankAccountUpdate {
+	bau.mutation.ClearDeletedAt()
 	return bau
 }
 
@@ -131,9 +131,9 @@ func (bau *BankAccountUpdate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (bau *BankAccountUpdate) defaults() {
-	if _, ok := bau.mutation.UpdateAt(); !ok {
-		v := bankaccount.UpdateDefaultUpdateAt()
-		bau.mutation.SetUpdateAt(v)
+	if _, ok := bau.mutation.UpdatedAt(); !ok {
+		v := bankaccount.UpdateDefaultUpdatedAt()
+		bau.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -178,14 +178,14 @@ func (bau *BankAccountUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := bau.mutation.BranchCode(); ok {
 		_spec.SetField(bankaccount.FieldBranchCode, field.TypeString, value)
 	}
-	if value, ok := bau.mutation.UpdateAt(); ok {
-		_spec.SetField(bankaccount.FieldUpdateAt, field.TypeTime, value)
+	if value, ok := bau.mutation.UpdatedAt(); ok {
+		_spec.SetField(bankaccount.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := bau.mutation.DeleteAt(); ok {
-		_spec.SetField(bankaccount.FieldDeleteAt, field.TypeTime, value)
+	if value, ok := bau.mutation.DeletedAt(); ok {
+		_spec.SetField(bankaccount.FieldDeletedAt, field.TypeTime, value)
 	}
-	if bau.mutation.DeleteAtCleared() {
-		_spec.ClearField(bankaccount.FieldDeleteAt, field.TypeTime)
+	if bau.mutation.DeletedAtCleared() {
+		_spec.ClearField(bankaccount.FieldDeletedAt, field.TypeTime)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, bau.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -249,29 +249,29 @@ func (bauo *BankAccountUpdateOne) SetNillableBranchCode(s *string) *BankAccountU
 	return bauo
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (bauo *BankAccountUpdateOne) SetUpdateAt(t time.Time) *BankAccountUpdateOne {
-	bauo.mutation.SetUpdateAt(t)
+// SetUpdatedAt sets the "updated_at" field.
+func (bauo *BankAccountUpdateOne) SetUpdatedAt(t time.Time) *BankAccountUpdateOne {
+	bauo.mutation.SetUpdatedAt(t)
 	return bauo
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (bauo *BankAccountUpdateOne) SetDeleteAt(t time.Time) *BankAccountUpdateOne {
-	bauo.mutation.SetDeleteAt(t)
+// SetDeletedAt sets the "deleted_at" field.
+func (bauo *BankAccountUpdateOne) SetDeletedAt(t time.Time) *BankAccountUpdateOne {
+	bauo.mutation.SetDeletedAt(t)
 	return bauo
 }
 
-// SetNillableDeleteAt sets the "delete_at" field if the given value is not nil.
-func (bauo *BankAccountUpdateOne) SetNillableDeleteAt(t *time.Time) *BankAccountUpdateOne {
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (bauo *BankAccountUpdateOne) SetNillableDeletedAt(t *time.Time) *BankAccountUpdateOne {
 	if t != nil {
-		bauo.SetDeleteAt(*t)
+		bauo.SetDeletedAt(*t)
 	}
 	return bauo
 }
 
-// ClearDeleteAt clears the value of the "delete_at" field.
-func (bauo *BankAccountUpdateOne) ClearDeleteAt() *BankAccountUpdateOne {
-	bauo.mutation.ClearDeleteAt()
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (bauo *BankAccountUpdateOne) ClearDeletedAt() *BankAccountUpdateOne {
+	bauo.mutation.ClearDeletedAt()
 	return bauo
 }
 
@@ -323,9 +323,9 @@ func (bauo *BankAccountUpdateOne) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (bauo *BankAccountUpdateOne) defaults() {
-	if _, ok := bauo.mutation.UpdateAt(); !ok {
-		v := bankaccount.UpdateDefaultUpdateAt()
-		bauo.mutation.SetUpdateAt(v)
+	if _, ok := bauo.mutation.UpdatedAt(); !ok {
+		v := bankaccount.UpdateDefaultUpdatedAt()
+		bauo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -387,14 +387,14 @@ func (bauo *BankAccountUpdateOne) sqlSave(ctx context.Context) (_node *BankAccou
 	if value, ok := bauo.mutation.BranchCode(); ok {
 		_spec.SetField(bankaccount.FieldBranchCode, field.TypeString, value)
 	}
-	if value, ok := bauo.mutation.UpdateAt(); ok {
-		_spec.SetField(bankaccount.FieldUpdateAt, field.TypeTime, value)
+	if value, ok := bauo.mutation.UpdatedAt(); ok {
+		_spec.SetField(bankaccount.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := bauo.mutation.DeleteAt(); ok {
-		_spec.SetField(bankaccount.FieldDeleteAt, field.TypeTime, value)
+	if value, ok := bauo.mutation.DeletedAt(); ok {
+		_spec.SetField(bankaccount.FieldDeletedAt, field.TypeTime, value)
 	}
-	if bauo.mutation.DeleteAtCleared() {
-		_spec.ClearField(bankaccount.FieldDeleteAt, field.TypeTime)
+	if bauo.mutation.DeletedAtCleared() {
+		_spec.ClearField(bankaccount.FieldDeletedAt, field.TypeTime)
 	}
 	_node = &BankAccount{config: bauo.config}
 	_spec.Assign = _node.assignValues

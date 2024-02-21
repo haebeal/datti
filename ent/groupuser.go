@@ -23,12 +23,12 @@ type GroupUser struct {
 	GroupID string `json:"group_id,omitempty"`
 	// Owner holds the value of the "owner" field.
 	Owner bool `json:"owner,omitempty"`
-	// CreateAt holds the value of the "create_at" field.
-	CreateAt time.Time `json:"create_at,omitempty"`
-	// UpdateAt holds the value of the "update_at" field.
-	UpdateAt time.Time `json:"update_at,omitempty"`
-	// DeleteAt holds the value of the "delete_at" field.
-	DeleteAt     *time.Time `json:"delete_at,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -43,7 +43,7 @@ func (*GroupUser) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case groupuser.FieldUID, groupuser.FieldGroupID:
 			values[i] = new(sql.NullString)
-		case groupuser.FieldCreateAt, groupuser.FieldUpdateAt, groupuser.FieldDeleteAt:
+		case groupuser.FieldCreatedAt, groupuser.FieldUpdatedAt, groupuser.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -84,24 +84,24 @@ func (gu *GroupUser) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				gu.Owner = value.Bool
 			}
-		case groupuser.FieldCreateAt:
+		case groupuser.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_at", values[i])
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				gu.CreateAt = value.Time
+				gu.CreatedAt = value.Time
 			}
-		case groupuser.FieldUpdateAt:
+		case groupuser.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_at", values[i])
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				gu.UpdateAt = value.Time
+				gu.UpdatedAt = value.Time
 			}
-		case groupuser.FieldDeleteAt:
+		case groupuser.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field delete_at", values[i])
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				gu.DeleteAt = new(time.Time)
-				*gu.DeleteAt = value.Time
+				gu.DeletedAt = new(time.Time)
+				*gu.DeletedAt = value.Time
 			}
 		default:
 			gu.selectValues.Set(columns[i], values[i])
@@ -148,14 +148,14 @@ func (gu *GroupUser) String() string {
 	builder.WriteString("owner=")
 	builder.WriteString(fmt.Sprintf("%v", gu.Owner))
 	builder.WriteString(", ")
-	builder.WriteString("create_at=")
-	builder.WriteString(gu.CreateAt.Format(time.ANSIC))
+	builder.WriteString("created_at=")
+	builder.WriteString(gu.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("update_at=")
-	builder.WriteString(gu.UpdateAt.Format(time.ANSIC))
+	builder.WriteString("updated_at=")
+	builder.WriteString(gu.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := gu.DeleteAt; v != nil {
-		builder.WriteString("delete_at=")
+	if v := gu.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteByte(')')

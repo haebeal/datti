@@ -42,29 +42,29 @@ func (gu *GroupUpdate) SetNillableName(s *string) *GroupUpdate {
 	return gu
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (gu *GroupUpdate) SetUpdateAt(t time.Time) *GroupUpdate {
-	gu.mutation.SetUpdateAt(t)
+// SetUpdatedAt sets the "updated_at" field.
+func (gu *GroupUpdate) SetUpdatedAt(t time.Time) *GroupUpdate {
+	gu.mutation.SetUpdatedAt(t)
 	return gu
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (gu *GroupUpdate) SetDeleteAt(t time.Time) *GroupUpdate {
-	gu.mutation.SetDeleteAt(t)
+// SetDeletedAt sets the "deleted_at" field.
+func (gu *GroupUpdate) SetDeletedAt(t time.Time) *GroupUpdate {
+	gu.mutation.SetDeletedAt(t)
 	return gu
 }
 
-// SetNillableDeleteAt sets the "delete_at" field if the given value is not nil.
-func (gu *GroupUpdate) SetNillableDeleteAt(t *time.Time) *GroupUpdate {
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (gu *GroupUpdate) SetNillableDeletedAt(t *time.Time) *GroupUpdate {
 	if t != nil {
-		gu.SetDeleteAt(*t)
+		gu.SetDeletedAt(*t)
 	}
 	return gu
 }
 
-// ClearDeleteAt clears the value of the "delete_at" field.
-func (gu *GroupUpdate) ClearDeleteAt() *GroupUpdate {
-	gu.mutation.ClearDeleteAt()
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (gu *GroupUpdate) ClearDeletedAt() *GroupUpdate {
+	gu.mutation.ClearDeletedAt()
 	return gu
 }
 
@@ -103,9 +103,9 @@ func (gu *GroupUpdate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (gu *GroupUpdate) defaults() {
-	if _, ok := gu.mutation.UpdateAt(); !ok {
-		v := group.UpdateDefaultUpdateAt()
-		gu.mutation.SetUpdateAt(v)
+	if _, ok := gu.mutation.UpdatedAt(); !ok {
+		v := group.UpdateDefaultUpdatedAt()
+		gu.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -134,14 +134,14 @@ func (gu *GroupUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := gu.mutation.Name(); ok {
 		_spec.SetField(group.FieldName, field.TypeString, value)
 	}
-	if value, ok := gu.mutation.UpdateAt(); ok {
-		_spec.SetField(group.FieldUpdateAt, field.TypeTime, value)
+	if value, ok := gu.mutation.UpdatedAt(); ok {
+		_spec.SetField(group.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := gu.mutation.DeleteAt(); ok {
-		_spec.SetField(group.FieldDeleteAt, field.TypeTime, value)
+	if value, ok := gu.mutation.DeletedAt(); ok {
+		_spec.SetField(group.FieldDeletedAt, field.TypeTime, value)
 	}
-	if gu.mutation.DeleteAtCleared() {
-		_spec.ClearField(group.FieldDeleteAt, field.TypeTime)
+	if gu.mutation.DeletedAtCleared() {
+		_spec.ClearField(group.FieldDeletedAt, field.TypeTime)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, gu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -177,29 +177,29 @@ func (guo *GroupUpdateOne) SetNillableName(s *string) *GroupUpdateOne {
 	return guo
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (guo *GroupUpdateOne) SetUpdateAt(t time.Time) *GroupUpdateOne {
-	guo.mutation.SetUpdateAt(t)
+// SetUpdatedAt sets the "updated_at" field.
+func (guo *GroupUpdateOne) SetUpdatedAt(t time.Time) *GroupUpdateOne {
+	guo.mutation.SetUpdatedAt(t)
 	return guo
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (guo *GroupUpdateOne) SetDeleteAt(t time.Time) *GroupUpdateOne {
-	guo.mutation.SetDeleteAt(t)
+// SetDeletedAt sets the "deleted_at" field.
+func (guo *GroupUpdateOne) SetDeletedAt(t time.Time) *GroupUpdateOne {
+	guo.mutation.SetDeletedAt(t)
 	return guo
 }
 
-// SetNillableDeleteAt sets the "delete_at" field if the given value is not nil.
-func (guo *GroupUpdateOne) SetNillableDeleteAt(t *time.Time) *GroupUpdateOne {
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (guo *GroupUpdateOne) SetNillableDeletedAt(t *time.Time) *GroupUpdateOne {
 	if t != nil {
-		guo.SetDeleteAt(*t)
+		guo.SetDeletedAt(*t)
 	}
 	return guo
 }
 
-// ClearDeleteAt clears the value of the "delete_at" field.
-func (guo *GroupUpdateOne) ClearDeleteAt() *GroupUpdateOne {
-	guo.mutation.ClearDeleteAt()
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (guo *GroupUpdateOne) ClearDeletedAt() *GroupUpdateOne {
+	guo.mutation.ClearDeletedAt()
 	return guo
 }
 
@@ -251,9 +251,9 @@ func (guo *GroupUpdateOne) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (guo *GroupUpdateOne) defaults() {
-	if _, ok := guo.mutation.UpdateAt(); !ok {
-		v := group.UpdateDefaultUpdateAt()
-		guo.mutation.SetUpdateAt(v)
+	if _, ok := guo.mutation.UpdatedAt(); !ok {
+		v := group.UpdateDefaultUpdatedAt()
+		guo.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -299,14 +299,14 @@ func (guo *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error
 	if value, ok := guo.mutation.Name(); ok {
 		_spec.SetField(group.FieldName, field.TypeString, value)
 	}
-	if value, ok := guo.mutation.UpdateAt(); ok {
-		_spec.SetField(group.FieldUpdateAt, field.TypeTime, value)
+	if value, ok := guo.mutation.UpdatedAt(); ok {
+		_spec.SetField(group.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if value, ok := guo.mutation.DeleteAt(); ok {
-		_spec.SetField(group.FieldDeleteAt, field.TypeTime, value)
+	if value, ok := guo.mutation.DeletedAt(); ok {
+		_spec.SetField(group.FieldDeletedAt, field.TypeTime, value)
 	}
-	if guo.mutation.DeleteAtCleared() {
-		_spec.ClearField(group.FieldDeleteAt, field.TypeTime)
+	if guo.mutation.DeletedAtCleared() {
+		_spec.ClearField(group.FieldDeletedAt, field.TypeTime)
 	}
 	_node = &Group{config: guo.config}
 	_spec.Assign = _node.assignValues

@@ -21,12 +21,12 @@ type Friend struct {
 	UID string `json:"uid,omitempty"`
 	// FriendUID holds the value of the "friend_uid" field.
 	FriendUID string `json:"friend_uid,omitempty"`
-	// CreateAt holds the value of the "create_at" field.
-	CreateAt time.Time `json:"create_at,omitempty"`
-	// UpdateAt holds the value of the "update_at" field.
-	UpdateAt time.Time `json:"update_at,omitempty"`
-	// DeleteAt holds the value of the "delete_at" field.
-	DeleteAt     *time.Time `json:"delete_at,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// UpdatedAt holds the value of the "updated_at" field.
+	UpdatedAt time.Time `json:"updated_at,omitempty"`
+	// DeletedAt holds the value of the "deleted_at" field.
+	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -39,7 +39,7 @@ func (*Friend) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullInt64)
 		case friend.FieldUID, friend.FieldFriendUID:
 			values[i] = new(sql.NullString)
-		case friend.FieldCreateAt, friend.FieldUpdateAt, friend.FieldDeleteAt:
+		case friend.FieldCreatedAt, friend.FieldUpdatedAt, friend.FieldDeletedAt:
 			values[i] = new(sql.NullTime)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -74,24 +74,24 @@ func (f *Friend) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				f.FriendUID = value.String
 			}
-		case friend.FieldCreateAt:
+		case friend.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field create_at", values[i])
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				f.CreateAt = value.Time
+				f.CreatedAt = value.Time
 			}
-		case friend.FieldUpdateAt:
+		case friend.FieldUpdatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field update_at", values[i])
+				return fmt.Errorf("unexpected type %T for field updated_at", values[i])
 			} else if value.Valid {
-				f.UpdateAt = value.Time
+				f.UpdatedAt = value.Time
 			}
-		case friend.FieldDeleteAt:
+		case friend.FieldDeletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
-				return fmt.Errorf("unexpected type %T for field delete_at", values[i])
+				return fmt.Errorf("unexpected type %T for field deleted_at", values[i])
 			} else if value.Valid {
-				f.DeleteAt = new(time.Time)
-				*f.DeleteAt = value.Time
+				f.DeletedAt = new(time.Time)
+				*f.DeletedAt = value.Time
 			}
 		default:
 			f.selectValues.Set(columns[i], values[i])
@@ -135,14 +135,14 @@ func (f *Friend) String() string {
 	builder.WriteString("friend_uid=")
 	builder.WriteString(f.FriendUID)
 	builder.WriteString(", ")
-	builder.WriteString("create_at=")
-	builder.WriteString(f.CreateAt.Format(time.ANSIC))
+	builder.WriteString("created_at=")
+	builder.WriteString(f.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("update_at=")
-	builder.WriteString(f.UpdateAt.Format(time.ANSIC))
+	builder.WriteString("updated_at=")
+	builder.WriteString(f.UpdatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	if v := f.DeleteAt; v != nil {
-		builder.WriteString("delete_at=")
+	if v := f.DeletedAt; v != nil {
+		builder.WriteString("deleted_at=")
 		builder.WriteString(v.Format(time.ANSIC))
 	}
 	builder.WriteByte(')')

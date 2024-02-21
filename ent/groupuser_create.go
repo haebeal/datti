@@ -38,44 +38,44 @@ func (guc *GroupUserCreate) SetOwner(b bool) *GroupUserCreate {
 	return guc
 }
 
-// SetCreateAt sets the "create_at" field.
-func (guc *GroupUserCreate) SetCreateAt(t time.Time) *GroupUserCreate {
-	guc.mutation.SetCreateAt(t)
+// SetCreatedAt sets the "created_at" field.
+func (guc *GroupUserCreate) SetCreatedAt(t time.Time) *GroupUserCreate {
+	guc.mutation.SetCreatedAt(t)
 	return guc
 }
 
-// SetNillableCreateAt sets the "create_at" field if the given value is not nil.
-func (guc *GroupUserCreate) SetNillableCreateAt(t *time.Time) *GroupUserCreate {
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (guc *GroupUserCreate) SetNillableCreatedAt(t *time.Time) *GroupUserCreate {
 	if t != nil {
-		guc.SetCreateAt(*t)
+		guc.SetCreatedAt(*t)
 	}
 	return guc
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (guc *GroupUserCreate) SetUpdateAt(t time.Time) *GroupUserCreate {
-	guc.mutation.SetUpdateAt(t)
+// SetUpdatedAt sets the "updated_at" field.
+func (guc *GroupUserCreate) SetUpdatedAt(t time.Time) *GroupUserCreate {
+	guc.mutation.SetUpdatedAt(t)
 	return guc
 }
 
-// SetNillableUpdateAt sets the "update_at" field if the given value is not nil.
-func (guc *GroupUserCreate) SetNillableUpdateAt(t *time.Time) *GroupUserCreate {
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (guc *GroupUserCreate) SetNillableUpdatedAt(t *time.Time) *GroupUserCreate {
 	if t != nil {
-		guc.SetUpdateAt(*t)
+		guc.SetUpdatedAt(*t)
 	}
 	return guc
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (guc *GroupUserCreate) SetDeleteAt(t time.Time) *GroupUserCreate {
-	guc.mutation.SetDeleteAt(t)
+// SetDeletedAt sets the "deleted_at" field.
+func (guc *GroupUserCreate) SetDeletedAt(t time.Time) *GroupUserCreate {
+	guc.mutation.SetDeletedAt(t)
 	return guc
 }
 
-// SetNillableDeleteAt sets the "delete_at" field if the given value is not nil.
-func (guc *GroupUserCreate) SetNillableDeleteAt(t *time.Time) *GroupUserCreate {
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (guc *GroupUserCreate) SetNillableDeletedAt(t *time.Time) *GroupUserCreate {
 	if t != nil {
-		guc.SetDeleteAt(*t)
+		guc.SetDeletedAt(*t)
 	}
 	return guc
 }
@@ -115,13 +115,13 @@ func (guc *GroupUserCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (guc *GroupUserCreate) defaults() {
-	if _, ok := guc.mutation.CreateAt(); !ok {
-		v := groupuser.DefaultCreateAt()
-		guc.mutation.SetCreateAt(v)
+	if _, ok := guc.mutation.CreatedAt(); !ok {
+		v := groupuser.DefaultCreatedAt()
+		guc.mutation.SetCreatedAt(v)
 	}
-	if _, ok := guc.mutation.UpdateAt(); !ok {
-		v := groupuser.DefaultUpdateAt()
-		guc.mutation.SetUpdateAt(v)
+	if _, ok := guc.mutation.UpdatedAt(); !ok {
+		v := groupuser.DefaultUpdatedAt()
+		guc.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -146,11 +146,11 @@ func (guc *GroupUserCreate) check() error {
 	if _, ok := guc.mutation.Owner(); !ok {
 		return &ValidationError{Name: "owner", err: errors.New(`ent: missing required field "GroupUser.owner"`)}
 	}
-	if _, ok := guc.mutation.CreateAt(); !ok {
-		return &ValidationError{Name: "create_at", err: errors.New(`ent: missing required field "GroupUser.create_at"`)}
+	if _, ok := guc.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "GroupUser.created_at"`)}
 	}
-	if _, ok := guc.mutation.UpdateAt(); !ok {
-		return &ValidationError{Name: "update_at", err: errors.New(`ent: missing required field "GroupUser.update_at"`)}
+	if _, ok := guc.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "GroupUser.updated_at"`)}
 	}
 	return nil
 }
@@ -190,17 +190,17 @@ func (guc *GroupUserCreate) createSpec() (*GroupUser, *sqlgraph.CreateSpec) {
 		_spec.SetField(groupuser.FieldOwner, field.TypeBool, value)
 		_node.Owner = value
 	}
-	if value, ok := guc.mutation.CreateAt(); ok {
-		_spec.SetField(groupuser.FieldCreateAt, field.TypeTime, value)
-		_node.CreateAt = value
+	if value, ok := guc.mutation.CreatedAt(); ok {
+		_spec.SetField(groupuser.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
 	}
-	if value, ok := guc.mutation.UpdateAt(); ok {
-		_spec.SetField(groupuser.FieldUpdateAt, field.TypeTime, value)
-		_node.UpdateAt = value
+	if value, ok := guc.mutation.UpdatedAt(); ok {
+		_spec.SetField(groupuser.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
 	}
-	if value, ok := guc.mutation.DeleteAt(); ok {
-		_spec.SetField(groupuser.FieldDeleteAt, field.TypeTime, value)
-		_node.DeleteAt = &value
+	if value, ok := guc.mutation.DeletedAt(); ok {
+		_spec.SetField(groupuser.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	return _node, _spec
 }

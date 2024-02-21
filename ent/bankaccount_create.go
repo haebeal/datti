@@ -38,44 +38,44 @@ func (bac *BankAccountCreate) SetBranchCode(s string) *BankAccountCreate {
 	return bac
 }
 
-// SetCreateAt sets the "create_at" field.
-func (bac *BankAccountCreate) SetCreateAt(t time.Time) *BankAccountCreate {
-	bac.mutation.SetCreateAt(t)
+// SetCreatedAt sets the "created_at" field.
+func (bac *BankAccountCreate) SetCreatedAt(t time.Time) *BankAccountCreate {
+	bac.mutation.SetCreatedAt(t)
 	return bac
 }
 
-// SetNillableCreateAt sets the "create_at" field if the given value is not nil.
-func (bac *BankAccountCreate) SetNillableCreateAt(t *time.Time) *BankAccountCreate {
+// SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
+func (bac *BankAccountCreate) SetNillableCreatedAt(t *time.Time) *BankAccountCreate {
 	if t != nil {
-		bac.SetCreateAt(*t)
+		bac.SetCreatedAt(*t)
 	}
 	return bac
 }
 
-// SetUpdateAt sets the "update_at" field.
-func (bac *BankAccountCreate) SetUpdateAt(t time.Time) *BankAccountCreate {
-	bac.mutation.SetUpdateAt(t)
+// SetUpdatedAt sets the "updated_at" field.
+func (bac *BankAccountCreate) SetUpdatedAt(t time.Time) *BankAccountCreate {
+	bac.mutation.SetUpdatedAt(t)
 	return bac
 }
 
-// SetNillableUpdateAt sets the "update_at" field if the given value is not nil.
-func (bac *BankAccountCreate) SetNillableUpdateAt(t *time.Time) *BankAccountCreate {
+// SetNillableUpdatedAt sets the "updated_at" field if the given value is not nil.
+func (bac *BankAccountCreate) SetNillableUpdatedAt(t *time.Time) *BankAccountCreate {
 	if t != nil {
-		bac.SetUpdateAt(*t)
+		bac.SetUpdatedAt(*t)
 	}
 	return bac
 }
 
-// SetDeleteAt sets the "delete_at" field.
-func (bac *BankAccountCreate) SetDeleteAt(t time.Time) *BankAccountCreate {
-	bac.mutation.SetDeleteAt(t)
+// SetDeletedAt sets the "deleted_at" field.
+func (bac *BankAccountCreate) SetDeletedAt(t time.Time) *BankAccountCreate {
+	bac.mutation.SetDeletedAt(t)
 	return bac
 }
 
-// SetNillableDeleteAt sets the "delete_at" field if the given value is not nil.
-func (bac *BankAccountCreate) SetNillableDeleteAt(t *time.Time) *BankAccountCreate {
+// SetNillableDeletedAt sets the "deleted_at" field if the given value is not nil.
+func (bac *BankAccountCreate) SetNillableDeletedAt(t *time.Time) *BankAccountCreate {
 	if t != nil {
-		bac.SetDeleteAt(*t)
+		bac.SetDeletedAt(*t)
 	}
 	return bac
 }
@@ -121,13 +121,13 @@ func (bac *BankAccountCreate) ExecX(ctx context.Context) {
 
 // defaults sets the default values of the builder before save.
 func (bac *BankAccountCreate) defaults() {
-	if _, ok := bac.mutation.CreateAt(); !ok {
-		v := bankaccount.DefaultCreateAt()
-		bac.mutation.SetCreateAt(v)
+	if _, ok := bac.mutation.CreatedAt(); !ok {
+		v := bankaccount.DefaultCreatedAt()
+		bac.mutation.SetCreatedAt(v)
 	}
-	if _, ok := bac.mutation.UpdateAt(); !ok {
-		v := bankaccount.DefaultUpdateAt()
-		bac.mutation.SetUpdateAt(v)
+	if _, ok := bac.mutation.UpdatedAt(); !ok {
+		v := bankaccount.DefaultUpdatedAt()
+		bac.mutation.SetUpdatedAt(v)
 	}
 }
 
@@ -157,11 +157,11 @@ func (bac *BankAccountCreate) check() error {
 			return &ValidationError{Name: "branch_code", err: fmt.Errorf(`ent: validator failed for field "BankAccount.branch_code": %w`, err)}
 		}
 	}
-	if _, ok := bac.mutation.CreateAt(); !ok {
-		return &ValidationError{Name: "create_at", err: errors.New(`ent: missing required field "BankAccount.create_at"`)}
+	if _, ok := bac.mutation.CreatedAt(); !ok {
+		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "BankAccount.created_at"`)}
 	}
-	if _, ok := bac.mutation.UpdateAt(); !ok {
-		return &ValidationError{Name: "update_at", err: errors.New(`ent: missing required field "BankAccount.update_at"`)}
+	if _, ok := bac.mutation.UpdatedAt(); !ok {
+		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "BankAccount.updated_at"`)}
 	}
 	if v, ok := bac.mutation.ID(); ok {
 		if err := bankaccount.IDValidator(v); err != nil {
@@ -215,17 +215,17 @@ func (bac *BankAccountCreate) createSpec() (*BankAccount, *sqlgraph.CreateSpec) 
 		_spec.SetField(bankaccount.FieldBranchCode, field.TypeString, value)
 		_node.BranchCode = value
 	}
-	if value, ok := bac.mutation.CreateAt(); ok {
-		_spec.SetField(bankaccount.FieldCreateAt, field.TypeTime, value)
-		_node.CreateAt = value
+	if value, ok := bac.mutation.CreatedAt(); ok {
+		_spec.SetField(bankaccount.FieldCreatedAt, field.TypeTime, value)
+		_node.CreatedAt = value
 	}
-	if value, ok := bac.mutation.UpdateAt(); ok {
-		_spec.SetField(bankaccount.FieldUpdateAt, field.TypeTime, value)
-		_node.UpdateAt = value
+	if value, ok := bac.mutation.UpdatedAt(); ok {
+		_spec.SetField(bankaccount.FieldUpdatedAt, field.TypeTime, value)
+		_node.UpdatedAt = value
 	}
-	if value, ok := bac.mutation.DeleteAt(); ok {
-		_spec.SetField(bankaccount.FieldDeleteAt, field.TypeTime, value)
-		_node.DeleteAt = &value
+	if value, ok := bac.mutation.DeletedAt(); ok {
+		_spec.SetField(bankaccount.FieldDeletedAt, field.TypeTime, value)
+		_node.DeletedAt = &value
 	}
 	return _node, _spec
 }

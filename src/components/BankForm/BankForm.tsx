@@ -137,9 +137,9 @@ export const BankForm = ({ defaultValues, onSubmit, onDelete }: Props) => {
       )}
       <FormInput
         label="口座番号"
+        type="number"
         placeholder="口座番号を入力"
         {...register("accountCode")}
-        type="text"
         error={errors.accountCode?.message}
       />
       <Button mt={5} minW="30%" type="submit" colorScheme="twitter">

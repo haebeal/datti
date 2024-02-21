@@ -15,7 +15,7 @@ import (
 
 func Sever(dsn string, hostName string, dbInit bool) {
 	// DBインスタンスの生成
-	dbEngine, err := database.NewDBEngine(dsn, dbInit)
+	dbClient, err := database.NewDBClient(dsn)
 	if err != nil {
 		log.Print(err.Error())
 	}
@@ -30,13 +30,13 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	// groupUseCase := usecase.NewGroupUseCase(groupRepository)
 	// groupHandler := handler.NewGroupHandler(groupUseCase)
 
-	transaction := repositoryimpl.NewTransaction(dbEngine.Engine)
+	transaction := repositoryimpl.NewTransaction(dbClient.Client)
 
 	profileRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
 	profileUseCase := usecase.NewProfileUseCase(profileRepository)
 	profileHandler := handler.NewProfileHandler(profileUseCase)
 
-	bankAccountRepository := repositoryimpl.NewBankAccountRepository(dbEngine)
+	bankAccountRepository := repositoryimpl.NewBankAccountRepository(dbClient)
 	bankAccountUseCase := usecase.NewBankAccountUseCase(bankAccountRepository, transaction)
 	bankAccountHandler := handler.NewBankAccountHandler(bankAccountUseCase)
 

@@ -6,50 +6,26 @@ import {
   Input,
   FormErrorMessage,
 } from "@chakra-ui/react";
-import { forwardRef, type HTMLInputTypeAttribute } from "react";
+import { forwardRef } from "react";
 
-interface Props {
+import type { ComponentPropsWithoutRef } from "react";
+
+type Props = ComponentPropsWithoutRef<typeof Input> & {
   /**
    * ラベル
    */
   label: string;
   /**
-   * input要素のplaceholder属性
-   */
-  placeholder: string;
-  /**
-   * input要素のtype属性
-   */
-  type?: HTMLInputTypeAttribute;
-  /**
-   * 読み取り専用
-   */
-  readonly?: boolean;
-  /**
-   * 非活性
-   */
-  disabled?: boolean;
-  /**
    * エラーメッセージ
    */
   error?: string;
-}
+};
 
 /**
  * フォームで使用するテキストinput要素
  */
 export const FormInput = forwardRef<HTMLInputElement, Props>(
-  (
-    {
-      label,
-      placeholder,
-      type = "text",
-      readonly = false,
-      disabled = false,
-      error,
-    },
-    ref
-  ) => {
+  ({ label, error, ...props }, ref) => {
     const isError = error ? true : false;
 
     return (
@@ -65,15 +41,12 @@ export const FormInput = forwardRef<HTMLInputElement, Props>(
             {label}
           </Heading>
           <Input
-            placeholder={placeholder}
             ref={ref}
+            {...props}
             noOfLines={1}
-            readOnly={readonly}
-            disabled={disabled}
             size="md"
-            bg={readonly ? "" : "gray.200"}
             border="none"
-            type={type}
+            bg={props.readOnly ? "" : "gray.200"}
           />
         </Stack>
         {isError ? <FormErrorMessage>{error}</FormErrorMessage> : null}

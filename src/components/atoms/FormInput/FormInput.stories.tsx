@@ -28,7 +28,7 @@ export const Default: Story = {
 export const Readonly: Story = {
   name: "読み取り専用",
   args: {
-    readonly: true,
+    readOnly: true,
   },
 };
 

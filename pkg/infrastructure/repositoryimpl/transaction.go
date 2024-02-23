@@ -33,7 +33,6 @@ func (t *tx) DoInTx(ctx context.Context, f func(ctx context.Context) (interface{
 		return nil, err
 	}
 
-	tx.Commit()
 	if err := tx.Commit(); err != nil {
 		// エラーならロールバック
 		tx.Rollback()

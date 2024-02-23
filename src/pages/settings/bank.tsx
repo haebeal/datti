@@ -22,8 +22,8 @@ import type { SubmitHandler } from "react-hook-form";
 
 import { useProfile } from "@/hooks";
 
-import { BankForm } from "@/components/BankForm";
-import { Header } from "@/components/Header";
+import { BankForm } from "@/components/organisms/BankForm";
+import { Header } from "@/components/organisms/Header";
 
 const BankSetting: NextPage = () => {
   const { data: session, status } = useSession();

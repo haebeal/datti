@@ -3,7 +3,7 @@ import Head from "next/head";
 
 import type { NextPage } from "next";
 
-import { NotFound } from "@/components/NotFound";
+import { NotFound } from "@/components/templates/NotFound";
 
 const NotFoundPage: NextPage = () => (
   <>

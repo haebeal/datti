@@ -2,6 +2,7 @@ package repositoryimpl
 
 import (
 	"context"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
 	"github.com/datti-api/ent"
@@ -29,6 +30,7 @@ func (br *bankAccountRepositoryImpl) UpsertBankAccount(c context.Context, uid st
 			bau.SetAccountCode(accountCode)
 			bau.SetBankCode(bankCode)
 			bau.SetBranchCode(branchCode)
+			bau.SetNull("deleted_at")
 			bau.UpdateUpdatedAt()
 		}).
 		ID(c)
@@ -65,6 +67,7 @@ func (br *bankAccountRepositoryImpl) DeleteBankAccount(c context.Context, uid st
 		SetAccountCode("").
 		SetBankCode("").
 		SetBranchCode("").
+		SetDeletedAt(time.Now()).
 		Exec(c)
 	if err != nil {
 		return nil, err

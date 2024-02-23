@@ -10,10 +10,10 @@ import (
 var (
 	// BankAccountsColumns holds the columns for the "bank_accounts" table.
 	BankAccountsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeString, Size: 28},
+		{Name: "id", Type: field.TypeString, Unique: true, Size: 28},
 		{Name: "account_code", Type: field.TypeString, Size: 7},
-		{Name: "bank_code", Type: field.TypeString, Size: 3},
-		{Name: "branch_code", Type: field.TypeString, Size: 4},
+		{Name: "bank_code", Type: field.TypeString, Size: 4},
+		{Name: "branch_code", Type: field.TypeString, Size: 3},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "updated_at", Type: field.TypeTime},
 		{Name: "deleted_at", Type: field.TypeTime, Nullable: true},

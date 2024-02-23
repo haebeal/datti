@@ -15,10 +15,10 @@ type BankAccount struct {
 // Fields of the BankAccount.
 func (BankAccount) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").MinLen(28).MaxLen(28).NotEmpty(),
+		field.String("id").MinLen(28).MaxLen(28).NotEmpty().Unique(),
 		field.String("account_code").MinLen(7).MaxLen(7),
-		field.String("bank_code").MinLen(3).MaxLen(3),
-		field.String("branch_code").MinLen(4).MaxLen(4),
+		field.String("bank_code").MinLen(4).MaxLen(4),
+		field.String("branch_code").MinLen(3).MaxLen(3),
 		field.Time("created_at").Default(time.Now).Immutable(),
 		field.Time("updated_at").Default(time.Now).UpdateDefault(time.Now),
 		field.Time("deleted_at").Nillable().Optional(),

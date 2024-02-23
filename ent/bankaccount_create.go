@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect"
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/datti-api/ent/bankaccount"
@@ -18,6 +20,7 @@ type BankAccountCreate struct {
 	config
 	mutation *BankAccountMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetAccountCode sets the "account_code" field.
@@ -199,6 +202,7 @@ func (bac *BankAccountCreate) createSpec() (*BankAccount, *sqlgraph.CreateSpec) 
 		_node = &BankAccount{config: bac.config}
 		_spec = sqlgraph.NewCreateSpec(bankaccount.Table, sqlgraph.NewFieldSpec(bankaccount.FieldID, field.TypeString))
 	)
+	_spec.OnConflict = bac.conflict
 	if id, ok := bac.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
@@ -230,11 +234,293 @@ func (bac *BankAccountCreate) createSpec() (*BankAccount, *sqlgraph.CreateSpec) 
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.BankAccount.Create().
+//		SetAccountCode(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.BankAccountUpsert) {
+//			SetAccountCode(v+v).
+//		}).
+//		Exec(ctx)
+func (bac *BankAccountCreate) OnConflict(opts ...sql.ConflictOption) *BankAccountUpsertOne {
+	bac.conflict = opts
+	return &BankAccountUpsertOne{
+		create: bac,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.BankAccount.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (bac *BankAccountCreate) OnConflictColumns(columns ...string) *BankAccountUpsertOne {
+	bac.conflict = append(bac.conflict, sql.ConflictColumns(columns...))
+	return &BankAccountUpsertOne{
+		create: bac,
+	}
+}
+
+type (
+	// BankAccountUpsertOne is the builder for "upsert"-ing
+	//  one BankAccount node.
+	BankAccountUpsertOne struct {
+		create *BankAccountCreate
+	}
+
+	// BankAccountUpsert is the "OnConflict" setter.
+	BankAccountUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetAccountCode sets the "account_code" field.
+func (u *BankAccountUpsert) SetAccountCode(v string) *BankAccountUpsert {
+	u.Set(bankaccount.FieldAccountCode, v)
+	return u
+}
+
+// UpdateAccountCode sets the "account_code" field to the value that was provided on create.
+func (u *BankAccountUpsert) UpdateAccountCode() *BankAccountUpsert {
+	u.SetExcluded(bankaccount.FieldAccountCode)
+	return u
+}
+
+// SetBankCode sets the "bank_code" field.
+func (u *BankAccountUpsert) SetBankCode(v string) *BankAccountUpsert {
+	u.Set(bankaccount.FieldBankCode, v)
+	return u
+}
+
+// UpdateBankCode sets the "bank_code" field to the value that was provided on create.
+func (u *BankAccountUpsert) UpdateBankCode() *BankAccountUpsert {
+	u.SetExcluded(bankaccount.FieldBankCode)
+	return u
+}
+
+// SetBranchCode sets the "branch_code" field.
+func (u *BankAccountUpsert) SetBranchCode(v string) *BankAccountUpsert {
+	u.Set(bankaccount.FieldBranchCode, v)
+	return u
+}
+
+// UpdateBranchCode sets the "branch_code" field to the value that was provided on create.
+func (u *BankAccountUpsert) UpdateBranchCode() *BankAccountUpsert {
+	u.SetExcluded(bankaccount.FieldBranchCode)
+	return u
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *BankAccountUpsert) SetUpdatedAt(v time.Time) *BankAccountUpsert {
+	u.Set(bankaccount.FieldUpdatedAt, v)
+	return u
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *BankAccountUpsert) UpdateUpdatedAt() *BankAccountUpsert {
+	u.SetExcluded(bankaccount.FieldUpdatedAt)
+	return u
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *BankAccountUpsert) SetDeletedAt(v time.Time) *BankAccountUpsert {
+	u.Set(bankaccount.FieldDeletedAt, v)
+	return u
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *BankAccountUpsert) UpdateDeletedAt() *BankAccountUpsert {
+	u.SetExcluded(bankaccount.FieldDeletedAt)
+	return u
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *BankAccountUpsert) ClearDeletedAt() *BankAccountUpsert {
+	u.SetNull(bankaccount.FieldDeletedAt)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create except the ID field.
+// Using this option is equivalent to using:
+//
+//	client.BankAccount.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(bankaccount.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *BankAccountUpsertOne) UpdateNewValues() *BankAccountUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.ID(); exists {
+			s.SetIgnore(bankaccount.FieldID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(bankaccount.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.BankAccount.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *BankAccountUpsertOne) Ignore() *BankAccountUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *BankAccountUpsertOne) DoNothing() *BankAccountUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the BankAccountCreate.OnConflict
+// documentation for more info.
+func (u *BankAccountUpsertOne) Update(set func(*BankAccountUpsert)) *BankAccountUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&BankAccountUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetAccountCode sets the "account_code" field.
+func (u *BankAccountUpsertOne) SetAccountCode(v string) *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.SetAccountCode(v)
+	})
+}
+
+// UpdateAccountCode sets the "account_code" field to the value that was provided on create.
+func (u *BankAccountUpsertOne) UpdateAccountCode() *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.UpdateAccountCode()
+	})
+}
+
+// SetBankCode sets the "bank_code" field.
+func (u *BankAccountUpsertOne) SetBankCode(v string) *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.SetBankCode(v)
+	})
+}
+
+// UpdateBankCode sets the "bank_code" field to the value that was provided on create.
+func (u *BankAccountUpsertOne) UpdateBankCode() *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.UpdateBankCode()
+	})
+}
+
+// SetBranchCode sets the "branch_code" field.
+func (u *BankAccountUpsertOne) SetBranchCode(v string) *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.SetBranchCode(v)
+	})
+}
+
+// UpdateBranchCode sets the "branch_code" field to the value that was provided on create.
+func (u *BankAccountUpsertOne) UpdateBranchCode() *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.UpdateBranchCode()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *BankAccountUpsertOne) SetUpdatedAt(v time.Time) *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *BankAccountUpsertOne) UpdateUpdatedAt() *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *BankAccountUpsertOne) SetDeletedAt(v time.Time) *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *BankAccountUpsertOne) UpdateDeletedAt() *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *BankAccountUpsertOne) ClearDeletedAt() *BankAccountUpsertOne {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *BankAccountUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for BankAccountCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *BankAccountUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *BankAccountUpsertOne) ID(ctx context.Context) (id string, err error) {
+	if u.create.driver.Dialect() == dialect.MySQL {
+		// In case of "ON CONFLICT", there is no way to get back non-numeric ID
+		// fields from the database since MySQL does not support the RETURNING clause.
+		return id, errors.New("ent: BankAccountUpsertOne.ID is not supported by MySQL driver. Use BankAccountUpsertOne.Exec instead")
+	}
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *BankAccountUpsertOne) IDX(ctx context.Context) string {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // BankAccountCreateBulk is the builder for creating many BankAccount entities in bulk.
 type BankAccountCreateBulk struct {
 	config
 	err      error
 	builders []*BankAccountCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the BankAccount entities in the database.
@@ -264,6 +550,7 @@ func (bacb *BankAccountCreateBulk) Save(ctx context.Context) ([]*BankAccount, er
 					_, err = mutators[i+1].Mutate(root, bacb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = bacb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, bacb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -310,6 +597,200 @@ func (bacb *BankAccountCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (bacb *BankAccountCreateBulk) ExecX(ctx context.Context) {
 	if err := bacb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.BankAccount.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.BankAccountUpsert) {
+//			SetAccountCode(v+v).
+//		}).
+//		Exec(ctx)
+func (bacb *BankAccountCreateBulk) OnConflict(opts ...sql.ConflictOption) *BankAccountUpsertBulk {
+	bacb.conflict = opts
+	return &BankAccountUpsertBulk{
+		create: bacb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.BankAccount.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (bacb *BankAccountCreateBulk) OnConflictColumns(columns ...string) *BankAccountUpsertBulk {
+	bacb.conflict = append(bacb.conflict, sql.ConflictColumns(columns...))
+	return &BankAccountUpsertBulk{
+		create: bacb,
+	}
+}
+
+// BankAccountUpsertBulk is the builder for "upsert"-ing
+// a bulk of BankAccount nodes.
+type BankAccountUpsertBulk struct {
+	create *BankAccountCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.BankAccount.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//			sql.ResolveWith(func(u *sql.UpdateSet) {
+//				u.SetIgnore(bankaccount.FieldID)
+//			}),
+//		).
+//		Exec(ctx)
+func (u *BankAccountUpsertBulk) UpdateNewValues() *BankAccountUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.ID(); exists {
+				s.SetIgnore(bankaccount.FieldID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(bankaccount.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.BankAccount.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *BankAccountUpsertBulk) Ignore() *BankAccountUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *BankAccountUpsertBulk) DoNothing() *BankAccountUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the BankAccountCreateBulk.OnConflict
+// documentation for more info.
+func (u *BankAccountUpsertBulk) Update(set func(*BankAccountUpsert)) *BankAccountUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&BankAccountUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetAccountCode sets the "account_code" field.
+func (u *BankAccountUpsertBulk) SetAccountCode(v string) *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.SetAccountCode(v)
+	})
+}
+
+// UpdateAccountCode sets the "account_code" field to the value that was provided on create.
+func (u *BankAccountUpsertBulk) UpdateAccountCode() *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.UpdateAccountCode()
+	})
+}
+
+// SetBankCode sets the "bank_code" field.
+func (u *BankAccountUpsertBulk) SetBankCode(v string) *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.SetBankCode(v)
+	})
+}
+
+// UpdateBankCode sets the "bank_code" field to the value that was provided on create.
+func (u *BankAccountUpsertBulk) UpdateBankCode() *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.UpdateBankCode()
+	})
+}
+
+// SetBranchCode sets the "branch_code" field.
+func (u *BankAccountUpsertBulk) SetBranchCode(v string) *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.SetBranchCode(v)
+	})
+}
+
+// UpdateBranchCode sets the "branch_code" field to the value that was provided on create.
+func (u *BankAccountUpsertBulk) UpdateBranchCode() *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.UpdateBranchCode()
+	})
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (u *BankAccountUpsertBulk) SetUpdatedAt(v time.Time) *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.SetUpdatedAt(v)
+	})
+}
+
+// UpdateUpdatedAt sets the "updated_at" field to the value that was provided on create.
+func (u *BankAccountUpsertBulk) UpdateUpdatedAt() *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.UpdateUpdatedAt()
+	})
+}
+
+// SetDeletedAt sets the "deleted_at" field.
+func (u *BankAccountUpsertBulk) SetDeletedAt(v time.Time) *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.SetDeletedAt(v)
+	})
+}
+
+// UpdateDeletedAt sets the "deleted_at" field to the value that was provided on create.
+func (u *BankAccountUpsertBulk) UpdateDeletedAt() *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.UpdateDeletedAt()
+	})
+}
+
+// ClearDeletedAt clears the value of the "deleted_at" field.
+func (u *BankAccountUpsertBulk) ClearDeletedAt() *BankAccountUpsertBulk {
+	return u.Update(func(s *BankAccountUpsert) {
+		s.ClearDeletedAt()
+	})
+}
+
+// Exec executes the query.
+func (u *BankAccountUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("ent: OnConflict was set for builder %d. Set it on the BankAccountCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("ent: missing options for BankAccountCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *BankAccountUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

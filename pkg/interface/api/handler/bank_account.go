@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"errors"
 	"log"
 	"net/http"
 
@@ -9,7 +8,6 @@ import (
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 )
 
 type BankAccountHandler interface {
@@ -50,13 +48,8 @@ func (bh *bankAccountHandler) HandleGet(c echo.Context) error {
 
 	findBankAccount, err := bh.useCase.GetBankAccountById(c.Request().Context(), uid)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			errResponse.Error = err.Error()
-			return c.JSON(http.StatusNotFound, errResponse)
-		} else {
-			errResponse.Error = err.Error()
-			return c.JSON(http.StatusInternalServerError, errResponse)
-		}
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
 		return c.JSON(http.StatusOK, findBankAccount)
 	}

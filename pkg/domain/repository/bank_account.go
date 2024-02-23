@@ -3,11 +3,11 @@ package repository
 import (
 	"context"
 
-	"github.com/datti-api/pkg/domain/model"
+	"github.com/datti-api/ent"
 )
 
 type BankAccountRepository interface {
-	UpsertBankAccount(c context.Context, bank *model.BankAccount) (*model.BankAccount, error)
-	GetBankAccountById(c context.Context, uid string) (*model.BankAccount, error)
-	DeleteBankAccount(c context.Context, uid string) (*model.BankAccount, error)
+	UpsertBankAccount(c context.Context, uid string, accountCode string, bankCode string, branchCode string) (*ent.BankAccount, error)
+	GetBankAccountById(c context.Context, uid string) (*ent.BankAccount, error)
+	DeleteBankAccount(c context.Context, uid string) (*ent.BankAccount, error)
 }

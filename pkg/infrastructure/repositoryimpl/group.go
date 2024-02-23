@@ -9,10 +9,10 @@ import (
 )
 
 type groupRepoImpl struct {
-	DBEngine *database.DBEngine
+	DBEngine *database.DBClient
 }
 
-func NewGropuRepoImpl(engine *database.DBEngine) repository.GroupRepository {
+func NewGropuRepoImpl(engine *database.DBClient) repository.GroupRepository {
 	return &groupRepoImpl{
 		DBEngine: engine,
 	}

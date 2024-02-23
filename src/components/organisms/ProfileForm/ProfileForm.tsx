@@ -7,8 +7,8 @@ import type { SubmitHandler } from "react-hook-form";
 
 import { profileSchema } from "@/schema";
 
-import { FormInput } from "@/components/atoms/FormInput";
-import { ProfilePhotoUpload } from "@/components/ProfilePhotoUpload";
+import { ProfilePhotoUpload } from "@/components/atoms/ProfilePhotoUpload";
+import { FormInput } from "@/components/molecules/FormInput";
 
 interface Props {
   defaultValues?: Profile;

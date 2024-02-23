@@ -41,6 +41,9 @@ export const Header = () => {
                 <MenuItem as={Link} href="/settings/profile">
                   設定
                 </MenuItem>
+                <MenuItem as={Link} href="/friend">
+                  フレンド
+                </MenuItem>
                 {isMobile ? (
                   <MenuItem onClick={onClickSignOut}>ログアウト</MenuItem>
                 ) : null}

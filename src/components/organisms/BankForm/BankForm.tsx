@@ -11,8 +11,8 @@ import { bankAccountSchema } from "@/schema";
 
 import { createBanksClient } from "@/utils";
 
-import { FormSelect } from "@/components/FormSelect";
-import { FormInput } from "@/components/atoms/FormInput";
+import { FormInput } from "@/components/molecules/FormInput";
+import { FormSelect } from "@/components/molecules/FormSelect";
 
 interface Props {
   defaultValues?: Bank;

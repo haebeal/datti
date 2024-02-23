@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { FormInput } from "./FormInput";
 
 const meta = {
-  title: "atoms/FormInput",
+  title: "Molecules/FormInput",
   component: FormInput,
   tags: ["autodocs"],
   args: {

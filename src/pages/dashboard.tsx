@@ -3,7 +3,7 @@ import Head from "next/head";
 
 import type { NextPage } from "next";
 
-import { Header } from "@/components/Header";
+import { Header } from "@/components/organisms/Header";
 
 const Home: NextPage = () => (
   <>

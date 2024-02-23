@@ -22,8 +22,8 @@ import type { SubmitHandler } from "react-hook-form";
 
 import { useProfile } from "@/hooks";
 
-import { Header } from "@/components/Header";
-import { ProfileForm } from "@/components/ProfileForm";
+import { Header } from "@/components/organisms/Header";
+import { ProfileForm } from "@/components/organisms/ProfileForm";
 
 const ProfileSetting: NextPage = () => {
   const { data: session, status } = useSession();

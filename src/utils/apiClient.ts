@@ -6,7 +6,7 @@ import dattiApi from "@/api/datti/$api";
 export const createDattiClient = (idToken: string) =>
   dattiApi(
     axiosClient(undefined, {
-      baseURL: "https://datti-api-dev.fly.dev",
+      baseURL: process.env.NEXT_PUBLIC_BACKEND_ENDPOINT,
       headers: {
         Authorization: `Bearer ${idToken}`,
       },

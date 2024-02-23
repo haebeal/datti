@@ -60,7 +60,12 @@ func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, uid s
 }
 
 func (br *bankAccountRepositoryImpl) DeleteBankAccount(c context.Context, uid string) (*ent.BankAccount, error) {
-	err := br.DBEngine.Client.BankAccount.DeleteOneID(uid).Exec(c)
+	err := br.DBEngine.Client.BankAccount.
+		UpdateOneID(uid).
+		SetAccountCode("").
+		SetBankCode("").
+		SetBranchCode("").
+		Exec(c)
 	if err != nil {
 		return nil, err
 	}

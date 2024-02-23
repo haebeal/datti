@@ -11,7 +11,7 @@ import (
 type BankAccountUseCase interface {
 	UpsertBankAccount(c context.Context, uid string, accountCode string, bankCode string, branchCode string) (*ent.BankAccount, error)
 	GetBankAccountById(c context.Context, uid string) (*ent.BankAccount, error)
-	DeleteBankAccount(c context.Context, uid string) error
+	DeleteBankAccount(c context.Context, uid string) (*ent.BankAccount, error)
 }
 type bankAccountUseCase struct {
 	repository  repository.BankAccountRepository
@@ -49,15 +49,15 @@ func (bu *bankAccountUseCase) GetBankAccountById(c context.Context, uid string) 
 	return findBankAccount, nil
 }
 
-func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, uid string) error {
-	_, err := bu.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
+func (bu *bankAccountUseCase) DeleteBankAccount(c context.Context, uid string) (*ent.BankAccount, error) {
+	v, err := bu.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		return bu.repository.DeleteBankAccount(c, uid)
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return v.(*ent.BankAccount), nil
 }
 
 func NewBankAccountUseCase(bankAccountRepo repository.BankAccountRepository, tx repository.Transaction) BankAccountUseCase {

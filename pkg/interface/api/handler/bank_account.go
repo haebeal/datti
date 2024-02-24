@@ -23,6 +23,7 @@ type bankAccountHandler struct {
 // HandleCreate implements BankAccountHandler.
 func (bh *bankAccountHandler) HandleUpsert(c echo.Context) error {
 	req := new(request.BankAccountPostRequest)
+	res := new(response.BankAccountResponse)
 	errRespons := new(response.Error)
 	uid := c.Get("uid").(string)
 
@@ -32,26 +33,41 @@ func (bh *bankAccountHandler) HandleUpsert(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errRespons)
 	}
 
-	newBankAccount, err := bh.useCase.UpsertBankAccount(c.Request().Context(), uid, req.AccountCode, req.BankCode, req.BranchCode)
+	bankAccount, err := bh.useCase.UpsertBankAccount(c.Request().Context(), uid, req.AccountCode, req.BankCode, req.BranchCode)
 	if err != nil {
 		errRespons.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRespons)
 	} else {
-		return c.JSON(http.StatusCreated, newBankAccount)
+		res.UID = bankAccount.ID
+		res.AccountCode = bankAccount.AccountCode
+		res.BankCode = bankAccount.BankCode
+		res.BranchCode = bankAccount.BranchCode
+		res.CreatedAt = bankAccount.CreatedAt
+		res.UpdatreAt = bankAccount.UpdatedAt
+		res.DeletedAt = bankAccount.DeletedAt
+		return c.JSON(http.StatusCreated, res)
 	}
 }
 
 // HandleGet implements BankAccountHandler.
 func (bh *bankAccountHandler) HandleGet(c echo.Context) error {
+	res := new(response.BankAccountResponse)
 	errResponse := new(response.Error)
 	uid := c.Get("uid").(string)
 
-	findBankAccount, err := bh.useCase.GetBankAccountById(c.Request().Context(), uid)
+	bankAccount, err := bh.useCase.GetBankAccountById(c.Request().Context(), uid)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, findBankAccount)
+		res.UID = bankAccount.ID
+		res.AccountCode = bankAccount.AccountCode
+		res.BankCode = bankAccount.BankCode
+		res.BranchCode = bankAccount.BranchCode
+		res.CreatedAt = bankAccount.CreatedAt
+		res.UpdatreAt = bankAccount.UpdatedAt
+		res.DeletedAt = bankAccount.DeletedAt
+		return c.JSON(http.StatusOK, res)
 	}
 }
 

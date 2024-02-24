@@ -22,6 +22,7 @@ type profileHandler struct {
 
 // HandleGet implements ProfileHandler.
 func (ph *profileHandler) HandleGet(c echo.Context) error {
+	res := new(response.Profile)
 	errResponse := new(response.Error)
 	uid := c.Get("uid").(string)
 	idToken := c.Get("idToken").(string)
@@ -31,12 +32,16 @@ func (ph *profileHandler) HandleGet(c echo.Context) error {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, profile)
+		res.UID = profile.ID
+		res.Name = profile.Name
+		res.PhotoUrl = profile.PhotoUrl
+		return c.JSON(http.StatusOK, res)
 	}
 }
 
 // HandleGetByEmail implements ProfileHandler.
 func (ph *profileHandler) HandleGetByEmail(c echo.Context) error {
+	res := new(response.Profile)
 	req := new(request.ProfileGetByEmailRequest)
 	errRes := new(response.Error)
 	idToken := c.Get("idToken").(string)
@@ -47,18 +52,22 @@ func (ph *profileHandler) HandleGetByEmail(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errRes)
 	}
 
-	profile, err := ph.useCase.GetProfileByEmail(c.Request().Context(), idToken, "")
+	profile, err := ph.useCase.GetProfileByEmail(c.Request().Context(), idToken, req.Email)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
 	} else {
-		return c.JSON(http.StatusOK, profile)
+		res.UID = profile.ID
+		res.Name = profile.Name
+		res.PhotoUrl = profile.PhotoUrl
+		return c.JSON(http.StatusOK, res)
 	}
 }
 
 // HandleUpdateName implements ProfileHandler.
 func (ph *profileHandler) HandleUpdate(c echo.Context) error {
 	req := new(request.ProfileUpdateRequest)
+	res := new(response.Profile)
 	errRes := new(response.Error)
 	uid := c.Get("uid").(string)
 	idToken := c.Get("idToken").(string)
@@ -74,7 +83,10 @@ func (ph *profileHandler) HandleUpdate(c echo.Context) error {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
 	} else {
-		return c.JSON(http.StatusOK, profile)
+		res.UID = profile.ID
+		res.Name = profile.Name
+		res.PhotoUrl = profile.PhotoUrl
+		return c.JSON(http.StatusOK, res)
 	}
 }
 

@@ -11,9 +11,15 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Restore Build Artifacts
+      - name: Restore node_modules
         id: node-modules-cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+      - name: Restore Build Artifacts
+        id: build-cache
+        uses: actions/cache@v4
         with:
           path: .vercel/output
           key: ${{ runner.os }}-${{ github.sha }}

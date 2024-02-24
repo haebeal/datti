@@ -4,17 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
     "start": "next start",
+    "storybook": "storybook dev -p 6006",
+    "build": "next build",
+    "build:storybook": "storybook build",
     "api:build": "rm -rf ./src/api/datti/* && npx openapi2aspida && aspida",
     "lint": "eslint --no-warn-ignored src/**/*",
     "lint:fix": "eslint --no-warn-ignored --fix src/**/*",
     "format": "prettier --write src/**/*",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "test:ui": "vitest --ui",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "test:ui": "vitest --ui"
   },
   "dependencies": {
     "@aspida/axios": "^1.14.0",

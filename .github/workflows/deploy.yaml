@@ -1,0 +1,20 @@
+name: Deploy Production
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+on:
+  push:
+    branches:
+      - main
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Restore Build Artifacts
+        id: node-modules-cache
+        uses: actions/cache@v3
+        with:
+          path: .vercel/output
+          key: ${{ runner.os }}-${{ github.sha }}
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}

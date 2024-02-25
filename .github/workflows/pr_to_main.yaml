@@ -6,8 +6,8 @@ env:
 
 on:
   push:
-    paths:
-      - src/**
+    # paths:
+    #   - src/**
 
 jobs:
   install:
@@ -70,3 +70,4 @@ jobs:
         with:
           path: .vercel
           key: ${{ runner.os }}-${{ hashFiles('src') }}
+          save-always: "true"

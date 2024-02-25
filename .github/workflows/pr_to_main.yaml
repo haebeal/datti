@@ -60,14 +60,5 @@ jobs:
         with:
           path: node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
-      - name: Pull Vercel Environment Information
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-      - name: Cache Build Artifacts
-        id: build-cache
-        uses: actions/cache@v4
-        with:
-          path: .vercel
-          key: ${{ runner.os }}-${{ hashFiles('src') }}
-          save-always: "true"
       - name: Build Artifacts
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: npm run build

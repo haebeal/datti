@@ -14,6 +14,6 @@ export type Methods = {
     status: 200
     /** The request has succeeded. */
     resBody: Types.Profile
-    reqBody: Types.Profile
+    reqBody: Types.ProfileUpdateRequest
   }
 }

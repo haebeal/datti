@@ -1,7 +1,5 @@
 /* eslint-disable */
 export type Bank = {
-  /** ユーザーID */
-  uid: string
   /** 金融機関コード */
   bankCode: string
   /** 支店番号 */
@@ -26,9 +24,11 @@ export type Profile = {
   photoUrl: string
 }
 
-export type Request = {
-  /** メールアドレス */
-  email: string
+export type ProfileUpdateRequest = {
+  /** ユーザー名 */
+  name: string
+  /** 画像URL */
+  photoUrl: string
 }
 
 export type User = {
@@ -38,4 +38,9 @@ export type User = {
   name: string
   /** 画像URL */
   photoUrl: string
+}
+
+export type UserGetRequest = {
+  /** メールアドレス */
+  email: string
 }

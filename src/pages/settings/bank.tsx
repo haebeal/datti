@@ -75,11 +75,7 @@ const BankSetting: NextPage = () => {
                   <TabPanel />
                   <TabPanel>
                     <Skeleton
-                      isLoaded={
-                        status === "authenticated" &&
-                        bank !== undefined &&
-                        !isLoading
-                      }
+                      isLoaded={status === "authenticated" && !isLoading}
                     >
                       <BankForm
                         defaultValues={bank}

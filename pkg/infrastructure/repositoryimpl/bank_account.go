@@ -16,8 +16,8 @@ type bankAccountRepositoryImpl struct {
 }
 
 // CreateBankAccount implements repository.BankAccountRepository.
-func (br *bankAccountRepositoryImpl) UpsertBankAccount(c context.Context, uid string, accountCode string, bankCode string, branchCode string) (*ent.BankAccount, error) {
-	id, err := br.DBEngine.Client.BankAccount.
+func (br *bankAccountRepositoryImpl) UpsertBankAccount(c context.Context, uid string, accountCode string, bankCode string, branchCode string) (string, error) {
+	uid, err := br.DBEngine.Client.BankAccount.
 		Create().
 		SetID(uid).
 		SetAccountCode(accountCode).
@@ -35,24 +35,16 @@ func (br *bankAccountRepositoryImpl) UpsertBankAccount(c context.Context, uid st
 		}).
 		ID(c)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
-	bankAccount, err := br.DBEngine.Client.BankAccount.
-		Query().
-		Where(bankaccount.IDEQ(id)).
-		Only(c)
-	if err != nil {
-		return nil, err
-	}
-
-	return bankAccount, nil
+	return uid, nil
 }
 
 // GetBankAccountById implements repository.BankAccountRepository.
 func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, uid string) (*ent.BankAccount, error) {
 	bankAccount, err := br.DBEngine.Client.BankAccount.
 		Query().
-		Where(bankaccount.IDEQ(uid)).
+		Where(bankaccount.IDEQ(uid), bankaccount.DeletedAtIsNil()).
 		Only(c)
 	if err != nil {
 		return nil, err
@@ -64,9 +56,6 @@ func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, uid s
 func (br *bankAccountRepositoryImpl) DeleteBankAccount(c context.Context, uid string) (*ent.BankAccount, error) {
 	err := br.DBEngine.Client.BankAccount.
 		UpdateOneID(uid).
-		SetAccountCode("").
-		SetBankCode("").
-		SetBranchCode("").
 		SetDeletedAt(time.Now()).
 		Exec(c)
 	if err != nil {

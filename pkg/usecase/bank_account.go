@@ -30,7 +30,11 @@ func (bu *bankAccountUseCase) UpsertBankAccount(c context.Context, uid string, a
 		if err := validator.ValidatorBranchCode(branchCode); err != nil {
 			return nil, err
 		}
-		return bu.repository.UpsertBankAccount(c, uid, accountCode, bankCode, branchCode)
+		uid, err := bu.repository.UpsertBankAccount(c, uid, accountCode, bankCode, branchCode)
+		if err != nil {
+			return nil, err
+		}
+		return bu.repository.GetBankAccountById(c, uid)
 	})
 	if err != nil {
 		return nil, err

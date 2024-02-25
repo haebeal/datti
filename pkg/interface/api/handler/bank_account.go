@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/datti-api/ent"
 	"github.com/datti-api/pkg/interface/request"
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
@@ -57,8 +58,12 @@ func (bh *bankAccountHandler) HandleGet(c echo.Context) error {
 
 	bankAccount, err := bh.useCase.GetBankAccountById(c.Request().Context(), uid)
 	if err != nil {
-		errResponse.Error = err.Error()
-		return c.JSON(http.StatusInternalServerError, errResponse)
+		if ent.IsNotFound(err) {
+			return c.JSON(http.StatusOK, res)
+		} else {
+			errResponse.Error = err.Error()
+			return c.JSON(http.StatusInternalServerError, errResponse)
+		}
 	} else {
 		res.UID = bankAccount.ID
 		res.AccountCode = bankAccount.AccountCode

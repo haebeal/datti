@@ -6,8 +6,8 @@ env:
 
 on:
   push:
-    # paths:
-    #   - src/**
+    paths:
+      - src/**
 
 jobs:
   install:
@@ -69,4 +69,4 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .vercel/output
-          key: ${{ runner.os }}-${{ hashFiles('src') }}
+          key: ${{ runner.os }}-${{ github.sha }}

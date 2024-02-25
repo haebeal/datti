@@ -12,27 +12,17 @@ export const useProfile = () => {
   const fetchProfile = async (idToken: string) => {
     setLoading(true);
     const client = createDattiClient(idToken);
-    try {
-      const response = await client.me.$get();
-      setProfile(response);
-    } catch (error) {
-      setProfile(undefined);
-    } finally {
-      setLoading(false);
-    }
+    const response = await client.me.$get();
+    setProfile(response);
+    setLoading(false);
   };
 
   const fetchBank = async (idToken: string) => {
     setLoading(true);
     const client = createDattiClient(idToken);
-    try {
-      const response = await client.bank.$get();
-      setBank(response);
-    } catch (error) {
-      setBank(undefined);
-    } finally {
-      setLoading(false);
-    }
+    const response = await client.bank.$get();
+    setBank(response);
+    setLoading(false);
   };
 
   const updateProfile = async (idToken: string, data: Profile) => {

@@ -20,6 +20,7 @@ interface Props {
 export const FriendCard = ({ friend, onClickApply, onClickDeny }: Props) => (
   <HStack
     data-testid="friend-card"
+    my={3}
     px={5}
     py={5}
     w="full"

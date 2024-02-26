@@ -12,12 +12,10 @@ import {
   MenuItem,
   MenuList,
   Spacer,
-  useMediaQuery,
 } from "@chakra-ui/react";
 import { signOut, useSession } from "next-auth/react";
 
 export const Header = () => {
-  const [isMobile] = useMediaQuery("(max-width: 48em)");
   const { data: session } = useSession();
 
   const onClickSignOut = () => {
@@ -44,17 +42,22 @@ export const Header = () => {
                 <MenuItem as={Link} href="/friend">
                   フレンド
                 </MenuItem>
-                {isMobile ? (
-                  <MenuItem onClick={onClickSignOut}>ログアウト</MenuItem>
-                ) : null}
+                <MenuItem
+                  display={{ base: "none", md: "block" }}
+                  onClick={onClickSignOut}
+                >
+                  ログアウト
+                </MenuItem>
               </MenuGroup>
             </MenuList>
           </Menu>
-          {!isMobile && (
-            <Button colorScheme="red" onClick={onClickSignOut}>
-              ログアウト
-            </Button>
-          )}
+          <Button
+            display={{ base: "none", md: "block" }}
+            colorScheme="red"
+            onClick={onClickSignOut}
+          >
+            ログアウト
+          </Button>
         </HStack>
       </Container>
     </Box>

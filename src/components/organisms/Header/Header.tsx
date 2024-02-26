@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Container,
+  Fade,
   HStack,
   Heading,
   Link,
@@ -30,27 +31,35 @@ export const Header = () => {
             Datti
           </Heading>
           <Spacer />
-          <Menu>
-            <MenuButton>
-              <Avatar borderColor="gray.100" src={session?.user.photoUrl} />
-            </MenuButton>
-            <MenuList>
-              <MenuGroup title={session?.user.name}>
-                <MenuItem as={Link} href="/settings/profile">
-                  設定
-                </MenuItem>
-                <MenuItem as={Link} href="/friend">
-                  フレンド
-                </MenuItem>
-                <MenuItem
-                  display={{ base: "none", md: "block" }}
-                  onClick={onClickSignOut}
-                >
-                  ログアウト
-                </MenuItem>
-              </MenuGroup>
-            </MenuList>
-          </Menu>
+          {session?.user ? (
+            <Fade in>
+              <Menu>
+                <MenuButton>
+                  <Avatar
+                    loading="lazy"
+                    borderColor="gray.100"
+                    src={session?.user.photoUrl}
+                  />
+                </MenuButton>
+                <MenuList>
+                  <MenuGroup title={session?.user.name}>
+                    <MenuItem as={Link} href="/settings/profile">
+                      設定
+                    </MenuItem>
+                    <MenuItem as={Link} href="/friend">
+                      フレンド
+                    </MenuItem>
+                    <MenuItem
+                      display={{ base: "block", md: "none" }}
+                      onClick={onClickSignOut}
+                    >
+                      ログアウト
+                    </MenuItem>
+                  </MenuGroup>
+                </MenuList>
+              </Menu>
+            </Fade>
+          ) : null}
           <Button
             display={{ base: "none", md: "block" }}
             colorScheme="red"

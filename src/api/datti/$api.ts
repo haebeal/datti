@@ -1,8 +1,8 @@
-import type { AspidaClient, BasicHeaders } from 'aspida';
 import type { Methods as Methods_on2dq4 } from './bank';
 import type { Methods as Methods_143531r } from './friends';
 import type { Methods as Methods_1uc1f5c } from './me';
 import type { Methods as Methods_1xhiioa } from './users';
+import type { AspidaClient, BasicHeaders } from 'aspida';
 
 const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
   const prefix = (baseURL === undefined ? '' : baseURL).replace(/\/$/, '');
@@ -56,6 +56,18 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
       $path: () => `${prefix}${PATH0}`,
     },
     friends: {
+      /**
+       * フレンド一覧の取得
+       * @returns The request has succeeded.
+       */
+      get: (option?: { config?: T | undefined } | undefined) =>
+        fetch<Methods_143531r['get']['resBody'], BasicHeaders, Methods_143531r['get']['status']>(prefix, PATH1, GET, option).json(),
+      /**
+       * フレンド一覧の取得
+       * @returns The request has succeeded.
+       */
+      $get: (option?: { config?: T | undefined } | undefined) =>
+        fetch<Methods_143531r['get']['resBody'], BasicHeaders, Methods_143531r['get']['status']>(prefix, PATH1, GET, option).json().then(r => r.body),
       /**
        * フレンド申請の送信
        * @returns The request has succeeded.

@@ -1,4 +1,9 @@
 /* eslint-disable */
+export type ApplyingFriend = {
+  /** フレンド申請受信者のユーザーID */
+  uid: string
+}
+
 export type Bank = {
   /** 金融機関コード */
   bankCode: string
@@ -9,11 +14,17 @@ export type Bank = {
 }
 
 export type Friend = {
-  /** フレンド申請送信者のユーザーID */
+  /** ユーザーID */
   uid: string
-  /** フレンド申請受信者のユーザーID */
-  friendUid: string
+  /** ユーザー名 */
+  name: string
+  /** 画像URL */
+  photoUrl: string
+  status: FriendStatus
 }
+
+/** フレンド状況 */
+export type FriendStatus = 'friend' | 'applying' | 'applied'
 
 export type Profile = {
   /** ユーザーID */

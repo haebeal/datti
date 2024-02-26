@@ -1,11 +1,12 @@
-import type { AspidaClient, BasicHeaders } from 'aspida';
 import { dataToURLString } from 'aspida';
+
 import type { Methods as Methods_ps3hza } from './banks/_bankCode@string/branches/_branchCode@string.json';
 import type { Methods as Methods_b870bt } from './banks/_bankCode@string/branches/search.json';
 import type { Methods as Methods_s4m07a } from './banks/_bankCode@string/branches.json';
 import type { Methods as Methods_trfhcb } from './banks/_bankCode@string.json';
 import type { Methods as Methods_1kgkqei } from './banks/search.json';
 import type { Methods as Methods_mc0lvb } from './banks.json';
+import type { AspidaClient, BasicHeaders } from 'aspida';
 
 const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
   const prefix = (baseURL === undefined ? 'https://bank.teraren.com' : baseURL).replace(/\/$/, '');

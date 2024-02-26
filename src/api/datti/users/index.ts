@@ -7,6 +7,6 @@ export type Methods = {
     status: 200
     /** The request has succeeded. */
     resBody: Types.User
-    reqBody: Types.Request
+    reqBody: Types.UserGetRequest
   }
 }

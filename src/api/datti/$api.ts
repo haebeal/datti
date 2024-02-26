@@ -57,6 +57,18 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
     },
     friends: {
       /**
+       * フレンド一覧の取得
+       * @returns The request has succeeded.
+       */
+      get: (option?: { config?: T | undefined } | undefined) =>
+        fetch<Methods_143531r['get']['resBody'], BasicHeaders, Methods_143531r['get']['status']>(prefix, PATH1, GET, option).json(),
+      /**
+       * フレンド一覧の取得
+       * @returns The request has succeeded.
+       */
+      $get: (option?: { config?: T | undefined } | undefined) =>
+        fetch<Methods_143531r['get']['resBody'], BasicHeaders, Methods_143531r['get']['status']>(prefix, PATH1, GET, option).json().then(r => r.body),
+      /**
        * フレンド申請の送信
        * @returns The request has succeeded.
        */

@@ -34,6 +34,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.49.2",
     "react-select": "^5.8.0",
+    "react-virtuoso": "^4.7.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -44,6 +45,7 @@
     "@storybook/addon-interactions": "^7.6.16",
     "@storybook/addon-links": "^7.6.16",
     "@storybook/addon-onboarding": "^1.0.11",
+    "@storybook/addon-viewport": "^7.6.17",
     "@storybook/blocks": "^7.6.16",
     "@storybook/nextjs": "^7.6.16",
     "@storybook/react": "^7.6.16",

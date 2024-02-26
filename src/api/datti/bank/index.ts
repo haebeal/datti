@@ -8,8 +8,6 @@ export type Methods = {
 
     /** 200レスポンス */
     resBody: {
-      /** ユーザーID */
-      uid: string
       /** 金融機関コード */
       bankCode: string
       /** 支店番号 */
@@ -34,8 +32,6 @@ export type Methods = {
 
     /** 201レスポンス */
     resBody: {
-      /** ユーザーID */
-      uid: string
       /** 金融機関コード */
       bankCode: string
       /** 支店番号 */
@@ -62,7 +58,21 @@ export type Methods = {
 
     /** 200レスポンス */
     resBody: {
-      message: string
+      /** 金融機関コード */
+      bankCode: string
+      /** 支店番号 */
+      branchCode: string
+      /** 口座番号 */
+      accountCode: string
+      /** 作成時間 */
+      createdAt: string
+      /** 更新時間 */
+      updatedAt: string
+      /**
+       * 削除時間
+       * 論理削除されていない場合はnull
+       */
+      deletedAt: string | null
     }
   }
 }

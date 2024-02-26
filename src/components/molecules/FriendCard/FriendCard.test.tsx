@@ -8,7 +8,7 @@ const user = userEvent.setup();
 
 const { Friend, Applying, Applied } = composeStories(stories);
 
-describe("UserCardコンポーネントのテスト", () => {
+describe("FriendCardコンポーネントのテスト", () => {
   it("ユーザー情報が表示される", () => {
     /* Arrange */
     const { container } = render(<Friend />);

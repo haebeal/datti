@@ -87,7 +87,13 @@ export const BankForm = ({ defaultValues, onSubmit, onDelete }: Props) => {
         error={errors.bankCode}
         control={control}
         name="bankCode"
-        loadOptions={async () => await banksClient.banks_json.$get()}
+        loadOptions={async (input) =>
+          await banksClient.banks.search_json.$get({
+            query: {
+              name: input,
+            },
+          })
+        }
         getOptionLabel={(option) => `${option.name}銀行`}
         getOptionValue={(option) => option.code}
         value={selectedBank}
@@ -115,10 +121,14 @@ export const BankForm = ({ defaultValues, onSubmit, onDelete }: Props) => {
             error={errors.branchCode}
             control={control}
             name="branchCode"
-            loadOptions={async () =>
+            loadOptions={async (input) =>
               await banksClient.banks
                 ._bankCode_string(watch("bankCode"))
-                .branches_json.$get()
+                .branches.search_json.$get({
+                  query: {
+                    name: input,
+                  },
+                })
             }
             getOptionLabel={(option) => `${option.name}`}
             getOptionValue={(option) => option.code}

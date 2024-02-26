@@ -1,14 +1,24 @@
-import { Container, Grid, GridItem, Heading } from "@chakra-ui/react";
+import { Container, Grid, GridItem, Heading, Skeleton } from "@chakra-ui/react";
 import Head from "next/head";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 import type { NextPage } from "next";
 
-import { Friend } from "@/api/datti/@types";
+import { useFriend } from "@/hooks";
+
 import { FriendList } from "@/components/organisms/FriendList";
 import { Header } from "@/components/organisms/Header";
 
 const Friend: NextPage = () => {
-  const friends: Friend[] = [];
+  const { data: session, status } = useSession();
+  const { isLoading, friends, fetchFriends } = useFriend();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      fetchFriends(session.idToken);
+    }
+  }, [status]);
 
   return (
     <>
@@ -28,7 +38,15 @@ const Friend: NextPage = () => {
               </Heading>
             </GridItem>
             <GridItem colSpan={12}>
-              <FriendList friends={friends} />
+              <Skeleton
+                isLoaded={
+                  status === "authenticated" &&
+                  friends !== undefined &&
+                  !isLoading
+                }
+              >
+                <FriendList friends={friends} />
+              </Skeleton>
             </GridItem>
           </Grid>
         </Container>

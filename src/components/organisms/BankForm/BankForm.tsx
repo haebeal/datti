@@ -74,7 +74,7 @@ export const BankForm = ({ defaultValues, onSubmit, onDelete }: Props) => {
     <VStack bg="white" as="form" gap={5} onSubmit={handleSubmit(onSubmit)}>
       <Flex w="full" gap={3}>
         <Spacer />
-        {defaultValues?.uid ? (
+        {defaultValues?.accountCode ? (
           <Button onClick={onDelete} colorScheme="red">
             削除
           </Button>

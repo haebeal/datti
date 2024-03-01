@@ -1,31 +1,25 @@
 package database
 
 import (
-	"context"
-
-	"entgo.io/ent/dialect"
-	"github.com/datti-api/ent"
-	_ "github.com/lib/pq"
+	"github.com/jackc/pgx/v4"
+	"github.com/jackc/pgx/v4/stdlib"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
 )
 
 type DBClient struct {
-	Client *ent.Client
+	Client *bun.DB
 }
 
-func NewDBClient(dsn string) (*DBClient, error) {
-	db, err := ent.Open(
-		dialect.Postgres,
-		dsn,
-	)
+func NewBunClient(dsn string) (*DBClient, error) {
+	config, err := pgx.ParseConfig(dsn)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
+	config.PreferSimpleProtocol = true
 
-	// マイグレーションの実行
-	if err := db.Schema.Create(context.Background()); err != nil {
-		db.Close()
-		return nil, err
-	}
+	sqlDB := stdlib.OpenDB(*config)
+	db := bun.NewDB(sqlDB, pgdialect.New())
 
 	return &DBClient{Client: db}, nil
 }

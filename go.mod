@@ -10,6 +10,7 @@ require (
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/uptrace/bun v1.1.17
 	github.com/uptrace/bun/dialect/pgdialect v1.1.17
+	github.com/uptrace/bun/extra/bundebug v1.1.17
 	google.golang.org/api v0.165.0
 )
 
@@ -23,6 +24,7 @@ require (
 	cloud.google.com/go/storage v1.38.0 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2 // indirect
+	github.com/fatih/color v1.16.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect

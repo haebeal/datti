@@ -21,6 +21,14 @@ model UnauthorizedError {
 }
 
 /**
+ * 404エラー
+ */
+@error
+model NotFoundError {
+  @statusCode statusCode: 404;
+  @body body: ErrorBody;
+}
+/**
  * 500エラー
  */
 @error
@@ -28,13 +36,3 @@ model InternalServerError {
   @statusCode statusCode: 500;
   @body body: ErrorBody;
 }
-
-/**
- * 401エラー
- */
-@error
-model NotFoundError {
-  @statusCode statusCode: 401;
-  @body body: ErrorBody;
-}
-

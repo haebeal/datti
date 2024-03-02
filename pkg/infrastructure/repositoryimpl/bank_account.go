@@ -2,11 +2,8 @@ package repositoryimpl
 
 import (
 	"context"
-	"time"
 
-	"entgo.io/ent/dialect/sql"
-	"github.com/datti-api/ent"
-	"github.com/datti-api/ent/bankaccount"
+	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
 )
@@ -15,37 +12,10 @@ type bankAccountRepositoryImpl struct {
 	DBEngine database.DBClient
 }
 
-// CreateBankAccount implements repository.BankAccountRepository.
-func (br *bankAccountRepositoryImpl) UpsertBankAccount(c context.Context, uid string, accountCode string, bankCode string, branchCode string) (string, error) {
-	uid, err := br.DBEngine.Client.BankAccount.
-		Create().
-		SetID(uid).
-		SetAccountCode(accountCode).
-		SetBankCode(bankCode).
-		SetBranchCode(branchCode).
-		OnConflict(
-			sql.ConflictColumns(bankaccount.FieldID),
-		).
-		Update(func(bau *ent.BankAccountUpsert) {
-			bau.SetAccountCode(accountCode)
-			bau.SetBankCode(bankCode)
-			bau.SetBranchCode(branchCode)
-			bau.SetNull("deleted_at")
-			bau.UpdateUpdatedAt()
-		}).
-		ID(c)
-	if err != nil {
-		return "", err
-	}
-	return uid, nil
-}
-
-// GetBankAccountById implements repository.BankAccountRepository.
-func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, uid string) (*ent.BankAccount, error) {
-	bankAccount, err := br.DBEngine.Client.BankAccount.
-		Query().
-		Where(bankaccount.IDEQ(uid), bankaccount.DeletedAtIsNil()).
-		Only(c)
+// DeleteBankAccount implements repository.BankAccountRepository.
+func (br *bankAccountRepositoryImpl) DeleteBankAccount(c context.Context, uid string) (*model.BankAccount, error) {
+	bankAccount := new(model.BankAccount)
+	_, err := br.DBEngine.Client.NewDelete().Model(bankAccount).Where("uid = ?", uid).Exec(c)
 	if err != nil {
 		return nil, err
 	}
@@ -53,16 +23,37 @@ func (br *bankAccountRepositoryImpl) GetBankAccountById(c context.Context, uid s
 	return bankAccount, nil
 }
 
-func (br *bankAccountRepositoryImpl) DeleteBankAccount(c context.Context, uid string) (*ent.BankAccount, error) {
-	err := br.DBEngine.Client.BankAccount.
-		UpdateOneID(uid).
-		SetDeletedAt(time.Now()).
-		Exec(c)
+// GetBankAccountById implements repository.BankAccountRepository.
+func (br *bankAccountRepositoryImpl) GetBankAccountByUid(c context.Context, uid string) (*model.BankAccount, error) {
+	bankAccount := new(model.BankAccount)
+	err := br.DBEngine.Client.NewSelect().Model(bankAccount).Where("uid = ?", uid).Scan(c)
 	if err != nil {
 		return nil, err
 	}
 
-	return nil, err
+	return bankAccount, nil
+}
+
+// UpsertBankAccount implements repository.BankAccountRepository.
+func (br *bankAccountRepositoryImpl) UpsertBankAccount(c context.Context, uid string, accountCode string, bankCode string, branchCode string) (*model.BankAccount, error) {
+	bankAccount := new(model.BankAccount)
+	err := br.DBEngine.Client.NewInsert().
+		Model(bankAccount).
+		Value("uid", "?", uid).
+		Value("account_code", "?", accountCode).
+		Value("bank_code", "?", bankCode).
+		Value("branch_code", "?", branchCode).
+		On("CONFLICT (uid) DO UPDATE").
+		Set("account_code = ?", accountCode).
+		Set("bank_code = ?", bankCode).
+		Set("branch_code = ?", branchCode).
+		Set("deleted_at = ?", nil).
+		Scan(c)
+	if err != nil {
+		return nil, err
+	}
+
+	return bankAccount, nil
 }
 
 func NewBankAccountRepository(engine *database.DBClient) repository.BankAccountRepository {

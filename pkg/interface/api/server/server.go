@@ -15,7 +15,7 @@ import (
 
 func Sever(dsn string, hostName string, dbInit bool) {
 	// DBインスタンスの生成
-	dbClient, err := database.NewDBClient(dsn)
+	dbClient, err := database.NewBunClient(dsn)
 	if err != nil {
 		log.Print(err.Error())
 	}

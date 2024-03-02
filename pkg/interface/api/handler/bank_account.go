@@ -1,10 +1,11 @@
 package handler
 
 import (
+	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 
-	"github.com/datti-api/ent"
 	"github.com/datti-api/pkg/interface/request"
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
@@ -39,7 +40,7 @@ func (bh *bankAccountHandler) HandleUpsert(c echo.Context) error {
 		errRespons.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRespons)
 	} else {
-		res.UID = bankAccount.ID
+		res.UID = bankAccount.UID
 		res.AccountCode = bankAccount.AccountCode
 		res.BankCode = bankAccount.BankCode
 		res.BranchCode = bankAccount.BranchCode
@@ -56,16 +57,17 @@ func (bh *bankAccountHandler) HandleGet(c echo.Context) error {
 	errResponse := new(response.Error)
 	uid := c.Get("uid").(string)
 
-	bankAccount, err := bh.useCase.GetBankAccountById(c.Request().Context(), uid)
+	bankAccount, err := bh.useCase.GetBankAccountByUid(c.Request().Context(), uid)
 	if err != nil {
-		if ent.IsNotFound(err) {
-			return c.JSON(http.StatusOK, res)
+		if errors.Is(sql.ErrNoRows, err) {
+			errResponse.Error = err.Error()
+			return c.JSON(http.StatusNotFound, errResponse)
 		} else {
 			errResponse.Error = err.Error()
 			return c.JSON(http.StatusInternalServerError, errResponse)
 		}
 	} else {
-		res.UID = bankAccount.ID
+		res.UID = bankAccount.UID
 		res.AccountCode = bankAccount.AccountCode
 		res.BankCode = bankAccount.BankCode
 		res.BranchCode = bankAccount.BranchCode

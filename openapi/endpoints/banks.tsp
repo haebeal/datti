@@ -18,6 +18,7 @@ namespace Banks {
   op getMyBank():
   | Utils.Response.OKResponse<Bank>
   | Utils.Error.UnauthorizedError
+  | Utils.Error.NotFoundError
   | Utils.Error.InternalServerError;
   
   /**

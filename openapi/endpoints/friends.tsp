@@ -16,7 +16,7 @@ namespace Friends {
   @summary("フレンドのユーザーを取得")
   @get
   op getFriend():
-  | Profile[]
+  | User[]
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace Friends {
   @summary("フレンド申請中のユーザーを取得")
   @get
   op getFriendRequest():
-  | Profile[]
+  | User[]
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -38,7 +38,7 @@ namespace Friends {
   @summary("フレンド申請未承認のユーザーを取得")
   @get
   op getPendingFriendRequest():
-  | Profile[]
+  | User[]
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -48,17 +48,8 @@ namespace Friends {
   @route("{uid}")
   @summary("フレンドの登録解除")
   @delete
-  op deleteFriend(@path uid: string):
+  op unRegisterFriend(@path uid: string):
   | Utils.Response.OKMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
-}
-
-model FriendRequest {
-  /**
-   * フレンド申請受信者のユーザーID
-   */
-  @minLength(28)
-  @maxLength(28)
-  friendUid: string;
 }

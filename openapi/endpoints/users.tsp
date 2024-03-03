@@ -19,6 +19,51 @@ namespace Users {
   | User
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
+
+  /**
+   * プロフィール情報の取得
+   */
+  @route("me")
+  @summary("プロフィール情報の取得")
+  @get()
+  op getProfile():
+  | Profile
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+  
+  /**
+   * プロフィール情報の更新
+   */
+  @route("me")
+  @summary("プロフィール情報の更新")
+  @put
+  op updateProfile(...ProfileUpdateRequest):
+  | Profile
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
+  /**
+   * プロフィール情報の取得
+   */
+  @summary("プロフィール情報の取得")
+  @route("{uid}")
+  @get()
+  op getProfileByUid(@path uid: string):
+  | Profile
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
+  /**
+   * フレンド申請の送信
+   */
+  @route("{uid}/requests")
+  @summary("フレンド申請の送信")
+  @post
+  op sendFriend(@path uid: string):
+  | Utils.Response.CreatedMessage
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
 }
 
 model User {
@@ -45,4 +90,16 @@ model UserGetRequest {
    * メールアドレス
    */
   email: string;
+}
+
+model ProfileUpdateRequest{
+  /**
+   * ユーザー名
+   */
+  name: string;
+
+  /**
+   * 画像URL
+   */
+  photoUrl: string;
 }

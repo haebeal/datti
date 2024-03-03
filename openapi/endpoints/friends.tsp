@@ -32,17 +32,6 @@ namespace Friends {
   | Utils.Error.InternalServerError;
 
   /**
-   * フレンド申請の送信
-   */
-  @route("requests")
-  @summary("フレンド申請の送信")
-  @post
-  op sendFriend(...FriendRequest):
-  | Utils.Response.CreatedMessage
-  | Utils.Error.UnauthorizedError
-  | Utils.Error.InternalServerError;
-
-  /**
    * フレンド申請未承認のユーザーを取得
    */
   @route("pendings")
@@ -54,22 +43,12 @@ namespace Friends {
   | Utils.Error.InternalServerError;
 
   /**
-   * フレンド申請の受領
-   */
-  @route("pendings")
-  @summary("フレンド申請の受領")
-  @post
-  op postPendingFriendRequest(...FriendRequest):
-  | Utils.Response.CreatedMessage
-  | Utils.Error.UnauthorizedError
-  | Utils.Error.InternalServerError;
-
-  /**
    * フレンドの登録解除
    */
+  @route("{uid}")
   @summary("フレンドの登録解除")
   @delete
-  op deleteFriend(...FriendRequest):
+  op deleteFriend(@path uid: string):
   | Utils.Response.OKMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;

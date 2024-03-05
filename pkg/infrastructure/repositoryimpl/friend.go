@@ -47,7 +47,7 @@ func (f *friendRepositoryImpl) GetApplieds(c context.Context, uid string) ([]*mo
 		Scan(c, applieds)
 
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	return *applieds, nil
@@ -73,7 +73,7 @@ func (f *friendRepositoryImpl) GetApplyings(c context.Context, uid string) ([]*m
 		Scan(c, applyings)
 
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	return *applyings, nil

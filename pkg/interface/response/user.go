@@ -1,7 +1,7 @@
-package model
+package response
 
-type Profile struct {
-	ID       string `json:"uid"`
+type User struct {
+	UID      string `json:"uid"`
 	Name     string `json:"name"`
 	PhotoUrl string `json:"photoUrl"`
 }

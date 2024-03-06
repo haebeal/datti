@@ -32,13 +32,17 @@ func Sever(dsn string, hostName string, dbInit bool) {
 
 	transaction := repositoryimpl.NewTransaction(dbClient.Client)
 
-	profileRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
-	profileUseCase := usecase.NewProfileUseCase(profileRepository)
-	profileHandler := handler.NewProfileHandler(profileUseCase)
+	userRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
+	userUseCase := usecase.NewUserUseCase(userRepository)
+	userHandler := handler.NewUserHandler(userUseCase)
 
 	bankAccountRepository := repositoryimpl.NewBankAccountRepository(dbClient)
 	bankAccountUseCase := usecase.NewBankAccountUseCase(bankAccountRepository, transaction)
 	bankAccountHandler := handler.NewBankAccountHandler(bankAccountUseCase)
+
+	friendRepository := repositoryimpl.NewFriendRepository(dbClient)
+	friendUseCase := usecase.NewFriendUseCase(friendRepository, userRepository, transaction)
+	friendHandler := handler.NewFriendHandler(friendUseCase)
 
 	r := echo.New()
 	r.Pre(middleware.RemoveTrailingSlash())
@@ -51,13 +55,20 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	}))
 	r.Use(auth.FirebaseAuthMiddleware())
 
-	r.GET("/me", profileHandler.HandleGet)
-	r.PUT("/me", profileHandler.HandleUpdate)
-
-	r.GET("/users", profileHandler.HandleGetByEmail)
+	r.GET("/users", userHandler.HandleGetUsers)
+	r.GET("/users/me", userHandler.HandleGetByUid)
+	r.PUT("/users/me", userHandler.HandleUpdate)
+	// r.GET("/users/:uid", )
+	// r.POST("/users/:uid/requests", )
 
 	r.GET("/bank", bankAccountHandler.HandleGet)
 	r.POST("/bank", bankAccountHandler.HandleUpsert)
 	r.DELETE("/bank", bankAccountHandler.HandleDelete)
+
+	r.GET("/friends", friendHandler.HandleGetFriends)            //フレンドを取得
+	r.GET("/friends/pendings", friendHandler.HandleGetApplieds)  //フレンド申請未承認のユーザーを取得
+	r.GET("/friends/requests", friendHandler.HandleGetApplyings) //フレンド申請中のユーザー
+	r.DELETE("/friends/:uid", friendHandler.HandleDelete)        //フレンド登録の解除
+
 	r.Start("0.0.0.0:8080")
 }

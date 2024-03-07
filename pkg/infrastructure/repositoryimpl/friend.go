@@ -12,6 +12,20 @@ type friendRepositoryImpl struct {
 	DBEngine database.DBClient
 }
 
+// SetFriends implements repository.FriendRepository.
+func (f *friendRepositoryImpl) SetFriends(c context.Context, uid string, fuid string) error {
+	friend := &model.Friend{
+		UID:  uid,
+		FUID: fuid,
+	}
+	_, err := f.DBEngine.Client.NewInsert().Model(friend).Exec(c)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // DeleteFriend implements repository.FriendRepository.
 func (f *friendRepositoryImpl) DeleteFriend(c context.Context, uid string, fuid string) error {
 	friend := new(model.Friend)

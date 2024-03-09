@@ -23,7 +23,6 @@ type userHandler struct {
 
 // HandleGetByEmail implements UserHandler.
 func (u *userHandler) HandleGetByEmail(c echo.Context) error {
-	res := new(response.User)
 	req := new(request.GetUserByEmailRequest)
 	errRes := new(response.Error)
 
@@ -33,15 +32,13 @@ func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errRes)
 	}
 
-	user, err := u.useCase.GetUserByEmail(c.Request().Context(), req.Email)
+	users, err := u.useCase.GetUsersByEmail(c.Request().Context(), req.Email)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
 	} else {
-		res.UID = user.UID
-		res.Name = user.Name
-		res.PhotoUrl = user.PhotoUrl
-		return c.JSON(http.StatusOK, res)
+
+		return c.JSON(http.StatusOK, users)
 	}
 }
 
@@ -65,7 +62,6 @@ func (u *userHandler) HandleGetByUid(c echo.Context) error {
 
 // HandleGetUsers implements UserHandler.
 func (u *userHandler) HandleGetUsers(c echo.Context) error {
-	res := new(response.User)
 	errResponse := new(response.Error)
 	uid := c.Get("uid").(string)
 
@@ -74,10 +70,7 @@ func (u *userHandler) HandleGetUsers(c echo.Context) error {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		res.UID = user.UID
-		res.Name = user.Name
-		res.PhotoUrl = user.PhotoUrl
-		return c.JSON(http.StatusOK, res)
+		return c.JSON(http.StatusOK, user)
 	}
 }
 

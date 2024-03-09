@@ -55,7 +55,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	}))
 	r.Use(auth.FirebaseAuthMiddleware())
 
-	r.GET("/users", userHandler.HandleGetUsers)
+	r.GET("/users", userHandler.HandleGetByEmail)
 	r.GET("/users/me", userHandler.HandleGetByUid)
 	r.PUT("/users/me", userHandler.HandleUpdate)
 	// r.GET("/users/:uid", )

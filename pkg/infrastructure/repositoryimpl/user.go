@@ -2,7 +2,6 @@ package repositoryimpl
 
 import (
 	"context"
-	"fmt"
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/datti-api/pkg/domain/model"
@@ -30,15 +29,20 @@ func (ur *userRepoImpl) GetUserByUid(c context.Context, uid string) (*model.User
 }
 
 // GetUsers implements repository.ProfileRepository.
-func (ur *userRepoImpl) GetUsers(c context.Context) (*model.User, error) {
-	users := new(model.User)
+func (ur *userRepoImpl) GetUsers(c context.Context) ([]*model.User, error) {
+	users := make([]*model.User, 0)
 	iter := ur.TenantClient.Client.Users(c, "")
 	for {
 		user, err := iter.Next()
 		if err != nil {
 			break
 		}
-		fmt.Print(user)
+		users = append(users, &model.User{
+			UID:      user.UID,
+			Name:     user.DisplayName,
+			Email:    user.Email,
+			PhotoUrl: user.PhotoURL,
+		})
 	}
 	return users, nil
 }

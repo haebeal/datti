@@ -13,12 +13,31 @@ import (
 type UserHandler interface {
 	HandleGetUsers(c echo.Context) error
 	HandleGetByUid(c echo.Context) error
+	HandleGetByUidWithPahtParam(c echo.Context) error
 	HandleGetByEmail(c echo.Context) error
 	HandleUpdate(c echo.Context) error
 }
 
 type userHandler struct {
 	useCase usecase.UserUseCase
+}
+
+// HandleGetByUidWithPahtParam implements UserHandler.
+func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
+	res := new(response.User)
+	errResponse := new(response.Error)
+	uid := c.Param("uid")
+
+	user, err := u.useCase.GetUserByUid(c.Request().Context(), uid)
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	} else {
+		res.UID = user.UID
+		res.Name = user.Name
+		res.PhotoUrl = user.PhotoUrl
+		return c.JSON(http.StatusOK, res)
+	}
 }
 
 // HandleGetByEmail implements UserHandler.

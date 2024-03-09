@@ -58,7 +58,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.GET("/users", userHandler.HandleGetByEmail)
 	r.GET("/users/me", userHandler.HandleGetByUid)
 	r.PUT("/users/me", userHandler.HandleUpdate)
-	// r.GET("/users/:uid", )
+	r.GET("/users/:uid", userHandler.HandleGetByUidWithPahtParam)
 	r.POST("/users/:uid/requests", friendHandler.HandlerRequest) //フレンド申請を送信
 
 	r.GET("/bank", bankAccountHandler.HandleGet)

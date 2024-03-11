@@ -80,6 +80,11 @@ model User {
   name: string;
 
   /**
+   * メールアドレス
+   */
+  email: string;
+
+  /**
    * 画像URL
    */
   photoUrl: string;

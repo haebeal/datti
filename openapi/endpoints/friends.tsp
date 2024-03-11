@@ -11,28 +11,45 @@ namespace DattiAPI;
 @route("friends")
 namespace Friends {
   /**
-   * フレンド申請の送信
+   * フレンドのユーザーを取得
    */
-  @summary("フレンド申請の送信")
-  @post
-  op sendFriend(...Friend):
-  | Friend
+  @summary("フレンドのユーザーを取得")
+  @get
+  op getFriend():
+  | User[]
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
-}
-
-model Friend {
-  /**
-   * フレンド申請送信者のユーザーID
-   */
-  @minLength(28)
-  @maxLength(28)
-  uid: string;
 
   /**
-   * フレンド申請受信者のユーザーID
+   * フレンド申請中のユーザーを取得
    */
-  @minLength(28)
-  @maxLength(28)
-  friendUid: string;
+  @route("requests")
+  @summary("フレンド申請中のユーザーを取得")
+  @get
+  op getFriendRequest():
+  | User[]
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
+  /**
+   * フレンド申請未承認のユーザーを取得
+   */
+  @route("pendings")
+  @summary("フレンド申請未承認のユーザーを取得")
+  @get
+  op getPendingFriendRequest():
+  | User[]
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
+  /**
+   * フレンドの登録解除
+   */
+  @route("{uid}")
+  @summary("フレンドの登録解除")
+  @delete
+  op unRegisterFriend(@path uid: string):
+  | Utils.Response.OKMessage
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
 }

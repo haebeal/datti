@@ -23,6 +23,7 @@ func (ur *userRepoImpl) GetUserByUid(c context.Context, uid string) (*model.User
 
 	user.UID = u.UID
 	user.Name = u.DisplayName
+	user.Email = u.Email
 	user.PhotoUrl = u.PhotoURL
 
 	return user, nil
@@ -57,6 +58,7 @@ func (ur *userRepoImpl) GetUserByEmail(c context.Context, email string) (*model.
 
 	user.UID = u.UID
 	user.Name = u.DisplayName
+	user.Email = u.Email
 	user.PhotoUrl = u.PhotoURL
 
 	return user, nil
@@ -75,6 +77,7 @@ func (ur *userRepoImpl) UpdateUser(c context.Context, uid string, name string, u
 
 	user.UID = u.UID
 	user.Name = u.DisplayName
+	user.Email = u.Email
 	user.PhotoUrl = u.PhotoURL
 
 	return user, nil

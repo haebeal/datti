@@ -7,9 +7,8 @@ import (
 )
 
 type GroupRepository interface {
-	CreatGroup(c context.Context, group *model.Group, owner *model.User, members []*model.User) (*model.Group, []*model.User, error)
-	GetGroupById(c context.Context, id int) (*model.Group, []*model.User, error)
-	GetGroups(c context.Context, user *model.User) ([]*model.Group, error)
-	UpdateGroup(c context.Context, members []*model.User, gropu *model.Group) (*model.Group, []*model.User, error)
-	//Delete()
+	CreatGroup(c context.Context, name string, owner string, members []string) (*model.Group, []*model.User, error)
+	GetGroupById(c context.Context, id string) (*model.Group, []*model.User, error)
+	GetGroups(c context.Context, uid string) ([]*model.Group, error)
+	UpdateGroup(c context.Context, id string, name string, members []string) (*model.Group, []*model.User, error)
 }

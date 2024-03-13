@@ -32,11 +32,22 @@ namespace Groups {
   | Utils.Error.InternalServerError;
 
   /**
+   * グループに対するメンバーの追加
+   */
+  @route("{id}/members")
+  @summary("グループに対するメンバーの招待")
+  @post
+  op registedUsers(@path id: string, @body members: Members):
+  | GroupUsers
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
+  /**
    * グループの作成
    */
   @summary("グループの作成")
   @post
-  op postGroup(...GroupUpdateRequest):
+  op postGroup(...GroupCreateRequest):
   | GroupUsers
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -44,9 +55,10 @@ namespace Groups {
   /**
    * グループ情報の更新
    */
+  @route("{id}")
   @summary("グループ情報の更新")
   @put
-  op putGroup(...GroupUpdateRequest):
+  op putGroup(@path id: string, @body group: GroupUpdateRequest):
   | GroupUsers
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -83,15 +95,24 @@ model GroupUsers {
 
 model GroupUpdateRequest {
   /**
-   * グループID
+   * グループ名
    */
-  id: string;
+  name: string;
+}
 
+model GroupCreateRequest {
   /**
    * グループ名
    */
   name: string;
 
+  /**
+   * UID
+   */
+  uids: string[];
+}
+
+model Members {
   /**
    * UID
    */

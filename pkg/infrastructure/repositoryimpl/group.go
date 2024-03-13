@@ -28,7 +28,12 @@ func (g *groupRepoImpl) GetGroups(c context.Context, uid string) ([]*model.Group
 }
 
 // UpdateGroup implements repository.GroupRepository.
-func (g *groupRepoImpl) UpdateGroup(c context.Context, id string, name string, members []string) (*model.Group, []*model.User, error) {
+func (g *groupRepoImpl) UpdateGroup(c context.Context, id string, name string) (*model.Group, []*model.User, error) {
+	panic("unimplemented")
+}
+
+// registerdMembers implements repository.GroupRepository.
+func (g *groupRepoImpl) RegisterdMembers(c context.Context, id string, members []string) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
 }
 

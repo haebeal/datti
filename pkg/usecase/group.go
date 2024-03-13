@@ -8,38 +8,48 @@ import (
 )
 
 type GroupUseCase interface {
-	CreateGroup(c context.Context, group *model.Group, owner *model.User, members []*model.User) (*model.Group, []*model.User, error)
-	GetGroupById(c context.Context, id int) (*model.Group, []*model.User, error)
 	GetGroups(c context.Context) ([]*model.Group, error)
+	CreateGroup(c context.Context, name string, owner string, members []string) (*model.Group, []*model.User, error)
+	GetGroupById(c context.Context, id string) (*model.Group, []*model.User, error)
 	UpdateGroup(c context.Context, members []*model.User, group *model.Group) (*model.Group, []*model.User, error)
+	RegisterdMembers(c context.Context, id string, members []string) (*model.Group, []*model.User, error)
 }
 
 type groupUseCase struct {
-	repository repository.GroupRepository
-}
-
-func NewGroupUseCase(groupRepo repository.GroupRepository) GroupUseCase {
-	return &groupUseCase{
-		repository: groupRepo,
-	}
+	groupRepository repository.GroupRepository
+	userRepository  repository.UserRepository
+	transaction     repository.Transaction
 }
 
 // CreateGroup implements GroupUseCase.
-func (*groupUseCase) CreateGroup(c context.Context, group *model.Group, owner *model.User, members []*model.User) (*model.Group, []*model.User, error) {
+func (g *groupUseCase) CreateGroup(c context.Context, name string, owner string, members []string) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
 }
 
 // GetGroupById implements GroupUseCase.
-func (*groupUseCase) GetGroupById(c context.Context, id int) (*model.Group, []*model.User, error) {
+func (g *groupUseCase) GetGroupById(c context.Context, id string) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
 }
 
 // GetGroups implements GroupUseCase.
-func (*groupUseCase) GetGroups(c context.Context) ([]*model.Group, error) {
+func (g *groupUseCase) GetGroups(c context.Context) ([]*model.Group, error) {
+	panic("unimplemented")
+}
+
+// RegisterdMembers implements GroupUseCase.
+func (g *groupUseCase) RegisterdMembers(c context.Context, id string, members []string) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
 }
 
 // UpdateGroup implements GroupUseCase.
-func (*groupUseCase) UpdateGroup(c context.Context, members []*model.User, group *model.Group) (*model.Group, []*model.User, error) {
+func (g *groupUseCase) UpdateGroup(c context.Context, members []*model.User, group *model.Group) (*model.Group, []*model.User, error) {
 	panic("unimplemented")
+}
+
+func NewGroupUseCase(groupRepo repository.GroupRepository, userRepo repository.UserRepository, tx repository.Transaction) GroupUseCase {
+	return &groupUseCase{
+		groupRepository: groupRepo,
+		userRepository:  userRepo,
+		transaction:     tx,
+	}
 }

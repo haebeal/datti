@@ -40,8 +40,10 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	friendUseCase := usecase.NewFriendUseCase(friendRepository, userRepository, transaction)
 	friendHandler := handler.NewFriendHandler(friendUseCase)
 
+	groupUserRepository := repositoryimpl.NewGroupUserRepository(dbClient)
+
 	groupRepository := repositoryimpl.NewGropuRepoImpl(dbClient)
-	groupUseCase := usecase.NewGroupUseCase(groupRepository, userRepository, transaction)
+	groupUseCase := usecase.NewGroupUseCase(groupRepository, userRepository, groupUserRepository, transaction)
 	groupHandler := handler.NewGroupHandler(groupUseCase)
 
 	r := echo.New()

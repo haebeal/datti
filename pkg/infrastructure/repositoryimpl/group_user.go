@@ -12,6 +12,34 @@ type groupUserRepositoryImpl struct {
 	DBEngine database.DBClient
 }
 
+// GetGroupUserById implements repository.GroupUserReopsitory.
+func (g *groupUserRepositoryImpl) GetGroupUserById(c context.Context, id string) ([]*model.GroupUser, error) {
+	groupUsers := make([]*model.GroupUser, 0)
+	err := g.DBEngine.Client.NewSelect().
+		Table("group_users").
+		Where("group_id = ?", id).
+		Scan(c, groupUsers)
+	if err != nil {
+		return nil, err
+	}
+
+	return groupUsers, nil
+}
+
+// GetGroupUserByUid implements repository.GroupUserReopsitory.
+func (g *groupUserRepositoryImpl) GetGroupUserByUid(c context.Context, uid string) ([]*model.GroupUser, error) {
+	groupUsers := make([]*model.GroupUser, 0)
+	err := g.DBEngine.Client.NewSelect().
+		Table("group_users").
+		Where("uid = ?", uid).
+		Scan(c, groupUsers)
+	if err != nil {
+		return nil, err
+	}
+
+	return groupUsers, nil
+}
+
 // CreateGroupUser implements repository.GroupUserReopsitory.
 func (g *groupUserRepositoryImpl) CreateGroupUser(c context.Context, uid string, id string) error {
 	groupUser := &model.GroupUser{

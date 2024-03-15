@@ -59,7 +59,7 @@ func (g *groupRepoImpl) GetGroups(c context.Context, uid string) ([]*model.Group
 func (g *groupRepoImpl) UpdateGroup(c context.Context, id string, name string) (*model.Group, error) {
 	group := new(model.Group)
 	err := g.DBEngine.Client.NewUpdate().
-		Table("group").
+		Table("groups").
 		Where("id = ?", id).
 		Set("name = ?", name).
 		Scan(c)

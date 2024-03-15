@@ -13,28 +13,61 @@ type groupRepoImpl struct {
 }
 
 // CreatGroup implements repository.GroupRepository.
-func (g *groupRepoImpl) CreatGroup(c context.Context, name string, owner string, members []string) (*model.Group, []*model.User, error) {
-	panic("unimplemented")
+func (g *groupRepoImpl) CreatGroup(c context.Context, name string) (*model.Group, error) {
+	group := &model.Group{
+		Name: name,
+	}
+	_, err := g.DBEngine.Client.NewInsert().
+		Model(group).
+		Exec(c)
+	if err != nil {
+		return nil, err
+	}
+
+	return group, nil
 }
 
 // GetGroupById implements repository.GroupRepository.
-func (g *groupRepoImpl) GetGroupById(c context.Context, id string) (*model.Group, []*model.User, error) {
-	panic("unimplemented")
+func (g *groupRepoImpl) GetGroupById(c context.Context, id string) (*model.Group, error) {
+	group := new(model.Group)
+	err := g.DBEngine.Client.NewSelect().
+		Table("groups").
+		Where("id = ?", id).
+		Scan(c, group)
+	if err != nil {
+		return nil, err
+	}
+
+	return group, nil
 }
 
 // GetGroups implements repository.GroupRepository.
 func (g *groupRepoImpl) GetGroups(c context.Context, uid string) ([]*model.Group, error) {
-	panic("unimplemented")
+	groups := make([]*model.Group, 0)
+	err := g.DBEngine.Client.NewSelect().
+		Table("groups").
+		Where("uid = ?", uid).
+		Scan(c, groups)
+	if err != nil {
+		return nil, err
+	}
+
+	return groups, nil
 }
 
 // UpdateGroup implements repository.GroupRepository.
-func (g *groupRepoImpl) UpdateGroup(c context.Context, id string, name string) (*model.Group, []*model.User, error) {
-	panic("unimplemented")
-}
+func (g *groupRepoImpl) UpdateGroup(c context.Context, id string, name string) (*model.Group, error) {
+	group := new(model.Group)
+	err := g.DBEngine.Client.NewUpdate().
+		Table("group").
+		Where("id = ?", id).
+		Set("name = ?", name).
+		Scan(c)
+	if err != nil {
+		return nil, err
+	}
 
-// registerdMembers implements repository.GroupRepository.
-func (g *groupRepoImpl) RegisterdMembers(c context.Context, id string, members []string) (*model.Group, []*model.User, error) {
-	panic("unimplemented")
+	return group, nil
 }
 
 func NewGropuRepoImpl(engine *database.DBClient) repository.GroupRepository {

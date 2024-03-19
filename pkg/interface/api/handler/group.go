@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/datti-api/pkg/domain/model"
+	"github.com/datti-api/pkg/interface/request"
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
 	"github.com/labstack/echo/v4"
@@ -23,7 +24,28 @@ type groupHandler struct {
 
 // HandleCreate implements GroupHandler.
 func (g *groupHandler) HandleCreate(c echo.Context) error {
-	panic("unimplemented")
+	errResponse := new(response.Error)
+	uid := c.Get("uid").(string)
+	req := new(request.GroupCreate)
+	if err := c.Bind(req); err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	}
+	group, members, err := g.useCase.CreateGroup(c.Request().Context(), req.Name, uid, req.Uids)
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	} else {
+		return c.JSON(http.StatusOK, struct {
+			ID    string        `json:"id"`
+			Name  string        `json:"name"`
+			Users []*model.User `json:"users"`
+		}{
+			ID:    group.ID,
+			Name:  group.Name,
+			Users: members,
+		})
+	}
 }
 
 // HandleGet implements GroupHandler.
@@ -64,11 +86,15 @@ func (g *groupHandler) HandleGetById(c echo.Context) error {
 
 // HandleRegisterd implements GroupHandler.
 func (g *groupHandler) HandleRegisterd(c echo.Context) error {
-	uids := make([]string, 0)
+	uids := new(request.Uids)
 	errResponse := new(response.Error)
 	id := c.Param("id")
+	if err := c.Bind(uids); err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	}
 
-	group, members, err := g.useCase.RegisterdMembers(c.Request().Context(), id, uids)
+	group, members, err := g.useCase.RegisterdMembers(c.Request().Context(), id, uids.Uids)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)

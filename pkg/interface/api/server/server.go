@@ -26,10 +26,6 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	}
 
 	// 依存性の解決
-	// groupRepository := repositoryimpl.NewGropuRepoImpl(dbEngine)
-	// groupUseCase := usecase.NewGroupUseCase(groupRepository)
-	// groupHandler := handler.NewGroupHandler(groupUseCase)
-
 	transaction := repositoryimpl.NewTransaction(dbClient.Client)
 
 	userRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
@@ -43,6 +39,12 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	friendRepository := repositoryimpl.NewFriendRepository(dbClient)
 	friendUseCase := usecase.NewFriendUseCase(friendRepository, userRepository, transaction)
 	friendHandler := handler.NewFriendHandler(friendUseCase)
+
+	groupUserRepository := repositoryimpl.NewGroupUserRepository(dbClient)
+
+	groupRepository := repositoryimpl.NewGropuRepoImpl(dbClient)
+	groupUseCase := usecase.NewGroupUseCase(groupRepository, userRepository, groupUserRepository, transaction)
+	groupHandler := handler.NewGroupHandler(groupUseCase)
 
 	r := echo.New()
 	r.Pre(middleware.RemoveTrailingSlash())
@@ -69,6 +71,12 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.GET("/friends/pendings", friendHandler.HandleGetApplieds)  //フレンド申請未承認のユーザーを取得
 	r.GET("/friends/requests", friendHandler.HandleGetApplyings) //フレンド申請中のユーザー
 	r.DELETE("/friends/:uid", friendHandler.HandleDelete)        //フレンド登録の解除
+
+	r.GET("/groups", groupHandler.HandleGet)                    //所属グループ一覧の取得
+	r.GET("/groups/:id", groupHandler.HandleGetById)            //グループ情報の取得
+	r.POST("/groups", groupHandler.HandleCreate)                //グループの作成
+	r.PUT("/groups/:id", groupHandler.HandleUpdate)             //グループ情報の更新
+	r.POST("/groups/:id/members", groupHandler.HandleRegisterd) //グループに対するメンバーの追加
 
 	r.Start("0.0.0.0:8080")
 }

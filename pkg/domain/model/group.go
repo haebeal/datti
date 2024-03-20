@@ -1,6 +1,6 @@
 package model
 
 type Group struct {
-	ID   string `json:"id"`
-	Name string `gorm:"not null"`
+	ID   string `bun:"id,pk" json:"id"`
+	Name string `bun:"name" json:"name"`
 }

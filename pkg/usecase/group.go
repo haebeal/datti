@@ -29,6 +29,7 @@ func (g *groupUseCase) CreateGroup(c context.Context, name string, owner string,
 		if err != nil {
 			return nil, err
 		}
+		members = append(members, owner)
 		for _, member := range members {
 			err := g.groupUserRepository.CreateGroupUser(c, member, group.ID)
 			if err != nil {
@@ -111,9 +112,13 @@ func (g *groupUseCase) RegisterdMembers(c context.Context, id string, members []
 	if err != nil {
 		return nil, nil, err
 	}
+	groupUsers, err := g.groupUserRepository.GetGroupUserById(c, group.ID)
+	if err != nil {
+		return nil, nil, err
+	}
 	users := make([]*model.User, 0)
-	for _, member := range members {
-		user, err := g.userRepository.GetUserByUid(c, member)
+	for _, u := range groupUsers {
+		user, err := g.userRepository.GetUserByUid(c, u.UserID)
 		if err != nil {
 			return nil, nil, err
 		}

@@ -113,15 +113,15 @@ func (g *groupHandler) HandleRegisterd(c echo.Context) error {
 
 // HandleUpdate implements GroupHandler.
 func (g *groupHandler) HandleUpdate(c echo.Context) error {
-	var name string
+	req := new(request.GroupUpdate)
 	errResponse := new(response.Error)
 	id := c.Param("id")
-	if err := c.Bind(&name); err != nil {
+	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	}
 
-	group, members, err := g.useCase.UpdateGroup(c.Request().Context(), id, name)
+	group, members, err := g.useCase.UpdateGroup(c.Request().Context(), id, req.Name)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)

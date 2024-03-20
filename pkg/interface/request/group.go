@@ -8,3 +8,7 @@ type GroupCreate struct {
 type Uids struct {
 	Uids []string `json:"uids"`
 }
+
+type GroupUpdate struct {
+	Name string `json:"name"`
+}

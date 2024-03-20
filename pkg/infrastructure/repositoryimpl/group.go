@@ -6,6 +6,7 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
+	"github.com/rs/xid"
 )
 
 type groupRepoImpl struct {
@@ -14,7 +15,9 @@ type groupRepoImpl struct {
 
 // CreatGroup implements repository.GroupRepository.
 func (g *groupRepoImpl) CreatGroup(c context.Context, name string) (*model.Group, error) {
+	id := xid.New()
 	group := &model.Group{
+		ID:   id.String(),
 		Name: name,
 	}
 	_, err := g.DBEngine.Client.NewInsert().
@@ -58,11 +61,13 @@ func (g *groupRepoImpl) GetGroups(c context.Context, uid string) ([]*model.Group
 // UpdateGroup implements repository.GroupRepository.
 func (g *groupRepoImpl) UpdateGroup(c context.Context, id string, name string) (*model.Group, error) {
 	group := new(model.Group)
-	err := g.DBEngine.Client.NewUpdate().
-		Table("groups").
+	group.ID = id
+	group.Name = name
+	_, err := g.DBEngine.Client.NewUpdate().
+		Model(group).
+		Column("name").
 		Where("id = ?", id).
-		Set("name = ?", name).
-		Scan(c)
+		Exec(c)
 	if err != nil {
 		return nil, err
 	}

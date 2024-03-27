@@ -8,47 +8,37 @@ namespace DattiAPI;
  * イベント情報に関する操作
  */
 @tag("Events")
-@route("events")
+@route("groups/{gid}")
 namespace Events {
   /**
    * 登録されているイベント情報の取得
    */
-  @route("{id}")
+  @route("events/{id}")
   @summary("イベントIDに紐づくイベント情報の取得")
   @get
-  op getEvent(@path id: string):
-  | Utils.Response.OKResponse<Event>
-  | Utils.Error.UnauthorizedError
-  | Utils.Error.InternalServerError;
-
-  /**
-   * ユーザーに紐づくイベント情報の取得
-   */
-  @route("{uid}")
-  @summary("ユーザーIDに紐づくイベント情報の取得")
-  @get
-  op getEventsByUid(@path uid: string):
-  | Event[]
+  op getEvent(@path gid: string, @path id: string):
+  | Event
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
   /**
    * グループIDに紐づくイベント情報の取得
    */
-  @route("{gid}")
+  @route("events")
   @summary("グループIDに紐づくイベント情報の取得")
   @get
   op getEventsByGid(@path gid: string):
-  | Event[]
+  | EventList
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
   /**
    * イベント情報の登録
    */
+  @route("events")
   @summary("イベント情報の登録")
   @post
-  op createEvent():
+  op createEvent(@path gid: string, @body event: EventCreate):
   | Event
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -56,10 +46,10 @@ namespace Events {
   /**
    * イベント情報の更新
    */
-  @route("{id}")
+  @route("events/{id}")
   @summary("イベント情報の更新")
   @put
-  op updateEvent(@path id: string, @body event: EventUpdate):
+  op updateEvent(@path gid:string, @path id: string, @body event: EventUpdate):
   | Event
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -67,9 +57,10 @@ namespace Events {
   /**
    * イベント情報の削除
    */
+  @route("events/{id}")
   @summary("イベント情報の削除")
   @delete
-  op deleteEvent():
+  op deleteEvent(@path gid: string, @path id:string):
   | Utils.Response.OKMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -87,6 +78,11 @@ model Event {
   name: string;
 
   /**
+   * イベントの日付
+   */
+  evented_at: utcDateTime;
+
+  /**
    * イベント作成者のUID
    */
   @minLength(28)
@@ -99,9 +95,30 @@ model Event {
   groupId: string;
 }
 
+model EventList {
+  events: Event[];
+}
+
+model EventCreate {
+  /**
+   * イベント名
+   */
+  name: string;
+
+  /**
+   * イベントの日付
+   */
+  evented_at: utcDateTime;
+}
+
 model EventUpdate {
   /**
    * イベント名
    */
   name: string;
+
+  /**
+   * イベントの日付
+   */
+  evented_at: utcDateTime;
 }

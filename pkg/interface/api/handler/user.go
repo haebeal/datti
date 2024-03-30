@@ -35,6 +35,7 @@ func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
 	} else {
 		res.UID = user.UID
 		res.Name = user.Name
+		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
 		return c.JSON(http.StatusOK, res)
 	}
@@ -74,6 +75,7 @@ func (u *userHandler) HandleGetByUid(c echo.Context) error {
 	} else {
 		res.UID = user.UID
 		res.Name = user.Name
+		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
 		return c.JSON(http.StatusOK, res)
 	}
@@ -113,6 +115,7 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 	} else {
 		res.UID = user.UID
 		res.Name = user.Name
+		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
 		return c.JSON(http.StatusOK, res)
 	}

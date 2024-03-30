@@ -92,7 +92,7 @@ model Event {
   /**
    * イベントの紐づいたグループID
    */
-  groupId: string;
+  group_id: string;
 }
 
 model EventList {

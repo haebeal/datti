@@ -46,6 +46,10 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	groupUseCase := usecase.NewGroupUseCase(groupRepository, userRepository, groupUserRepository, transaction)
 	groupHandler := handler.NewGroupHandler(groupUseCase)
 
+	eventRepository := repositoryimpl.NewEventRepository(dbClient)
+	eventUseCase := usecase.NewEventUseCase(eventRepository, transaction)
+	eventHandler := handler.NewEventHandler(eventUseCase)
+
 	r := echo.New()
 	r.Pre(middleware.RemoveTrailingSlash())
 
@@ -77,6 +81,11 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.POST("/groups", groupHandler.HandleCreate)                //グループの作成
 	r.PUT("/groups/:id", groupHandler.HandleUpdate)             //グループ情報の更新
 	r.POST("/groups/:id/members", groupHandler.HandleRegisterd) //グループに対するメンバーの追加
+
+	r.GET("/groups/:gid/events", eventHandler.HandleGetById)
+	r.GET("/groups/:gid/events/:id", eventHandler.HandleGet)
+	r.POST("/groups/:gid/events", eventHandler.HandleCreate)
+	r.PUT("/groups/:gid/events/:id", eventHandler.HandleUpdate)
 
 	r.Start("0.0.0.0:8080")
 }

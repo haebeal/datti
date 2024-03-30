@@ -31,7 +31,7 @@ func NewBunClient(dsn string) (*DBClient, error) {
 	))
 
 	// テーブルを削除・作成
-	if err := db.ResetModel(context.TODO(), (*model.BankAccount)(nil), (*model.Friend)(nil), (*model.Group)(nil), (*model.GroupUser)(nil)); err != nil {
+	if err := db.ResetModel(context.TODO(), (*model.BankAccount)(nil), (*model.Friend)(nil), (*model.Group)(nil), (*model.GroupUser)(nil), (*model.Event)(nil)); err != nil {
 		return nil, err
 	}
 

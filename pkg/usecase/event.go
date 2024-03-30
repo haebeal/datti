@@ -9,19 +9,21 @@ import (
 )
 
 type EventUseCase interface {
-	CreateEvent(c context.Context, uid string, gid string, name string, eventAt time.Time) (*model.Event, error)
-	UpdateEvent(c context.Context, id string, uid string, gid string, name string, eventAt time.Time) (*model.Event, error)
-	GetEvent(c context.Context, id string) (*model.Event, error)
+	CreateEvent(c context.Context, uid string, gid string, name string, eventAt time.Time) (*model.Event, *model.User, error)
+	UpdateEvent(c context.Context, id string, uid string, gid string, name string, eventAt time.Time) (*model.Event, *model.User, error)
+	GetEvent(c context.Context, id string) (*model.Event, *model.User, error)
 	GetEvents(c context.Context, gid string) ([]*model.Event, error)
 }
 
 type eventUseCase struct {
 	eventRepository repository.EventRepository
+	userRepository  repository.UserRepository
+	groupRepository repository.GroupRepository
 	transaction     repository.Transaction
 }
 
 // CreateEvent implements EventUseCase.
-func (e *eventUseCase) CreateEvent(c context.Context, uid string, gid string, name string, eventAt time.Time) (*model.Event, error) {
+func (e *eventUseCase) CreateEvent(c context.Context, uid string, gid string, name string, eventAt time.Time) (*model.Event, *model.User, error) {
 	v, err := e.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		event, err := e.eventRepository.CreateEvent(c, uid, gid, name, eventAt)
 		if err != nil {
@@ -31,21 +33,30 @@ func (e *eventUseCase) CreateEvent(c context.Context, uid string, gid string, na
 		return event, nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	event := v.(*model.Event)
+
+	user, err := e.userRepository.GetUserByUid(c, event.CreatedBy)
+	if err != nil {
+		return nil, nil, err
 	}
 
-	event := v.(*model.Event)
-	return event, nil
+	return event, user, nil
 }
 
 // GetEvent implements EventUseCase.
-func (e *eventUseCase) GetEvent(c context.Context, id string) (*model.Event, error) {
+func (e *eventUseCase) GetEvent(c context.Context, id string) (*model.Event, *model.User, error) {
 	event, err := e.eventRepository.GetEvent(c, id)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+	user, err := e.userRepository.GetUserByUid(c, event.CreatedBy)
+	if err != nil {
+		return nil, nil, err
 	}
 
-	return event, nil
+	return event, user, nil
 }
 
 // GetEvents implements EventUseCase.
@@ -59,7 +70,7 @@ func (e *eventUseCase) GetEvents(c context.Context, gid string) ([]*model.Event,
 }
 
 // UpdateEvent implements EventUseCase.
-func (e *eventUseCase) UpdateEvent(c context.Context, id string, uid string, gid string, name string, eventAt time.Time) (*model.Event, error) {
+func (e *eventUseCase) UpdateEvent(c context.Context, id string, uid string, gid string, name string, eventAt time.Time) (*model.Event, *model.User, error) {
 	v, err := e.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		event, err := e.eventRepository.UpdateEvent(c, id, uid, gid, name, eventAt)
 		if err != nil {
@@ -68,16 +79,23 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id string, uid string, gid
 		return event, nil
 	})
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	event := v.(*model.Event)
-	return event, nil
+	user, err := e.userRepository.GetUserByUid(c, event.CreatedBy)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return event, user, nil
 }
 
-func NewEventUseCase(eventRepo repository.EventRepository, tx repository.Transaction) EventUseCase {
+func NewEventUseCase(eventRepo repository.EventRepository, userRepo repository.UserRepository, groupRepo repository.GroupRepository, tx repository.Transaction) EventUseCase {
 	return &eventUseCase{
 		eventRepository: eventRepo,
+		userRepository:  userRepo,
+		groupRepository: groupRepo,
 		transaction:     tx,
 	}
 }

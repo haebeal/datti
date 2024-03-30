@@ -47,7 +47,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	groupHandler := handler.NewGroupHandler(groupUseCase)
 
 	eventRepository := repositoryimpl.NewEventRepository(dbClient)
-	eventUseCase := usecase.NewEventUseCase(eventRepository, transaction)
+	eventUseCase := usecase.NewEventUseCase(eventRepository, userRepository, groupRepository, transaction)
 	eventHandler := handler.NewEventHandler(eventUseCase)
 
 	r := echo.New()

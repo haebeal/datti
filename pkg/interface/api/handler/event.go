@@ -32,7 +32,7 @@ func (e *eventHandler) HandleCreate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errResponse)
 	}
 
-	event, err := e.useCase.CreateEvent(c.Request().Context(), uid, gid, req.Name, req.Evented_at)
+	event, user, err := e.useCase.CreateEvent(c.Request().Context(), uid, gid, req.Name, req.Evented_at)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -40,7 +40,7 @@ func (e *eventHandler) HandleCreate(c echo.Context) error {
 		res.ID = event.ID
 		res.Name = event.Name
 		res.EventedAt = event.EventedAt
-		res.Uid = event.CreatedBy
+		res.CreatedBy = user
 		res.GroupId = event.GroupId
 		return c.JSON(http.StatusOK, res)
 	}
@@ -52,7 +52,7 @@ func (e *eventHandler) HandleGet(c echo.Context) error {
 	id := c.Param("id")
 	res := new(response.Event)
 
-	event, err := e.useCase.GetEvent(c.Request().Context(), id)
+	event, user, err := e.useCase.GetEvent(c.Request().Context(), id)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -60,7 +60,7 @@ func (e *eventHandler) HandleGet(c echo.Context) error {
 		res.ID = event.ID
 		res.Name = event.Name
 		res.EventedAt = event.EventedAt
-		res.Uid = event.CreatedBy
+		res.CreatedBy = user
 		res.GroupId = event.GroupId
 		return c.JSON(http.StatusOK, res)
 	}
@@ -95,7 +95,7 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errResponse)
 	}
 
-	event, err := e.useCase.UpdateEvent(c.Request().Context(), id, uid, gid, req.Name, req.Evented_at)
+	event, user, err := e.useCase.UpdateEvent(c.Request().Context(), id, uid, gid, req.Name, req.Evented_at)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -103,7 +103,7 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 		res.ID = event.ID
 		res.Name = event.Name
 		res.EventedAt = event.EventedAt
-		res.Uid = event.CreatedBy
+		res.CreatedBy = user
 		res.GroupId = event.GroupId
 		return c.JSON(http.StatusOK, res)
 	}

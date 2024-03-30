@@ -61,7 +61,7 @@ func (bh *bankAccountHandler) HandleGet(c echo.Context) error {
 	if err != nil {
 		if errors.Is(sql.ErrNoRows, err) {
 			errResponse.Error = err.Error()
-			return c.JSON(http.StatusNotFound, errResponse)
+			return c.JSON(http.StatusOK, res)
 		} else {
 			errResponse.Error = err.Error()
 			return c.JSON(http.StatusInternalServerError, errResponse)

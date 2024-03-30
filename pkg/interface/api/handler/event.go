@@ -86,6 +86,8 @@ func (e *eventHandler) HandleGetById(c echo.Context) error {
 func (e *eventHandler) HandleUpdate(c echo.Context) error {
 	errResponse := new(response.Error)
 	id := c.Param("id")
+	gid := c.Param("gid")
+	uid := c.Get("uid").(string)
 	req := new(request.EventCreate)
 	res := new(response.Event)
 	if err := c.Bind(req); err != nil {
@@ -93,7 +95,7 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errResponse)
 	}
 
-	event, err := e.useCase.UpdateEvent(c.Request().Context(), id, req.Name, req.Evented_at)
+	event, err := e.useCase.UpdateEvent(c.Request().Context(), id, uid, gid, req.Name, req.Evented_at)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)

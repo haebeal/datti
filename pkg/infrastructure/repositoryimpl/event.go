@@ -50,7 +50,7 @@ func (e *eventRepositoryImpl) GetEvent(c context.Context, id string) (*model.Eve
 
 // GetEvents implements repository.EventRepository.
 func (e *eventRepositoryImpl) GetEvents(c context.Context, gid string) ([]*model.Event, error) {
-	events := make([]*model.Event, 0)
+	events := new([]*model.Event)
 	err := e.DBEngine.Client.NewSelect().
 		Table("events").
 		Where("group_id = ?", gid).
@@ -59,15 +59,17 @@ func (e *eventRepositoryImpl) GetEvents(c context.Context, gid string) ([]*model
 		return nil, err
 	}
 
-	return events, nil
+	return *events, nil
 }
 
 // UpdateEvent implements repository.EventRepository.
-func (e *eventRepositoryImpl) UpdateEvent(c context.Context, id string, name string, eventAt time.Time) (*model.Event, error) {
+func (e *eventRepositoryImpl) UpdateEvent(c context.Context, id string, uid string, gid string, name string, eventAt time.Time) (*model.Event, error) {
 	event := new(model.Event)
 	event.ID = id
 	event.Name = name
 	event.EventedAt = eventAt
+	event.GroupId = gid
+	event.CreatedBy = uid
 	_, err := e.DBEngine.Client.NewUpdate().
 		Model(event).
 		Column("name", "evented_at").

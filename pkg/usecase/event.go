@@ -10,7 +10,7 @@ import (
 
 type EventUseCase interface {
 	CreateEvent(c context.Context, uid string, gid string, name string, eventAt time.Time) (*model.Event, error)
-	UpdateEvent(c context.Context, id string, name string, eventAt time.Time) (*model.Event, error)
+	UpdateEvent(c context.Context, id string, uid string, gid string, name string, eventAt time.Time) (*model.Event, error)
 	GetEvent(c context.Context, id string) (*model.Event, error)
 	GetEvents(c context.Context, gid string) ([]*model.Event, error)
 }
@@ -59,9 +59,9 @@ func (e *eventUseCase) GetEvents(c context.Context, gid string) ([]*model.Event,
 }
 
 // UpdateEvent implements EventUseCase.
-func (e *eventUseCase) UpdateEvent(c context.Context, id string, name string, eventAt time.Time) (*model.Event, error) {
+func (e *eventUseCase) UpdateEvent(c context.Context, id string, uid string, gid string, name string, eventAt time.Time) (*model.Event, error) {
 	v, err := e.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
-		event, err := e.eventRepository.UpdateEvent(c, id, name, eventAt)
+		event, err := e.eventRepository.UpdateEvent(c, id, uid, gid, name, eventAt)
 		if err != nil {
 			return nil, err
 		}

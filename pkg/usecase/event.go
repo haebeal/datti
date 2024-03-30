@@ -17,8 +17,6 @@ type EventUseCase interface {
 
 type eventUseCase struct {
 	eventRepository repository.EventRepository
-	groupRepository repository.GroupRepository
-	userRepository  repository.UserRepository
 	transaction     repository.Transaction
 }
 
@@ -77,11 +75,9 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id string, name string, ev
 	return event, nil
 }
 
-func NewEventUseCase(eventRepo repository.EventRepository, groupRepo repository.GroupRepository, userRepo repository.UserRepository, tx repository.Transaction) EventUseCase {
+func NewEventUseCase(eventRepo repository.EventRepository, tx repository.Transaction) EventUseCase {
 	return &eventUseCase{
 		eventRepository: eventRepo,
-		groupRepository: groupRepo,
-		userRepository:  userRepo,
 		transaction:     tx,
 	}
 }

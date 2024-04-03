@@ -61,42 +61,48 @@ func (f *friendHandler) HandleDelete(c echo.Context) error {
 // HandleGetApplieds implements FriendHandler.
 func (f *friendHandler) HandleGetApplieds(c echo.Context) error {
 	errResponse := new(response.Error)
+	res := new(response.Users)
 	uid := c.Get("uid").(string)
 
-	applides, err := f.useCase.GetApplieds(c.Request().Context(), uid)
+	users, err := f.useCase.GetApplieds(c.Request().Context(), uid)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, applides)
+		res.Users = users
+		return c.JSON(http.StatusOK, res)
 	}
 }
 
 // HandleGetApplyings implements FriendHandler.
 func (f *friendHandler) HandleGetApplyings(c echo.Context) error {
 	errResponse := new(response.Error)
+	res := new(response.Users)
 	uid := c.Get("uid").(string)
 
-	applyings, err := f.useCase.GetApplyings(c.Request().Context(), uid)
+	users, err := f.useCase.GetApplyings(c.Request().Context(), uid)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, applyings)
+		res.Users = users
+		return c.JSON(http.StatusOK, res)
 	}
 }
 
 // HandleGetFriends implements FriendHandler.
 func (f *friendHandler) HandleGetFriends(c echo.Context) error {
 	errResponse := new(response.Error)
+	res := new(response.Users)
 	uid := c.Get("uid").(string)
 
-	friends, err := f.useCase.GetFriends(c.Request().Context(), uid)
+	users, err := f.useCase.GetFriends(c.Request().Context(), uid)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, friends)
+		res.Users = users
+		return c.JSON(http.StatusOK, res)
 	}
 }
 

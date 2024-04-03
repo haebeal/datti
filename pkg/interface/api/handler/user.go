@@ -44,6 +44,7 @@ func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
 // HandleGetByEmail implements UserHandler.
 func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 	req := new(request.GetUserByEmailRequest)
+	res := new(response.Users)
 	errRes := new(response.Error)
 
 	if err := c.Bind(req); err != nil {
@@ -57,8 +58,8 @@ func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
 	} else {
-
-		return c.JSON(http.StatusOK, users)
+		res.Users = users
+		return c.JSON(http.StatusOK, res)
 	}
 }
 

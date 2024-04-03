@@ -16,7 +16,7 @@ namespace Users {
   @summary("メールアドレスによるユーザー情報の取得")
   @get
   op getUserByEmail(...UserGetRequest):
-  | User[]
+  | UserList
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -88,6 +88,10 @@ model User {
    * 画像URL
    */
   photoUrl: string;
+}
+
+model UserList {
+  users: User[];
 }
 
 model UserGetRequest {

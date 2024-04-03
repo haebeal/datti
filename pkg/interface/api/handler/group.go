@@ -51,6 +51,7 @@ func (g *groupHandler) HandleCreate(c echo.Context) error {
 // HandleGet implements GroupHandler.
 func (g *groupHandler) HandleGet(c echo.Context) error {
 	errResponse := new(response.Error)
+	res := new(response.Groups)
 	uid := c.Get("uid").(string)
 
 	groups, err := g.useCase.GetGroups(c.Request().Context(), uid)
@@ -58,7 +59,8 @@ func (g *groupHandler) HandleGet(c echo.Context) error {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, groups)
+		res.Groups = groups
+		return c.JSON(http.StatusOK, res)
 	}
 }
 

@@ -16,7 +16,7 @@ namespace Groups {
   @summary("所属しているグループ情報の取得")
   @get
   op getGroups():
-  | Group[]
+  | GroupList
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -74,6 +74,13 @@ model Group {
    * グループ名
    */
   name: string;
+}
+
+model GroupList {
+  /**
+   * グループ
+   */
+  groups: Group[];
 }
 
 model GroupUsers {

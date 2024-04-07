@@ -83,11 +83,9 @@ model Event {
   evented_at: utcDateTime;
 
   /**
-   * イベント作成者のUID
+   * イベント作成者のユーザー情報
    */
-  @minLength(28)
-  @maxLength(28)
-  uid: string;
+  created_by: User;
 
   /**
    * イベントの紐づいたグループID
@@ -96,7 +94,32 @@ model Event {
 }
 
 model EventList {
-  events: Event[];
+  events: {
+    /**
+     * イベントID
+     */
+    id: string;
+
+    /**
+     * イベント名
+     */
+    name: string;
+
+    /**
+     * イベントの日付
+     */
+    evented_at: utcDateTime;
+
+    /**
+     * イベント作成者のユーザー情報
+     */
+    created_by: string;
+
+    /**
+     * イベントの紐づいたグループID
+     */
+    group_id: string;
+  }[];
 }
 
 model EventCreate {

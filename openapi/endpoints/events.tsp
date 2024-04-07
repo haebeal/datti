@@ -83,11 +83,9 @@ model Event {
   evented_at: utcDateTime;
 
   /**
-   * イベント作成者のUID
+   * イベント作成者のユーザー情報
    */
-  @minLength(28)
-  @maxLength(28)
-  uid: string;
+  created_by: User;
 
   /**
    * イベントの紐づいたグループID

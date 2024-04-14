@@ -59,17 +59,17 @@ model Payment {
   /**
    * 支払い日
    */
-  payid_at: utcDateTime;
+  paid_at: utcDateTime;
 
   /**
    * 支払い先のユーザー情報
    */
-  payid_to: User;
+  paid_to: User;
 
   /**
    * 支払い元のユーザー情報
    */
-  payid_by: User;
+  paid_by: User;
 
   /**
    * 支払い金額
@@ -81,12 +81,12 @@ model PaymentsRequest {
   /**
    * 支払い日
    */
-  payid_at: utcDateTime;
+  paid_at: utcDateTime;
 
   /**
    * 支払い先のユーザー情報
    */
-  payid_to: string;
+  paid_to: string;
 
   /**
    * 支払い金額

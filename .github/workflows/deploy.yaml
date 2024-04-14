@@ -1,12 +1,28 @@
 name: Deploy Production
 on:
   push:
-    branches:
-      - main
+    # branches:
+    #   - main
     paths:
       - app/**
 
 jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+      - name: Install Dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci
   deploy:
     runs-on: ubuntu-latest
     steps:

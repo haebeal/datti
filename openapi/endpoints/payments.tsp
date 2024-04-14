@@ -22,6 +22,17 @@ namespace Payments {
   | Utils.Error.InternalServerError;
 
   /**
+   * 支払い情報の取得
+   */
+  @route("{id}")
+  @summary("支払い情報の取得")
+  @get
+  op getPayment(@path id: string):
+  | Payment
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
+  /**
    * 支払い情報の登録
    */
   @summary("支払い情報の登録")

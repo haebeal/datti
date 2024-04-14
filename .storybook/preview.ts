@@ -1,15 +1,11 @@
 import { INITIAL_VIEWPORTS } from "@storybook/addon-viewport";
-
 import type { Preview } from "@storybook/react";
+import { withRouter } from "storybook-addon-remix-react-router";
 
-import { theme } from "@/utils";
+import "../app/globals.css";
 
 const preview: Preview = {
   parameters: {
-    actions: { argTypesRegex: "^on[A-Z].*" },
-    chakra: {
-      theme,
-    },
     viewport: {
       viewports: INITIAL_VIEWPORTS,
       defaultViewport: "responsive",
@@ -21,6 +17,7 @@ const preview: Preview = {
       },
     },
   },
+  decorators: [withRouter],
 };
 
 export default preview;

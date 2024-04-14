@@ -1,7 +1,10 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/cloudflare";
-import axios from "axios";
 import { getAuthSessionStorage } from "~/lib/authSession.server";
 import { signInFirebase } from "~/lib/oauthClient.server";
+
+type TokenResponse = {
+  id_token: string;
+};
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
@@ -13,10 +16,15 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
     });
   }
 
-  const response = await axios.post(
-    `https://oauth2.googleapis.com/token?code=${code}&client_id=${context.cloudflare.env.GOOGLE_CLIENT_ID}&client_secret=${context.cloudflare.env.GOOGLE_CLIENT_SECRET}&redirect_uri=${context.cloudflare.env.CLIENT_URL}/api/auth/callback/google&grant_type=authorization_code`
+  const response = await fetch(
+    `https://oauth2.googleapis.com/token?code=${code}&client_id=${context.cloudflare.env.GOOGLE_CLIENT_ID}&client_secret=${context.cloudflare.env.GOOGLE_CLIENT_SECRET}&redirect_uri=${context.cloudflare.env.CLIENT_URL}/api/auth/callback/google&grant_type=authorization_code`,
+    {
+      method: "POST",
+    }
   );
-  const tokens = response.data;
+
+  const tokens = await response.json<TokenResponse>();
+  console.log(tokens);
 
   if (!tokens.id_token) {
     throw new Response(undefined, {

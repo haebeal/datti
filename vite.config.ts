@@ -10,7 +10,7 @@ const isStorybook = process.argv[1]?.includes("storybook");
 
 export default defineConfig({
   ssr: {
-    noExternal: ["aspida", "@aspida/axios"],
+    noExternal: ["aspida", "@aspida/fetch"],
   },
   plugins: [
     remixCloudflareDevProxy(),

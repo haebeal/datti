@@ -1,5 +1,3 @@
-import axios from "axios";
-
 type FirebaseUser = {
   federatedId: string;
   providerId: string;
@@ -33,34 +31,42 @@ export const signInFirebase = async (
   apiKey: string,
   googleIdToken: string
 ) => {
-  const response = await axios.post<FirebaseUser>(
+  const response = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${apiKey}`,
     {
-      requestUri: clientUrl,
-      tenantId: tenantId,
-      postBody: `id_token=${googleIdToken}&providerId=google.com`,
-      returnSecureToken: true,
-      returnIdpCredential: false,
+      method: "POST",
+      body: JSON.stringify({
+        requestUri: clientUrl,
+        tenantId: tenantId,
+        postBody: `id_token=${googleIdToken}&providerId=google.com`,
+        returnSecureToken: true,
+        returnIdpCredential: false,
+      }),
     }
   );
-  return response.data;
+  const data = await response.json<FirebaseUser>();
+
+  return data;
 };
 
 export const refreshFirebaseIdToken = async (
   apiKey: string,
   refreshToken: string
 ): Promise<RefreshResponse> => {
-  const response = await axios.post<RefreshResponse>(
+  const response = await fetch(
     `https://securetoken.googleapis.com/v1/token?key=${apiKey}`,
     {
-      grant_type: "refresh_token",
-      refresh_token: refreshToken,
-    },
-    {
+      method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
+      body: JSON.stringify({
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+      }),
     }
   );
-  return response.data;
+  const data = await response.json<RefreshResponse>();
+
+  return data;
 };

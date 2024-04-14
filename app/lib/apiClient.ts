@@ -1,11 +1,11 @@
-import axiosClient from "@aspida/axios";
+import fetchClient from "@aspida/fetch";
 
 import banksApi from "~/api/banks/$api";
 import dattiApi from "~/api/datti/$api";
 
 export const createDattiClient = (idToken: string, baseURL: string) =>
   dattiApi(
-    axiosClient(undefined, {
+    fetchClient(undefined, {
       baseURL,
       headers: {
         Authorization: `Bearer ${idToken}`,
@@ -13,4 +13,4 @@ export const createDattiClient = (idToken: string, baseURL: string) =>
     })
   );
 
-export const createBanksClient = () => banksApi(axiosClient());
+export const createBanksClient = () => banksApi(fetchClient());

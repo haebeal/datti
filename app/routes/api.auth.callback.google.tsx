@@ -1,8 +1,9 @@
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
-import { commitSession, getSession } from "~/lib/authSession.server";
-import { oauth2Client, signInFirebase } from "~/lib/oauthClient.server";
+import { LoaderFunctionArgs, redirect } from "@remix-run/cloudflare";
+import axios from "axios";
+import { getAuthSessionStorage } from "~/lib/authSession.server";
+import { signInFirebase } from "~/lib/oauthClient.server";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
   const code = url.searchParams.get("code");
 
@@ -12,7 +13,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
     });
   }
 
-  const { tokens } = await oauth2Client.getToken(code);
+  const response = await axios.post(
+    `https://oauth2.googleapis.com/token?code=${code}&client_id=${context.cloudflare.env.GOOGLE_CLIENT_ID}&client_secret=${context.cloudflare.env.GOOGLE_CLIENT_SECRET}&redirect_uri=${context.cloudflare.env.CLIENT_URL}/api/auth/callback/google&grant_type=authorization_code`
+  );
+  const tokens = response.data;
 
   if (!tokens.id_token) {
     throw new Response(undefined, {
@@ -22,11 +26,17 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   const dt = new Date();
   const { idToken, refreshToken, expiresIn } = await signInFirebase(
+    context.cloudflare.env.CLIENT_URL,
+    context.cloudflare.env.FIREBASE_TENANT_ID,
+    context.cloudflare.env.FIREBASE_API_KEY,
     tokens.id_token
   );
   dt.setSeconds(dt.getSeconds() + Number(expiresIn));
 
-  const authSession = await getSession(request.headers.get("Cookie"));
+  const authSessionStorage = getAuthSessionStorage(context);
+  const authSession = await authSessionStorage.getSession(
+    request.headers.get("Cookie")
+  );
 
   authSession.set("idToken", idToken);
   authSession.set("refreshToken", refreshToken);
@@ -34,7 +44,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return redirect("/", {
     headers: {
-      "Set-Cookie": await commitSession(authSession),
+      "Set-Cookie": await authSessionStorage.commitSession(authSession),
     },
   });
 };

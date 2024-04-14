@@ -1,11 +1,4 @@
 import axios from "axios";
-import { OAuth2Client } from "google-auth-library";
-
-export const oauth2Client = new OAuth2Client(
-  process.env.VITE_GOOGLE_CLIENT_ID,
-  process.env.VITE_GOOGLE_CLIENT_SECRET,
-  `${process.env.VITE_CLIENT_URL}/api/auth/callback/google`
-);
 
 type FirebaseUser = {
   federatedId: string;
@@ -34,12 +27,17 @@ type RefreshResponse = {
   project_id: string;
 };
 
-export const signInFirebase = async (googleIdToken: string) => {
+export const signInFirebase = async (
+  clientUrl: string,
+  tenantId: string,
+  apiKey: string,
+  googleIdToken: string
+) => {
   const response = await axios.post<FirebaseUser>(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${process.env.VITE_FIREBASE_API_KEY}`,
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${apiKey}`,
     {
-      requestUri: process.env.VITE_CLIENT_URL,
-      tenantId: process.env.VITE_FIREBASE_TENANT_ID,
+      requestUri: clientUrl,
+      tenantId: tenantId,
       postBody: `id_token=${googleIdToken}&providerId=google.com`,
       returnSecureToken: true,
       returnIdpCredential: false,
@@ -49,10 +47,11 @@ export const signInFirebase = async (googleIdToken: string) => {
 };
 
 export const refreshFirebaseIdToken = async (
+  apiKey: string,
   refreshToken: string
 ): Promise<RefreshResponse> => {
   const response = await axios.post<RefreshResponse>(
-    `https://securetoken.googleapis.com/v1/token?key=${process.env.VITE_FIREBASE_API_KEY}`,
+    `https://securetoken.googleapis.com/v1/token?key=${apiKey}`,
     {
       grant_type: "refresh_token",
       refresh_token: refreshToken,

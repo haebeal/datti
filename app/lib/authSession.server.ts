@@ -1,9 +1,8 @@
-import { createCookieSessionStorage } from "@remix-run/node";
-
-const sessionSecret = process.env.VITE_SESSION_SECRET;
-if (!sessionSecret) {
-  throw new Error("SESSION_SECRETを設定してください。");
-}
+import {
+  AppLoadContext,
+  SessionStorage,
+  createCookieSessionStorage,
+} from "@remix-run/cloudflare";
 
 type AuthSessionData = {
   idToken: string;
@@ -11,17 +10,22 @@ type AuthSessionData = {
   expiresDateTime: string;
 };
 
-const { getSession, commitSession, destroySession } =
-  createCookieSessionStorage<AuthSessionData>({
-    cookie: {
-      name: "auth_session",
-      sameSite: "lax",
-      path: "/",
-      httpOnly: true,
-      secrets: [sessionSecret],
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 60 * 60 * 24,
-    },
-  });
+let _authSession: SessionStorage<AuthSessionData> | undefined;
 
-export { commitSession, destroySession, getSession };
+export const getAuthSessionStorage = (context: AppLoadContext) => {
+  if (!_authSession) {
+    _authSession = createCookieSessionStorage<AuthSessionData>({
+      cookie: {
+        name: "auth_session",
+        sameSite: "lax",
+        path: "/",
+        httpOnly: true,
+        secrets: [context.cloudflare.env.SESSION_SECRET],
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24,
+      },
+    });
+  }
+
+  return _authSession;
+};

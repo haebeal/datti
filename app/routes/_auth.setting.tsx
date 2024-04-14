@@ -1,4 +1,4 @@
-import type { MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/cloudflare";
 import { NavLink, Outlet } from "@remix-run/react";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
 

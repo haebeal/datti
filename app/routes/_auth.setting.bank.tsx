@@ -1,5 +1,9 @@
 import { parseWithZod } from "@conform-to/zod";
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  json,
+} from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import { BankForm } from "~/components/BankForm";
 import { createDattiClient } from "~/lib/apiClient";
@@ -18,7 +22,10 @@ export const loader = async ({
   });
   const { idToken } = await auth.json();
 
-  const dattiClient = createDattiClient(idToken);
+  const dattiClient = createDattiClient(
+    idToken,
+    context.cloudflare.env.CLIENT_URL
+  );
   const bankAccount = await dattiClient.bank.$get();
 
   return {
@@ -47,7 +54,10 @@ export const action = async ({
   });
   const { idToken } = await auth.json();
 
-  const dattiClient = createDattiClient(idToken);
+  const dattiClient = createDattiClient(
+    idToken,
+    context.cloudflare.env.BACKEND_ENDPOINT
+  );
   await dattiClient.bank.$post({
     body: submission.value,
   });

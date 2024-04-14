@@ -24,6 +24,7 @@ jobs:
         if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci
   deploy:
+    needs: install
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -1,16 +1,16 @@
-import axiosClient from "@aspida/axios";
+import fetchClient from "@aspida/fetch";
 
 import banksApi from "~/api/banks/$api";
 import dattiApi from "~/api/datti/$api";
 
-export const createDattiClient = (idToken: string) =>
+export const createDattiClient = (idToken: string, baseURL: string) =>
   dattiApi(
-    axiosClient(undefined, {
-      baseURL: process.env.NEXT_PUBLIC_BACKEND_ENDPOINT,
+    fetchClient(undefined, {
+      baseURL,
       headers: {
         Authorization: `Bearer ${idToken}`,
       },
     })
   );
 
-export const createBanksClient = () => banksApi(axiosClient());
+export const createBanksClient = () => banksApi(fetchClient());

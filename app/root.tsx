@@ -1,3 +1,4 @@
+import { LinksFunction } from "@remix-run/cloudflare";
 import {
   Links,
   Meta,
@@ -5,7 +6,6 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import { LinksFunction } from "@remix-run/server-runtime";
 
 import stylesheet from "~/globals.css?url";
 

@@ -1,18 +1,22 @@
 /// <reference types="vitest" />
-import { vitePlugin as remix } from "@remix-run/dev";
-import { installGlobals } from "@remix-run/node";
+import {
+  vitePlugin as remix,
+  cloudflareDevProxyVitePlugin as remixCloudflareDevProxy,
+} from "@remix-run/dev";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-
-installGlobals();
 
 const isStorybook = process.argv[1]?.includes("storybook");
 
 export default defineConfig({
   ssr: {
-    noExternal: ["aspida", "@aspida/axios"],
+    noExternal: ["aspida", "@aspida/fetch"],
   },
-  plugins: [!process.env.VITEST && !isStorybook && remix(), tsconfigPaths()],
+  plugins: [
+    remixCloudflareDevProxy(),
+    !process.env.VITEST && !isStorybook && remix(),
+    tsconfigPaths(),
+  ],
   test: {
     globals: true,
     environment: "jsdom",

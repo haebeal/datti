@@ -1,5 +1,9 @@
 import { parseWithZod } from "@conform-to/zod";
-import { ActionFunctionArgs, LoaderFunctionArgs, json } from "@remix-run/node";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  json,
+} from "@remix-run/cloudflare";
 import { useActionData, useLoaderData } from "@remix-run/react";
 import { ProfileForm } from "~/components/ProfileForm";
 import { createDattiClient } from "~/lib/apiClient";
@@ -18,7 +22,10 @@ export const loader = async ({
   });
   const { idToken } = await auth.json();
 
-  const dattiClient = createDattiClient(idToken);
+  const dattiClient = createDattiClient(
+    idToken,
+    context.cloudflare.env.BACKEND_ENDPOINT
+  );
   const profile = await dattiClient.users.me.$get();
 
   return {
@@ -41,7 +48,10 @@ export const action = async ({
   const auth = await authLoader({ request, params, context });
   const { idToken } = await auth.json();
 
-  const dattiClient = createDattiClient(idToken);
+  const dattiClient = createDattiClient(
+    idToken,
+    context.cloudflare.env.BACKEND_ENDPOINT
+  );
   await dattiClient.users.me.$put({
     body: submission.value,
   });

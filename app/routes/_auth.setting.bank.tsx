@@ -24,7 +24,7 @@ export const loader = async ({
 
   const dattiClient = createDattiClient(
     idToken,
-    context.cloudflare.env.CLIENT_URL
+    context.cloudflare.env.BACKEND_ENDPOINT
   );
   const bankAccount = await dattiClient.bank.$get();
 

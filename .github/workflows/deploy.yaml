@@ -1,10 +1,10 @@
 name: Deploy Production
 on:
   push:
-    # branches:
-    #   - main
-    # paths:
-    #   - app/**
+    branches:
+      - main
+    paths:
+      - app/**
 
 jobs:
   install:

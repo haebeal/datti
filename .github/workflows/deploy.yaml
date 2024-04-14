@@ -45,6 +45,6 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: datti-web
-          directory: build
+          directory: ./build/client
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main

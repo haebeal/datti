@@ -53,6 +53,9 @@ export const refreshFirebaseIdToken = async (
   apiKey: string,
   refreshToken: string
 ): Promise<RefreshResponse> => {
+  const body = new FormData();
+  body.append("grant_type", "refresh_token");
+  body.append("refresh_token", refreshToken);
   const response = await fetch(
     `https://securetoken.googleapis.com/v1/token?key=${apiKey}`,
     {
@@ -60,10 +63,7 @@ export const refreshFirebaseIdToken = async (
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: JSON.stringify({
-        grant_type: "refresh_token",
-        refresh_token: refreshToken,
-      }),
+      body,
     }
   );
   const data = await response.json<RefreshResponse>();

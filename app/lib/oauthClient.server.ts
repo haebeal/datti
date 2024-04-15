@@ -60,13 +60,13 @@ export const refreshFirebaseIdToken = async (
     `https://securetoken.googleapis.com/v1/token?key=${apiKey}`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body,
+      body: JSON.stringify({
+        grant_type: "refresh_token",
+        refreshToken: refreshToken,
+      }),
     }
   );
   const data = await response.json<RefreshResponse>();
-
+  console.log(data);
   return data;
 };

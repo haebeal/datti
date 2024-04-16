@@ -2,18 +2,18 @@
 import type * as Types from '../@types'
 
 export type Methods = {
-  /** 所属しているグループの取得 */
+  /** 支払い一覧情報の取得 */
   get: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.GroupList
+    resBody: Types.PaymentUserList
   }
 
-  /** グループの作成 */
+  /** 支払い情報の登録 */
   post: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.GroupUsers
-    reqBody: Types.GroupCreateRequest
+    resBody: Types.Payment
+    reqBody: Types.PaymentsRequest
   }
 }

@@ -9,6 +9,8 @@ import type { Methods as Methods_1pf0wjb } from './groups/_gid@string/events';
 import type { Methods as Methods_2g2ck9 } from './groups/_gid@string/events/_id@string';
 import type { Methods as Methods_1ip4i6a } from './groups/_id@string';
 import type { Methods as Methods_io26wi } from './groups/_id@string/members';
+import type { Methods as Methods_1vcka1 } from './payments';
+import type { Methods as Methods_18zhfof } from './payments/_id@string';
 import type { Methods as Methods_1xhiioa } from './users';
 import type { Methods as Methods_1r7npmf } from './users/_uid@string';
 import type { Methods as Methods_1niztz2 } from './users/_uid@string/requests';
@@ -23,9 +25,10 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
   const PATH4 = '/groups';
   const PATH5 = '/events';
   const PATH6 = '/members';
-  const PATH7 = '/users';
-  const PATH8 = '/requests';
-  const PATH9 = '/users/me';
+  const PATH7 = '/payments';
+  const PATH8 = '/users';
+  const PATH9 = '/requests';
+  const PATH10 = '/users/me';
   const GET = 'GET';
   const POST = 'POST';
   const PUT = 'PUT';
@@ -284,9 +287,79 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
         fetch<Methods_1jtp8e2['post']['resBody'], BasicHeaders, Methods_1jtp8e2['post']['status']>(prefix, PATH4, POST, option).json().then(r => r.body),
       $path: () => `${prefix}${PATH4}`,
     },
+    payments: {
+      _id: (val1: string) => {
+        const prefix1 = `${PATH7}/${val1}`;
+
+        return {
+          /**
+           * 支払い情報の取得
+           * @returns The request has succeeded.
+           */
+          get: (option?: { config?: T | undefined } | undefined) =>
+            fetch<Methods_18zhfof['get']['resBody'], BasicHeaders, Methods_18zhfof['get']['status']>(prefix, prefix1, GET, option).json(),
+          /**
+           * 支払い情報の取得
+           * @returns The request has succeeded.
+           */
+          $get: (option?: { config?: T | undefined } | undefined) =>
+            fetch<Methods_18zhfof['get']['resBody'], BasicHeaders, Methods_18zhfof['get']['status']>(prefix, prefix1, GET, option).json().then(r => r.body),
+          /**
+           * 支払い情報の更新
+           * @returns The request has succeeded.
+           */
+          put: (option: { body: Methods_18zhfof['put']['reqBody'], config?: T | undefined }) =>
+            fetch<Methods_18zhfof['put']['resBody'], BasicHeaders, Methods_18zhfof['put']['status']>(prefix, prefix1, PUT, option).json(),
+          /**
+           * 支払い情報の更新
+           * @returns The request has succeeded.
+           */
+          $put: (option: { body: Methods_18zhfof['put']['reqBody'], config?: T | undefined }) =>
+            fetch<Methods_18zhfof['put']['resBody'], BasicHeaders, Methods_18zhfof['put']['status']>(prefix, prefix1, PUT, option).json().then(r => r.body),
+          /**
+           * 支払い情報の削除
+           * @returns 200レスポンス
+           */
+          delete: (option?: { config?: T | undefined } | undefined) =>
+            fetch<Methods_18zhfof['delete']['resBody'], BasicHeaders, Methods_18zhfof['delete']['status']>(prefix, prefix1, DELETE, option).json(),
+          /**
+           * 支払い情報の削除
+           * @returns 200レスポンス
+           */
+          $delete: (option?: { config?: T | undefined } | undefined) =>
+            fetch<Methods_18zhfof['delete']['resBody'], BasicHeaders, Methods_18zhfof['delete']['status']>(prefix, prefix1, DELETE, option).json().then(r => r.body),
+          $path: () => `${prefix}${prefix1}`,
+        };
+      },
+      /**
+       * 支払い一覧情報の取得
+       * @returns The request has succeeded.
+       */
+      get: (option?: { config?: T | undefined } | undefined) =>
+        fetch<Methods_1vcka1['get']['resBody'], BasicHeaders, Methods_1vcka1['get']['status']>(prefix, PATH7, GET, option).json(),
+      /**
+       * 支払い一覧情報の取得
+       * @returns The request has succeeded.
+       */
+      $get: (option?: { config?: T | undefined } | undefined) =>
+        fetch<Methods_1vcka1['get']['resBody'], BasicHeaders, Methods_1vcka1['get']['status']>(prefix, PATH7, GET, option).json().then(r => r.body),
+      /**
+       * 支払い情報の登録
+       * @returns The request has succeeded.
+       */
+      post: (option: { body: Methods_1vcka1['post']['reqBody'], config?: T | undefined }) =>
+        fetch<Methods_1vcka1['post']['resBody'], BasicHeaders, Methods_1vcka1['post']['status']>(prefix, PATH7, POST, option).json(),
+      /**
+       * 支払い情報の登録
+       * @returns The request has succeeded.
+       */
+      $post: (option: { body: Methods_1vcka1['post']['reqBody'], config?: T | undefined }) =>
+        fetch<Methods_1vcka1['post']['resBody'], BasicHeaders, Methods_1vcka1['post']['status']>(prefix, PATH7, POST, option).json().then(r => r.body),
+      $path: () => `${prefix}${PATH7}`,
+    },
     users: {
       _uid: (val1: string) => {
-        const prefix1 = `${PATH7}/${val1}`;
+        const prefix1 = `${PATH8}/${val1}`;
 
         return {
           requests: {
@@ -295,14 +368,14 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
              * @returns 201レスポンス
              */
             post: (option?: { config?: T | undefined } | undefined) =>
-              fetch<Methods_1niztz2['post']['resBody'], BasicHeaders, Methods_1niztz2['post']['status']>(prefix, `${prefix1}${PATH8}`, POST, option).json(),
+              fetch<Methods_1niztz2['post']['resBody'], BasicHeaders, Methods_1niztz2['post']['status']>(prefix, `${prefix1}${PATH9}`, POST, option).json(),
             /**
              * フレンド申請の送信
              * @returns 201レスポンス
              */
             $post: (option?: { config?: T | undefined } | undefined) =>
-              fetch<Methods_1niztz2['post']['resBody'], BasicHeaders, Methods_1niztz2['post']['status']>(prefix, `${prefix1}${PATH8}`, POST, option).json().then(r => r.body),
-            $path: () => `${prefix}${prefix1}${PATH8}`,
+              fetch<Methods_1niztz2['post']['resBody'], BasicHeaders, Methods_1niztz2['post']['status']>(prefix, `${prefix1}${PATH9}`, POST, option).json().then(r => r.body),
+            $path: () => `${prefix}${prefix1}${PATH9}`,
           },
           /**
            * プロフィール情報の取得
@@ -325,40 +398,40 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
          * @returns The request has succeeded.
          */
         get: (option?: { config?: T | undefined } | undefined) =>
-          fetch<Methods_jzr18p['get']['resBody'], BasicHeaders, Methods_jzr18p['get']['status']>(prefix, PATH9, GET, option).json(),
+          fetch<Methods_jzr18p['get']['resBody'], BasicHeaders, Methods_jzr18p['get']['status']>(prefix, PATH10, GET, option).json(),
         /**
          * ユーザー情報の取得
          * @returns The request has succeeded.
          */
         $get: (option?: { config?: T | undefined } | undefined) =>
-          fetch<Methods_jzr18p['get']['resBody'], BasicHeaders, Methods_jzr18p['get']['status']>(prefix, PATH9, GET, option).json().then(r => r.body),
+          fetch<Methods_jzr18p['get']['resBody'], BasicHeaders, Methods_jzr18p['get']['status']>(prefix, PATH10, GET, option).json().then(r => r.body),
         /**
          * ユーザー情報の更新
          * @returns The request has succeeded.
          */
         put: (option: { body: Methods_jzr18p['put']['reqBody'], config?: T | undefined }) =>
-          fetch<Methods_jzr18p['put']['resBody'], BasicHeaders, Methods_jzr18p['put']['status']>(prefix, PATH9, PUT, option).json(),
+          fetch<Methods_jzr18p['put']['resBody'], BasicHeaders, Methods_jzr18p['put']['status']>(prefix, PATH10, PUT, option).json(),
         /**
          * ユーザー情報の更新
          * @returns The request has succeeded.
          */
         $put: (option: { body: Methods_jzr18p['put']['reqBody'], config?: T | undefined }) =>
-          fetch<Methods_jzr18p['put']['resBody'], BasicHeaders, Methods_jzr18p['put']['status']>(prefix, PATH9, PUT, option).json().then(r => r.body),
-        $path: () => `${prefix}${PATH9}`,
+          fetch<Methods_jzr18p['put']['resBody'], BasicHeaders, Methods_jzr18p['put']['status']>(prefix, PATH10, PUT, option).json().then(r => r.body),
+        $path: () => `${prefix}${PATH10}`,
       },
       /**
        * メールアドレスによるユーザー情報の取得
        * @returns The request has succeeded.
        */
       get: (option: { body: Methods_1xhiioa['get']['reqBody'], config?: T | undefined }) =>
-        fetch<Methods_1xhiioa['get']['resBody'], BasicHeaders, Methods_1xhiioa['get']['status']>(prefix, PATH7, GET, option).json(),
+        fetch<Methods_1xhiioa['get']['resBody'], BasicHeaders, Methods_1xhiioa['get']['status']>(prefix, PATH8, GET, option).json(),
       /**
        * メールアドレスによるユーザー情報の取得
        * @returns The request has succeeded.
        */
       $get: (option: { body: Methods_1xhiioa['get']['reqBody'], config?: T | undefined }) =>
-        fetch<Methods_1xhiioa['get']['resBody'], BasicHeaders, Methods_1xhiioa['get']['status']>(prefix, PATH7, GET, option).json().then(r => r.body),
-      $path: () => `${prefix}${PATH7}`,
+        fetch<Methods_1xhiioa['get']['resBody'], BasicHeaders, Methods_1xhiioa['get']['status']>(prefix, PATH8, GET, option).json().then(r => r.body),
+      $path: () => `${prefix}${PATH8}`,
     },
   };
 };

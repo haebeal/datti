@@ -6,6 +6,6 @@ export type Methods = {
   get: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.User[]
+    resBody: Types.UserList
   }
 }

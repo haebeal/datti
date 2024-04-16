@@ -102,7 +102,7 @@ func (f *friendRepositoryImpl) GetFriends(c context.Context, uid string) ([]*mod
 		Table("friends").
 		TableExpr("friends AS f1").
 		Join("JOIN friends AS f2 ON f1.uid = f2.friend_uid AND f1.friend_uid = f2.uid").
-		Where("f1.uid = ?", uid).
+		Where("f1.friend_uid = ?", uid).
 		Scan(c, friends)
 	if err != nil {
 		return nil, err

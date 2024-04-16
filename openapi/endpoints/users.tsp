@@ -15,7 +15,7 @@ namespace Users {
    */
   @summary("メールアドレスによるユーザー情報の取得")
   @get
-  op getUserByEmail(...UserGetRequest):
+  op getUserByEmail(@query email?: string):
   | UserList
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;

@@ -4,9 +4,12 @@ import type * as Types from '../@types'
 export type Methods = {
   /** メールアドレスによるユーザー情報の取得 */
   get: {
+    query?: {
+      email?: string | undefined
+    } | undefined
+
     status: 200
     /** The request has succeeded. */
-    resBody: Types.User[]
-    reqBody: Types.UserGetRequest
+    resBody: Types.UserList
   }
 }

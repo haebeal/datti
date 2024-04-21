@@ -15,8 +15,10 @@ export type Event = {
   name: string
   /** イベントの日付 */
   evented_at: string
-  /** イベント作成者のUID */
-  uid: string
+
+  /** イベント作成者のユーザー情報 */
+  created_by: User
+
   /** イベントの紐づいたグループID */
   group_id: string
 }
@@ -29,7 +31,18 @@ export type EventCreate = {
 }
 
 export type EventList = {
-  events: Event[]
+  events: {
+    /** イベントID */
+    id: string
+    /** イベント名 */
+    name: string
+    /** イベントの日付 */
+    evented_at: string
+    /** イベント作成者のユーザー情報 */
+    created_by: string
+    /** イベントの紐づいたグループID */
+    group_id: string
+  }[]
 }
 
 export type EventUpdate = {
@@ -51,6 +64,11 @@ export type GroupCreateRequest = {
   name: string
   /** UID */
   uids: string[]
+}
+
+export type GroupList = {
+  /** グループ */
+  groups: Group[]
 }
 
 export type GroupUpdateRequest = {
@@ -86,6 +104,10 @@ export type User = {
 export type UserGetRequest = {
   /** メールアドレス */
   email: string
+}
+
+export type UserList = {
+  users: User[]
 }
 
 export type UserUpdateRequest = {

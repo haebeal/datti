@@ -6,7 +6,7 @@ export type Methods = {
   get: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.Group[]
+    resBody: Types.GroupList
   }
 
   /** グループの作成 */

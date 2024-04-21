@@ -64,7 +64,7 @@ export const Header = ({ profile, ...divProps }: Props) => (
               設定
             </DropdownMenuItem>
           </Link>
-          <Link to="/friend">
+          <Link to="/friends">
             <DropdownMenuItem className="hover:cursor-pointer">
               フレンド
             </DropdownMenuItem>

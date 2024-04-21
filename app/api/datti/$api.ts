@@ -1,4 +1,5 @@
 import type { AspidaClient, BasicHeaders } from 'aspida';
+import { dataToURLString } from 'aspida';
 import type { Methods as Methods_on2dq4 } from './bank';
 import type { Methods as Methods_143531r } from './friends';
 import type { Methods as Methods_18at316 } from './friends/_uid@string';
@@ -350,15 +351,16 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
        * メールアドレスによるユーザー情報の取得
        * @returns The request has succeeded.
        */
-      get: (option: { body: Methods_1xhiioa['get']['reqBody'], config?: T | undefined }) =>
+      get: (option?: { query?: Methods_1xhiioa['get']['query'] | undefined, config?: T | undefined } | undefined) =>
         fetch<Methods_1xhiioa['get']['resBody'], BasicHeaders, Methods_1xhiioa['get']['status']>(prefix, PATH7, GET, option).json(),
       /**
        * メールアドレスによるユーザー情報の取得
        * @returns The request has succeeded.
        */
-      $get: (option: { body: Methods_1xhiioa['get']['reqBody'], config?: T | undefined }) =>
+      $get: (option?: { query?: Methods_1xhiioa['get']['query'] | undefined, config?: T | undefined } | undefined) =>
         fetch<Methods_1xhiioa['get']['resBody'], BasicHeaders, Methods_1xhiioa['get']['status']>(prefix, PATH7, GET, option).json().then(r => r.body),
-      $path: () => `${prefix}${PATH7}`,
+      $path: (option?: { method?: 'get' | undefined; query: Methods_1xhiioa['get']['query'] } | undefined) =>
+        `${prefix}${PATH7}${option && option.query ? `?${dataToURLString(option.query)}` : ''}`,
     },
   };
 };

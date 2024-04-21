@@ -1,12 +1,14 @@
 import { LoaderFunctionArgs, json, redirect } from "@remix-run/cloudflare";
-import { Outlet, useLoaderData, useNavigation } from "@remix-run/react";
+import { Outlet, useLoaderData } from "@remix-run/react";
 import { Header } from "~/components/Header";
-import { Skeleton } from "~/components/ui/skeleton";
 import { createDattiClient } from "~/lib/apiClient";
 import { getAuthSessionStorage } from "~/lib/authSession.server";
 import { refreshFirebaseIdToken } from "~/lib/oauthClient.server";
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
+  console.log("start auth loader");
+  const start = performance.now();
+
   const authSessionStorage = getAuthSessionStorage(context);
   const authSession = await authSessionStorage.getSession(
     request.headers.get("Cookie")
@@ -42,6 +44,9 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
     );
     const profile = await dattiClient.users.me.$get();
 
+    const end = performance.now();
+    console.log(`end auth loader at ${end - start}ms`);
+
     return json(
       {
         profile,
@@ -74,24 +79,13 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
 };
 
 export default function Auth() {
-  const { state } = useNavigation();
   const { profile } = useLoaderData<typeof loader>();
 
   return (
     <div className="min-h-screen">
       <Header profile={profile} className="h-20 bg-white" />
       <div className="container py-3">
-        {state !== "loading" ? (
-          <Outlet />
-        ) : (
-          <Skeleton>
-            <div className="grid h-[calc(80svh)] place-content-center">
-              <h1 className="align-middle font-bold text-xl text-center">
-                読み込み中...
-              </h1>
-            </div>
-          </Skeleton>
-        )}
+        <Outlet />
       </div>
     </div>
   );

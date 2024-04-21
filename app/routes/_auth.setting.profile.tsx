@@ -5,10 +5,10 @@ import {
   json,
 } from "@remix-run/cloudflare";
 import { useActionData, useLoaderData } from "@remix-run/react";
+import { authLoader } from "~/.server/loaders";
 import { ProfileForm } from "~/components/ProfileForm";
 import { createDattiClient } from "~/lib/apiClient";
 import { userSchema } from "~/schema/user";
-import { loader as authLoader } from "./_auth";
 
 export const loader = async ({
   request,

@@ -43,17 +43,11 @@ func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
 
 // HandleGetByEmail implements UserHandler.
 func (u *userHandler) HandleGetByEmail(c echo.Context) error {
-	req := new(request.GetUserByEmailRequest)
+	email := c.QueryParam("email")
 	res := new(response.Users)
 	errRes := new(response.Error)
 
-	if err := c.Bind(req); err != nil {
-		log.Print("failed json bind")
-		errRes.Error = err.Error()
-		return c.JSON(http.StatusBadRequest, errRes)
-	}
-
-	users, err := u.useCase.GetUsersByEmail(c.Request().Context(), req.Email)
+	users, err := u.useCase.GetUsersByEmail(c.Request().Context(), email)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)

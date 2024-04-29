@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"strings"
 
 	"github.com/datti-api/pkg/domain/model"
@@ -10,18 +12,19 @@ import (
 
 type UserUseCase interface {
 	GetUsers(c context.Context, uid string) ([]*model.User, error)
-	GetUserByUid(c context.Context, uid string) (*model.User, error)
+	GetUserByUid(c context.Context, uid string) (*model.User, *model.BankAccount, error)
 	GetUsersByEmail(c context.Context, email string) ([]*model.User, error)
-	UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error)
+	UpdateUser(c context.Context, uid string, name string, url string, bankCode string, branchCode string, accountCode string) (*model.User, *model.BankAccount, error)
 }
 
 type userUseCase struct {
-	repository repository.UserRepository
+	userRepository repository.UserRepository
+	bankRepository repository.BankAccountRepository
 }
 
 // GetUserByEmail implements UserUseCase.
 func (u *userUseCase) GetUsersByEmail(c context.Context, email string) ([]*model.User, error) {
-	users, err := u.repository.GetUsers(c)
+	users, err := u.userRepository.GetUsers(c)
 	if err != nil {
 		return nil, err
 	}
@@ -36,18 +39,26 @@ func (u *userUseCase) GetUsersByEmail(c context.Context, email string) ([]*model
 }
 
 // GetUserByUid implements UserUseCase.
-func (u *userUseCase) GetUserByUid(c context.Context, uid string) (*model.User, error) {
-	user, err := u.repository.GetUserByUid(c, uid)
+func (u *userUseCase) GetUserByUid(c context.Context, uid string) (*model.User, *model.BankAccount, error) {
+	user, err := u.userRepository.GetUserByUid(c, uid)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-
-	return user, nil
+	// userに紐づく講座情報の取得
+	bank, err := u.bankRepository.GetBankAccountByUid(c, user.UID)
+	if err != nil {
+		if errors.Is(sql.ErrNoRows, err) {
+			bank := new(model.BankAccount)
+			return user, bank, nil
+		}
+		return nil, nil, err
+	}
+	return user, bank, nil
 }
 
 // GetUsers implements UserUseCase.
 func (u *userUseCase) GetUsers(c context.Context, uid string) ([]*model.User, error) {
-	users, err := u.repository.GetUsers(c)
+	users, err := u.userRepository.GetUsers(c)
 	if err != nil {
 		return nil, err
 	}
@@ -56,17 +67,21 @@ func (u *userUseCase) GetUsers(c context.Context, uid string) ([]*model.User, er
 }
 
 // UpdateUser implements UserUseCase.
-func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error) {
-	user, err := u.repository.UpdateUser(c, uid, name, url)
+func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url string, bankCode string, branchCode string, accountCode string) (*model.User, *model.BankAccount, error) {
+	user, err := u.userRepository.UpdateUser(c, uid, name, url)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-
-	return user, nil
+	bank, err := u.bankRepository.UpsertBankAccount(c, user.UID, accountCode, bankCode, branchCode)
+	if err != nil {
+		return nil, nil, err
+	}
+	return user, bank, nil
 }
 
-func NewUserUseCase(userRepo repository.UserRepository) UserUseCase {
+func NewUserUseCase(userRepo repository.UserRepository, bankRepo repository.BankAccountRepository) UserUseCase {
 	return &userUseCase{
-		repository: userRepo,
+		userRepository: userRepo,
+		bankRepository: bankRepo,
 	}
 }

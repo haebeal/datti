@@ -28,13 +28,13 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	// 依存性の解決
 	transaction := repositoryimpl.NewTransaction(dbClient.Client)
 
-	userRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
-	userUseCase := usecase.NewUserUseCase(userRepository)
-	userHandler := handler.NewUserHandler(userUseCase)
-
 	bankAccountRepository := repositoryimpl.NewBankAccountRepository(dbClient)
 	bankAccountUseCase := usecase.NewBankAccountUseCase(bankAccountRepository, transaction)
 	bankAccountHandler := handler.NewBankAccountHandler(bankAccountUseCase)
+
+	userRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
+	userUseCase := usecase.NewUserUseCase(userRepository, bankAccountRepository)
+	userHandler := handler.NewUserHandler(userUseCase)
 
 	friendRepository := repositoryimpl.NewFriendRepository(dbClient)
 	friendUseCase := usecase.NewFriendUseCase(friendRepository, userRepository, transaction)

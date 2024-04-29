@@ -88,17 +88,37 @@ model User {
    * 画像URL
    */
   photoUrl: string;
+
+  /**
+   * 講座情報
+   */
+  bank: Bank;
 }
 
 model UserList {
-  users: User[];
-}
+  users: {
+    /**
+     * ユーザーID
+     */
+    @minLength(28)
+    @maxLength(28)
+    uid: string;
 
-model UserGetRequest {
-  /**
-   * メールアドレス
-   */
-  email: string;
+    /**
+     * ユーザー名
+     */
+    name: string;
+
+    /**
+     * メールアドレス
+     */
+    email: string;
+
+    /**
+     * 画像URL
+     */
+    photoUrl: string;
+  }[];
 }
 
 model UserUpdateRequest{
@@ -111,4 +131,25 @@ model UserUpdateRequest{
    * 画像URL
    */
   photoUrl: string;
+
+  /**
+   * 金融機関コード
+   */
+  @minLength(4)
+  @maxLength(4)
+  bankCode: string;
+
+  /**
+   * 支店番号
+   */
+  @minLength(3)
+  @maxLength(3)
+  branchCode: string;
+  
+  /**
+   * 口座番号
+   */
+  @minLength(7)
+  @maxLength(7)
+  accountCode: string;
 }

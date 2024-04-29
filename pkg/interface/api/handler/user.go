@@ -24,11 +24,11 @@ type userHandler struct {
 
 // HandleGetByUidWithPahtParam implements UserHandler.
 func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
-	res := new(response.User)
+	res := new(response.UserWithBankAccount)
 	errResponse := new(response.Error)
 	uid := c.Param("uid")
 
-	user, err := u.useCase.GetUserByUid(c.Request().Context(), uid)
+	user, bank, err := u.useCase.GetUserByUid(c.Request().Context(), uid)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -37,6 +37,9 @@ func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
 		res.Name = user.Name
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
+		res.Bank.BankCode = bank.BankCode
+		res.Bank.BranchCode = bank.BranchCode
+		res.Bank.AccountCode = bank.AccountCode
 		return c.JSON(http.StatusOK, res)
 	}
 }
@@ -59,11 +62,11 @@ func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 
 // HandleGetByUid implements UserHandler.
 func (u *userHandler) HandleGetByUid(c echo.Context) error {
-	res := new(response.User)
+	res := new(response.UserWithBankAccount)
 	errResponse := new(response.Error)
 	uid := c.Get("uid").(string)
 
-	user, err := u.useCase.GetUserByUid(c.Request().Context(), uid)
+	user, bank, err := u.useCase.GetUserByUid(c.Request().Context(), uid)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -72,6 +75,9 @@ func (u *userHandler) HandleGetByUid(c echo.Context) error {
 		res.Name = user.Name
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
+		res.Bank.BankCode = bank.BankCode
+		res.Bank.BranchCode = bank.BranchCode
+		res.Bank.AccountCode = bank.AccountCode
 		return c.JSON(http.StatusOK, res)
 	}
 }
@@ -93,7 +99,7 @@ func (u *userHandler) HandleGetUsers(c echo.Context) error {
 // HandleUpdate implements UserHandler.
 func (u *userHandler) HandleUpdate(c echo.Context) error {
 	req := new(request.UpdateUserRequest)
-	res := new(response.User)
+	res := new(response.UserWithBankAccount)
 	errRes := new(response.Error)
 	uid := c.Get("uid").(string)
 
@@ -103,7 +109,7 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errRes)
 	}
 
-	user, err := u.useCase.UpdateUser(c.Request().Context(), uid, req.Name, req.Url)
+	user, bank, err := u.useCase.UpdateUser(c.Request().Context(), uid, req.Name, req.Url, req.BankCode, req.BranchCode, req.AccountCode)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
@@ -112,6 +118,9 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 		res.Name = user.Name
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
+		res.Bank.BankCode = bank.BankCode
+		res.Bank.BranchCode = bank.BranchCode
+		res.Bank.AccountCode = bank.AccountCode
 		return c.JSON(http.StatusOK, res)
 	}
 }

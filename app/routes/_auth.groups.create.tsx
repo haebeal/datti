@@ -7,6 +7,8 @@ import {
   DialogTitle,
 } from "~/components/ui/dialog";
 
+export { groupsCreateAction as action } from "~/.server/actions";
+
 export default function GroupCreate() {
   const navigate = useNavigate();
 

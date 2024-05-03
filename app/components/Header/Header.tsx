@@ -37,7 +37,7 @@ export const Header = ({ profile, ...divProps }: Props) => (
           className={({ isActive }) =>
             !isActive ? "text-gray-400" : undefined
           }
-          to="/group"
+          to="/groups"
         >
           グループ一覧
         </NavLink>

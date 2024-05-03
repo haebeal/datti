@@ -14,7 +14,13 @@ export default defineConfig({
   },
   plugins: [
     remixCloudflareDevProxy(),
-    !process.env.VITEST && !isStorybook && remix(),
+    !process.env.VITEST &&
+      !isStorybook &&
+      remix({
+        future: {
+          unstable_singleFetch: true,
+        },
+      }),
     tsconfigPaths(),
   ],
   test: {

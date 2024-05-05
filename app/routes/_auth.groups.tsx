@@ -16,7 +16,7 @@ export default function Group() {
   const { state } = useNavigation();
 
   return (
-    <div className="flex flex-col py-3 gap-3">
+    <div className="flex flex-col py-3 gap-7">
       <div className="flex items-center justify-between">
         <h1 className="font-bold text-2xl">グループ一覧</h1>
         <Link className="flex items-center" to="/groups/create">

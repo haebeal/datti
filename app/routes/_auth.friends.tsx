@@ -11,17 +11,19 @@ export default function Friend() {
   const { state } = useNavigation();
 
   return (
-    <div className="grid gap-5">
-      <h1 className="font-bold text-2xl py-2">フレンド一覧</h1>
-      <div className="flex items-center">
-        <Button
-          disabled={state === "loading"}
-          className="ml-auto bg-blue-500 hover:bg-blue-600 font-semibold"
-        >
-          <Link to="/friends/requests">フレンド申請</Link>
-        </Button>
+    <div className="flex flex-col py-3 gap-7">
+      <div className="flex items-center justify-between">
+        <h1 className="font-bold text-2xl">フレンド一覧</h1>
+        <Link className="flex items-center" to="/friends/requests">
+          <Button
+            disabled={state === "loading"}
+            className="ml-auto bg-sky-500 hover:bg-sky-600 font-semibold"
+          >
+            フレンド申請
+          </Button>
+        </Link>
       </div>
-      <div className="w-full">
+      <div className="rounded-lg bg-white py-3 px-5">
         <FriendList friends={friends} />
       </div>
       <Outlet />

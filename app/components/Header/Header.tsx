@@ -39,15 +39,7 @@ export const Header = ({ profile, ...divProps }: Props) => (
           }
           to="/groups"
         >
-          グループ一覧
-        </NavLink>
-        <NavLink
-          className={({ isActive }) =>
-            !isActive ? "text-gray-400" : undefined
-          }
-          to="/payment"
-        >
-          支払い
+          グループ
         </NavLink>
       </div>
       <DropdownMenu>

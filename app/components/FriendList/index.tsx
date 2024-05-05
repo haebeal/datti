@@ -23,7 +23,7 @@ export function FriendList({ friends }: Props) {
 
   if (Array.isArray(friends) && friends.length > 0) {
     return (
-      <div className="w-full min-h-[60vh] flex flex-col items-center p-4">
+      <div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
         {friends.map((friend) => (
           <FriendCard key={friend.uid} friend={friend} />
         ))}

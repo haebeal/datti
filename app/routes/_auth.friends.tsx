@@ -26,7 +26,7 @@ export default function Friend() {
         <Link className="flex items-center" to="/friends/requests">
           <Button
             disabled={state === "loading"}
-            className="ml-auto bg-sky-500 hover:bg-sky-600 font-semibold"
+            className="bg-sky-500 hover:bg-sky-600 font-semibold"
           >
             フレンド申請
           </Button>

@@ -51,7 +51,7 @@ export function GroupForm({ defaultValue, lastResult }: Props) {
         </div>
         <Button
           type="submit"
-          className="w-full max-w-2xl"
+          className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
           disabled={state !== "idle"}
         >
           作成

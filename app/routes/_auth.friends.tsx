@@ -1,4 +1,11 @@
-import { Link, Outlet, useLoaderData, useNavigation } from "@remix-run/react";
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLoaderData,
+  useLocation,
+  useNavigation,
+} from "@remix-run/react";
 import { FriendsLoader } from "~/.server/loaders/friendsLoader";
 import { FriendList } from "~/components/FriendList";
 import { Button } from "~/components/ui/button";
@@ -9,6 +16,8 @@ export { friendsRequestsLoader as loader } from "~/.server/loaders";
 export default function Friend() {
   const { friends } = useLoaderData<FriendsLoader>();
   const { state } = useNavigation();
+  const { search } = useLocation();
+  const searchParams = new URLSearchParams(search);
 
   return (
     <div className="flex flex-col py-3 gap-7">
@@ -24,6 +33,46 @@ export default function Friend() {
         </Link>
       </div>
       <div className="rounded-lg bg-white py-3 px-5">
+        <div className="flex flex-row border-b-2 text-lg font-semibold gap-5 py-1 px-4">
+          <NavLink
+            className={({ isActive }) =>
+              isActive && searchParams.get("status") === null
+                ? undefined
+                : "opacity-40"
+            }
+            to={{
+              pathname: "/friends",
+            }}
+          >
+            フレンド
+          </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              isActive && searchParams.get("status") === "requests"
+                ? undefined
+                : "opacity-40"
+            }
+            to={{
+              pathname: "/friends",
+              search: "?status=requests",
+            }}
+          >
+            申請中
+          </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              isActive && searchParams.get("status") === "pendings"
+                ? undefined
+                : "opacity-40"
+            }
+            to={{
+              pathname: "/friends",
+              search: "?status=pendings",
+            }}
+          >
+            受理中
+          </NavLink>
+        </div>
         <FriendList friends={friends} />
       </div>
       <Outlet />

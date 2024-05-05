@@ -11,7 +11,7 @@ import { FriendList } from "~/components/FriendList";
 import { Button } from "~/components/ui/button";
 
 export { friendsAction as action } from "~/.server/actions";
-export { friendsRequestsLoader as loader } from "~/.server/loaders";
+export { friendsLoader as loader } from "~/.server/loaders";
 
 export default function Friend() {
   const { friends } = useLoaderData<FriendsLoader>();

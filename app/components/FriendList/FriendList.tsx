@@ -1,4 +1,4 @@
-import { useNavigation } from "@remix-run/react";
+import { useLocation, useNavigation } from "@remix-run/react";
 import { User } from "~/api/datti/@types";
 import { FriendCard } from "~/components/FriendCard";
 
@@ -7,7 +7,11 @@ interface Props {
 }
 
 export function FriendList({ friends }: Props) {
+  const { search } = useLocation();
   const { state } = useNavigation();
+  const searchParams = new URLSearchParams(search);
+
+  const status = searchParams.get("status");
 
   if (state === "loading") {
     return (
@@ -30,7 +34,11 @@ export function FriendList({ friends }: Props) {
   return (
     <div className="w-full min-h-[60vh] grid place-content-center">
       <h2 className="font-semibold text-2xl text-center">
-        フレンドがいません😿
+        {status === "requests"
+          ? "申請中のユーザーはいません😿"
+          : status === "pendings"
+            ? "受理中のユーザーはいません😿"
+            : "フレンドがいません😿"}
       </h2>
     </div>
   );

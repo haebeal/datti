@@ -19,7 +19,7 @@ export function GroupList({ groups }: Props) {
 
   if (Array.isArray(groups) && groups.length > 0) {
     return (
-      <div className="w-full min-h-[60vh] flex flex-col items-center p-4">
+      <div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
         {groups.map((group) => (
           <GroupCard key={group.id} group={group} />
         ))}

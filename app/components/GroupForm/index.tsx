@@ -44,15 +44,15 @@ export function GroupForm({ defaultValue, lastResult }: Props) {
           <Input
             {...getInputProps(name, { type: "text" })}
             placeholder="グループ名を入力"
-            disabled={state !== "idle"}
+            disabled={state === "loading"}
             id={nameId}
           />
           <p>{name.errors?.toString()}</p>
         </div>
         <Button
           type="submit"
-          className="w-full max-w-2xl"
-          disabled={state !== "idle"}
+          className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
+          disabled={state === "loading"}
         >
           作成
         </Button>

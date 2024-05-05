@@ -32,7 +32,41 @@ export function FriendCard({ friend }: Props) {
       </Avatar>
       <h1 className="text-lg font-bold mr-auto">{friend.name}</h1>
 
-      {status === "friends" ? (
+      {status === "requests" ? (
+        <Form method="delete">
+          <input type="hidden" name="uid" value={friend.uid} />
+          <Button
+            disabled={state === "submitting"}
+            className="font-semibold bg-red-500 hover:bg-red-600"
+            type="submit"
+          >
+            取り消し
+          </Button>
+        </Form>
+      ) : status === "pendings" ? (
+        <>
+          <Form method="post">
+            <input type="hidden" name="uid" value={friend.uid} />
+            <Button
+              disabled={state === "submitting"}
+              className="font-semibold bg-sky-500 hover:bg-sky-600"
+              type="submit"
+            >
+              承認
+            </Button>
+          </Form>
+          <Form method="delete">
+            <input type="hidden" name="uid" value={friend.uid} />
+            <Button
+              disabled={state === "submitting"}
+              className="font-semibold bg-red-500 hover:bg-red-600"
+              type="submit"
+            >
+              却下
+            </Button>
+          </Form>
+        </>
+      ) : (
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -66,40 +100,6 @@ export function FriendCard({ friend }: Props) {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      ) : status === "requests" ? (
-        <Form method="delete">
-          <input type="hidden" name="uid" value={friend.uid} />
-          <Button
-            disabled={state === "submitting"}
-            className="font-semibold bg-red-500 hover:bg-red-600"
-            type="submit"
-          >
-            取り消し
-          </Button>
-        </Form>
-      ) : (
-        <>
-          <Form method="post">
-            <input type="hidden" name="uid" value={friend.uid} />
-            <Button
-              disabled={state === "submitting"}
-              className="font-semibold bg-sky-500 hover:bg-sky-600"
-              type="submit"
-            >
-              承認
-            </Button>
-          </Form>
-          <Form method="delete">
-            <input type="hidden" name="uid" value={friend.uid} />
-            <Button
-              disabled={state === "submitting"}
-              className="font-semibold bg-red-500 hover:bg-red-600"
-              type="submit"
-            >
-              却下
-            </Button>
-          </Form>
-        </>
       )}
     </div>
   );

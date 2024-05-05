@@ -39,8 +39,7 @@ export function FriendCard({ friend }: Props) {
         </AlertDialogTrigger>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <span className="font-bold inline-block">{friend.name}</span>
-            をフレンドから解除しますか?
+            {friend.name}をフレンドから解除しますか?
           </AlertDialogHeader>
           <AlertDialogDescription>
             フレンドを解除すると相手からもフレンドではなくなります。

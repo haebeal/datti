@@ -19,11 +19,19 @@ export default function Friend() {
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
 
+  const status = searchParams.get("status");
+
   return (
     <div className="flex flex-col py-3 gap-7">
       <div className="flex items-center justify-between">
         <h1 className="font-bold text-2xl">フレンド一覧</h1>
-        <Link className="flex items-center" to="/friends/requests">
+        <Link
+          className="flex items-center"
+          to={{
+            pathname: "/friends/requests",
+            search: status ? `?status=${status}` : undefined,
+          }}
+        >
           <Button
             disabled={state === "loading"}
             className="bg-sky-500 hover:bg-sky-600 font-semibold"
@@ -36,9 +44,7 @@ export default function Friend() {
         <div className="flex flex-row border-b-2 text-lg font-semibold gap-5 py-1 px-4">
           <NavLink
             className={({ isActive }) =>
-              isActive && searchParams.get("status") === null
-                ? undefined
-                : "opacity-40"
+              isActive && status === null ? undefined : "opacity-40"
             }
             to={{
               pathname: "/friends",
@@ -48,9 +54,7 @@ export default function Friend() {
           </NavLink>
           <NavLink
             className={({ isActive }) =>
-              isActive && searchParams.get("status") === "requests"
-                ? undefined
-                : "opacity-40"
+              isActive && status === "requests" ? undefined : "opacity-40"
             }
             to={{
               pathname: "/friends",
@@ -61,9 +65,7 @@ export default function Friend() {
           </NavLink>
           <NavLink
             className={({ isActive }) =>
-              isActive && searchParams.get("status") === "pendings"
-                ? undefined
-                : "opacity-40"
+              isActive && status === "pendings" ? undefined : "opacity-40"
             }
             to={{
               pathname: "/friends",

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Header } from "./Header";
+import { Header } from ".";
 
 const meta = {
   title: "Header",
@@ -11,8 +11,8 @@ const meta = {
       uid: "0001",
       name: "テストユーザー",
       email: "test@example.com",
-      photoUrl: "https://i.pravatar.cc/300"
-    }
+      photoUrl: "https://i.pravatar.cc/300",
+    },
   },
 } satisfies Meta<typeof Header>;
 
@@ -25,4 +25,3 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   name: "デフォルト",
 };
-

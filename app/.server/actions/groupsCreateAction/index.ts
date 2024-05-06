@@ -1,7 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json, redirect } from "@remix-run/cloudflare";
-import { authLoader } from "~/.server/loaders";
 import { createDattiClient } from "~/lib/apiClient";
+import { getIdToken } from "~/lib/getIdToken.server";
 import { groupSchema } from "~/schema/group";
 
 export const groupsCreateAction = async ({
@@ -18,17 +18,12 @@ export const groupsCreateAction = async ({
     return json(submission.reply());
   }
 
-  const auth = await authLoader({
-    request,
-    params,
-    context,
-  });
-  const { idToken } = await auth.json();
-
+  const idToken = await getIdToken({ request, params, context });
   const dattiClient = createDattiClient(
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT
   );
+
   const result = await dattiClient.groups.$post({
     body: submission.value,
   });

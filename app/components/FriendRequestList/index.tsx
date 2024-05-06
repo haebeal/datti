@@ -17,19 +17,19 @@ export function FriendRequestList({ users }: Props) {
     );
   }
 
-  if (users.length < 0) {
+  if (users.length > 0) {
     return (
-      <div className="w-full h-full grid place-content-center">
-        <h3 className="font-semibold">ユーザーが見つかりませんでした</h3>
-      </div>
+      <>
+        {users.map((user) => (
+          <FriendRequestCard key={user.uid} user={user} />
+        ))}
+      </>
     );
   }
 
   return (
-    <>
-      {users.map((user) => (
-        <FriendRequestCard key={user.uid} user={user} />
-      ))}
-    </>
+    <div className="w-full h-full grid place-content-center">
+      <h3 className="font-semibold">ユーザーが見つかりませんでした</h3>
+    </div>
   );
 }

@@ -46,9 +46,9 @@ namespace Users {
    * プロフィール情報の取得
    */
   @summary("UIDによるユーザー情報の取得")
-  @route("{uid}")
+  @route("{userId}")
   @get()
-  op getUserByUid(@path uid: string):
+  op getUserByUid(@path userId: string):
   | Utils.Response.OKResponse<User>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -56,10 +56,10 @@ namespace Users {
   /**
    * フレンド申請の送信
    */
-  @route("{uid}/requests")
+  @route("{userId}/requests")
   @summary("フレンド申請の送信")
   @post
-  op friendRequest(@path uid: string):
+  op friendRequest(@path userId: string):
   | Utils.Response.CreatedMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;

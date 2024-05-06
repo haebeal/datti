@@ -45,10 +45,10 @@ namespace Friends {
   /**
    * フレンドの登録解除
    */
-  @route("{uid}")
+  @route("{userId}")
   @summary("フレンドの登録解除")
   @delete
-  op unRegisterFriend(@path uid: string):
+  op unRegisterFriend(@path userId: string):
   | Utils.Response.OKMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;

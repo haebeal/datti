@@ -16,14 +16,10 @@ import { groupSchema } from "~/schema/group";
 interface Props {
   defaultValue?: Group;
   lastResult?: SubmissionResult<string[] | null>;
-  buttonLabel?: string;
+  buttonLabel: "作成" | "更新";
 }
 
-export function GroupForm({
-  defaultValue,
-  lastResult,
-  buttonLabel = "作成",
-}: Props) {
+export function GroupForm({ defaultValue, lastResult, buttonLabel }: Props) {
   const [form, { name }] = useForm({
     defaultValue,
     lastResult,

@@ -1,3 +1,4 @@
+import { FaceIcon, GearIcon } from "@radix-ui/react-icons";
 import { Form, Link, NavLink } from "@remix-run/react";
 import { User } from "~/api/datti/@types";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
@@ -52,12 +53,14 @@ export const Header = ({ profile, ...divProps }: Props) => (
           <DropdownMenuLabel>{profile.name}</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <Link to="/setting">
-            <DropdownMenuItem className="hover:cursor-pointer">
+            <DropdownMenuItem className="hover:cursor-pointer flex gap-2">
+              <GearIcon />
               設定
             </DropdownMenuItem>
           </Link>
           <Link to="/friends">
-            <DropdownMenuItem className="hover:cursor-pointer">
+            <DropdownMenuItem className="hover:cursor-pointer flex gap-2">
+              <FaceIcon />
               フレンド
             </DropdownMenuItem>
           </Link>

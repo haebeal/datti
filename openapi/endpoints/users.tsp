@@ -110,24 +110,5 @@ model UserUpdateRequest{
    */
   photoUrl: string;
 
-  /**
-   * 金融機関コード
-   */
-  @minLength(4)
-  @maxLength(4)
-  bankCode: string;
-
-  /**
-   * 支店番号
-   */
-  @minLength(3)
-  @maxLength(3)
-  branchCode: string;
-  
-  /**
-   * 口座番号
-   */
-  @minLength(7)
-  @maxLength(7)
-  accountCode: string;
+  ...Bank
 }

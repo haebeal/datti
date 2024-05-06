@@ -9,7 +9,7 @@
     "api:build": "rm -rf ./app/api/datti/* && npx openapi2aspida -o app/api/datti -i https://haebeal.github.io/datti-api/openapi.yaml",
     "dev": "remix vite:dev",
     "start": "wrangler pages dev ./build/client",
-    "typeheck": "tsc",
+    "typecheck": "tsc",
     "typegen": "wrangler types",
     "lint": "eslint app",
     "format": "prettier --write src/**/*",

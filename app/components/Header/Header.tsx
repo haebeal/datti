@@ -2,7 +2,6 @@ import { FaceIcon, GearIcon } from "@radix-ui/react-icons";
 import { Form, Link, NavLink } from "@remix-run/react";
 import { User } from "~/api/datti/@types";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,12 +64,14 @@ export const Header = ({ profile, ...divProps }: Props) => (
             </DropdownMenuItem>
           </Link>
           <DropdownMenuSeparator />
-          <Form
-            action="/api/auth/signout"
-            method="post"
-            className="flex justify-center"
-          >
-            <Button>ログアウト</Button>
+          <Form action="/api/auth/signout" method="post">
+            <DropdownMenuItem asChild>
+              <input
+                className="hover:cursor-pointer w-full h-full"
+                type="submit"
+                value="ログアウト"
+              />
+            </DropdownMenuItem>
           </Form>
         </DropdownMenuContent>
       </DropdownMenu>

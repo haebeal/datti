@@ -53,7 +53,13 @@ export const action = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
   await dattiClient.users.me.$put({
-    body: submission.value,
+    body: {
+      name: submission.value.name,
+      photoUrl: submission.value.photoUrl,
+      bankCode: submission.value.bank.bankCode,
+      branchCode: submission.value.bank.branchCode,
+      accountCode: submission.value.bank.accountCode,
+    },
   });
 
   return json(submission.reply());

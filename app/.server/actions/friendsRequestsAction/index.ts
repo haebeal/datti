@@ -23,9 +23,9 @@ export const friendsRequestsAction = async ({
   );
 
   if (request.method === "POST") {
-    await dattiClient.users._uid(uid).requests.$post();
+    await dattiClient.users._userId(uid).requests.$post();
   } else if (request.method === "DELETE") {
-    await dattiClient.friends._uid(uid).$delete();
+    await dattiClient.friends._userId(uid).$delete();
   }
 
   return json({});

@@ -26,7 +26,7 @@ jobs:
         uses: Legion2/swagger-ui-action@v1
         with:
           output: docs/swagger-ui
-          spec-file: ./tsp-output/@typespec/openapi3/openapi.yaml
+          spec-file: openapi/tsp-output/@typespec/openapi3/openapi.yaml
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

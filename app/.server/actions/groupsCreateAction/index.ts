@@ -29,9 +29,9 @@ export const groupsCreateAction = async ({
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT
   );
-  await dattiClient.groups.$post({
+  const result = await dattiClient.groups.$post({
     body: submission.value,
   });
 
-  return redirect("/groups");
+  return redirect(`/groups/${result.id}`);
 };

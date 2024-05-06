@@ -99,15 +99,22 @@ export type User = {
   email: string
   /** 画像URL */
   photoUrl: string
-}
 
-export type UserGetRequest = {
-  /** メールアドレス */
-  email: string
+  /** 講座情報 */
+  bank: Bank
 }
 
 export type UserList = {
-  users: User[]
+  users: {
+    /** ユーザーID */
+    uid: string
+    /** ユーザー名 */
+    name: string
+    /** メールアドレス */
+    email: string
+    /** 画像URL */
+    photoUrl: string
+  }[]
 }
 
 export type UserUpdateRequest = {
@@ -115,4 +122,10 @@ export type UserUpdateRequest = {
   name: string
   /** 画像URL */
   photoUrl: string
+  /** 金融機関コード */
+  bankCode: string
+  /** 支店番号 */
+  branchCode: string
+  /** 口座番号 */
+  accountCode: string
 }

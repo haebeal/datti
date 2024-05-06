@@ -5,6 +5,7 @@ on:
     branches: [feature/**, develop, main]
     paths:
       - openapi/**
+      - .github/workflows/deploy-swagger-ui.yml
 
 jobs:
   deploy-to-github-pages:

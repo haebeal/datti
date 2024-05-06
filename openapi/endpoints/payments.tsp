@@ -24,10 +24,10 @@ namespace Payments {
   /**
    * 支払い情報の取得
    */
-  @route("{id}")
+  @route("{payId}")
   @summary("支払い情報の取得")
   @get
-  op getPayment(@path id: string):
+  op getPayment(@path payId: string):
   | Payment
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -45,10 +45,10 @@ namespace Payments {
   /**
    * 支払い情報の更新
    */
-  @route("{id}")
+  @route("{payId}")
   @summary("支払い情報の更新")
   @put
-  op putPayments(@path id: string, @body payment: PaymentsRequest):
+  op putPayments(@path payId: string, @body payment: PaymentsRequest):
   | Payment
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -56,10 +56,10 @@ namespace Payments {
   /**
    * 支払い情報の削除
    */
-  @route("{id}")
+  @route("{payId}")
   @summary("支払い情報の削除")
   @delete
-  op deletePayments(@path id: string):
+  op deletePayments(@path payId: string):
   | Utils.Response.OKMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;

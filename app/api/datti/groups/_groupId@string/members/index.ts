@@ -1,13 +1,18 @@
 /* eslint-disable */
-import type * as Types from '../@types'
+import type * as Types from '../../../@types'
 
 export type Methods = {
-  /** フレンドのユーザーを取得 */
-  get: {
+  /** グループに対するメンバーの追加 */
+  post: {
     status: 200
 
     /** 200レスポンス */
     resBody: {
+      /** グループID */
+      id: string
+      /** グループ名 */
+      name: string
+      /** ユーザー情報 */
       users: Types.User[]
       /** 作成時間 */
       createdAt: string
@@ -19,5 +24,7 @@ export type Methods = {
        */
       deletedAt: string | null
     }
+
+    reqBody: Types.Members
   }
 }

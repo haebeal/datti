@@ -1,14 +1,20 @@
 import { parseWithZod } from "@conform-to/zod";
-import { ActionFunctionArgs, json, redirect } from "@remix-run/cloudflare";
+import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { authLoader } from "~/.server/loaders";
 import { createDattiClient } from "~/lib/apiClient";
 import { groupSchema } from "~/schema/group";
 
-export const groupsCreateAction = async ({
+export const groupSettingsAction = async ({
   request,
   params,
   context,
 }: ActionFunctionArgs) => {
+  const groupId = params.id;
+
+  if (typeof groupId !== "string") {
+    throw new Error();
+  }
+
   const formData = await request.formData();
   const submission = parseWithZod(formData, {
     schema: groupSchema,
@@ -29,9 +35,11 @@ export const groupsCreateAction = async ({
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT
   );
-  const result = await dattiClient.groups.$post({
+  await dattiClient.groups._groupId(groupId).$put({
     body: submission.value,
   });
 
-  return redirect(`/groups/${result.id}`);
+  return json(submission.reply());
 };
+
+export type GroupSettingsAction = typeof groupSettingsAction;

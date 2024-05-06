@@ -7,18 +7,19 @@ import {
 import { parseWithZod } from "@conform-to/zod";
 import { Form, useNavigation } from "@remix-run/react";
 import { useId } from "react";
-import { GroupCreateRequest } from "~/api/datti/@types";
+import { Group } from "~/api/datti/@types";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { groupSchema } from "~/schema/group";
 
 interface Props {
-  defaultValue?: GroupCreateRequest;
+  defaultValue?: Group;
   lastResult?: SubmissionResult<string[] | null>;
+  buttonLabel: "作成" | "更新";
 }
 
-export function GroupForm({ defaultValue, lastResult }: Props) {
+export function GroupForm({ defaultValue, lastResult, buttonLabel }: Props) {
   const [form, { name }] = useForm({
     defaultValue,
     lastResult,
@@ -54,7 +55,7 @@ export function GroupForm({ defaultValue, lastResult }: Props) {
           className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
           disabled={state !== "idle"}
         >
-          作成
+          {buttonLabel}
         </Button>
       </Form>
     </div>

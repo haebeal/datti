@@ -1,14 +1,25 @@
 /* eslint-disable */
-import type * as Types from '../@types'
+import type * as Types from '../../@types'
 
 export type Methods = {
-  /** フレンドのユーザーを取得 */
+  /** プロフィール情報の取得 */
   get: {
     status: 200
 
     /** 200レスポンス */
     resBody: {
-      users: Types.User[]
+      /** ユーザーID */
+      uid: string
+      /** ユーザー名 */
+      name: string
+      /** メールアドレス */
+      email: string
+      /** 画像URL */
+      photoUrl: string
+
+      /** 口座情報 */
+      bank: Types.Bank
+
       /** 作成時間 */
       createdAt: string
       /** 更新時間 */

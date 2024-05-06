@@ -13,12 +13,22 @@ const meta = {
         name: "テストユーザー1",
         email: "test01@example.com",
         photoUrl: "https://i.pravatar.cc/300?img=1",
+        bank: {
+          bankCode: "0001",
+          branchCode: "001",
+          accountCode: "1234567",
+        },
       },
       {
         uid: "002",
         name: "テストユーザー2",
         email: "test02@example.com",
         photoUrl: "https://i.pravatar.cc/300?img=2",
+        bank: {
+          bankCode: "0005",
+          branchCode: "001",
+          accountCode: "1234567",
+        },
       },
     ],
   },

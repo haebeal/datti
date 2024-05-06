@@ -25,7 +25,7 @@ export default function GroupCreate() {
         <DialogHeader>
           <DialogTitle>グループ作成</DialogTitle>
         </DialogHeader>
-        <GroupForm />
+        <GroupForm buttonLabel="作成" />
       </DialogContent>
     </Dialog>
   );

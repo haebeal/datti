@@ -2,15 +2,17 @@ import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { authLoader } from "~/.server/loaders";
 import { createDattiClient } from "~/lib/apiClient";
 
-export const friendsRequestsAction = async ({
+export const groupMemberAddAction = async ({
   request,
   params,
   context,
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
+
+  const groupId = params.id;
   const uid = formData.get("uid");
 
-  if (typeof uid !== "string") {
+  if (typeof groupId !== "string" || typeof uid !== "string") {
     throw new Error();
   }
 
@@ -23,12 +25,15 @@ export const friendsRequestsAction = async ({
   );
 
   if (request.method === "POST") {
-    await dattiClient.users._userId(uid).requests.$post();
-  } else if (request.method === "DELETE") {
-    await dattiClient.friends._userId(uid).$delete();
+    console.log(uid);
+    await dattiClient.groups._groupId(groupId).members.$post({
+      body: {
+        uids: [uid],
+      },
+    });
   }
 
   return json({});
 };
 
-export type FriendsRequestsAction = typeof friendsRequestsAction;
+export type GroupMemberAddAction = typeof groupMemberAddAction;

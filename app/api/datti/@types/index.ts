@@ -23,33 +23,22 @@ export type Event = {
   group_id: string
 }
 
-export type EventCreate = {
+export type EventCreateRequest = {
   /** イベント名 */
   name: string
   /** イベントの日付 */
   evented_at: string
 }
 
-export type EventList = {
-  events: {
-    /** イベントID */
-    id: string
-    /** イベント名 */
-    name: string
-    /** イベントの日付 */
-    evented_at: string
-    /** イベント作成者のユーザー情報 */
-    created_by: string
-    /** イベントの紐づいたグループID */
-    group_id: string
-  }[]
-}
-
-export type EventUpdate = {
+export type EventUpdateRequest = {
   /** イベント名 */
   name: string
   /** イベントの日付 */
   evented_at: string
+}
+
+export type EventsResponse = {
+  events: Event[]
 }
 
 export type Group = {
@@ -66,9 +55,13 @@ export type GroupCreateRequest = {
   uids: string[]
 }
 
-export type GroupList = {
-  /** グループ */
-  groups: Group[]
+export type GroupResponse = {
+  /** グループID */
+  id: string
+  /** グループ名 */
+  name: string
+  /** ユーザー情報 */
+  users: User[]
 }
 
 export type GroupUpdateRequest = {
@@ -76,13 +69,9 @@ export type GroupUpdateRequest = {
   name: string
 }
 
-export type GroupUsers = {
-  /** グループID */
-  id: string
-  /** グループ名 */
-  name: string
-  /** ユーザー情報 */
-  users: User[]
+export type GroupsResponse = {
+  /** グループ */
+  groups: Group[]
 }
 
 export type Members = {
@@ -99,15 +88,9 @@ export type User = {
   email: string
   /** 画像URL */
   photoUrl: string
-}
 
-export type UserGetRequest = {
-  /** メールアドレス */
-  email: string
-}
-
-export type UserList = {
-  users: User[]
+  /** 口座情報 */
+  bank: Bank
 }
 
 export type UserUpdateRequest = {
@@ -115,4 +98,14 @@ export type UserUpdateRequest = {
   name: string
   /** 画像URL */
   photoUrl: string
+  /** 金融機関コード */
+  bankCode: string
+  /** 支店番号 */
+  branchCode: string
+  /** 口座番号 */
+  accountCode: string
+}
+
+export type UsersResponse = {
+  users: User[]
 }

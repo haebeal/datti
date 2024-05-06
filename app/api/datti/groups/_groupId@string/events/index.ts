@@ -1,15 +1,14 @@
 /* eslint-disable */
-import type * as Types from '../@types'
+import type * as Types from '../../../@types'
 
 export type Methods = {
-  /** 所属しているグループの取得 */
+  /** グループIDに紐づくイベント情報の取得 */
   get: {
     status: 200
 
     /** 200レスポンス */
     resBody: {
-      /** グループ */
-      groups: Types.Group[]
+      events: Types.Event[]
       /** 作成時間 */
       createdAt: string
       /** 更新時間 */
@@ -22,18 +21,24 @@ export type Methods = {
     }
   }
 
-  /** グループの作成 */
+  /** イベント情報の登録 */
   post: {
-    status: 200
+    status: 201
 
-    /** 200レスポンス */
+    /** 201レスポンス */
     resBody: {
-      /** グループID */
+      /** イベントID */
       id: string
-      /** グループ名 */
+      /** イベント名 */
       name: string
-      /** ユーザー情報 */
-      users: Types.User[]
+      /** イベントの日付 */
+      evented_at: string
+
+      /** イベント作成者のユーザー情報 */
+      created_by: Types.User
+
+      /** イベントの紐づいたグループID */
+      group_id: string
       /** 作成時間 */
       createdAt: string
       /** 更新時間 */
@@ -45,6 +50,6 @@ export type Methods = {
       deletedAt: string | null
     }
 
-    reqBody: Types.GroupCreateRequest
+    reqBody: Types.EventCreateRequest
   }
 }

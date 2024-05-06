@@ -20,7 +20,7 @@ export default function FriendRequest() {
       defaultOpen
       onOpenChange={(isOpen) => {
         if (!isOpen) {
-          navigate("/friends");
+          navigate(-1);
         }
       }}
     >

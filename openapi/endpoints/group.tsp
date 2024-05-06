@@ -16,7 +16,7 @@ namespace Groups {
   @summary("所属しているグループ情報の取得")
   @get
   op getGroups():
-  | GroupList
+  | Utils.Response.OKResponse<GroupsResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace Groups {
   @summary("グループ情報の取得")
   @get
   op getGroup(@path id: string):
-  | GroupUsers
+  | Utils.Response.OKResponse<GroupResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -38,7 +38,7 @@ namespace Groups {
   @summary("グループに対するメンバーの招待")
   @post
   op registedUsers(@path id: string, @body members: Members):
-  | GroupUsers
+  | Utils.Response.OKResponse<GroupResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -48,7 +48,7 @@ namespace Groups {
   @summary("グループの作成")
   @post
   op postGroup(...GroupCreateRequest):
-  | GroupUsers
+  | Utils.Response.OKResponse<GroupResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -59,7 +59,7 @@ namespace Groups {
   @summary("グループ情報の更新")
   @put
   op putGroup(@path id: string, @body group: GroupUpdateRequest):
-  | GroupUsers
+  | Utils.Response.OKResponse<GroupResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 }
@@ -76,14 +76,14 @@ model Group {
   name: string;
 }
 
-model GroupList {
+model GroupsResponse {
   /**
    * グループ
    */
   groups: Group[];
 }
 
-model GroupUsers {
+model GroupResponse {
   /**
    * グループID
    */

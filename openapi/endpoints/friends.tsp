@@ -16,7 +16,7 @@ namespace Friends {
   @summary("フレンドのユーザーを取得")
   @get
   op getFriend():
-  | UserList
+  | Utils.Response.OKResponse<UsersResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace Friends {
   @summary("フレンド申請中のユーザーを取得")
   @get
   op getFriendRequest():
-  | UserList
+  | Utils.Response.OKResponse<UsersResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -38,7 +38,7 @@ namespace Friends {
   @summary("フレンド申請未承認のユーザーを取得")
   @get
   op getPendingFriendRequest():
-  | UserList
+  | Utils.Response.OKResponse<UsersResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 

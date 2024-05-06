@@ -16,7 +16,7 @@ namespace Users {
   @summary("メールアドレスによるユーザー情報の取得")
   @get
   op getUserByEmail(@query email?: string):
-  | UserList
+  | Utils.Response.OKResponse<UsersResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace Users {
   @summary("ユーザー情報（自分）の取得")
   @get()
   op getMe():
-  | User
+  | Utils.Response.OKResponse<User>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
   
@@ -38,7 +38,7 @@ namespace Users {
   @summary("ユーザー情報（自分）の更新")
   @put
   op updateMe(...UserUpdateRequest):
-  | User
+  | Utils.Response.OKResponse<User>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -49,7 +49,7 @@ namespace Users {
   @route("{uid}")
   @get()
   op getUserByUid(@path uid: string):
-  | User
+  | Utils.Response.OKResponse<User>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -90,35 +90,13 @@ model User {
   photoUrl: string;
 
   /**
-   * 講座情報
+   * 口座情報
    */
   bank: Bank;
 }
 
-model UserList {
-  users: {
-    /**
-     * ユーザーID
-     */
-    @minLength(28)
-    @maxLength(28)
-    uid: string;
-
-    /**
-     * ユーザー名
-     */
-    name: string;
-
-    /**
-     * メールアドレス
-     */
-    email: string;
-
-    /**
-     * 画像URL
-     */
-    photoUrl: string;
-  }[];
+model UsersResponse {
+  users: User[];
 }
 
 model UserUpdateRequest{

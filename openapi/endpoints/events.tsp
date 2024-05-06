@@ -17,7 +17,7 @@ namespace Events {
   @summary("イベントIDに紐づくイベント情報の取得")
   @get
   op getEvent(@path gid: string, @path id: string):
-  | Event
+  | Utils.Response.OKResponse<Event>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -28,7 +28,7 @@ namespace Events {
   @summary("グループIDに紐づくイベント情報の取得")
   @get
   op getEventsByGid(@path gid: string):
-  | EventList
+  | Utils.Response.OKResponse<EventsResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -38,8 +38,8 @@ namespace Events {
   @route("events")
   @summary("イベント情報の登録")
   @post
-  op createEvent(@path gid: string, @body event: EventCreate):
-  | Event
+  op createEvent(@path gid: string, @body event: EventCreateRequest):
+  | Utils.Response.CreatedResponse<Event>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -49,8 +49,8 @@ namespace Events {
   @route("events/{id}")
   @summary("イベント情報の更新")
   @put
-  op updateEvent(@path gid:string, @path id: string, @body event: EventUpdate):
-  | Event
+  op updateEvent(@path gid:string, @path id: string, @body event: EventUpdateRequest):
+  | Utils.Response.OKResponse<Event>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -93,36 +93,11 @@ model Event {
   group_id: string;
 }
 
-model EventList {
-  events: {
-    /**
-     * イベントID
-     */
-    id: string;
-
-    /**
-     * イベント名
-     */
-    name: string;
-
-    /**
-     * イベントの日付
-     */
-    evented_at: utcDateTime;
-
-    /**
-     * イベント作成者のユーザー情報
-     */
-    created_by: string;
-
-    /**
-     * イベントの紐づいたグループID
-     */
-    group_id: string;
-  }[];
+model EventsResponse {
+  events: Event[];
 }
 
-model EventCreate {
+model EventCreateRequest {
   /**
    * イベント名
    */
@@ -134,7 +109,7 @@ model EventCreate {
   evented_at: utcDateTime;
 }
 
-model EventUpdate {
+model EventUpdateRequest {
   /**
    * イベント名
    */

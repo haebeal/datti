@@ -32,7 +32,7 @@ export function FriendRequestForm({ users }: Props) {
               disabled={state !== "idle"}
             />
           </div>
-          <input hidden name="status" value={status} />
+          <input readOnly hidden name="status" value={status} />
           <Button
             type="submit"
             className="bg-sky-500 hover:bg-sky-600  font-semibold"

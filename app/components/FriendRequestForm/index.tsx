@@ -15,6 +15,7 @@ export function FriendRequestForm({ users }: Props) {
   const { state } = useNavigation();
   const searchParams = new URLSearchParams(search);
 
+  const status = searchParams.get("status") ?? undefined;
   const searchQuery = searchParams.get("q") ?? undefined;
   const searchId = useId();
 
@@ -31,6 +32,7 @@ export function FriendRequestForm({ users }: Props) {
               disabled={state !== "idle"}
             />
           </div>
+          <input hidden name="status" value={status} />
           <Button
             type="submit"
             className="bg-sky-500 hover:bg-sky-600  font-semibold"

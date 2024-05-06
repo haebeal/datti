@@ -1,6 +1,6 @@
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import { FriendsRequestsLoader } from "~/.server/loaders";
-import { UserList } from "~/components/UserList";
+import { FriendRequestForm } from "~/components/FriendRequestForm";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +28,7 @@ export default function FriendRequest() {
         <DialogHeader>
           <DialogTitle>フレンド申請</DialogTitle>
         </DialogHeader>
-        <UserList users={users} />
+        <FriendRequestForm users={users} />
       </DialogContent>
     </Dialog>
   );

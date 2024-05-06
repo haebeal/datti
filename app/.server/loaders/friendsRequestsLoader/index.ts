@@ -22,10 +22,17 @@ export const friendsRequestsLoader = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
 
+  const { searchParams } = new URL(request.url);
+  const searchQuery = searchParams.get("q");
+
   const { users: friends } = await dattiClient.friends.$get();
-  const users = (await dattiClient.users.$get()).users.filter(
-    (user) => user.uid !== profile.uid
-  );
+  const users = (
+    await dattiClient.users.$get({
+      query: {
+        email: searchQuery ?? undefined,
+      },
+    })
+  ).users.filter((user) => user.uid !== profile.uid);
 
   const end = performance.now();
   console.log(`end friends loader at ${end - start}ms`);

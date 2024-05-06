@@ -1,6 +1,6 @@
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
-import { authLoader } from "~/.server/loaders";
 import { createDattiClient } from "~/lib/apiClient";
+import { getIdToken } from "~/lib/getIdToken.server";
 
 export const groupMemberAddAction = async ({
   request,
@@ -16,9 +16,7 @@ export const groupMemberAddAction = async ({
     throw new Error();
   }
 
-  const auth = await authLoader({ request, params, context });
-  const { idToken } = await auth.json();
-
+  const idToken = await getIdToken({ request, params, context });
   const dattiClient = createDattiClient(
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT

@@ -1,6 +1,5 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { Link, Outlet, useLoaderData, useNavigation } from "@remix-run/react";
-import { GroupsLoader } from "~/.server/loaders/groupsLoader";
+import { Link, Outlet, useNavigation } from "@remix-run/react";
 import { GroupList } from "~/components/GroupList";
 import { Button } from "~/components/ui/button";
 
@@ -12,7 +11,6 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function Group() {
-  const { groups } = useLoaderData<GroupsLoader>();
   const { state } = useNavigation();
 
   return (
@@ -29,7 +27,7 @@ export default function Group() {
         </Link>
       </div>
       <div className="rounded-lg bg-white py-3 px-5">
-        <GroupList groups={groups} />
+        <GroupList />
       </div>
       <Outlet />
     </div>

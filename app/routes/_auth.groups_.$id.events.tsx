@@ -47,7 +47,7 @@ export default function GroupEvents() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>フレンド申請</DialogTitle>
+              <DialogTitle>イベント作成</DialogTitle>
             </DialogHeader>
             <EventForm lastResult={lastResult} method="post" />
           </DialogContent>

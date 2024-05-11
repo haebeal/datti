@@ -30,7 +30,6 @@ export default function Group() {
     if (lastResult?.status === "success") {
       setOpen(false);
     }
-    console.log(lastResult);
   }, [lastResult]);
 
   return (

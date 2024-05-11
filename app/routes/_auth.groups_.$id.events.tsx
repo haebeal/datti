@@ -31,7 +31,6 @@ export default function GroupEvents() {
     if (lastResult?.status === "success") {
       setOpen(false);
     }
-    console.log(lastResult);
   }, [lastResult]);
 
   return (

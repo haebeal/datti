@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 
@@ -7,6 +7,9 @@ export const groupLoader = async ({
   params,
   context,
 }: LoaderFunctionArgs) => {
+  const { searchParams } = new URL(request.url);
+  const searchQuery = searchParams.get("q");
+
   const groupId = params.id;
   if (!groupId) {
     throw new Error("Not Found Group");
@@ -18,11 +21,17 @@ export const groupLoader = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
 
-  const group = await dattiClient.groups._groupId(groupId).$get();
+  const users = dattiClient.users.$get({
+    query: {
+      email: searchQuery ?? undefined,
+    },
+  });
+  const group = dattiClient.groups._groupId(groupId).$get();
 
-  return {
+  return defer({
+    users,
     group,
-  };
+  });
 };
 
 export type GroupLoader = typeof groupLoader;

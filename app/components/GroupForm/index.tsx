@@ -16,10 +16,10 @@ import { groupSchema } from "~/schema/group";
 interface Props {
   defaultValue?: Group;
   lastResult?: SubmissionResult<string[] | null>;
-  buttonLabel: "作成" | "更新";
+  method: "post" | "put";
 }
 
-export function GroupForm({ defaultValue, lastResult, buttonLabel }: Props) {
+export function GroupForm({ defaultValue, lastResult, method }: Props) {
   const [form, { name }] = useForm({
     defaultValue,
     lastResult,
@@ -36,7 +36,7 @@ export function GroupForm({ defaultValue, lastResult, buttonLabel }: Props) {
   return (
     <div className="px-4">
       <Form
-        method="POST"
+        method={method}
         {...getFormProps(form)}
         className="flex flex-col gap-8 items-center col-span-4"
       >
@@ -55,7 +55,7 @@ export function GroupForm({ defaultValue, lastResult, buttonLabel }: Props) {
           className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
           disabled={state !== "idle"}
         >
-          {buttonLabel}
+          {method === "post" ? "作成" : "更新"}
         </Button>
       </Form>
     </div>

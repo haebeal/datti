@@ -1,8 +1,10 @@
+import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
+import { eventSchema } from "~/schema/event";
 
-export const groupMemberAddAction = async ({
+export const groupEventsAction = async ({
   request,
   params,
   context,
@@ -10,10 +12,17 @@ export const groupMemberAddAction = async ({
   const formData = await request.formData();
 
   const groupId = params.id;
-  const uid = formData.get("uid");
 
-  if (typeof groupId !== "string" || typeof uid !== "string") {
+  if (typeof groupId !== "string") {
     throw new Error();
+  }
+
+  const submission = parseWithZod(formData, {
+    schema: eventSchema,
+  });
+
+  if (submission.status !== "success") {
+    return json(submission.reply());
   }
 
   const idToken = await getIdToken({ request, params, context });
@@ -23,14 +32,12 @@ export const groupMemberAddAction = async ({
   );
 
   if (request.method === "POST") {
-    await dattiClient.groups._groupId(groupId).members.$post({
-      body: {
-        uids: [uid],
-      },
+    await dattiClient.groups._groupId(groupId).events.$post({
+      body: submission.value,
     });
   }
 
-  return json({});
+  return json(submission.reply());
 };
 
-export type GroupMemberAddAction = typeof groupMemberAddAction;
+export type GroupEventsAction = typeof groupEventsAction;

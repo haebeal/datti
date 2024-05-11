@@ -1,16 +1,11 @@
 import { Form, useLocation, useNavigation } from "@remix-run/react";
 import { useId } from "react";
-import { User } from "~/api/datti/@types";
 import { FriendRequestList } from "~/components/FriendRequestList";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 
-interface Props {
-  users: User[];
-}
-
-export function FriendRequestForm({ users }: Props) {
+export function FriendRequestForm() {
   const { search } = useLocation();
   const { state } = useNavigation();
   const searchParams = new URLSearchParams(search);
@@ -43,7 +38,7 @@ export function FriendRequestForm({ users }: Props) {
         </div>
       </Form>
       <div className="flex flex-col gap-3 w-full h-80 overflow-y-auto">
-        <FriendRequestList users={users} />
+        <FriendRequestList />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 
@@ -7,9 +7,8 @@ export const friendsLoader = async ({
   params,
   context,
 }: LoaderFunctionArgs) => {
-  const url = new URL(request.url);
-  const searchParams = url.searchParams;
-  const status = searchParams.get("status");
+  const { searchParams } = new URL(request.url);
+  const searchQuery = searchParams.get("q");
 
   const idToken = await getIdToken({ request, params, context });
   const dattiClient = createDattiClient(
@@ -17,16 +16,21 @@ export const friendsLoader = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
 
-  const { users: friends } =
-    status === "requests"
-      ? await dattiClient.friends.requests.$get()
-      : status === "pendings"
-        ? await dattiClient.friends.pendings.$get()
-        : await dattiClient.friends.$get();
+  const users = dattiClient.users.$get({
+    query: {
+      email: searchQuery ?? undefined,
+    },
+  });
+  const friends = dattiClient.friends.$get();
+  const pendings = dattiClient.friends.pendings.$get();
+  const requests = dattiClient.friends.requests.$get();
 
-  return {
+  return defer({
+    users,
     friends,
-  };
+    pendings,
+    requests,
+  });
 };
 
 export type FriendsLoader = typeof friendsLoader;

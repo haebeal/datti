@@ -11,7 +11,7 @@ import { Group } from "~/api/datti/@types";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { groupSchema } from "~/schema/group";
+import { groupFormSchema } from "~/schema/groupFormSchema";
 
 interface Props {
   defaultValue?: Group;
@@ -25,7 +25,7 @@ export function GroupForm({ defaultValue, lastResult, buttonLabel }: Props) {
     lastResult,
     onValidate({ formData }) {
       return parseWithZod(formData, {
-        schema: groupSchema,
+        schema: groupFormSchema,
       });
     },
   });

@@ -2,7 +2,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
-import { groupSchema } from "~/schema/group";
+import { groupFormSchema } from "~/schema/groupFormSchema";
 
 export const groupSettingsAction = async ({
   request,
@@ -17,7 +17,7 @@ export const groupSettingsAction = async ({
 
   const formData = await request.formData();
   const submission = parseWithZod(formData, {
-    schema: groupSchema,
+    schema: groupFormSchema,
   });
 
   if (submission.status !== "success") {

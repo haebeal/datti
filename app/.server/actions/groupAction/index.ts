@@ -4,7 +4,7 @@ import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 import { groupSchema } from "~/schema/group";
 
-export const groupSettingsAction = async ({
+export const groupAction = async ({
   request,
   params,
   context,
@@ -30,11 +30,17 @@ export const groupSettingsAction = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
 
-  await dattiClient.groups._groupId(groupId).$put({
-    body: submission.value,
-  });
+  if (request.method === "POST") {
+    await dattiClient.groups.$post({
+      body: submission.value,
+    });
+  } else if (request.method === "PUT") {
+    await dattiClient.groups._groupId(groupId).$put({
+      body: submission.value,
+    });
+  }
 
   return json(submission.reply());
 };
 
-export type GroupSettingsAction = typeof groupSettingsAction;
+export type GroupAction = typeof groupAction;

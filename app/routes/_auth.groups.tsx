@@ -1,5 +1,6 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { Outlet, useNavigation } from "@remix-run/react";
+import { Outlet, useActionData, useNavigation } from "@remix-run/react";
+import { GroupAction } from "~/.server/actions";
 import { GroupForm } from "~/components/GroupForm";
 import { GroupList } from "~/components/GroupList";
 import { Button } from "~/components/ui/button";
@@ -11,6 +12,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 
+export { groupAction as action } from "~/.server/actions";
 export { groupsLoader as loader } from "~/.server/loaders";
 
 export const meta: MetaFunction = () => [
@@ -20,6 +22,7 @@ export const meta: MetaFunction = () => [
 
 export default function Group() {
   const { state } = useNavigation();
+  const lastResult = useActionData<GroupAction>();
 
   return (
     <div className="flex flex-col py-3 gap-7">
@@ -38,7 +41,7 @@ export default function Group() {
             <DialogHeader>
               <DialogTitle>グループ作成</DialogTitle>
             </DialogHeader>
-            <GroupForm buttonLabel="作成" />
+            <GroupForm lastResult={lastResult} buttonLabel="作成" />
           </DialogContent>
         </Dialog>
       </div>

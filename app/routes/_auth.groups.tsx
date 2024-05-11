@@ -26,7 +26,7 @@ export default function Group() {
       <div className="flex items-center justify-between">
         <h1 className="font-bold text-2xl">グループ一覧</h1>
         <Dialog>
-          <DialogTrigger>
+          <DialogTrigger asChild>
             <Button
               disabled={state === "loading"}
               className="bg-sky-500 hover:bg-sky-600 font-semibold"

@@ -15,6 +15,8 @@ export default function GroupEvents() {
   const { pathname } = useLocation();
   const { state } = useNavigation();
   const { events } = useLoaderData<GroupEventsLoader>();
+  const lastResult = useActionData<GroupAction>();
+
 
   return (
     <div className="flex flex-col py-3 gap-3">

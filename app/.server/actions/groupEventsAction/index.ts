@@ -1,10 +1,10 @@
 import { parseWithZod } from "@conform-to/zod";
-import { ActionFunctionArgs, json, redirect } from "@remix-run/cloudflare";
+import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 import { eventSchema } from "~/schema/event";
 
-export const eventCreateAction = async ({
+export const groupEventsAction = async ({
   request,
   params,
   context,
@@ -31,11 +31,13 @@ export const eventCreateAction = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
 
-  await dattiClient.groups._groupId(groupId).events.$post({
-    body: submission.value,
-  });
+  if (request.method === "POST") {
+    await dattiClient.groups._groupId(groupId).events.$post({
+      body: submission.value,
+    });
+  }
 
-  return redirect(`/groups/${groupId}/events`);
+  return json(submission.reply());
 };
 
-export type EventCreateAction = typeof eventCreateAction;
+export type GroupEventsAction = typeof groupEventsAction;

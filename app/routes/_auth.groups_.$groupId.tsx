@@ -20,7 +20,7 @@ export const meta: MetaFunction = () => [
 export default function GroupDetail() {
   const macthes = useMatches();
   const { params } = macthes[0];
-  const groupId = params.id;
+  const groupId = params.groupId;
 
   const { group } = useLoaderData<GroupLoader>();
 

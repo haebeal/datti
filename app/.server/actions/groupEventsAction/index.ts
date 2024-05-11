@@ -11,8 +11,7 @@ export const groupEventsAction = async ({
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
 
-  const groupId = params.id;
-
+  const groupId = params.groupId;
   if (typeof groupId !== "string") {
     throw new Error();
   }
@@ -33,6 +32,15 @@ export const groupEventsAction = async ({
 
   if (request.method === "POST") {
     await dattiClient.groups._groupId(groupId).events.$post({
+      body: submission.value,
+    });
+  } else if (request.method === "PUT") {
+    const eventId = params.eventId;
+    if (typeof eventId !== "string") {
+      throw new Error();
+    }
+
+    await dattiClient.groups._groupId(groupId).events._eventId(eventId).$put({
       body: submission.value,
     });
   }

@@ -2,14 +2,16 @@ import { LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 
-export const groupEventsLoader = async ({
+export const groupEventLoader = async ({
   request,
   params,
   context,
 }: LoaderFunctionArgs) => {
   const groupId = params.groupId;
-  if (!groupId) {
-    throw new Error("Not Found Group");
+  const eventId = params.eventId;
+
+  if (typeof groupId !== "string" || typeof eventId !== "string") {
+    throw new Error("Not Found Event");
   }
 
   const idToken = await getIdToken({ request, params, context });
@@ -18,9 +20,12 @@ export const groupEventsLoader = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
 
-  const events = dattiClient.groups._groupId(groupId).events.$get();
+  const event = dattiClient.groups
+    ._groupId(groupId)
+    .events._eventId(eventId)
+    .$get();
 
-  return defer({ events });
+  return defer({ event });
 };
 
-export type GroupEventsLoader = typeof groupEventsLoader;
+export type GroupEventLoader = typeof groupEventLoader;

@@ -1,21 +1,12 @@
-import {
-  Link,
-  Outlet,
-  useLoaderData,
-  useLocation,
-  useNavigation,
-} from "@remix-run/react";
-import { GroupMembersLoader } from "~/.server/loaders";
+import { Link, Outlet, useLocation, useNavigation } from "@remix-run/react";
 import { MemberList } from "~/components/MemberList";
 import { Button } from "~/components/ui/button";
 
-export { groupMembersLoader as loader } from "~/.server/loaders";
+export { groupLoader as loader } from "~/.server/loaders";
 
 export default function GroupMembers() {
   const { pathname } = useLocation();
   const { state } = useNavigation();
-
-  const { members } = useLoaderData<GroupMembersLoader>();
 
   return (
     <div className="flex flex-col py-3 gap-3">
@@ -29,7 +20,7 @@ export default function GroupMembers() {
           </Button>
         </Link>
       </div>
-      <MemberList members={members} />
+      <MemberList />
       <Outlet />
     </div>
   );

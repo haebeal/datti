@@ -1,7 +1,15 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { Link, Outlet, useNavigation } from "@remix-run/react";
+import { Outlet, useNavigation } from "@remix-run/react";
+import { GroupForm } from "~/components/GroupForm";
 import { GroupList } from "~/components/GroupList";
 import { Button } from "~/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 
 export { groupsLoader as loader } from "~/.server/loaders";
 
@@ -17,14 +25,22 @@ export default function Group() {
     <div className="flex flex-col py-3 gap-7">
       <div className="flex items-center justify-between">
         <h1 className="font-bold text-2xl">グループ一覧</h1>
-        <Link className="flex items-center" to="/groups/create">
-          <Button
-            disabled={state === "loading"}
-            className="bg-sky-500 hover:bg-sky-600 font-semibold"
-          >
-            グループ作成
-          </Button>
-        </Link>
+        <Dialog>
+          <DialogTrigger>
+            <Button
+              disabled={state === "loading"}
+              className="bg-sky-500 hover:bg-sky-600 font-semibold"
+            >
+              グループ作成
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>グループ作成</DialogTitle>
+            </DialogHeader>
+            <GroupForm buttonLabel="作成" />
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="rounded-lg bg-white py-3 px-5">
         <GroupList />

@@ -10,6 +10,7 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 
+export { groupMembersAction as action } from "~/.server/actions";
 export { groupLoader as loader } from "~/.server/loaders";
 
 export default function GroupMembers() {

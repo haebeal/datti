@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 
@@ -18,11 +18,11 @@ export const groupLoader = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
 
-  const group = await dattiClient.groups._groupId(groupId).$get();
+  const group = dattiClient.groups._groupId(groupId).$get();
 
-  return {
+  return defer({
     group,
-  };
+  });
 };
 
 export type GroupLoader = typeof groupLoader;

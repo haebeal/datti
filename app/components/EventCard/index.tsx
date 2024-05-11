@@ -6,7 +6,7 @@ import {
   AlertDialogDescription,
   AlertDialogTrigger,
 } from "@radix-ui/react-alert-dialog";
-import { Form, useNavigation } from "@remix-run/react";
+import { Form, Link, useNavigation } from "@remix-run/react";
 import { Event } from "~/api/datti/@types";
 import {
   AlertDialogFooter,
@@ -22,7 +22,10 @@ export function EventCard({ event }: Props) {
   const { state } = useNavigation();
 
   return (
-    <div className="flex flex-row  w-full bg-white px-6 py-5 gap-5 items-center rounded-md border border-gray-200">
+    <Link
+      to={`/groups/${event.group_id}/${event.id}`}
+      className="flex flex-row  w-full bg-white hover:bg-slate-50 hover:cursor-pointer px-6 py-5 gap-5 items-center rounded-md border border-gray-200"
+    >
       <h1 className="text-lg font-bold mr-auto">{event.name}</h1>
 
       <AlertDialog>
@@ -56,6 +59,6 @@ export function EventCard({ event }: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </Link>
   );
 }

@@ -1,5 +1,6 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
 import { Outlet, useActionData, useNavigation } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { GroupAction } from "~/.server/actions";
 import { GroupForm } from "~/components/GroupForm";
 import { GroupList } from "~/components/GroupList";
@@ -24,11 +25,19 @@ export default function Group() {
   const { state } = useNavigation();
   const lastResult = useActionData<GroupAction>();
 
+  const [isOpen, setOpen] = useState(false);
+  useEffect(() => {
+    if (lastResult?.status === "success") {
+      setOpen(false);
+    }
+    console.log(lastResult);
+  }, [lastResult]);
+
   return (
     <div className="flex flex-col py-3 gap-7">
       <div className="flex items-center justify-between">
         <h1 className="font-bold text-2xl">グループ一覧</h1>
-        <Dialog>
+        <Dialog open={isOpen} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button
               disabled={state === "loading"}
@@ -41,7 +50,7 @@ export default function Group() {
             <DialogHeader>
               <DialogTitle>グループ作成</DialogTitle>
             </DialogHeader>
-            <GroupForm lastResult={lastResult} buttonLabel="作成" />
+            <GroupForm lastResult={lastResult} method="post" />
           </DialogContent>
         </Dialog>
       </div>

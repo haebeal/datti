@@ -9,12 +9,6 @@ export const groupAction = async ({
   params,
   context,
 }: ActionFunctionArgs) => {
-  const groupId = params.id;
-
-  if (typeof groupId !== "string") {
-    throw new Error();
-  }
-
   const formData = await request.formData();
   const submission = parseWithZod(formData, {
     schema: groupSchema,
@@ -35,6 +29,10 @@ export const groupAction = async ({
       body: submission.value,
     });
   } else if (request.method === "PUT") {
+    const groupId = params.id;
+    if (typeof groupId !== "string") {
+      throw new Error();
+    }
     await dattiClient.groups._groupId(groupId).$put({
       body: submission.value,
     });

@@ -27,7 +27,7 @@ export default function GroupSettings() {
             <GroupForm
               defaultValue={group}
               lastResult={lastResult}
-              buttonLabel="更新"
+              method="put"
             />
           )}
         </Await>

@@ -1,4 +1,4 @@
-import { LoaderFunctionArgs, json, redirect } from "@remix-run/cloudflare";
+import { LoaderFunctionArgs, defer, redirect } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 
@@ -16,11 +16,10 @@ export const authLoader = async ({
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT
   );
-  const profile = await dattiClient.users.me.$get();
+  const profile = dattiClient.users.me.$get();
 
-  return json({
+  return defer({
     profile,
-    idToken,
   });
 };
 

@@ -20,7 +20,7 @@ interface Props {
 }
 
 export function ProfileForm({ defaultValue, lastResult }: Props) {
-  const [form, { uid, name, email, photoUrl, bank }] = useForm({
+  const [form, { name, photoUrl, bank }] = useForm({
     defaultValue,
     lastResult,
     onValidate({ formData }) {
@@ -49,18 +49,16 @@ export function ProfileForm({ defaultValue, lastResult }: Props) {
         {...getFormProps(form)}
         className="flex flex-col gap-8 items-center col-span-5 md:col-span-3"
       >
-        <Input {...getInputProps(uid, { type: "hidden" })} />
         <Input {...getInputProps(photoUrl, { type: "hidden" })} />
         <div className="w-full">
           <Label htmlFor={emailId}>メールアドレス</Label>
           <Input
-            {...getInputProps(email, { type: "email" })}
+            defaultValue={defaultValue?.email}
             readOnly
             disabled={state !== "idle"}
             id={emailId}
             placeholder="datti@example.com"
           />
-          <p>{email.errors?.toString()}</p>
         </div>
         <div className="w-full">
           <Label htmlFor={nameId}>ユーザー名</Label>

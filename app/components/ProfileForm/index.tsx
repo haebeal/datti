@@ -12,7 +12,7 @@ import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { userSchema } from "~/schema/user";
+import { profileFormSchema } from "~/schema/profileFormSchema";
 
 interface Props {
   defaultValue?: User;
@@ -20,42 +20,45 @@ interface Props {
 }
 
 export function ProfileForm({ defaultValue, lastResult }: Props) {
-  const [form, { uid, name, email, photoUrl }] = useForm({
+  const [form, { name, photoUrl, bank }] = useForm({
     defaultValue,
     lastResult,
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: userSchema });
+      return parseWithZod(formData, { schema: profileFormSchema });
     },
   });
+  const { bankCode, branchCode, accountCode } = bank.getFieldset();
+
   const { state } = useNavigation();
 
   const emailId = useId();
   const nameId = useId();
+  const bankCodeId = useId();
+  const branchCodeId = useId();
+  const accountCodeId = useId();
 
   return (
-    <div className="grid grid-cols-5 px-4">
-      <div className="col-span-5 md:col-span-1 p-5">
-        <Avatar className="size-full max-md">
+    <div className="grid grid-cols-5 px-4 gap-3">
+      <div className="col-span-5 md:col-span-2 grid place-content-center max-h-80 py-10">
+        <Avatar className="size-full max-md max-w-60 max-h-60 border border-gray-200">
           <AvatarImage className="hover:cursor-pointer" src={photoUrl.value} />
         </Avatar>
       </div>
       <Form
-        method="POST"
+        method="post"
         {...getFormProps(form)}
-        className="flex flex-col gap-8 items-center col-span-5 md:col-span-4"
+        className="flex flex-col gap-8 items-center col-span-5 md:col-span-3"
       >
-        <Input {...getInputProps(uid, { type: "hidden" })} />
         <Input {...getInputProps(photoUrl, { type: "hidden" })} />
         <div className="w-full">
           <Label htmlFor={emailId}>メールアドレス</Label>
           <Input
-            {...getInputProps(email, { type: "email" })}
+            defaultValue={defaultValue?.email}
             readOnly
             disabled={state !== "idle"}
             id={emailId}
             placeholder="datti@example.com"
           />
-          <p>{email.errors?.toString()}</p>
         </div>
         <div className="w-full">
           <Label htmlFor={nameId}>ユーザー名</Label>
@@ -66,6 +69,33 @@ export function ProfileForm({ defaultValue, lastResult }: Props) {
             placeholder="ユーザー名を入力"
           />
           <p>{name.errors?.toString()}</p>
+        </div>
+        <div className="w-full">
+          <Label htmlFor={bankCodeId}>金融機関</Label>
+          <Input
+            {...getInputProps(bankCode, { type: "text" })}
+            disabled={state !== "idle"}
+            id={branchCodeId}
+          />
+          <p>{bankCode.errors?.toString()}</p>
+        </div>
+        <div className="w-full">
+          <Label htmlFor={branchCodeId}>支店</Label>
+          <Input
+            {...getInputProps(branchCode, { type: "text" })}
+            disabled={state !== "idle"}
+            id={branchCodeId}
+          />
+          <p>{branchCode.errors?.toString()}</p>
+        </div>
+        <div className="w-full">
+          <Label htmlFor={accountCodeId}>口座番号</Label>
+          <Input
+            {...getInputProps(accountCode, { type: "text" })}
+            disabled={state !== "idle"}
+            id={accountCodeId}
+          />
+          <p>{accountCode.errors?.toString()}</p>
         </div>
         <Button
           type="submit"

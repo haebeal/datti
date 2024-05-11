@@ -98,12 +98,9 @@ export type UserUpdateRequest = {
   name: string
   /** 画像URL */
   photoUrl: string
-  /** 金融機関コード */
-  bankCode: string
-  /** 支店番号 */
-  branchCode: string
-  /** 口座番号 */
-  accountCode: string
+
+  /** 口座情報 */
+  bank: Bank
 }
 
 export type UsersResponse = {

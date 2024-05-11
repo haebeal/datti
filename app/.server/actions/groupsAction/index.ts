@@ -2,7 +2,7 @@ import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 
-export const groupMemberAddAction = async ({
+export const groupsAction = async ({
   request,
   params,
   context,
@@ -34,4 +34,4 @@ export const groupMemberAddAction = async ({
   return json({});
 };
 
-export type GroupMemberAddAction = typeof groupMemberAddAction;
+export type GroupsAction = typeof groupsAction;

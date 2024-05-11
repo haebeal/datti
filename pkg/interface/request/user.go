@@ -5,11 +5,13 @@ type UserGetRequest struct {
 }
 
 type UpdateUserRequest struct {
-	Name        string `json:"name"`
-	Url         string `json:"photoUrl"`
-	BankCode    string `json:"bankCode"`
-	BranchCode  string `json:"branchCode"`
-	AccountCode string `json:"accountCode"`
+	Name string `json:"name"`
+	Url  string `json:"photoUrl"`
+	Bank struct {
+		BankCode    string `json:"bankCode"`
+		BranchCode  string `json:"branchCode"`
+		AccountCode string `json:"accountCode"`
+	} `json:"bank"`
 }
 
 type GetUserByEmailRequest struct {

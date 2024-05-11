@@ -1,45 +1,57 @@
-import { useLocation, useNavigation } from "@remix-run/react";
-import { User } from "~/api/datti/@types";
+import { Await, useLoaderData, useLocation } from "@remix-run/react";
+import { Suspense } from "react";
+import { FriendsLoader } from "~/.server/loaders";
 import { FriendCard } from "~/components/FriendCard";
 
-interface Props {
-  friends: User[];
+function LoadingSpinner() {
+  return (
+    <div className="w-full min-h-[60vh] grid place-content-center">
+      <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
+    </div>
+  );
 }
 
-export function FriendList({ friends }: Props) {
+export function FriendList() {
+  const { friends, requests, pendings } = useLoaderData<FriendsLoader>();
+
   const { search } = useLocation();
-  const { state } = useNavigation();
   const searchParams = new URLSearchParams(search);
 
   const status = searchParams.get("status");
 
-  if (state === "loading") {
-    return (
-      <div className="w-full min-h-[60vh] grid place-content-center">
-        <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
-      </div>
-    );
-  }
-
-  if (Array.isArray(friends) && friends.length > 0) {
-    return (
-      <div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
-        {friends.map((friend) => (
-          <FriendCard key={friend.uid} friend={friend} />
-        ))}
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full min-h-[60vh] grid place-content-center">
-      <h2 className="font-semibold text-2xl text-center">
-        {status === "requests"
-          ? "申請中のユーザーはいません😿"
-          : status === "pendings"
-            ? "受理中のユーザーはいません😿"
-            : "フレンドがいません😿"}
-      </h2>
+    <div className="w-full min-h-[60vh]">
+      <Suspense fallback={<LoadingSpinner />}>
+        <Await
+          resolve={
+            status === "requests"
+              ? requests
+              : status === "pendings"
+                ? pendings
+                : friends
+          }
+        >
+          {({ users }) =>
+            Array.isArray(users) && users.length > 0 ? (
+              <div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
+                {users.map((user) => (
+                  <FriendCard key={user.uid} friend={user} />
+                ))}
+              </div>
+            ) : (
+              <div className="w-full min-h-[60vh] grid place-content-center">
+                <h2 className="font-semibold text-2xl text-center">
+                  {status === "requests"
+                    ? "申請中のユーザーはいません😿"
+                    : status === "pendings"
+                      ? "受理中のユーザーはいません😿"
+                      : "フレンドがいません😿"}
+                </h2>
+              </div>
+            )
+          }
+        </Await>
+      </Suspense>
     </div>
   );
 }

@@ -1,16 +1,11 @@
 import { Form, useLocation, useNavigation } from "@remix-run/react";
 import { useId } from "react";
-import { User } from "~/api/datti/@types";
 import { MemberAddList } from "~/components/MemberAddList";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 
-interface Props {
-  users: User[];
-}
-
-export function MemberAddForm({ users }: Props) {
+export function MemberAddForm() {
   const { search } = useLocation();
   const { state } = useNavigation();
   const searchParams = new URLSearchParams(search);
@@ -41,7 +36,7 @@ export function MemberAddForm({ users }: Props) {
         </div>
       </Form>
       <div className="flex flex-col gap-3 w-full h-80 overflow-y-auto">
-        <MemberAddList users={users} />
+        <MemberAddList />
       </div>
     </div>
   );

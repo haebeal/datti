@@ -1,3 +1,4 @@
+export * from "./eventCreateAction";
 export * from "./friendsAction";
 export * from "./friendsRequestsAction";
 export * from "./groupMemberAddAction";

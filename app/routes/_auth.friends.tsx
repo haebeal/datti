@@ -2,19 +2,15 @@ import {
   Link,
   NavLink,
   Outlet,
-  useLoaderData,
   useLocation,
   useNavigation,
 } from "@remix-run/react";
-import { FriendsLoader } from "~/.server/loaders/friendsLoader";
 import { FriendList } from "~/components/FriendList";
 import { Button } from "~/components/ui/button";
 
-export { friendsAction as action } from "~/.server/actions";
 export { friendsLoader as loader } from "~/.server/loaders";
 
 export default function Friend() {
-  const { friends } = useLoaderData<FriendsLoader>();
   const { state } = useNavigation();
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
@@ -33,7 +29,7 @@ export default function Friend() {
           }}
         >
           <Button
-            disabled={state === "loading"}
+            disabled={state !== "idle"}
             className="bg-sky-500 hover:bg-sky-600 font-semibold"
           >
             フレンド申請
@@ -75,7 +71,7 @@ export default function Friend() {
             受理中
           </NavLink>
         </div>
-        <FriendList friends={friends} />
+        <FriendList />
       </div>
       <Outlet />
     </div>

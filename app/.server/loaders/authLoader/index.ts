@@ -17,6 +17,7 @@ export const authLoader = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
   const profile = dattiClient.users.me.$get();
+  console.log(profile);
 
   return defer({
     profile,

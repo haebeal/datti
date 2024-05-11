@@ -2,7 +2,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
-import { userSchema } from "~/schema/user";
+import { profileFormSchema } from "~/schema/profileFormSchema";
 
 export const profileAction = async ({
   request,
@@ -10,7 +10,7 @@ export const profileAction = async ({
   context,
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const submission = parseWithZod(formData, { schema: userSchema });
+  const submission = parseWithZod(formData, { schema: profileFormSchema });
 
   if (submission.status !== "success") {
     return json(submission.reply());
@@ -23,13 +23,7 @@ export const profileAction = async ({
   );
 
   await dattiClient.users.me.$put({
-    body: {
-      name: submission.value.name,
-      photoUrl: submission.value.photoUrl,
-      bankCode: submission.value.bank.bankCode,
-      branchCode: submission.value.bank.branchCode,
-      accountCode: submission.value.bank.accountCode,
-    },
+    body: submission.value,
   });
 
   return json(submission.reply());

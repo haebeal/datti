@@ -67,6 +67,5 @@ export const refreshFirebaseIdToken = async (
     }
   );
   const data = await response.json<RefreshResponse>();
-  console.log(data);
   return data;
 };

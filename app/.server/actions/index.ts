@@ -1,5 +1,5 @@
 export * from "./friendsAction";
 export * from "./groupAction";
-export * from "./groupMemberAddAction";
+export * from "./groupMembersAction";
 export * from "./profileAction";
 export * from "./settingsAction";

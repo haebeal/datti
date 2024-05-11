@@ -110,5 +110,8 @@ model UserUpdateRequest{
    */
   photoUrl: string;
 
-  ...Bank
+  /**
+   * 口座情報
+   */
+  bank: Bank;
 }

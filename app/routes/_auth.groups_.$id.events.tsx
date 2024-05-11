@@ -1,12 +1,6 @@
-import {
-  Outlet,
-  useActionData,
-  useLoaderData,
-  useNavigation,
-} from "@remix-run/react";
+import { Outlet, useActionData, useNavigation } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { GroupAction } from "~/.server/actions";
-import { GroupEventsLoader } from "~/.server/loaders";
 import { EventForm } from "~/components/EventForm";
 import { EventList } from "~/components/EventList";
 import { Button } from "~/components/ui/button";
@@ -23,7 +17,6 @@ export { groupEventsLoader as loader } from "~/.server/loaders";
 
 export default function GroupEvents() {
   const { state } = useNavigation();
-  const { events } = useLoaderData<GroupEventsLoader>();
   const lastResult = useActionData<GroupAction>();
 
   const [isOpen, setOpen] = useState(false);
@@ -53,7 +46,7 @@ export default function GroupEvents() {
           </DialogContent>
         </Dialog>
       </div>
-      <EventList events={events} />
+      <EventList />
       <Outlet />
     </div>
   );

@@ -1,37 +1,40 @@
-import { useNavigation } from "@remix-run/react";
-import { Event } from "~/api/datti/@types";
+import { Await, useLoaderData } from "@remix-run/react";
+import { Suspense } from "react";
+import { GroupEventsLoader } from "~/.server/loaders";
 import { EventCard } from "~/components/EventCard";
 
-interface Props {
-  events: Event[];
-}
-
-export function EventList({ events }: Props) {
-  const { state } = useNavigation();
-
-  if (state === "loading") {
-    return (
-      <div className="w-full min-h-[60vh] grid place-content-center">
-        <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
-      </div>
-    );
-  }
-
-  if (Array.isArray(events) && events.length > 0) {
-    return (
-      <div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </div>
-    );
-  }
-
+function LoadingSpinner() {
   return (
     <div className="w-full min-h-[60vh] grid place-content-center">
-      <h2 className="font-semibold text-2xl text-center">
-        イベントが存在しません😿
-      </h2>
+      <div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
+    </div>
+  );
+}
+
+export function EventList() {
+  const { events } = useLoaderData<GroupEventsLoader>();
+
+  return (
+    <div className="w-full min-h-[60vh]">
+      <Suspense fallback={<LoadingSpinner />}>
+        <Await resolve={events}>
+          {({ events }) =>
+            Array.isArray(events) && events.length > 0 ? (
+              <div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
+                {events.map((event) => (
+                  <EventCard key={event.id} event={event} />
+                ))}
+              </div>
+            ) : (
+              <div className="w-full min-h-[60vh] grid place-content-center">
+                <h2 className="font-semibold text-2xl text-center">
+                  イベントが存在しません😿
+                </h2>
+              </div>
+            )
+          }
+        </Await>
+      </Suspense>
     </div>
   );
 }

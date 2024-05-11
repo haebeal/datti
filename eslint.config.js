@@ -9,7 +9,7 @@ import tseslint from "typescript-eslint";
 export default [
   // *.d.tsは無視するように
   {
-    ignores: ["**/*.d.ts", "!.storybook", ".gitignore"],
+    ignores: ["**/*.d.ts", "!.storybook", ".gitignore", "app/components/ui/*"],
   },
   // 全体項目設定
   {

@@ -1,10 +1,10 @@
 import { Await, useActionData, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
-import { GroupSettingsAction } from "~/.server/actions";
+import { GroupAction } from "~/.server/actions";
 import { GroupLoader } from "~/.server/loaders";
 import { GroupForm } from "~/components/GroupForm";
 
-export { groupSettingsAction as action } from "~/.server/actions";
+export { groupAction as action } from "~/.server/actions";
 export { groupLoader as loader } from "~/.server/loaders";
 
 function LoadingSpinner() {
@@ -17,7 +17,7 @@ function LoadingSpinner() {
 
 export default function GroupSettings() {
   const { group } = useLoaderData<GroupLoader>();
-  const lastResult = useActionData<GroupSettingsAction>();
+  const lastResult = useActionData<GroupAction>();
 
   return (
     <div className="py-4">
@@ -27,7 +27,7 @@ export default function GroupSettings() {
             <GroupForm
               defaultValue={group}
               lastResult={lastResult}
-              buttonLabel="更新"
+              method="put"
             />
           )}
         </Await>

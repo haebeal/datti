@@ -11,7 +11,7 @@ export const groupEventsAction = async ({
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
 
-  const groupId = params.id;
+  const groupId = params.groupId;
 
   if (typeof groupId !== "string") {
     throw new Error();

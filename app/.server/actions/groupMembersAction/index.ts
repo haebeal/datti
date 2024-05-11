@@ -9,7 +9,7 @@ export const groupMembersAction = async ({
 }: ActionFunctionArgs) => {
   const formData = await request.formData();
 
-  const groupId = params.id;
+  const groupId = params.groupId;
   const uid = formData.get("uid");
 
   if (typeof groupId !== "string" || typeof uid !== "string") {

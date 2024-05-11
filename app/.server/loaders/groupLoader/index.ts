@@ -10,7 +10,7 @@ export const groupLoader = async ({
   const { searchParams } = new URL(request.url);
   const searchQuery = searchParams.get("q");
 
-  const groupId = params.id;
+  const groupId = params.groupId;
   if (!groupId) {
     throw new Error("Not Found Group");
   }

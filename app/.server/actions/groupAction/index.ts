@@ -29,7 +29,7 @@ export const groupAction = async ({
       body: submission.value,
     });
   } else if (request.method === "PUT") {
-    const groupId = params.id;
+    const groupId = params.groupId;
     if (typeof groupId !== "string") {
       throw new Error();
     }

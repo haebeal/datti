@@ -7,7 +7,7 @@ export const groupEventsLoader = async ({
   params,
   context,
 }: LoaderFunctionArgs) => {
-  const groupId = params.id;
+  const groupId = params.groupId;
   if (!groupId) {
     throw new Error("Not Found Group");
   }

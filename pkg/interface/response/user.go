@@ -11,7 +11,7 @@ type UserWithBankAccount struct {
 		AccountCode string `json:"accountCode"`
 		BankCode    string `json:"bankCode"`
 		BranchCode  string `json:"branchCode"`
-	}
+	} `json:"bank"`
 }
 
 type User struct {
@@ -22,5 +22,5 @@ type User struct {
 }
 
 type Users struct {
-	Users []*model.User `json:"users"`
+	Users []*model.User `json:"usrs"`
 }

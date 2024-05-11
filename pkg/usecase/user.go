@@ -13,7 +13,7 @@ import (
 type UserUseCase interface {
 	GetUsers(c context.Context, uid string) ([]*model.User, error)
 	GetUserByUid(c context.Context, uid string) (*model.User, *model.BankAccount, error)
-	GetUsersByEmail(c context.Context, email string) ([]*model.User, error)
+	GetUsersByEmail(c context.Context, email string) ([]*model.User, []*model.BankAccount, error)
 	UpdateUser(c context.Context, uid string, name string, url string, bankCode string, branchCode string, accountCode string) (*model.User, *model.BankAccount, error)
 }
 
@@ -23,10 +23,10 @@ type userUseCase struct {
 }
 
 // GetUserByEmail implements UserUseCase.
-func (u *userUseCase) GetUsersByEmail(c context.Context, email string) ([]*model.User, error) {
+func (u *userUseCase) GetUsersByEmail(c context.Context, email string) ([]*model.User, []*model.BankAccount, error) {
 	users, err := u.userRepository.GetUsers(c)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	usersWithEmail := make([]*model.User, 0)
 	for _, user := range users {
@@ -35,7 +35,22 @@ func (u *userUseCase) GetUsersByEmail(c context.Context, email string) ([]*model
 		}
 	}
 
-	return usersWithEmail, nil
+	banks := make([]*model.BankAccount, 0)
+	for _, user := range usersWithEmail {
+		bank, err := u.bankRepository.GetBankAccountByUid(c, user.UID)
+		if err != nil {
+			if !(errors.Is(err, sql.ErrNoRows)) {
+				return nil, nil, err
+			}
+		}
+		if bank != nil {
+			banks = append(banks, bank)
+		} else {
+			banks = append(banks, new(model.BankAccount))
+		}
+	}
+
+	return usersWithEmail, banks, nil
 }
 
 // GetUserByUid implements UserUseCase.

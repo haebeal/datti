@@ -23,7 +23,6 @@ export const groupMemberAddAction = async ({
   );
 
   if (request.method === "POST") {
-    console.log(uid);
     await dattiClient.groups._groupId(groupId).members.$post({
       body: {
         uids: [uid],

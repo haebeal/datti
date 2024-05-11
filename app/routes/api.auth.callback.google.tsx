@@ -24,7 +24,6 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   );
 
   const tokens = await response.json<TokenResponse>();
-  console.log(tokens);
 
   if (!tokens.id_token) {
     throw new Response(undefined, {

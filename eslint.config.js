@@ -28,6 +28,7 @@ export default [
     rules: {
       "arrow-body-style": ["error", "as-needed"],
       "prefer-arrow-callback": "error",
+      "no-console": "warn",
     },
   },
   // 推薦項目の設定

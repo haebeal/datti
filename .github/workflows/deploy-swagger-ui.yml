@@ -5,6 +5,7 @@ on:
     branches: [feature/**, develop, main]
     paths:
       - openapi/**
+      - .github/workflows/deploy-swagger-ui.yml
 
 jobs:
   deploy-to-github-pages:
@@ -15,8 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
       - run: npm ci
       - run: npm run compile
 
@@ -24,7 +26,7 @@ jobs:
         uses: Legion2/swagger-ui-action@v1
         with:
           output: docs/swagger-ui
-          spec-file: ./openapi/tsp-output/@typespec/openapi3/openapi.yaml
+          spec-file: openapi/tsp-output/@typespec/openapi3/openapi.yaml
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

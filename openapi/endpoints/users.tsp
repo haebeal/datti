@@ -16,7 +16,7 @@ namespace Users {
   @summary("メールアドレスによるユーザー情報の取得")
   @get
   op getUserByEmail(@query email?: string):
-  | UserList
+  | Utils.Response.OKResponse<UsersResponse>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace Users {
   @summary("ユーザー情報（自分）の取得")
   @get()
   op getMe():
-  | User
+  | Utils.Response.OKResponse<User>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
   
@@ -38,7 +38,7 @@ namespace Users {
   @summary("ユーザー情報（自分）の更新")
   @put
   op updateMe(...UserUpdateRequest):
-  | User
+  | Utils.Response.OKResponse<User>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -46,20 +46,20 @@ namespace Users {
    * プロフィール情報の取得
    */
   @summary("UIDによるユーザー情報の取得")
-  @route("{uid}")
+  @route("{userId}")
   @get()
-  op getUserByUid(@path uid: string):
-  | User
+  op getUserByUid(@path userId: string):
+  | Utils.Response.OKResponse<User>
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
   /**
    * フレンド申請の送信
    */
-  @route("{uid}/requests")
+  @route("{userId}/requests")
   @summary("フレンド申請の送信")
   @post
-  op friendRequest(@path uid: string):
+  op friendRequest(@path userId: string):
   | Utils.Response.CreatedMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -88,17 +88,15 @@ model User {
    * 画像URL
    */
   photoUrl: string;
-}
 
-model UserList {
-  users: User[];
-}
-
-model UserGetRequest {
   /**
-   * メールアドレス
+   * 口座情報
    */
-  email: string;
+  bank: Bank;
+}
+
+model UsersResponse {
+  users: User[];
 }
 
 model UserUpdateRequest{
@@ -111,4 +109,9 @@ model UserUpdateRequest{
    * 画像URL
    */
   photoUrl: string;
+
+  /**
+   * 口座情報
+   */
+  bank: Bank;
 }

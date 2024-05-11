@@ -28,17 +28,7 @@ namespace Banks {
   op createMyBank(...Bank):
     | Utils.Response.CreatedResponse<Bank>
     | Utils.Error.UnauthorizedError
-    | Utils.Error.InternalServerError;
-  
-  /**
-   * 登録されている口座情報の削除
-   */
-  @summary("口座情報の削除")
-  @delete
-  op deleteMyBank():
-    | Utils.Response.OKResponse<Bank>
-    | Utils.Error.UnauthorizedError
-    | Utils.Error.InternalServerError;
+    | Utils.Error.InternalServerError;  
 }
 
 model Bank {

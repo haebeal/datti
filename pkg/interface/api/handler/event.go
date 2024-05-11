@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/interface/request"
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
@@ -77,8 +78,13 @@ func (e *eventHandler) HandleGetById(c echo.Context) error {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		res.Events = events
-		return c.JSON(http.StatusOK, res)
+		if events == nil {
+			res.Events = make([]*model.Event, 0)
+			return c.JSON(http.StatusOK, res)
+		} else {
+			res.Events = events
+			return c.JSON(http.StatusOK, res)
+		}
 	}
 }
 

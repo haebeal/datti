@@ -33,8 +33,8 @@ export function ProfileForm({ defaultValue, lastResult }: Props) {
   const nameId = useId();
 
   return (
-    <div className="grid grid-cols-4 md:grid-cols-5 px-4">
-      <div className="col-span-4 md:col-span-1 p-5">
+    <div className="grid grid-cols-5 px-4">
+      <div className="col-span-5 md:col-span-1 p-5">
         <Avatar className="size-full max-md">
           <AvatarImage className="hover:cursor-pointer" src={photoUrl.value} />
         </Avatar>
@@ -42,7 +42,7 @@ export function ProfileForm({ defaultValue, lastResult }: Props) {
       <Form
         method="POST"
         {...getFormProps(form)}
-        className="flex flex-col gap-8 items-center col-span-4"
+        className="flex flex-col gap-8 items-center col-span-5 md:col-span-4"
       >
         <Input {...getInputProps(uid, { type: "hidden" })} />
         <Input {...getInputProps(photoUrl, { type: "hidden" })} />
@@ -69,7 +69,7 @@ export function ProfileForm({ defaultValue, lastResult }: Props) {
         </div>
         <Button
           type="submit"
-          className="w-full max-w-2xl"
+          className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
           disabled={state !== "idle"}
         >
           更新

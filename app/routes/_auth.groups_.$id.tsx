@@ -1,6 +1,14 @@
 import { MetaFunction } from "@remix-run/cloudflare";
-import { NavLink, Outlet, useLoaderData, useMatches } from "@remix-run/react";
+import {
+  Await,
+  NavLink,
+  Outlet,
+  useLoaderData,
+  useMatches,
+} from "@remix-run/react";
+import { Suspense } from "react";
 import { GroupLoader } from "~/.server/loaders";
+import { Skeleton } from "~/components/ui/skeleton";
 
 export { groupLoader as loader } from "~/.server/loaders";
 
@@ -18,9 +26,13 @@ export default function GroupDetail() {
 
   return (
     <div className="flex flex-col py-3 gap-7">
-      <div className="flex items-center justify-between">
-        <h1 className="font-bold text-2xl">{group.name}</h1>
-      </div>
+      <Suspense fallback={<Skeleton className="h-8 w-full" />}>
+        <div className="flex items-center justify-between">
+          <Await resolve={group}>
+            {(group) => <h1 className="font-bold text-2xl">{group.name}</h1>}
+          </Await>
+        </div>
+      </Suspense>
       <div className="rounded-lg bg-white py-3 px-5">
         <div className="flex flex-row border-b-2 text-lg font-semibold gap-5 py-1 px-4">
           <NavLink

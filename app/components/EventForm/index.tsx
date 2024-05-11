@@ -26,9 +26,10 @@ import { eventSchema } from "~/schema/event";
 interface Props {
   defaultValue?: EventCreateRequest | EventUpdateRequest;
   lastResult?: SubmissionResult<string[] | null>;
+  method: "post" | "put";
 }
 
-export function EventForm({ defaultValue, lastResult }: Props) {
+export function EventForm({ defaultValue, lastResult, method }: Props) {
   const [form, { name, evented_at }] = useForm({
     defaultValue: defaultValue,
     lastResult,
@@ -45,7 +46,7 @@ export function EventForm({ defaultValue, lastResult }: Props) {
 
   return (
     <Form
-      method="post"
+      method={method}
       {...getFormProps(form)}
       className="flex flex-col gap-8 items-center col-span-4"
     >
@@ -98,7 +99,7 @@ export function EventForm({ defaultValue, lastResult }: Props) {
         className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
         disabled={state !== "idle"}
       >
-        更新
+        {method === "post" ? "作成" : "更新"}
       </Button>
     </Form>
   );

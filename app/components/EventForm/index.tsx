@@ -72,6 +72,7 @@ export function EventForm({ defaultValue, lastResult, method }: Props) {
                 "w-full pl-3 text-left font-normal",
                 !evented_at.value && "text-muted-foreground"
               )}
+              disabled={state !== "idle"}
             >
               {evented_at.value ? (
                 format(evented_at.value, "yyyy/MM/dd")

@@ -47,16 +47,28 @@ func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
 // HandleGetByEmail implements UserHandler.
 func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 	email := c.QueryParam("email")
-	res := new(response.Users)
 	errRes := new(response.Error)
 
-	users, err := u.useCase.GetUsersByEmail(c.Request().Context(), email)
+	users, banks, err := u.useCase.GetUsersByEmail(c.Request().Context(), email)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
 	} else {
-		res.Users = users
-		return c.JSON(http.StatusOK, res)
+		res := make([]response.UserWithBankAccount, len(users))
+		for i := 0; i < len(res); i++ {
+			res[i].UID = users[i].UID
+			res[i].Name = users[i].Name
+			res[i].Email = users[i].Email
+			res[i].PhotoUrl = users[i].PhotoUrl
+			res[i].Bank.AccountCode = banks[i].AccountCode
+			res[i].Bank.BankCode = banks[i].BankCode
+			res[i].Bank.BranchCode = banks[i].BranchCode
+		}
+		return c.JSON(http.StatusOK, struct {
+			Users []response.UserWithBankAccount `json:"users"`
+		}{
+			res,
+		})
 	}
 }
 
@@ -109,7 +121,7 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errRes)
 	}
 
-	user, bank, err := u.useCase.UpdateUser(c.Request().Context(), uid, req.Name, req.Url, req.BankCode, req.BranchCode, req.AccountCode)
+	user, bank, err := u.useCase.UpdateUser(c.Request().Context(), uid, req.Name, req.Url, req.Bank.BankCode, req.Bank.BranchCode, req.Bank.AccountCode)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)

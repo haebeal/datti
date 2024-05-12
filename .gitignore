@@ -7,4 +7,6 @@ node_modules
 
 .wrangler
 
+junit-report.xml
+
 *storybook.log

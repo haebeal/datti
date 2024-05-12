@@ -1,6 +1,5 @@
 import { INITIAL_VIEWPORTS } from "@storybook/addon-viewport";
 import type { Preview } from "@storybook/react";
-import { withRouter } from "storybook-addon-remix-react-router";
 
 import "../app/globals.css";
 
@@ -17,7 +16,6 @@ const preview: Preview = {
       },
     },
   },
-  decorators: [withRouter],
 };
 
 export default preview;

@@ -50,7 +50,11 @@ export function Header() {
             {(profile) => (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Avatar className="h-12 w-12 border border-gray-200 hover:cursor-pointer">
+                  <Avatar
+                    className="h-12 w-12 border border-gray-200 hover:cursor-pointer"
+                    role="img"
+                    aria-label="avatar menu"
+                  >
                     <AvatarImage src={profile.photoUrl} />
                     <AvatarFallback>
                       <Skeleton className="h-12 w-12 rounded-full border border-gray-200" />
@@ -60,18 +64,24 @@ export function Header() {
                 <DropdownMenuContent>
                   <DropdownMenuLabel>{profile.name}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <Link to="/setting">
-                    <DropdownMenuItem className="hover:cursor-pointer flex gap-2">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/setting"
+                      className="hover:cursor-pointer flex gap-2"
+                    >
                       <GearIcon />
                       設定
-                    </DropdownMenuItem>
-                  </Link>
-                  <Link to="/friends">
-                    <DropdownMenuItem className="hover:cursor-pointer flex gap-2">
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to="/friends"
+                      className="hover:cursor-pointer flex gap-2"
+                    >
                       <FaceIcon />
                       フレンド
-                    </DropdownMenuItem>
-                  </Link>
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <Form action="/api/auth/signout" method="post">
                     <DropdownMenuItem asChild>

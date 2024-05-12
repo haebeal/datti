@@ -79,6 +79,7 @@
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-storybook": "^0.8.0",
     "globals": "^14.0.0",
+    "jsdom": "^24.0.0",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "storybook": "^8.0.9",

@@ -32,6 +32,17 @@ namespace Groups {
   | Utils.Error.InternalServerError;
 
   /**
+   * グループに対するメンバー情報の取得
+   */
+  @route("{groupId}/members")
+  @summary("グループに対するメンバー情報の取得")
+  @get
+  op getGroupMembers(@path groupId: string):
+  | GroupMembers
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
+  /**
    * グループに対するメンバーの追加
    */
   @route("{groupId}/members")
@@ -93,7 +104,9 @@ model GroupResponse {
    * グループ名
    */
   name: string;
+}
 
+model GroupMembers {
   /**
    * ユーザー情報
    */

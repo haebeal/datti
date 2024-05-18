@@ -14,6 +14,7 @@ type GroupHandler interface {
 	HandleGet(c echo.Context) error
 	HandleCreate(c echo.Context) error
 	HandleGetById(c echo.Context) error
+	HandleGetMembers(c echo.Context) error
 	HandleUpdate(c echo.Context) error
 	HandleRegisterd(c echo.Context) error
 }
@@ -69,20 +70,28 @@ func (g *groupHandler) HandleGetById(c echo.Context) error {
 	errResponse := new(response.Error)
 	id := c.Param("id")
 
-	group, members, err := g.useCase.GetGroupById(c.Request().Context(), id)
+	group, err := g.useCase.GetGroupById(c.Request().Context(), id)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, struct {
-			ID    string        `json:"id"`
-			Name  string        `json:"name"`
-			Users []*model.User `json:"users"`
-		}{
-			ID:    group.ID,
-			Name:  group.Name,
-			Users: members,
-		})
+		return c.JSON(http.StatusOK, group)
+	}
+}
+
+// HandleGetMembers implements GroupHandler.
+func (g *groupHandler) HandleGetMembers(c echo.Context) error {
+	errResponse := new(response.Error)
+	res := new(response.Members)
+	id := c.Param("groupId")
+
+	members, err := g.useCase.GetMembers(c.Request().Context(), id)
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	} else {
+		res.Members = members
+		return c.JSON(http.StatusOK, res)
 	}
 }
 

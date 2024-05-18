@@ -10,7 +10,8 @@ import (
 type GroupUseCase interface {
 	GetGroups(c context.Context, uid string) ([]*model.Group, error)
 	CreateGroup(c context.Context, name string, owner string, members []string) (*model.Group, []*model.User, error)
-	GetGroupById(c context.Context, id string) (*model.Group, []*model.User, error)
+	GetGroupById(c context.Context, id string) (*model.Group, error)
+	GetMembers(c context.Context, id string) ([]*model.User, error)
 	UpdateGroup(c context.Context, id string, name string) (*model.Group, []*model.User, error)
 	RegisterdMembers(c context.Context, id string, members []string) (*model.Group, []*model.User, error)
 }
@@ -55,25 +56,35 @@ func (g *groupUseCase) CreateGroup(c context.Context, name string, owner string,
 }
 
 // GetGroupById implements GroupUseCase.
-func (g *groupUseCase) GetGroupById(c context.Context, id string) (*model.Group, []*model.User, error) {
+func (g *groupUseCase) GetGroupById(c context.Context, id string) (*model.Group, error) {
 	group, err := g.groupRepository.GetGroupById(c, id)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
+	}
+
+	return group, nil
+}
+
+// GetMembers implements GroupUseCase.
+func (g *groupUseCase) GetMembers(c context.Context, id string) ([]*model.User, error) {
+	group, err := g.groupRepository.GetGroupById(c, id)
+	if err != nil {
+		return nil, err
 	}
 	groupUsers, err := g.groupUserRepository.GetGroupUserById(c, group.ID)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	users := make([]*model.User, 0)
 	for _, groupUser := range groupUsers {
 		user, err := g.userRepository.GetUserByUid(c, groupUser.UserID)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 		users = append(users, user)
 	}
 
-	return group, users, nil
+	return users, nil
 }
 
 // GetGroups implements GroupUseCase.

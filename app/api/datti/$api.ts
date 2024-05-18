@@ -201,6 +201,18 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
           },
           members: {
             /**
+             * グループに対するメンバー情報の取得
+             * @returns The request has succeeded.
+             */
+            get: (option?: { config?: T | undefined } | undefined) =>
+              fetch<Methods_1buoxrj['get']['resBody'], BasicHeaders, Methods_1buoxrj['get']['status']>(prefix, `${prefix1}${PATH6}`, GET, option).json(),
+            /**
+             * グループに対するメンバー情報の取得
+             * @returns The request has succeeded.
+             */
+            $get: (option?: { config?: T | undefined } | undefined) =>
+              fetch<Methods_1buoxrj['get']['resBody'], BasicHeaders, Methods_1buoxrj['get']['status']>(prefix, `${prefix1}${PATH6}`, GET, option).json().then(r => r.body),
+            /**
              * グループに対するメンバーの追加
              * @returns 200レスポンス
              */

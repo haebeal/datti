@@ -12,8 +12,6 @@ export type Methods = {
       id: string
       /** グループ名 */
       name: string
-      /** ユーザー情報 */
-      users: Types.User[]
       /** 作成時間 */
       createdAt: string
       /** 更新時間 */
@@ -36,8 +34,6 @@ export type Methods = {
       id: string
       /** グループ名 */
       name: string
-      /** ユーザー情報 */
-      users: Types.User[]
       /** 作成時間 */
       createdAt: string
       /** 更新時間 */

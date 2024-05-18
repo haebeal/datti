@@ -110,7 +110,7 @@ model GroupMembers {
   /**
    * ユーザー情報
    */
-  users: User[];
+  members: User[];
 }
 
 model GroupUpdateRequest {

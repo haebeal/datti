@@ -12,6 +12,7 @@ type UserWithBankAccount struct {
 		BankCode    string `json:"bankCode"`
 		BranchCode  string `json:"branchCode"`
 	} `json:"bank"`
+	Status string `json:"status"`
 }
 
 type User struct {

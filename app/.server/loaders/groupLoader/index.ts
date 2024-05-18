@@ -15,7 +15,7 @@ export const groupLoader = async ({
     throw new Error("Not Found Group");
   }
 
-  const idToken = await getIdToken({ request, params, context });
+  const { idToken } = await getIdToken({ request, params, context });
   const dattiClient = createDattiClient(
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT

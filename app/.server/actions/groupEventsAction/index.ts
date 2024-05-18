@@ -24,7 +24,7 @@ export const groupEventsAction = async ({
     return json(submission.reply());
   }
 
-  const idToken = await getIdToken({ request, params, context });
+  const { idToken } = await getIdToken({ request, params, context });
   const dattiClient = createDattiClient(
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT

@@ -14,12 +14,14 @@ type UserUseCase interface {
 	GetUsers(c context.Context, uid string) ([]*model.User, error)
 	GetUserByUid(c context.Context, uid string) (*model.User, *model.BankAccount, error)
 	GetUsersByEmail(c context.Context, email string) ([]*model.User, []*model.BankAccount, error)
+	GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error)
 	UpdateUser(c context.Context, uid string, name string, url string, bankCode string, branchCode string, accountCode string) (*model.User, *model.BankAccount, error)
 }
 
 type userUseCase struct {
-	userRepository repository.UserRepository
-	bankRepository repository.BankAccountRepository
+	userRepository   repository.UserRepository
+	friendRepository repository.FriendRepository
+	bankRepository   repository.BankAccountRepository
 }
 
 // GetUserByEmail implements UserUseCase.
@@ -81,6 +83,21 @@ func (u *userUseCase) GetUsers(c context.Context, uid string) ([]*model.User, er
 	return users, nil
 }
 
+// GetUserStatus implements UserUseCase.
+func (u *userUseCase) GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error) {
+	status, err := u.friendRepository.GetStatus(c, uid, fuid)
+	if err != nil {
+		return nil, "", err
+	}
+
+	user, err := u.userRepository.GetUserByUid(c, fuid)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return user, status, nil
+}
+
 // UpdateUser implements UserUseCase.
 func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url string, bankCode string, branchCode string, accountCode string) (*model.User, *model.BankAccount, error) {
 	user, err := u.userRepository.UpdateUser(c, uid, name, url)
@@ -94,9 +111,10 @@ func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url
 	return user, bank, nil
 }
 
-func NewUserUseCase(userRepo repository.UserRepository, bankRepo repository.BankAccountRepository) UserUseCase {
+func NewUserUseCase(userRepo repository.UserRepository, friendRepo repository.FriendRepository, bankRepo repository.BankAccountRepository) UserUseCase {
 	return &userUseCase{
-		userRepository: userRepo,
-		bankRepository: bankRepo,
+		userRepository:   userRepo,
+		friendRepository: friendRepo,
+		bankRepository:   bankRepo,
 	}
 }

@@ -96,9 +96,8 @@ model User {
 
   /**
    * フレンド状態のステータス
-   * "me" | "applying" | "requesting" | "none"
    */
-  status: string;
+  status: "me" | "applying" | "requesting" | "none";
 }
 
 model UsersResponse {

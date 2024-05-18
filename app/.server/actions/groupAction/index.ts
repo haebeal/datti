@@ -18,7 +18,7 @@ export const groupAction = async ({
     return json(submission.reply());
   }
 
-  const idToken = await getIdToken({ request, params, context });
+  const { idToken } = await getIdToken({ request, params, context });
   const dattiClient = createDattiClient(
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT
@@ -26,7 +26,10 @@ export const groupAction = async ({
 
   if (request.method === "POST") {
     await dattiClient.groups.$post({
-      body: submission.value,
+      body: {
+        ...submission.value,
+        uids: [],
+      },
     });
   } else if (request.method === "PUT") {
     const groupId = params.groupId;

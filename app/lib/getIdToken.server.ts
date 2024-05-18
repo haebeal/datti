@@ -21,7 +21,7 @@ export async function getIdToken({ request, context }: LoaderFunctionArgs) {
   }
 
   if (new Date() < new Date(expiresDateTime)) {
-    return idToken;
+    return { idToken };
   }
 
   const dt = new Date();
@@ -34,5 +34,5 @@ export async function getIdToken({ request, context }: LoaderFunctionArgs) {
   authSession.set("refreshToken", refresh_token);
   authSession.set("expiresDateTime", dt.toISOString());
 
-  return idToken;
+  return { idToken, authSession };
 }

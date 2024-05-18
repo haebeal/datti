@@ -12,7 +12,7 @@ export const groupMembersLoader = async ({
     throw new Error("Not Found Group");
   }
 
-  const idToken = await getIdToken({
+  const { idToken } = await getIdToken({
     request,
     params,
     context,

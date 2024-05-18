@@ -14,7 +14,7 @@ export const friendsAction = async ({
     throw new Error();
   }
 
-  const idToken = await getIdToken({ request, params, context });
+  const { idToken } = await getIdToken({ request, params, context });
   const dattiClient = createDattiClient(
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT

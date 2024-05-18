@@ -7,7 +7,7 @@ export const groupsLoader = async ({
   params,
   context,
 }: LoaderFunctionArgs) => {
-  const idToken = await getIdToken({ request, params, context });
+  const { idToken } = await getIdToken({ request, params, context });
   const dattiClient = createDattiClient(
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT

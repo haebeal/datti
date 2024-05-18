@@ -10,7 +10,7 @@ export const friendsLoader = async ({
   const { searchParams } = new URL(request.url);
   const searchQuery = searchParams.get("q");
 
-  const idToken = await getIdToken({ request, params, context });
+  const { idToken } = await getIdToken({ request, params, context });
   const dattiClient = createDattiClient(
     idToken,
     context.cloudflare.env.BACKEND_ENDPOINT

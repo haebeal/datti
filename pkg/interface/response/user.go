@@ -21,6 +21,12 @@ type User struct {
 	PhotoUrl string `json:"photoUrl"`
 }
 
+type UserStatus struct {
+	UID    string `json:"uid"`
+	Name   string `json:"name"`
+	Status string `json:"status"`
+}
+
 type Users struct {
 	Users []*model.User `json:"usrs"`
 }

@@ -43,6 +43,18 @@ namespace Users {
   | Utils.Error.InternalServerError;
 
   /**
+   *　ユーザーとのフレンド状態のスタテータスの取得
+   */
+  @route("{userId}/status")
+  @summary("ユーザーとのフレンド状態のステータスを取得")
+  @get()
+  op getUserStatus(@path userId: string):
+  | UserStatus
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+  
+
+  /**
    * プロフィール情報の取得
    */
   @summary("UIDによるユーザー情報の取得")
@@ -93,6 +105,25 @@ model User {
    * 口座情報
    */
   bank: Bank;
+}
+
+model UserStatus {
+  /**
+   * ユーザーID
+   */
+  @minLength(28)
+  @maxLength(28)
+  uid: string;
+
+  /**
+   * ユーザー名
+   */
+  name: string;
+
+  /**
+   * フレンド状態のステータス
+   */
+  status: string;
 }
 
 model UsersResponse {

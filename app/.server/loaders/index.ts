@@ -3,4 +3,5 @@ export * from "./friendsLoader";
 export * from "./groupEventLoader";
 export * from "./groupEventsLoader";
 export * from "./groupLoader";
+export * from "./groupMembersLoader";
 export * from "./groupsLoader";

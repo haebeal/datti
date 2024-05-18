@@ -1,6 +1,6 @@
 import { Await, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
-import { GroupLoader } from "~/.server/loaders";
+import { GroupMembersLoader } from "~/.server/loaders";
 import { MemberCard } from "~/components/MemberCard";
 
 function LoadingSpinner() {
@@ -12,17 +12,17 @@ function LoadingSpinner() {
 }
 
 export function MemberList() {
-  const { group } = useLoaderData<GroupLoader>();
+  const { members } = useLoaderData<GroupMembersLoader>();
 
   return (
     <div className="w-full min-h-[60vh]">
       <Suspense fallback={<LoadingSpinner />}>
-        <Await resolve={group}>
-          {({ users }) =>
-            Array.isArray(users) && users.length > 0 ? (
+        <Await resolve={members}>
+          {({ members }) =>
+            Array.isArray(members) && members.length > 0 ? (
               <div className="w-full flex flex-col items-center p-4 gap-3">
-                {users.map((user) => (
-                  <MemberCard key={user.uid} user={user} />
+                {members.map((member) => (
+                  <MemberCard key={member.uid} user={member} />
                 ))}
               </div>
             ) : (

@@ -2,6 +2,8 @@ package repositoryimpl
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
@@ -91,6 +93,42 @@ func (f *friendRepositoryImpl) GetApplyings(c context.Context, uid string) ([]*m
 	}
 
 	return *applyings, nil
+}
+
+// Getstatus implements repository.FriendRepository.
+func (f *friendRepositoryImpl) GetStatus(c context.Context, uid string, fuid string) (string, error) {
+	var status string
+
+	subquery1 := f.DBEngine.Client.NewSelect().
+		Table("friends").
+		Where("uid = ? AND friend_uid = ?", uid, fuid)
+
+	subquery2 := f.DBEngine.Client.NewSelect().
+		Table("friends").
+		Where("uid = ? AND friend_uid = ?", fuid, uid)
+
+	query := f.DBEngine.Client.NewSelect().
+		ColumnExpr(`CASE
+			WHEN f1.uid IS NOT NULL AND f2.uid IS NOT NULL THEN 'friend'
+			WHEN f1.uid IS NOT NULL THEN 'applying'
+			WHEN f2.uid IS NOT NULL THEN 'requesting'
+			ELSE 'none'
+		END AS status`).
+		With("f1", subquery1).
+		With("f2", subquery2).
+		TableExpr("f1").
+		Join("LEFT JOIN f2 ON f1.uid = f2.friend_uid AND f1.friend_uid = f2.uid")
+
+	err := query.Scan(c, &status)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			status = "none"
+			return status, nil
+		}
+		return "", err
+	}
+
+	return status, nil
 }
 
 // GetFriends implements repository.FriendRepository.

@@ -11,5 +11,6 @@ type FriendRepository interface {
 	GetApplyings(c context.Context, uid string) ([]*model.Friend, error)
 	GetApplieds(c context.Context, uid string) ([]*model.Friend, error)
 	SetFriends(c context.Context, uid string, fuid string) error
+	GetStatus(c context.Context, uid string, fuid string) (string, error)
 	DeleteFriend(c context.Context, uid string, fuid string) error
 }

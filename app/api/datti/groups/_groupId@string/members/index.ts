@@ -2,6 +2,13 @@
 import type * as Types from '../../../@types'
 
 export type Methods = {
+  /** グループに対するメンバー情報の取得 */
+  get: {
+    status: 200
+    /** The request has succeeded. */
+    resBody: Types.GroupMembers
+  }
+
   /** グループに対するメンバーの追加 */
   post: {
     status: 200
@@ -12,8 +19,6 @@ export type Methods = {
       id: string
       /** グループ名 */
       name: string
-      /** ユーザー情報 */
-      users: Types.User[]
       /** 作成時間 */
       createdAt: string
       /** 更新時間 */

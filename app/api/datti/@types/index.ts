@@ -55,13 +55,16 @@ export type GroupCreateRequest = {
   uids: string[]
 }
 
+export type GroupMembers = {
+  /** ユーザー情報 */
+  members: User[]
+}
+
 export type GroupResponse = {
   /** グループID */
   id: string
   /** グループ名 */
   name: string
-  /** ユーザー情報 */
-  users: User[]
 }
 
 export type GroupUpdateRequest = {

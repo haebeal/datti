@@ -12,8 +12,8 @@ import (
 
 type UserUseCase interface {
 	GetUsers(c context.Context, uid string) ([]*model.User, error)
-	GetUserByUid(c context.Context, uid string) (*model.User, *model.BankAccount, error)
-	GetUsersByEmail(c context.Context, email string) ([]*model.User, []*model.BankAccount, error)
+	GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, *model.BankAccount, error)
+	GetUsersByEmail(c context.Context, uid string, email string) ([]*model.User, []string, []*model.BankAccount, error)
 	GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error)
 	UpdateUser(c context.Context, uid string, name string, url string, bankCode string, branchCode string, accountCode string) (*model.User, *model.BankAccount, error)
 }
@@ -25,11 +25,12 @@ type userUseCase struct {
 }
 
 // GetUserByEmail implements UserUseCase.
-func (u *userUseCase) GetUsersByEmail(c context.Context, email string) ([]*model.User, []*model.BankAccount, error) {
+func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email string) ([]*model.User, []string, []*model.BankAccount, error) {
 	users, err := u.userRepository.GetUsers(c)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
+
 	usersWithEmail := make([]*model.User, 0)
 	for _, user := range users {
 		if strings.Contains(user.Email, email) {
@@ -38,11 +39,12 @@ func (u *userUseCase) GetUsersByEmail(c context.Context, email string) ([]*model
 	}
 
 	banks := make([]*model.BankAccount, 0)
+	statuses := make([]string, 0)
 	for _, user := range usersWithEmail {
 		bank, err := u.bankRepository.GetBankAccountByUid(c, user.UID)
 		if err != nil {
 			if !(errors.Is(err, sql.ErrNoRows)) {
-				return nil, nil, err
+				return nil, nil, nil, err
 			}
 		}
 		if bank != nil {
@@ -50,27 +52,41 @@ func (u *userUseCase) GetUsersByEmail(c context.Context, email string) ([]*model
 		} else {
 			banks = append(banks, new(model.BankAccount))
 		}
+
+		status, err := u.friendRepository.GetStatus(c, uid, user.UID)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		statuses = append(statuses, status)
 	}
 
-	return usersWithEmail, banks, nil
+	return usersWithEmail, statuses, banks, nil
 }
 
 // GetUserByUid implements UserUseCase.
-func (u *userUseCase) GetUserByUid(c context.Context, uid string) (*model.User, *model.BankAccount, error) {
-	user, err := u.userRepository.GetUserByUid(c, uid)
+func (u *userUseCase) GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, *model.BankAccount, error) {
+	user, err := u.userRepository.GetUserByUid(c, targetId)
 	if err != nil {
-		return nil, nil, err
+		return nil, "", nil, err
 	}
+
+	// フレンド状態のステータスを取得
+	status, err := u.friendRepository.GetStatus(c, uid, user.UID)
+	if err != nil {
+		return nil, "", nil, err
+	}
+
 	// userに紐づく講座情報の取得
 	bank, err := u.bankRepository.GetBankAccountByUid(c, user.UID)
 	if err != nil {
 		if errors.Is(sql.ErrNoRows, err) {
 			bank := new(model.BankAccount)
-			return user, bank, nil
+			return user, status, bank, nil
 		}
-		return nil, nil, err
+		return nil, "", nil, err
 	}
-	return user, bank, nil
+
+	return user, status, bank, nil
 }
 
 // GetUsers implements UserUseCase.
@@ -85,12 +101,14 @@ func (u *userUseCase) GetUsers(c context.Context, uid string) ([]*model.User, er
 
 // GetUserStatus implements UserUseCase.
 func (u *userUseCase) GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error) {
-	status, err := u.friendRepository.GetStatus(c, uid, fuid)
+	user, err := u.userRepository.GetUserByUid(c, fuid)
 	if err != nil {
 		return nil, "", err
 	}
-
-	user, err := u.userRepository.GetUserByUid(c, fuid)
+	if uid == fuid {
+		return user, "me", nil
+	}
+	status, err := u.friendRepository.GetStatus(c, uid, fuid)
 	if err != nil {
 		return nil, "", err
 	}

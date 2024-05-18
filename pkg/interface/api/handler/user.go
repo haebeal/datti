@@ -15,11 +15,31 @@ type UserHandler interface {
 	HandleGetByUid(c echo.Context) error
 	HandleGetByUidWithPahtParam(c echo.Context) error
 	HandleGetByEmail(c echo.Context) error
+	HandleGetStatus(c echo.Context) error
 	HandleUpdate(c echo.Context) error
 }
 
 type userHandler struct {
 	useCase usecase.UserUseCase
+}
+
+// HandleGetStatus implements UserHandler.
+func (u *userHandler) HandleGetStatus(c echo.Context) error {
+	res := new(response.UserStatus)
+	errResponse := new(response.Error)
+	uid := c.Get("uid").(string)
+	fuid := c.Param("userId")
+
+	user, status, err := u.useCase.GetUserStatus(c.Request().Context(), uid, fuid)
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	} else {
+		res.UID = user.UID
+		res.Name = user.Name
+		res.Status = status
+		return c.JSON(http.StatusOK, res)
+	}
 }
 
 // HandleGetByUidWithPahtParam implements UserHandler.

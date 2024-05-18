@@ -34,6 +34,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 
 	userRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
 	friendRepository := repositoryimpl.NewFriendRepository(dbClient)
+
 	userUseCase := usecase.NewUserUseCase(userRepository, friendRepository, bankAccountRepository)
 	userHandler := handler.NewUserHandler(userUseCase)
 
@@ -65,7 +66,6 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.GET("/users/me", userHandler.HandleGetByUid)
 	r.PUT("/users/me", userHandler.HandleUpdate)
 	r.GET("/users/:uid", userHandler.HandleGetByUidWithPahtParam)
-	r.GET("/users/:userId/status", userHandler.HandleGetStatus)
 	r.POST("/users/:uid/requests", friendHandler.HandlerRequest) //フレンド申請を送信
 
 	r.GET("/bank", bankAccountHandler.HandleGet)

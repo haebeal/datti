@@ -26,7 +26,10 @@ export const groupAction = async ({
 
   if (request.method === "POST") {
     await dattiClient.groups.$post({
-      body: submission.value,
+      body: {
+        ...submission.value,
+        uids: [],
+      },
     });
   } else if (request.method === "PUT") {
     const groupId = params.groupId;

@@ -7,6 +7,9 @@ export const groupMembersLoader = async ({
   params,
   context,
 }: LoaderFunctionArgs) => {
+  const { searchParams } = new URL(request.url);
+  const searchQuery = searchParams.get("q");
+
   const groupId = params.groupId;
   if (!groupId) {
     throw new Error("Not Found Group");
@@ -22,9 +25,14 @@ export const groupMembersLoader = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
 
+  const users = dattiClient.users.$get({
+    query: {
+      email: searchQuery ?? undefined,
+    },
+  });
   const members = dattiClient.groups._groupId(groupId).members.$get();
 
-  return defer({ members });
+  return defer({ users, members });
 };
 
 export type GroupMembersLoader = typeof groupMembersLoader;

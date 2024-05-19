@@ -135,6 +135,20 @@ model EventUpdateRequest {
    */
   evented_at: utcDateTime;
 
+  /**
+   * 立て替えたユーザー
+   */
+  paid_by: string;
+
+  /**
+   * 立て替えた金額
+   */
+  amount: integer;
+
+  /**
+   * 立て替えてもらったユーザー
+   */
+  payments: payment[];
 }
 
 

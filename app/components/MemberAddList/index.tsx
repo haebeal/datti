@@ -1,6 +1,6 @@
 import { Await, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
-import { GroupLoader } from "~/.server/loaders";
+import { GroupMembersLoader } from "~/.server/loaders";
 import { MemberAddCard } from "~/components/MemberAddCard";
 
 function LoadingSpinner() {
@@ -12,20 +12,32 @@ function LoadingSpinner() {
 }
 
 export function MemberAddList() {
-  const { users } = useLoaderData<GroupLoader>();
+  const { users, members } = useLoaderData<GroupMembersLoader>();
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Await resolve={users}>
-        {({ users }) =>
-          Array.isArray(users) && users.length > 0 ? (
-            users.map((user) => <MemberAddCard key={user.uid} user={user} />)
-          ) : (
-            <div className="w-full h-full grid place-content-center">
-              <h3 className="font-semibold">ユーザーが見つかりませんでした</h3>
-            </div>
-          )
-        }
+        {({ users }) => (
+          <Await resolve={members}>
+            {({ members }) =>
+              Array.isArray(users) &&
+              Array.isArray(members) &&
+              users.length > 0 ? (
+                users
+                  .filter((user) =>
+                    members.every((member) => user.uid !== member.uid)
+                  )
+                  .map((user) => <MemberAddCard key={user.uid} user={user} />)
+              ) : (
+                <div className="w-full h-full grid place-content-center">
+                  <h3 className="font-semibold">
+                    ユーザーが見つかりませんでした
+                  </h3>
+                </div>
+              )
+            }
+          </Await>
+        )}
       </Await>
     </Suspense>
   );

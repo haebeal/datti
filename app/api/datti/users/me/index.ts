@@ -20,6 +20,8 @@ export type Methods = {
       /** 口座情報 */
       bank: Types.Bank
 
+      /** フレンド状態のステータス */
+      status: 'me' | 'applying' | 'requesting' | 'none'
       /** 作成時間 */
       createdAt: string
       /** 更新時間 */
@@ -50,6 +52,8 @@ export type Methods = {
       /** 口座情報 */
       bank: Types.Bank
 
+      /** フレンド状態のステータス */
+      status: 'me' | 'applying' | 'requesting' | 'none'
       /** 作成時間 */
       createdAt: string
       /** 更新時間 */

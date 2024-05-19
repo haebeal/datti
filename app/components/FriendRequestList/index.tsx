@@ -19,9 +19,9 @@ export function FriendRequestList() {
       <Await resolve={users}>
         {({ users }) =>
           Array.isArray(users) && users.length > 0 ? (
-            users.map((user) => (
-              <FriendRequestCard key={user.uid} user={user} />
-            ))
+            users
+              .filter((user) => user.status === "none")
+              .map((user) => <FriendRequestCard key={user.uid} user={user} />)
           ) : (
             <div className="w-full h-full grid place-content-center">
               <h3 className="font-semibold">ユーザーが見つかりませんでした</h3>

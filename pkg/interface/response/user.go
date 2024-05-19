@@ -29,5 +29,5 @@ type UserStatus struct {
 }
 
 type Users struct {
-	Users []*model.User `json:"usrs"`
+	Users []*model.User `json:"users"`
 }

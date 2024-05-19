@@ -109,11 +109,6 @@ model EventCreateRequest {
   evented_at: utcDateTime;
 
   /**
-   * イベント作成者のユーザー情報
-   */
-  created_by: string;
-
-  /**
    * 立て替えたユーザー
    */
   paid_by: string;

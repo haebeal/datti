@@ -94,6 +94,9 @@ export type User = {
 
   /** 口座情報 */
   bank: Bank
+
+  /** フレンド状態のステータス */
+  status: 'me' | 'applying' | 'requesting' | 'none'
 }
 
 export type UserUpdateRequest = {

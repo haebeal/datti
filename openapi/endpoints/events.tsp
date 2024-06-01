@@ -90,7 +90,7 @@ model Event {
   /**
    * イベントの紐づいたグループID
    */
-  group_id: string;
+  group_id?: string;
 }
 
 model EventsResponse {
@@ -107,6 +107,21 @@ model EventCreateRequest {
    * イベントの日付
    */
   evented_at: utcDateTime;
+
+  /**
+   * 立て替えたユーザー
+   */
+  paid_by: string;
+
+  /**
+   * 立て替えた金額
+   */
+  amount: integer;
+
+  /**
+   * 立て替えてもらったユーザー
+   */
+  payments: payment[];
 }
 
 model EventUpdateRequest {
@@ -119,4 +134,28 @@ model EventUpdateRequest {
    * イベントの日付
    */
   evented_at: utcDateTime;
+
+  /**
+   * 立て替えたユーザー
+   */
+  paid_by: string;
+
+  /**
+   * 立て替えた金額
+   */
+  amount: integer;
+
+  /**
+   * 立て替えてもらったユーザー
+   */
+  payments: payment[];
+}
+
+
+/**
+ * 建て替えてもらうユーザーの型
+ */
+model payment {
+  user: string;
+  amount: integer;
 }

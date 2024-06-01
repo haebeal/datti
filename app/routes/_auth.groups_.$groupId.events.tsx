@@ -1,6 +1,13 @@
-import { Outlet, useActionData, useNavigation } from "@remix-run/react";
-import { useEffect, useState } from "react";
-import { GroupAction } from "~/.server/actions";
+import {
+  Await,
+  Outlet,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "@remix-run/react";
+import { Suspense, useEffect, useState } from "react";
+import { GroupEventsAction } from "~/.server/actions";
+import { GroupEventsLoader } from "~/.server/loaders";
 import { EventForm } from "~/components/EventForm";
 import { EventList } from "~/components/EventList";
 import { Button } from "~/components/ui/button";
@@ -17,11 +24,12 @@ export { groupEventsLoader as loader } from "~/.server/loaders";
 
 export default function GroupEvents() {
   const { state } = useNavigation();
-  const lastResult = useActionData<GroupAction>();
+  const lastResult = useActionData<GroupEventsAction>();
+  const { members } = useLoaderData<GroupEventsLoader>();
 
   const [isOpen, setOpen] = useState(false);
   useEffect(() => {
-    if (lastResult?.status === "success") {
+    if (lastResult?.submission.status === "success") {
       setOpen(false);
     }
   }, [lastResult]);
@@ -42,7 +50,24 @@ export default function GroupEvents() {
             <DialogHeader>
               <DialogTitle>イベント作成</DialogTitle>
             </DialogHeader>
-            <EventForm lastResult={lastResult} method="post" />
+            <Suspense fallback={<p>loading...</p>}>
+              <Await resolve={members}>
+                {({ members }) => (
+                  <EventForm
+                    defaultValue={{
+                      payments: members
+                        .filter(({ status }) => status !== "me")
+                        .map(({ uid }) => ({
+                          user: uid,
+                          amount: 0,
+                        })),
+                    }}
+                    lastResult={lastResult?.submission}
+                    method="post"
+                  />
+                )}
+              </Await>
+            </Suspense>
           </DialogContent>
         </Dialog>
       </div>

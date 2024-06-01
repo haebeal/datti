@@ -20,7 +20,7 @@ export type Event = {
   created_by: User
 
   /** イベントの紐づいたグループID */
-  group_id: string
+  group_id?: string | undefined
 }
 
 export type EventCreateRequest = {
@@ -28,6 +28,12 @@ export type EventCreateRequest = {
   name: string
   /** イベントの日付 */
   evented_at: string
+  /** 立て替えたユーザー */
+  paid_by: string
+  /** 立て替えた金額 */
+  amount: number
+  /** 立て替えてもらったユーザー */
+  payments: Payment[]
 }
 
 export type EventUpdateRequest = {
@@ -35,6 +41,12 @@ export type EventUpdateRequest = {
   name: string
   /** イベントの日付 */
   evented_at: string
+  /** 立て替えたユーザー */
+  paid_by: string
+  /** 立て替えた金額 */
+  amount: number
+  /** 立て替えてもらったユーザー */
+  payments: Payment[]
 }
 
 export type EventsResponse = {
@@ -111,4 +123,10 @@ export type UserUpdateRequest = {
 
 export type UsersResponse = {
   users: User[]
+}
+
+/** 建て替えてもらうユーザーの型 */
+export type Payment = {
+  user: string
+  amount: number
 }

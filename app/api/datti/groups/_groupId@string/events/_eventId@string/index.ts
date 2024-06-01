@@ -19,7 +19,7 @@ export type Methods = {
       created_by: Types.User
 
       /** イベントの紐づいたグループID */
-      group_id: string
+      group_id?: string | undefined
       /** 作成時間 */
       createdAt: string
       /** 更新時間 */
@@ -49,7 +49,7 @@ export type Methods = {
       created_by: Types.User
 
       /** イベントの紐づいたグループID */
-      group_id: string
+      group_id?: string | undefined
       /** 作成時間 */
       createdAt: string
       /** 更新時間 */

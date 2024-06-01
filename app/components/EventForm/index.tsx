@@ -5,11 +5,12 @@ import {
   useForm,
   useInputControl,
 } from "@conform-to/react";
-import { parseWithZod } from "@conform-to/zod";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { Form, useNavigation } from "@remix-run/react";
+import { Await, Form, useLoaderData, useNavigation } from "@remix-run/react";
 import { format } from "date-fns";
-import { useId } from "react";
+import { Suspense, useId } from "react";
+import { GroupEventsLoader } from "~/.server/loaders";
 import { EventCreateRequest, EventUpdateRequest } from "~/api/datti/@types";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -21,28 +22,34 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
-import { eventSchema } from "~/schema/event";
+import { eventFormSchema } from "~/schema/eventFormSchema";
 
 interface Props {
-  defaultValue?: EventCreateRequest | EventUpdateRequest;
-  lastResult?: SubmissionResult<string[] | null>;
+  defaultValue?: Partial<EventCreateRequest | EventUpdateRequest>;
+  lastResult?: SubmissionResult<string[]> | null | undefined;
   method: "post" | "put";
 }
 
 export function EventForm({ defaultValue, lastResult, method }: Props) {
-  const [form, { name, evented_at }] = useForm({
-    defaultValue: defaultValue,
+  const { members } = useLoaderData<GroupEventsLoader>();
+
+  const [form, { name, evented_at, amount, payments }] = useForm({
+    defaultValue,
     lastResult,
+    constraint: getZodConstraint(eventFormSchema),
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: eventSchema });
+      return parseWithZod(formData, { schema: eventFormSchema });
     },
   });
-  const { change } = useInputControl(evented_at);
+  const paymentFields = payments.getFieldList();
 
+  const { change } = useInputControl(evented_at);
   const { state } = useNavigation();
 
   const nameId = useId();
   const eventedAtId = useId();
+  const amountId = useId();
+  const burdenId = useId();
 
   return (
     <Form
@@ -95,6 +102,67 @@ export function EventForm({ defaultValue, lastResult, method }: Props) {
         </Popover>
         <p>{evented_at.errors?.toString()}</p>
       </div>
+      <div className="w-full">
+        <Label htmlFor={amountId}>支払い額</Label>
+        <Input
+          {...getInputProps(amount, { type: "number" })}
+          placeholder="支払額を入力"
+          disabled={state !== "idle"}
+          id={amountId}
+        />
+        <p>{amount.errors?.toString()}</p>
+      </div>
+      <div className="w-full">
+        <Label htmlFor={burdenId}>負担額</Label>
+        <Input
+          value={
+            Number(form.value?.amount ?? 0) -
+            (Array.isArray(form.value?.payments)
+              ? form.value.payments.reduce(
+                  (accumulator, payment) =>
+                    (accumulator += Number(payment?.amount ?? 0)),
+                  0
+                )
+              : 0)
+          }
+          disabled
+          id={burdenId}
+        />
+      </div>
+      <Suspense fallback={<p>loading...</p>}>
+        <Await resolve={members}>
+          {({ members }) => (
+            <>
+              {paymentFields.map((payment) => (
+                <div key={payment.id} className="w-full">
+                  <Label>
+                    {
+                      members.find(
+                        ({ uid }) => uid === payment.getFieldset().user.value
+                      )?.name
+                    }
+                  </Label>
+                  <input
+                    {...getInputProps(payment.getFieldset().user, {
+                      type: "hidden",
+                    })}
+                    key={payment.getFieldset().user.id}
+                  />
+                  <Input
+                    {...getInputProps(payment.getFieldset().amount, {
+                      type: "number",
+                    })}
+                    key={payment.getFieldset().amount.id}
+                    placeholder="立替金額を入力"
+                    disabled={state !== "idle"}
+                  />
+                  <p>{payment.getFieldset().amount.errors?.toString()}</p>
+                </div>
+              ))}
+            </>
+          )}
+        </Await>
+      </Suspense>
       <Button
         type="submit"
         className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"

@@ -2,7 +2,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
-import { eventSchema } from "~/schema/event";
+import { eventFormSchema } from "~/schema/eventFormSchema";
 
 export const groupEventsAction = async ({
   request,
@@ -17,11 +17,14 @@ export const groupEventsAction = async ({
   }
 
   const submission = parseWithZod(formData, {
-    schema: eventSchema,
+    schema: eventFormSchema,
   });
 
   if (submission.status !== "success") {
-    return json(submission.reply());
+    return json({
+      message: "Error!",
+      submission: submission.reply(),
+    });
   }
 
   const { idToken } = await getIdToken({ request, params, context });
@@ -45,7 +48,10 @@ export const groupEventsAction = async ({
     });
   }
 
-  return json(submission.reply());
+  return json({
+    message: "Success!",
+    submission: submission.reply(),
+  });
 };
 
 export type GroupEventsAction = typeof groupEventsAction;

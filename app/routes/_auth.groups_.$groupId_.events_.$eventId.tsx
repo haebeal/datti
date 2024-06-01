@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { GroupEventsAction } from "~/.server/actions";
 import { GroupEventLoader } from "~/.server/loaders";
 import { EventForm } from "~/components/EventForm";
+import { eventFormSchema } from "~/schema/eventFormSchema";
 
 export { groupEventsAction as action } from "~/.server/actions";
 export { groupEventLoader as loader } from "~/.server/loaders";
@@ -36,8 +37,8 @@ export default function EventDetail() {
             <Await resolve={event}>
               {(event) => (
                 <EventForm
-                  defaultValue={event}
-                  lastResult={lastResult}
+                  defaultValue={eventFormSchema.parse(event)}
+                  lastResult={lastResult?.submission}
                   method="put"
                 />
               )}

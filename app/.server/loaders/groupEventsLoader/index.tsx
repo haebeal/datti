@@ -18,9 +18,10 @@ export const groupEventsLoader = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
 
+  const members = dattiClient.groups._groupId(groupId).members.$get();
   const events = dattiClient.groups._groupId(groupId).events.$get();
 
-  return defer({ events });
+  return defer({ members, events });
 };
 
 export type GroupEventsLoader = typeof groupEventsLoader;

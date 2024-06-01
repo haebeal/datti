@@ -2,7 +2,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createDattiClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
-import { eventFormSchema } from "~/schema/eventFormScheam";
+import { eventFormSchema } from "~/schema/eventFormSchema";
 
 export const groupEventsAction = async ({
   request,

@@ -22,7 +22,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
-import { eventFormSchema } from "~/schema/eventFormScheam";
+import { eventFormSchema } from "~/schema/eventFormSchema";
 
 interface Props {
   defaultValue?: Partial<EventCreateRequest | EventUpdateRequest>;

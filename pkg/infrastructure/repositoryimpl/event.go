@@ -15,15 +15,10 @@ type eventRepositoryImpl struct {
 }
 
 // CreateEvent implements repository.EventRepository.
-func (e *eventRepositoryImpl) CreateEvent(c context.Context, uid string, gid string, name string, eventAt time.Time) (*model.Event, error) {
+func (e *eventRepositoryImpl) CreateEvent(c context.Context, event *model.Event) (*model.Event, error) {
 	id := xid.New()
-	event := &model.Event{
-		ID:        id.String(),
-		Name:      name,
-		CreatedBy: uid,
-		GroupId:   gid,
-		EventedAt: eventAt,
-	}
+	event.ID = id.String()
+
 	_, err := e.DBEngine.Client.NewInsert().
 		Model(event).
 		Exec(c)

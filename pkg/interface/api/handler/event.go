@@ -25,25 +25,22 @@ type eventHandler struct {
 func (e *eventHandler) HandleCreate(c echo.Context) error {
 	errResponse := new(response.Error)
 	uid := c.Get("uid").(string)
-	gid := c.Param("gid")
-	req := new(request.EventCreate)
-	res := new(response.Event)
+	gid := c.Param("groupId")
+	req := new(request.EventCreateRequest)
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusBadRequest, errResponse)
 	}
 
-	event, user, err := e.useCase.CreateEvent(c.Request().Context(), uid, gid, req.Name, req.Evented_at)
+	// ユースケース層のDTOの詰め替え
+	eventDTO := request.ToEventCreate(req)
+
+	event, err := e.useCase.CreateEvent(c.Request().Context(), uid, gid, eventDTO)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		res.ID = event.ID
-		res.Name = event.Name
-		res.EventedAt = event.EventedAt
-		res.CreatedBy = user
-		res.GroupId = event.GroupId
-		return c.JSON(http.StatusOK, res)
+		return c.JSON(http.StatusOK, event)
 	}
 }
 
@@ -94,14 +91,14 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 	id := c.Param("id")
 	gid := c.Param("gid")
 	uid := c.Get("uid").(string)
-	req := new(request.EventCreate)
+	req := new(model.EventCreate)
 	res := new(response.Event)
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusBadRequest, errResponse)
 	}
 
-	event, user, err := e.useCase.UpdateEvent(c.Request().Context(), id, uid, gid, req.Name, req.Evented_at)
+	event, user, err := e.useCase.UpdateEvent(c.Request().Context(), id, uid, gid, req)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)

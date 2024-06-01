@@ -6,12 +6,12 @@ import {
 } from "~/api/datti/@types";
 import { ToZod } from "~/lib/toZod";
 
-export const paymentSchema = z.object<ToZod<Payment>>({
+export const paymentFormSchema = z.object<ToZod<Payment>>({
   user: z.string(),
   amount: z.number(),
 });
 
-export const eventSchema = z.object<
+export const eventFormSchema = z.object<
   ToZod<EventCreateRequest | EventUpdateRequest>
 >({
   name: z.string({
@@ -20,5 +20,5 @@ export const eventSchema = z.object<
   evented_at: z.string().datetime(),
   paid_by: z.string(),
   amount: z.number(),
-  payments: paymentSchema.array(),
+  payments: paymentFormSchema.array(),
 });

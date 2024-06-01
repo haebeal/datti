@@ -22,7 +22,7 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
-import { eventSchema } from "~/schema/event";
+import { eventFormSchema } from "~/schema/eventFormScheam";
 
 interface Props {
   defaultValue?: Partial<EventCreateRequest | EventUpdateRequest>;
@@ -36,9 +36,9 @@ export function EventForm({ defaultValue, lastResult, method }: Props) {
   const [form, { name, evented_at, amount, payments }] = useForm({
     defaultValue,
     lastResult,
-    constraint: getZodConstraint(eventSchema),
+    constraint: getZodConstraint(eventFormSchema),
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: eventSchema });
+      return parseWithZod(formData, { schema: eventFormSchema });
     },
   });
   const paymentFields = payments.getFieldList();

@@ -21,7 +21,10 @@ export const groupEventsAction = async ({
   });
 
   if (submission.status !== "success") {
-    return json(submission.reply());
+    return json({
+      message: "Error!",
+      submission: submission.reply(),
+    });
   }
 
   const { idToken } = await getIdToken({ request, params, context });
@@ -45,7 +48,10 @@ export const groupEventsAction = async ({
     });
   }
 
-  return json(submission.reply());
+  return json({
+    message: "Success!",
+    submission: submission.reply(),
+  });
 };
 
 export type GroupEventsAction = typeof groupEventsAction;

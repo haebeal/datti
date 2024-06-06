@@ -6,6 +6,7 @@ type Event struct {
 	ID        string     `bun:"id"`
 	Name      string     `bun:"name"`
 	CreatedBy string     `bun:"created_by"`
+	PaidBy    string     `bun:"paid_by,notnull"`
 	Amount    int        `bun:"amount,nullzero,notnull"`
 	GroupId   string     `bun:"group_id,nullzero"`
 	EventedAt time.Time  `bun:"evented_at,nullzero,notnull"`

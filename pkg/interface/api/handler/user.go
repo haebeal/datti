@@ -34,7 +34,7 @@ func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		res.UID = user.UID
+		res.UID = user.ID
 		res.Name = user.Name
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
@@ -59,7 +59,7 @@ func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 	} else {
 		res := make([]response.UserWithBankAccount, len(users))
 		for i := 0; i < len(res); i++ {
-			res[i].UID = users[i].UID
+			res[i].UID = users[i].ID
 			res[i].Name = users[i].Name
 			res[i].Email = users[i].Email
 			res[i].PhotoUrl = users[i].PhotoUrl
@@ -87,7 +87,7 @@ func (u *userHandler) HandleGetByUid(c echo.Context) error {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		res.UID = user.UID
+		res.UID = user.ID
 		res.Name = user.Name
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
@@ -131,7 +131,7 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
 	} else {
-		res.UID = user.UID
+		res.UID = user.ID
 		res.Name = user.Name
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl

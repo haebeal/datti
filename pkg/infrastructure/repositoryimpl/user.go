@@ -21,7 +21,7 @@ func (ur *userRepoImpl) GetUserByUid(c context.Context, uid string) (*model.User
 		return nil, err
 	}
 
-	user.UID = u.UID
+	user.ID = u.UID
 	user.Name = u.DisplayName
 	user.Email = u.Email
 	user.PhotoUrl = u.PhotoURL
@@ -39,7 +39,7 @@ func (ur *userRepoImpl) GetUsers(c context.Context) ([]*model.User, error) {
 			break
 		}
 		users = append(users, &model.User{
-			UID:      user.UID,
+			ID:       user.UID,
 			Name:     user.DisplayName,
 			Email:    user.Email,
 			PhotoUrl: user.PhotoURL,
@@ -56,7 +56,7 @@ func (ur *userRepoImpl) GetUserByEmail(c context.Context, email string) (*model.
 		return nil, err
 	}
 
-	user.UID = u.UID
+	user.ID = u.UID
 	user.Name = u.DisplayName
 	user.Email = u.Email
 	user.PhotoUrl = u.PhotoURL
@@ -75,7 +75,7 @@ func (ur *userRepoImpl) UpdateUser(c context.Context, uid string, name string, u
 		return nil, err
 	}
 
-	user.UID = u.UID
+	user.ID = u.UID
 	user.Name = u.DisplayName
 	user.Email = u.Email
 	user.PhotoUrl = u.PhotoURL

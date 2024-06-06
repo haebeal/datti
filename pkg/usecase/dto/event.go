@@ -10,27 +10,51 @@ type EventCreate struct {
 	CreatedBy string
 	PaidBy    string
 	Amount    int
-	Payments  []PaymentUsers
-	GroupId   string
+	Payments  []struct {
+		PaidTo string
+		Amount int
+	}
+	GroupId string
 }
 
-type PaymentUsers struct {
-	User   string
-	Amount int
+type EventUpdate struct {
+	Name      string
+	EventedAt time.Time
+	CreatedBy string
+	PaidBy    string
+	Amount    int
+	Payments  []struct {
+		PaymentID string
+		PaidTo    string
+		Amount    int
+	}
+	GroupId string
 }
 
-type EventCreateResponse struct {
+type EventResponse struct {
 	ID        string
 	Name      string
 	EventedAt time.Time
 	CreatedBy string
+	PaidBy    string
 	Amount    int
-	Paymetns  []Payment
-	GroupId   string
+	Paymetns  []struct {
+		ID     string
+		PaidTo string
+		Amount int
+	}
+	GroupId string
 }
 
-type Payment struct {
-	ID     string
-	Name   string
-	Amount int
+type Events struct {
+	Events []struct {
+		ID        string
+		Name      string
+		EventedAt time.Time
+		PaidBy    struct {
+			ID   string
+			Name string
+		}
+		Amount int
+	}
 }

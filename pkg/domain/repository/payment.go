@@ -14,5 +14,6 @@ type PaymentRepository interface {
 	GetPaidBy(c context.Context, uid string) ([]*model.Payment, error)
 	GetPaidTo(c context.Context, uid string) ([]*model.Payment, error)
 	GetPayment(c context.Context, id string) (*model.Payment, error)
+	GetPaymentByEventId(c context.Context, eventId string) ([]*model.Payment, error)
 	DeletePayment(c context.Context, id string) error
 }

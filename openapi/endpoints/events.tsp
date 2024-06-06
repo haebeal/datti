@@ -9,7 +9,7 @@ namespace DattiAPI;
  */
 @tag("Events")
 @route("groups/{groupId}")
-namespace Events {
+namespace EventEndpoints {
   /**
    * 登録されているイベント情報の取得
    */
@@ -17,7 +17,7 @@ namespace Events {
   @summary("イベントIDに紐づくイベント情報の取得")
   @get
   op getEvent(@path groupId: string, @path eventId: string):
-  | Utils.Response.OKResponse<Event>
+  | EventResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -28,7 +28,7 @@ namespace Events {
   @summary("グループIDに紐づくイベント情報の取得")
   @get
   op getEventsByGid(@path groupId: string):
-  | Utils.Response.OKResponse<EventsResponse>
+  | EventsResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -39,7 +39,7 @@ namespace Events {
   @summary("イベント情報の登録")
   @post
   op createEvent(@path groupId: string, @body event: EventCreateRequest):
-  | Utils.Response.CreatedResponse<Event>
+  | EventResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -50,7 +50,7 @@ namespace Events {
   @summary("イベント情報の更新")
   @put
   op updateEvent(@path groupId: string, @path eventId: string, @body event: EventUpdateRequest):
-  | Utils.Response.OKResponse<Event>
+  | EventResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -64,37 +64,6 @@ namespace Events {
   | Utils.Response.OKMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
-}
-
-model Event {
-  /**
-   * イベントID
-   */
-  id: string;
-
-  /**
-   * イベント名
-   */
-  name: string;
-
-  /**
-   * イベントの日付
-   */
-  evented_at: utcDateTime;
-
-  /**
-   * イベント作成者のユーザー情報
-   */
-  created_by: User;
-
-  /**
-   * イベントの紐づいたグループID
-   */
-  group_id?: string;
-}
-
-model EventsResponse {
-  events: Event[];
 }
 
 model EventCreateRequest {
@@ -121,7 +90,10 @@ model EventCreateRequest {
   /**
    * 立て替えてもらったユーザー
    */
-  payments: payment[];
+  payments: {
+    paid_to: string;
+    amount: integer;
+  }[];
 }
 
 model EventUpdateRequest {
@@ -148,14 +120,37 @@ model EventUpdateRequest {
   /**
    * 立て替えてもらったユーザー
    */
-  payments: payment[];
+  payments: {
+    payment_id: string;
+    paid_to:string;
+    amount: integer;
+  }[];
 }
 
+model EventResponse {
+  id: string;
+  name: string;
+  evented_at: utcDateTime;
+  created_by: string;
+  paid_by: string;
+  amount:integer;
+  paymetns: {
+    payment_id: string;
+    paid_to: string;
+    amount: string;
+  }[];
+  group_id: string;
+}
 
-/**
- * 建て替えてもらうユーザーの型
- */
-model payment {
-  user: string;
-  amount: integer;
+model EventsResponse {
+  events: {
+    id: string;
+    name: string;
+    evented_at: utcDateTime;
+    paid_by: {
+      id: string;
+      name: string;
+    };
+    amount: integer;
+  }[];
 }

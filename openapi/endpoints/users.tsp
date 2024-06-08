@@ -16,7 +16,7 @@ namespace Users {
   @summary("メールアドレスによるユーザー情報の取得")
   @get
   op getUserByEmail(@query email?: string):
-  | Utils.Response.OKResponse<UsersResponse>
+  | UsersResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace Users {
   @summary("ユーザー情報（自分）の取得")
   @get()
   op getMe():
-  | Utils.Response.OKResponse<User>
+  | User
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
   
@@ -38,7 +38,7 @@ namespace Users {
   @summary("ユーザー情報（自分）の更新")
   @put
   op updateMe(...UserUpdateRequest):
-  | Utils.Response.OKResponse<User>
+  | User
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -49,7 +49,7 @@ namespace Users {
   @route("{userId}")
   @get()
   op getUserByUid(@path userId: string):
-  | Utils.Response.OKResponse<User>
+  | User
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 

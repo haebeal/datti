@@ -107,10 +107,35 @@ model GroupResponse {
 }
 
 model GroupMembers {
-  /**
-   * ユーザー情報
-   */
-  members: User[];
+  members: {
+
+    /**
+     * ユーザーID
+     */
+    @minLength(28)
+    @maxLength(28)
+    uid: string;
+  
+    /**
+     * ユーザー名
+     */
+    name: string;
+  
+    /**
+     * メールアドレス
+     */
+    email: string;
+  
+    /**
+     * 画像URL
+     */
+    photoUrl: string;
+  
+    /**
+     * フレンド状態のステータス
+     */
+    status: "me" | "applying" | "requesting" | "none"
+  }[]
 }
 
 model GroupUpdateRequest {

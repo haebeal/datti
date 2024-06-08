@@ -1,6 +1,8 @@
 package response
 
-import "github.com/datti-api/pkg/domain/model"
+import (
+	"github.com/datti-api/pkg/domain/model"
+)
 
 type UserWithBankAccount struct {
 	UID      string `json:"uid"`

@@ -11,7 +11,7 @@ type GroupUseCase interface {
 	GetGroups(c context.Context, uid string) ([]*model.Group, error)
 	CreateGroup(c context.Context, name string, owner string, members []string) (*model.Group, []*model.User, error)
 	GetGroupById(c context.Context, id string) (*model.Group, error)
-	GetMembers(c context.Context, id string) ([]*model.User, error)
+	GetMembers(c context.Context, id string, uid string) ([]*model.User, []*string, error)
 	UpdateGroup(c context.Context, id string, name string) (*model.Group, []*model.User, error)
 	RegisterdMembers(c context.Context, id string, members []string) (*model.Group, []*model.User, error)
 }
@@ -19,6 +19,7 @@ type GroupUseCase interface {
 type groupUseCase struct {
 	groupRepository     repository.GroupRepository
 	userRepository      repository.UserRepository
+	friendRepository    repository.FriendRepository
 	groupUserRepository repository.GroupUserReopsitory
 	transaction         repository.Transaction
 }
@@ -66,25 +67,33 @@ func (g *groupUseCase) GetGroupById(c context.Context, id string) (*model.Group,
 }
 
 // GetMembers implements GroupUseCase.
-func (g *groupUseCase) GetMembers(c context.Context, id string) ([]*model.User, error) {
+func (g *groupUseCase) GetMembers(c context.Context, id string, uid string) ([]*model.User, []*string, error) {
 	group, err := g.groupRepository.GetGroupById(c, id)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	groupUsers, err := g.groupUserRepository.GetGroupUserById(c, group.ID)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	users := make([]*model.User, 0)
+	statuses := make([]*string, 0)
 	for _, groupUser := range groupUsers {
 		user, err := g.userRepository.GetUserByUid(c, groupUser.UserID)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
+		status, err := g.friendRepository.GetStatus(c, uid, groupUser.UserID)
+		if err != nil {
+			return nil, nil, err
+		}
+		statuses = append(statuses, &status)
 		users = append(users, user)
 	}
 
-	return users, nil
+	// メンバーのステータスを取得
+
+	return users, statuses, nil
 }
 
 // GetGroups implements GroupUseCase.
@@ -168,10 +177,11 @@ func (g *groupUseCase) UpdateGroup(c context.Context, id string, name string) (*
 	return group, users, nil
 }
 
-func NewGroupUseCase(groupRepo repository.GroupRepository, userRepo repository.UserRepository, groupUserRepo repository.GroupUserReopsitory, tx repository.Transaction) GroupUseCase {
+func NewGroupUseCase(groupRepo repository.GroupRepository, userRepo repository.UserRepository, friendRepo repository.FriendRepository, groupUserRepo repository.GroupUserReopsitory, tx repository.Transaction) GroupUseCase {
 	return &groupUseCase{
 		groupRepository:     groupRepo,
 		userRepository:      userRepo,
+		friendRepository:    friendRepo,
 		groupUserRepository: groupUserRepo,
 		transaction:         tx,
 	}

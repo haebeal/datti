@@ -7,5 +7,11 @@ type Groups struct {
 }
 
 type Members struct {
-	Members []*model.User `json:"members"`
+	Members []struct {
+		UID      string `json:"uid"`
+		Name     string `json:"name"`
+		Email    string `json:"email"`
+		PhotoUrl string `json:"photoUrl"`
+		Status   string `json:"status"`
+	}
 }

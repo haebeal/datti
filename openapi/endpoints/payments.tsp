@@ -10,7 +10,7 @@ namespace DattiAPI;
  */
 @tag("Payments")
 @route("payments")
-namespace Payments {
+namespace PaymentEndpoints {
   /**
    * 支払い一覧情報の取得 
    */

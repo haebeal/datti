@@ -112,11 +112,6 @@ model PaymentUser {
   user: User;
 
   /**
-   * 口座情報
-   */
-  bank_account:Bank;
-
-  /**
    * 支払い額
    */
   amount: string;

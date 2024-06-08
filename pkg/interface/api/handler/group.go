@@ -83,14 +83,30 @@ func (g *groupHandler) HandleGetById(c echo.Context) error {
 func (g *groupHandler) HandleGetMembers(c echo.Context) error {
 	errResponse := new(response.Error)
 	res := new(response.Members)
+	uid := c.Get("uid").(string)
 	id := c.Param("groupId")
 
-	members, err := g.useCase.GetMembers(c.Request().Context(), id)
+	members, statuses, err := g.useCase.GetMembers(c.Request().Context(), id, uid)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		res.Members = members
+		for i, member := range members {
+			res.Members = append(res.Members, struct {
+				UID      string `json:"uid"`
+				Name     string `json:"name"`
+				Email    string `json:"email"`
+				PhotoUrl string `json:"photoUrl"`
+				Status   string `json:"status"`
+			}{
+				UID:      member.ID,
+				Name:     member.Name,
+				Email:    member.Email,
+				PhotoUrl: member.PhotoUrl,
+				Status:   *statuses[i],
+			})
+		}
+
 		return c.JSON(http.StatusOK, res)
 	}
 }

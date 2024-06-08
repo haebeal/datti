@@ -44,7 +44,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	groupUserRepository := repositoryimpl.NewGroupUserRepository(dbClient)
 
 	groupRepository := repositoryimpl.NewGropuRepoImpl(dbClient)
-	groupUseCase := usecase.NewGroupUseCase(groupRepository, userRepository, groupUserRepository, transaction)
+	groupUseCase := usecase.NewGroupUseCase(groupRepository, userRepository, friendRepository, groupUserRepository, transaction)
 	groupHandler := handler.NewGroupHandler(groupUseCase)
 
 	paymentRepository := repositoryimpl.NewPaymentRepository(dbClient)

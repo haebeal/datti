@@ -9,14 +9,14 @@ namespace DattiAPI;
  */
 @tag("Users")
 @route("users")
-namespace Users {
+namespace UserEndpoints {
   /**
    * メールアドレスによるユーザー情報の取得
    */
   @summary("メールアドレスによるユーザー情報の取得")
   @get
-  op getUserByEmail(@query email?: string):
-  | Utils.Response.OKResponse<UsersResponse>
+  op getUserByEmail(@query email?: string, @query status?:string):
+  | UsersResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace Users {
   @summary("ユーザー情報（自分）の取得")
   @get()
   op getMe():
-  | Utils.Response.OKResponse<User>
+  | User
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
   
@@ -38,7 +38,7 @@ namespace Users {
   @summary("ユーザー情報（自分）の更新")
   @put
   op updateMe(...UserUpdateRequest):
-  | Utils.Response.OKResponse<User>
+  | User
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -49,7 +49,7 @@ namespace Users {
   @route("{userId}")
   @get()
   op getUserByUid(@path userId: string):
-  | Utils.Response.OKResponse<User>
+  | User
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -64,6 +64,27 @@ namespace Users {
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
+  /**
+   * フレンドのユーザーを取得
+   */
+  @route("friends")
+  @summary("フレンドのユーザーを取得")
+  @get
+  op getFriend():
+  | Friends
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
+  /**
+   * フレンドの登録解除
+   */
+  @route("friends/{userId}")
+  @summary("フレンドの登録解除")
+  @delete
+  op unRegisterFriend(@path userId: string):
+  | Utils.Response.OKMessage
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
 }
 
 model User {
@@ -90,9 +111,9 @@ model User {
   photoUrl: string;
 
   /**
-   * 口座情報
+   * フレンド状態のステータス
    */
-  bank: Bank;
+  status: "me" | "applying" | "requesting" | "none";
 }
 
 model UsersResponse {
@@ -109,9 +130,30 @@ model UserUpdateRequest{
    * 画像URL
    */
   photoUrl: string;
+}
 
-  /**
-   * 口座情報
-   */
-  bank: Bank;
+model Friends {
+  users: {
+    /**
+     * ユーザーID
+     */
+    @minLength(28)
+    @maxLength(28)
+    uid: string;
+  
+    /**
+     * ユーザー名
+     */
+    name: string;
+  
+    /**
+     * メールアドレス
+     */
+    email: string;
+  
+    /**
+     * 画像URL
+     */
+    photoUrl: string;
+  }[]
 }

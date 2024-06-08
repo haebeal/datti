@@ -16,6 +16,9 @@ type UserHandler interface {
 	HandleGetByUidWithPahtParam(c echo.Context) error
 	HandleGetByEmail(c echo.Context) error
 	HandleUpdate(c echo.Context) error
+	HandleGetFriends(c echo.Context) error
+	HandlerFriendRequest(c echo.Context) error
+	HandleDeleteFriend(c echo.Context) error
 }
 
 type userHandler struct {
@@ -24,48 +27,47 @@ type userHandler struct {
 
 // HandleGetByUidWithPahtParam implements UserHandler.
 func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
-	res := new(response.UserWithBankAccount)
+	res := new(response.User)
 	errResponse := new(response.Error)
-	uid := c.Param("uid")
+	uid := c.Get("uid").(string)
+	targetId := c.Param("uid")
 
-	user, bank, err := u.useCase.GetUserByUid(c.Request().Context(), uid)
+	user, status, err := u.useCase.GetUserByUid(c.Request().Context(), uid, targetId)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		res.UID = user.UID
+		res.UID = user.ID
 		res.Name = user.Name
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
-		res.Bank.BankCode = bank.BankCode
-		res.Bank.BranchCode = bank.BranchCode
-		res.Bank.AccountCode = bank.AccountCode
+		res.Status = status
 		return c.JSON(http.StatusOK, res)
 	}
 }
 
 // HandleGetByEmail implements UserHandler.
 func (u *userHandler) HandleGetByEmail(c echo.Context) error {
+	uid := c.Get("uid").(string)
 	email := c.QueryParam("email")
+	status := c.QueryParam("status")
 	errRes := new(response.Error)
 
-	users, banks, err := u.useCase.GetUsersByEmail(c.Request().Context(), email)
+	users, statuses, err := u.useCase.GetUsersByEmail(c.Request().Context(), uid, email, status)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
 	} else {
-		res := make([]response.UserWithBankAccount, len(users))
+		res := make([]response.User, len(users))
 		for i := 0; i < len(res); i++ {
-			res[i].UID = users[i].UID
+			res[i].UID = users[i].ID
 			res[i].Name = users[i].Name
 			res[i].Email = users[i].Email
 			res[i].PhotoUrl = users[i].PhotoUrl
-			res[i].Bank.AccountCode = banks[i].AccountCode
-			res[i].Bank.BankCode = banks[i].BankCode
-			res[i].Bank.BranchCode = banks[i].BranchCode
+			res[i].Status = statuses[i]
 		}
 		return c.JSON(http.StatusOK, struct {
-			Users []response.UserWithBankAccount `json:"users"`
+			Users []response.User `json:"users"`
 		}{
 			res,
 		})
@@ -74,22 +76,20 @@ func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 
 // HandleGetByUid implements UserHandler.
 func (u *userHandler) HandleGetByUid(c echo.Context) error {
-	res := new(response.UserWithBankAccount)
+	res := new(response.User)
 	errResponse := new(response.Error)
 	uid := c.Get("uid").(string)
 
-	user, bank, err := u.useCase.GetUserByUid(c.Request().Context(), uid)
+	user, status, err := u.useCase.GetUserByUid(c.Request().Context(), uid, uid)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		res.UID = user.UID
+		res.UID = user.ID
 		res.Name = user.Name
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
-		res.Bank.BankCode = bank.BankCode
-		res.Bank.BranchCode = bank.BranchCode
-		res.Bank.AccountCode = bank.AccountCode
+		res.Status = status
 		return c.JSON(http.StatusOK, res)
 	}
 }
@@ -111,7 +111,7 @@ func (u *userHandler) HandleGetUsers(c echo.Context) error {
 // HandleUpdate implements UserHandler.
 func (u *userHandler) HandleUpdate(c echo.Context) error {
 	req := new(request.UpdateUserRequest)
-	res := new(response.UserWithBankAccount)
+	res := new(response.User)
 	errRes := new(response.Error)
 	uid := c.Get("uid").(string)
 
@@ -121,19 +121,70 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errRes)
 	}
 
-	user, bank, err := u.useCase.UpdateUser(c.Request().Context(), uid, req.Name, req.Url, req.Bank.BankCode, req.Bank.BranchCode, req.Bank.AccountCode)
+	user, err := u.useCase.UpdateUser(c.Request().Context(), uid, req.Name, req.Url)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
 	} else {
-		res.UID = user.UID
+		res.UID = user.ID
 		res.Name = user.Name
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
-		res.Bank.BankCode = bank.BankCode
-		res.Bank.BranchCode = bank.BranchCode
-		res.Bank.AccountCode = bank.AccountCode
 		return c.JSON(http.StatusOK, res)
+	}
+}
+
+// HandleGetFriends implements FriendHandler.
+func (u *userHandler) HandleGetFriends(c echo.Context) error {
+	errResponse := new(response.Error)
+	res := new(response.Users)
+	uid := c.Get("uid").(string)
+
+	users, err := u.useCase.GetFriends(c.Request().Context(), uid)
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	} else {
+		res.Users = users
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+// HandlerRequest implements FriendHandler.
+func (u *userHandler) HandlerFriendRequest(c echo.Context) error {
+	errResponse := new(response.Error)
+	uid := c.Get("uid").(string)
+	fuid := c.Param("uid")
+
+	err := u.useCase.SendFriendRequest(c.Request().Context(), uid, fuid)
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	} else {
+		return c.JSON(http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "requested successfully",
+		})
+	}
+}
+
+// HandleDelete implements FriendHandler.
+func (u *userHandler) HandleDeleteFriend(c echo.Context) error {
+	errResponse := new(response.Error)
+	uid := c.Get("uid").(string)
+	fuid := c.Param("uid")
+
+	err := u.useCase.DeleteFriend(c.Request().Context(), uid, fuid)
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	} else {
+		return c.JSON(http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "delete successfully",
+		})
 	}
 }
 

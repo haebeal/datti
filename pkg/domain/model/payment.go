@@ -4,6 +4,7 @@ import "time"
 
 type Payment struct {
 	ID        string     `bun:"id,pk"`
+	EventedBy string     `bun:"evented_by,notnull"`
 	PaidBy    string     `bun:"paid_by,notnull"`
 	PaidTo    string     `bun:"paid_to,notnull"`
 	PaidAt    time.Time  `bun:"paid_at,nullzero,notnull"`

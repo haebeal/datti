@@ -2,8 +2,6 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"strings"
 
 	"github.com/datti-api/pkg/domain/model"
@@ -12,63 +10,59 @@ import (
 
 type UserUseCase interface {
 	GetUsers(c context.Context, uid string) ([]*model.User, error)
-	GetUserByUid(c context.Context, uid string) (*model.User, *model.BankAccount, error)
-	GetUsersByEmail(c context.Context, email string) ([]*model.User, []*model.BankAccount, error)
-	UpdateUser(c context.Context, uid string, name string, url string, bankCode string, branchCode string, accountCode string) (*model.User, *model.BankAccount, error)
+	GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, error)
+	GetUsersByEmail(c context.Context, uid string, email string, status string) ([]*model.User, []string, error)
+	GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error)
+	UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error)
+	GetFriends(c context.Context, uid string) ([]*model.User, error)
+	SendFriendRequest(c context.Context, uid string, fuid string) error
+	DeleteFriend(c context.Context, uid string, fuid string) error
 }
 
 type userUseCase struct {
-	userRepository repository.UserRepository
-	bankRepository repository.BankAccountRepository
+	userRepository   repository.UserRepository
+	friendRepository repository.FriendRepository
+	transaction      repository.Transaction
 }
 
 // GetUserByEmail implements UserUseCase.
-func (u *userUseCase) GetUsersByEmail(c context.Context, email string) ([]*model.User, []*model.BankAccount, error) {
+func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email string, status string) ([]*model.User, []string, error) {
 	users, err := u.userRepository.GetUsers(c)
 	if err != nil {
 		return nil, nil, err
 	}
-	usersWithEmail := make([]*model.User, 0)
+
+	result := make([]*model.User, 0)
+	statuses := make([]string, 0)
+
 	for _, user := range users {
-		if strings.Contains(user.Email, email) {
-			usersWithEmail = append(usersWithEmail, user)
-		}
-	}
-
-	banks := make([]*model.BankAccount, 0)
-	for _, user := range usersWithEmail {
-		bank, err := u.bankRepository.GetBankAccountByUid(c, user.UID)
+		s, err := u.friendRepository.GetStatus(c, uid, user.ID)
 		if err != nil {
-			if !(errors.Is(err, sql.ErrNoRows)) {
-				return nil, nil, err
-			}
+			return nil, nil, err
 		}
-		if bank != nil {
-			banks = append(banks, bank)
-		} else {
-			banks = append(banks, new(model.BankAccount))
+		if strings.Contains(user.Email, email) && strings.Contains(s, status) {
+			result = append(result, user)
+			statuses = append(statuses, s)
 		}
 	}
 
-	return usersWithEmail, banks, nil
+	return result, statuses, nil
 }
 
 // GetUserByUid implements UserUseCase.
-func (u *userUseCase) GetUserByUid(c context.Context, uid string) (*model.User, *model.BankAccount, error) {
-	user, err := u.userRepository.GetUserByUid(c, uid)
+func (u *userUseCase) GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, error) {
+	user, err := u.userRepository.GetUserByUid(c, targetId)
 	if err != nil {
-		return nil, nil, err
+		return nil, "", err
 	}
-	// userに紐づく講座情報の取得
-	bank, err := u.bankRepository.GetBankAccountByUid(c, user.UID)
+
+	// フレンド状態のステータスを取得
+	status, err := u.friendRepository.GetStatus(c, uid, user.ID)
 	if err != nil {
-		if errors.Is(sql.ErrNoRows, err) {
-			bank := new(model.BankAccount)
-			return user, bank, nil
-		}
-		return nil, nil, err
+		return nil, "", err
 	}
-	return user, bank, nil
+
+	return user, status, nil
 }
 
 // GetUsers implements UserUseCase.
@@ -81,22 +75,95 @@ func (u *userUseCase) GetUsers(c context.Context, uid string) ([]*model.User, er
 	return users, nil
 }
 
-// UpdateUser implements UserUseCase.
-func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url string, bankCode string, branchCode string, accountCode string) (*model.User, *model.BankAccount, error) {
-	user, err := u.userRepository.UpdateUser(c, uid, name, url)
+// GetUserStatus implements UserUseCase.
+func (u *userUseCase) GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error) {
+	user, err := u.userRepository.GetUserByUid(c, fuid)
 	if err != nil {
-		return nil, nil, err
+		return nil, "", err
 	}
-	bank, err := u.bankRepository.UpsertBankAccount(c, user.UID, accountCode, bankCode, branchCode)
+	if uid == fuid {
+		return user, "me", nil
+	}
+	status, err := u.friendRepository.GetStatus(c, uid, fuid)
 	if err != nil {
-		return nil, nil, err
+		return nil, "", err
 	}
-	return user, bank, nil
+
+	return user, status, nil
 }
 
-func NewUserUseCase(userRepo repository.UserRepository, bankRepo repository.BankAccountRepository) UserUseCase {
+// UpdateUser implements UserUseCase.
+func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error) {
+	user, err := u.userRepository.UpdateUser(c, uid, name, url)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
+
+// GetFriends implements FriendUseCase.
+func (u *userUseCase) GetFriends(c context.Context, uid string) ([]*model.User, error) {
+	v, err := u.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
+		return u.friendRepository.GetFriends(c, uid)
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	friends := v.([]*model.Friend)
+	users := make([]*model.User, 0)
+	for _, friend := range friends {
+		user, err := u.userRepository.GetUserByUid(c, friend.UID)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+	return users, nil
+}
+
+// SendFriendRequest implements FriendUseCase.
+func (u *userUseCase) SendFriendRequest(c context.Context, uid string, fuid string) error {
+	if user, err := u.userRepository.GetUserByUid(c, fuid); err != nil {
+		return err
+	} else {
+		_, err := u.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
+			err := u.friendRepository.SetFriends(c, uid, user.ID)
+			if err != nil {
+				return nil, err
+			}
+			return nil, nil
+		})
+		if err != nil {
+			return err
+		}
+
+		return nil
+	}
+}
+
+// DeleteFriend implements FriendUseCase.
+func (u *userUseCase) DeleteFriend(c context.Context, uid string, fuid string) error {
+	_, err := u.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
+		err := u.friendRepository.DeleteFriend(c, uid, fuid)
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NewUserUseCase(userRepo repository.UserRepository, friendRepo repository.FriendRepository, tx repository.Transaction) UserUseCase {
 	return &userUseCase{
-		userRepository: userRepo,
-		bankRepository: bankRepo,
+		userRepository:   userRepo,
+		friendRepository: friendRepo,
+		transaction:      tx,
 	}
 }

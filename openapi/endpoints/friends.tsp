@@ -9,14 +9,14 @@ namespace DattiAPI;
  */
 @tag("Friends")
 @route("friends")
-namespace Friends {
+namespace FriendEndpoints {
   /**
    * フレンドのユーザーを取得
    */
   @summary("フレンドのユーザーを取得")
   @get
   op getFriend():
-  | UsersResponse
+  | Friends
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace Friends {
   @summary("フレンド申請中のユーザーを取得")
   @get
   op getFriendRequest():
-  | UsersResponse
+  | Friends
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -38,7 +38,7 @@ namespace Friends {
   @summary("フレンド申請未承認のユーザーを取得")
   @get
   op getPendingFriendRequest():
-  | Utils.Response.OKResponse<UsersResponse>
+  | Friends
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -52,4 +52,30 @@ namespace Friends {
   | Utils.Response.OKMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
+}
+
+model Friends {
+  users: {
+    /**
+     * ユーザーID
+     */
+    @minLength(28)
+    @maxLength(28)
+    uid: string;
+  
+    /**
+     * ユーザー名
+     */
+    name: string;
+  
+    /**
+     * メールアドレス
+     */
+    email: string;
+  
+    /**
+     * 画像URL
+     */
+    photoUrl: string;
+  }[]
 }

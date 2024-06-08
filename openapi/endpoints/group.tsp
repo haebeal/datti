@@ -9,14 +9,14 @@ namespace DattiAPI;
  */
 @tag("Groups")
 @route("groups")
-namespace Groups {
+namespace GroupEndpoints {
   /**
    * 所属しているグループの取得
    */
   @summary("所属しているグループ情報の取得")
   @get
   op getGroups():
-  | Utils.Response.OKResponse<GroupsResponse>
+  | Group
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace Groups {
   @summary("グループ情報の取得")
   @get
   op getGroup(@path groupId: string):
-  | Utils.Response.OKResponse<GroupResponse>
+  | Group
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -49,7 +49,7 @@ namespace Groups {
   @summary("グループに対するメンバーの招待")
   @post
   op registedUsers(@path groupId: string, @body members: Members):
-  | Utils.Response.OKResponse<GroupResponse>
+  | Group
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -59,7 +59,7 @@ namespace Groups {
   @summary("グループの作成")
   @post
   op postGroup(...GroupCreateRequest):
-  | Utils.Response.OKResponse<GroupResponse>
+  | Group
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -70,7 +70,7 @@ namespace Groups {
   @summary("グループ情報の更新")
   @put
   op putGroup(@path groupId: string, @body group: GroupUpdateRequest):
-  | Utils.Response.OKResponse<GroupResponse>
+  | Group
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 }
@@ -87,23 +87,11 @@ model Group {
   name: string;
 }
 
-model GroupsResponse {
+model Groups {
   /**
    * グループ
    */
   groups: Group[];
-}
-
-model GroupResponse {
-  /**
-   * グループID
-   */
-  id: string;
-
-  /**
-   * グループ名
-   */
-  name: string;
 }
 
 model GroupMembers {

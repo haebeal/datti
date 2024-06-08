@@ -2,8 +2,6 @@ package usecase
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"strings"
 
 	"github.com/datti-api/pkg/domain/model"
@@ -12,23 +10,22 @@ import (
 
 type UserUseCase interface {
 	GetUsers(c context.Context, uid string) ([]*model.User, error)
-	GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, *model.BankAccount, error)
-	GetUsersByEmail(c context.Context, uid string, email string) ([]*model.User, []string, []*model.BankAccount, error)
+	GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, error)
+	GetUsersByEmail(c context.Context, uid string, email string) ([]*model.User, []string, error)
 	GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error)
-	UpdateUser(c context.Context, uid string, name string, url string, bankCode string, branchCode string, accountCode string) (*model.User, *model.BankAccount, error)
+	UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error)
 }
 
 type userUseCase struct {
 	userRepository   repository.UserRepository
 	friendRepository repository.FriendRepository
-	bankRepository   repository.BankAccountRepository
 }
 
 // GetUserByEmail implements UserUseCase.
-func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email string) ([]*model.User, []string, []*model.BankAccount, error) {
+func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email string) ([]*model.User, []string, error) {
 	users, err := u.userRepository.GetUsers(c)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	usersWithEmail := make([]*model.User, 0)
@@ -38,55 +35,32 @@ func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email strin
 		}
 	}
 
-	banks := make([]*model.BankAccount, 0)
 	statuses := make([]string, 0)
 	for _, user := range usersWithEmail {
-		bank, err := u.bankRepository.GetBankAccountByUid(c, user.ID)
-		if err != nil {
-			if !(errors.Is(err, sql.ErrNoRows)) {
-				return nil, nil, nil, err
-			}
-		}
-		if bank != nil {
-			banks = append(banks, bank)
-		} else {
-			banks = append(banks, new(model.BankAccount))
-		}
-
 		status, err := u.friendRepository.GetStatus(c, uid, user.ID)
 		if err != nil {
-			return nil, nil, nil, err
+			return nil, nil, err
 		}
 		statuses = append(statuses, status)
 	}
 
-	return usersWithEmail, statuses, banks, nil
+	return usersWithEmail, statuses, nil
 }
 
 // GetUserByUid implements UserUseCase.
-func (u *userUseCase) GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, *model.BankAccount, error) {
+func (u *userUseCase) GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, error) {
 	user, err := u.userRepository.GetUserByUid(c, targetId)
 	if err != nil {
-		return nil, "", nil, err
+		return nil, "", err
 	}
 
 	// フレンド状態のステータスを取得
 	status, err := u.friendRepository.GetStatus(c, uid, user.ID)
 	if err != nil {
-		return nil, "", nil, err
+		return nil, "", err
 	}
 
-	// userに紐づく講座情報の取得
-	bank, err := u.bankRepository.GetBankAccountByUid(c, user.ID)
-	if err != nil {
-		if errors.Is(sql.ErrNoRows, err) {
-			bank := new(model.BankAccount)
-			return user, status, bank, nil
-		}
-		return nil, "", nil, err
-	}
-
-	return user, status, bank, nil
+	return user, status, nil
 }
 
 // GetUsers implements UserUseCase.
@@ -117,22 +91,18 @@ func (u *userUseCase) GetUserStatus(c context.Context, uid string, fuid string) 
 }
 
 // UpdateUser implements UserUseCase.
-func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url string, bankCode string, branchCode string, accountCode string) (*model.User, *model.BankAccount, error) {
+func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error) {
 	user, err := u.userRepository.UpdateUser(c, uid, name, url)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-	bank, err := u.bankRepository.UpsertBankAccount(c, user.ID, accountCode, bankCode, branchCode)
-	if err != nil {
-		return nil, nil, err
-	}
-	return user, bank, nil
+
+	return user, nil
 }
 
-func NewUserUseCase(userRepo repository.UserRepository, friendRepo repository.FriendRepository, bankRepo repository.BankAccountRepository) UserUseCase {
+func NewUserUseCase(userRepo repository.UserRepository, friendRepo repository.FriendRepository) UserUseCase {
 	return &userUseCase{
 		userRepository:   userRepo,
 		friendRepository: friendRepo,
-		bankRepository:   bankRepo,
 	}
 }

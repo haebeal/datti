@@ -60,7 +60,15 @@ func (g *groupHandler) HandleGet(c echo.Context) error {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		res.Groups = groups
+		for _, group := range groups {
+			res.Groups = append(res.Groups, struct {
+				ID   string `json:"id"`
+				Name string `json:"name"`
+			}{
+				ID:   group.ID,
+				Name: group.Name,
+			})
+		}
 		return c.JSON(http.StatusOK, res)
 	}
 }

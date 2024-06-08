@@ -28,14 +28,10 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	// 依存性の解決
 	transaction := repositoryimpl.NewTransaction(dbClient.Client)
 
-	bankAccountRepository := repositoryimpl.NewBankAccountRepository(dbClient)
-	bankAccountUseCase := usecase.NewBankAccountUseCase(bankAccountRepository, transaction)
-	bankAccountHandler := handler.NewBankAccountHandler(bankAccountUseCase)
-
 	userRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
 	friendRepository := repositoryimpl.NewFriendRepository(dbClient)
 
-	userUseCase := usecase.NewUserUseCase(userRepository, friendRepository, bankAccountRepository)
+	userUseCase := usecase.NewUserUseCase(userRepository, friendRepository)
 	userHandler := handler.NewUserHandler(userUseCase)
 
 	friendUseCase := usecase.NewFriendUseCase(friendRepository, userRepository, transaction)
@@ -69,10 +65,6 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.PUT("/users/me", userHandler.HandleUpdate)
 	r.GET("/users/:uid", userHandler.HandleGetByUidWithPahtParam)
 	r.POST("/users/:uid/requests", friendHandler.HandlerRequest) //フレンド申請を送信
-
-	r.GET("/bank", bankAccountHandler.HandleGet)
-	r.POST("/bank", bankAccountHandler.HandleUpsert)
-	r.DELETE("/bank", bankAccountHandler.HandleDelete)
 
 	r.GET("/friends", friendHandler.HandleGetFriends)            //フレンドを取得
 	r.GET("/friends/pendings", friendHandler.HandleGetApplieds)  //フレンド申請未承認のユーザーを取得

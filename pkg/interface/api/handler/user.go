@@ -16,6 +16,9 @@ type UserHandler interface {
 	HandleGetByUidWithPahtParam(c echo.Context) error
 	HandleGetByEmail(c echo.Context) error
 	HandleUpdate(c echo.Context) error
+	HandleGetFriends(c echo.Context) error
+	HandlerFriendRequest(c echo.Context) error
+	HandleDeleteFriend(c echo.Context) error
 }
 
 type userHandler struct {
@@ -47,9 +50,10 @@ func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
 func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 	uid := c.Get("uid").(string)
 	email := c.QueryParam("email")
+	status := c.QueryParam("status")
 	errRes := new(response.Error)
 
-	users, statuses, err := u.useCase.GetUsersByEmail(c.Request().Context(), uid, email)
+	users, statuses, err := u.useCase.GetUsersByEmail(c.Request().Context(), uid, email, status)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
@@ -127,6 +131,60 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
 		return c.JSON(http.StatusOK, res)
+	}
+}
+
+// HandleGetFriends implements FriendHandler.
+func (u *userHandler) HandleGetFriends(c echo.Context) error {
+	errResponse := new(response.Error)
+	res := new(response.Users)
+	uid := c.Get("uid").(string)
+
+	users, err := u.useCase.GetFriends(c.Request().Context(), uid)
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	} else {
+		res.Users = users
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+// HandlerRequest implements FriendHandler.
+func (u *userHandler) HandlerFriendRequest(c echo.Context) error {
+	errResponse := new(response.Error)
+	uid := c.Get("uid").(string)
+	fuid := c.Param("uid")
+
+	err := u.useCase.SendFriendRequest(c.Request().Context(), uid, fuid)
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	} else {
+		return c.JSON(http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "requested successfully",
+		})
+	}
+}
+
+// HandleDelete implements FriendHandler.
+func (u *userHandler) HandleDeleteFriend(c echo.Context) error {
+	errResponse := new(response.Error)
+	uid := c.Get("uid").(string)
+	fuid := c.Param("uid")
+
+	err := u.useCase.DeleteFriend(c.Request().Context(), uid, fuid)
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	} else {
+		return c.JSON(http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "delete successfully",
+		})
 	}
 }
 

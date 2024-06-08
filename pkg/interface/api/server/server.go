@@ -30,12 +30,8 @@ func Sever(dsn string, hostName string, dbInit bool) {
 
 	userRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
 	friendRepository := repositoryimpl.NewFriendRepository(dbClient)
-
-	userUseCase := usecase.NewUserUseCase(userRepository, friendRepository)
+	userUseCase := usecase.NewUserUseCase(userRepository, friendRepository, transaction)
 	userHandler := handler.NewUserHandler(userUseCase)
-
-	friendUseCase := usecase.NewFriendUseCase(friendRepository, userRepository, transaction)
-	friendHandler := handler.NewFriendHandler(friendUseCase)
 
 	groupUserRepository := repositoryimpl.NewGroupUserRepository(dbClient)
 
@@ -64,12 +60,9 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.GET("/users/me", userHandler.HandleGetByUid)
 	r.PUT("/users/me", userHandler.HandleUpdate)
 	r.GET("/users/:uid", userHandler.HandleGetByUidWithPahtParam)
-	r.POST("/users/:uid/requests", friendHandler.HandlerRequest) //フレンド申請を送信
-
-	r.GET("/friends", friendHandler.HandleGetFriends)            //フレンドを取得
-	r.GET("/friends/pendings", friendHandler.HandleGetApplieds)  //フレンド申請未承認のユーザーを取得
-	r.GET("/friends/requests", friendHandler.HandleGetApplyings) //フレンド申請中のユーザー
-	r.DELETE("/friends/:uid", friendHandler.HandleDelete)        //フレンド登録の解除
+	r.GET("/users/friends", userHandler.HandleGetFriends)            //フレンドを取得
+	r.POST("/users/:uid/requests", userHandler.HandlerFriendRequest) //フレンド申請を送信
+	r.DELETE("/users/friends/:uid", userHandler.HandleDeleteFriend)  //フレンド登録の解除
 
 	r.GET("/groups", groupHandler.HandleGet)                         //所属グループ一覧の取得
 	r.GET("/groups/:id", groupHandler.HandleGetById)                 //グループ情報の取得

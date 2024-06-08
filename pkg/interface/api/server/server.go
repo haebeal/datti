@@ -35,7 +35,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	userRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
 	friendRepository := repositoryimpl.NewFriendRepository(dbClient)
 
-	userUseCase := usecase.NewUserUseCase(userRepository, friendRepository, bankAccountRepository)
+	userUseCase := usecase.NewUserUseCase(userRepository, friendRepository)
 	userHandler := handler.NewUserHandler(userUseCase)
 
 	friendUseCase := usecase.NewFriendUseCase(friendRepository, userRepository, transaction)

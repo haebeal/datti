@@ -90,11 +90,6 @@ model User {
   photoUrl: string;
 
   /**
-   * 口座情報
-   */
-  bank: Bank;
-
-  /**
    * フレンド状態のステータス
    */
   status: "me" | "applying" | "requesting" | "none";
@@ -114,9 +109,4 @@ model UserUpdateRequest{
    * 画像URL
    */
   photoUrl: string;
-
-  /**
-   * 口座情報
-   */
-  bank: Bank;
 }

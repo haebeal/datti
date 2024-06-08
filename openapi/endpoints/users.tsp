@@ -9,13 +9,13 @@ namespace DattiAPI;
  */
 @tag("Users")
 @route("users")
-namespace Users {
+namespace UserEndpoints {
   /**
    * メールアドレスによるユーザー情報の取得
    */
   @summary("メールアドレスによるユーザー情報の取得")
   @get
-  op getUserByEmail(@query email?: string):
+  op getUserByEmail(@query email?: string, @query status?:string):
   | UsersResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -64,6 +64,27 @@ namespace Users {
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
+  /**
+   * フレンドのユーザーを取得
+   */
+  @route("friends")
+  @summary("フレンドのユーザーを取得")
+  @get
+  op getFriend():
+  | Friends
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
+  /**
+   * フレンドの登録解除
+   */
+  @route("friends/{userId}")
+  @summary("フレンドの登録解除")
+  @delete
+  op unRegisterFriend(@path userId: string):
+  | Utils.Response.OKMessage
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
 }
 
 model User {
@@ -109,4 +130,30 @@ model UserUpdateRequest{
    * 画像URL
    */
   photoUrl: string;
+}
+
+model Friends {
+  users: {
+    /**
+     * ユーザーID
+     */
+    @minLength(28)
+    @maxLength(28)
+    uid: string;
+  
+    /**
+     * ユーザー名
+     */
+    name: string;
+  
+    /**
+     * メールアドレス
+     */
+    email: string;
+  
+    /**
+     * 画像URL
+     */
+    photoUrl: string;
+  }[]
 }

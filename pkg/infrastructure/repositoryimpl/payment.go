@@ -63,6 +63,18 @@ func (p *paymentRepositoryImpl) GetPayment(c context.Context, id string) (*model
 	return payment, nil
 }
 
+func (p *paymentRepositoryImpl) GetPaymentByEventId(c context.Context, eventId string) ([]*model.Payment, error) {
+	payments := []*model.Payment{}
+	err := p.DBEngine.Client.NewSelect().
+		Table("payments").
+		Where("evented_by = ?", eventId).
+		Scan(c, payments)
+	if err != nil {
+		return nil, err
+	}
+	return payments, nil
+}
+
 // GetPayments implements repository.PaymentRepository.
 // func (p *paymentRepositoryImpl) GetPayments(c context.Context, uid string) ([]*model.PaymentResult, error) {
 // 	results := new([]*model.PaymentResult)

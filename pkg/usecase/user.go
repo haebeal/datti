@@ -41,7 +41,7 @@ func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email strin
 	banks := make([]*model.BankAccount, 0)
 	statuses := make([]string, 0)
 	for _, user := range usersWithEmail {
-		bank, err := u.bankRepository.GetBankAccountByUid(c, user.UID)
+		bank, err := u.bankRepository.GetBankAccountByUid(c, user.ID)
 		if err != nil {
 			if !(errors.Is(err, sql.ErrNoRows)) {
 				return nil, nil, nil, err
@@ -53,7 +53,7 @@ func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email strin
 			banks = append(banks, new(model.BankAccount))
 		}
 
-		status, err := u.friendRepository.GetStatus(c, uid, user.UID)
+		status, err := u.friendRepository.GetStatus(c, uid, user.ID)
 		if err != nil {
 			return nil, nil, nil, err
 		}
@@ -71,13 +71,13 @@ func (u *userUseCase) GetUserByUid(c context.Context, uid string, targetId strin
 	}
 
 	// フレンド状態のステータスを取得
-	status, err := u.friendRepository.GetStatus(c, uid, user.UID)
+	status, err := u.friendRepository.GetStatus(c, uid, user.ID)
 	if err != nil {
 		return nil, "", nil, err
 	}
 
 	// userに紐づく講座情報の取得
-	bank, err := u.bankRepository.GetBankAccountByUid(c, user.UID)
+	bank, err := u.bankRepository.GetBankAccountByUid(c, user.ID)
 	if err != nil {
 		if errors.Is(sql.ErrNoRows, err) {
 			bank := new(model.BankAccount)
@@ -122,7 +122,7 @@ func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url
 	if err != nil {
 		return nil, nil, err
 	}
-	bank, err := u.bankRepository.UpsertBankAccount(c, user.UID, accountCode, bankCode, branchCode)
+	bank, err := u.bankRepository.UpsertBankAccount(c, user.ID, accountCode, bankCode, branchCode)
 	if err != nil {
 		return nil, nil, err
 	}

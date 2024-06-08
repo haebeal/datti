@@ -27,7 +27,7 @@ func (f *friendUsecase) SendFriendRequest(c context.Context, uid string, fuid st
 		return err
 	} else {
 		_, err := f.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
-			err := f.friendRepository.SetFriends(c, uid, u.UID)
+			err := f.friendRepository.SetFriends(c, uid, u.ID)
 			if err != nil {
 				return nil, err
 			}

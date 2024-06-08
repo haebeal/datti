@@ -1,9 +1,10 @@
 package response
 
-import "github.com/datti-api/pkg/domain/model"
-
 type Groups struct {
-	Groups []*model.Group `json:"groups"`
+	Groups []struct {
+		ID   string `json:"id"`
+		Name string `json:"name"`
+	} `json:"groups"`
 }
 
 type Members struct {

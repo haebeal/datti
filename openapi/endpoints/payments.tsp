@@ -109,12 +109,17 @@ model PaymentUser {
   /**
    * ユーザー情報
    */
-  user: User;
+  user: {
+    uid: string;
+    name: string;
+    email: string;
+    photoUrl: string;
+  };
 
   /**
    * 支払い額
    */
-  amount: string;
+  amount: integer;
 }
 
 model PaymentUserList{

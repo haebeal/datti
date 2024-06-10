@@ -80,46 +80,6 @@ func (p *paymentRepositoryImpl) GetPaymentByEventId(c context.Context, eventId s
 func (p *paymentRepositoryImpl) GetPayments(c context.Context, uid string) ([]*model.PaymentResult, error) {
 	results := []*model.PaymentResult{}
 
-	// lendAmounts := p.DBEngine.Client.NewSelect().
-	// 	Model((*model.Payment)(nil)).
-	// 	Column("paid_by").
-	// 	Column("paid_to").
-	// 	ColumnExpr("SUM(amount) AS amount").
-	// 	Where("deleted_at IS NULL").
-	// 	Group("paid_by", "paid_to")
-
-	// borrowAmounts := p.DBEngine.Client.NewSelect().
-	// 	Model((*model.Payment)(nil)).
-	// 	Column("paid_to").
-	// 	Column("paid_by").
-	// 	ColumnExpr("SUM(amount) AS amount").
-	// 	Where("deleted_at IS NULL").
-	// 	Group("paid_to", "paid_by")
-
-	// err := p.DBEngine.Client.NewSelect().
-	// 	With("lendAmounts", lendAmounts).
-	// 	With("borrowAmounts", borrowAmounts).
-	// 	TableExpr(`
-	// 		SELECT COALESCE(l.paid_by, b.paid_by) AS paid_by,
-	// 		COALESCE(l.paid_to, b.paid_to) AS paid_to,
-	// 		COALESCE(l.amount, 0) - COALESCE(b.amount, 0) AS balance
-	// 		FROM lendAmounts AS l
-	// 		FULL OUTER JOIN borrowAmounts AS b
-	// 		ON l.paid_by = b.paid_by AND l.paid_to = b.paid_to
-	// 		WHERE COALESCE(l.paid_by, b.paid_by) = ?
-	// 	`, uid).
-	// 	Scan(c, &results)
-
-	// query := p.DBEngine.Client.NewSelect().
-	// 	With("lendAmounts", lendAmounts).
-	// 	With("borrowAmounts", borrowAmounts).
-	// 	TableExpr("(SELECT * FROM lendAmounts) AS l").
-	// 	ColumnExpr("COALESCE(l.paid_by, b.paid_by) AS paid_by").
-	// 	ColumnExpr("COALESCE(l.paid_to, b.paid_to) AS paid_to").
-	// 	ColumnExpr("COALESCE(l.amount, 0) - COALESCE(b.amount, 0) AS balance").
-	// 	Join("FULL OUTER JOIN (SELECT * FROM borrowAmounts) AS b ON l.paid_by = b.paid_by AND l.paid_to = b.paid_to").
-	// 	Where("COALESCE(l.paid_by, b.paid_by) = ?", uid)
-
 	// LendAmountsのサブクエリ
 	lendAmounts := p.DBEngine.Client.NewSelect().
 		Model((*model.Payment)(nil)).

@@ -94,7 +94,6 @@ func (p *paymentHandler) HandleGet(c echo.Context) error {
 				} `json:"user"`
 				Balance int `json:"amount"`
 			}{
-				// ここにレスポンスを詰めろじゃないとお前を詰める
 				User: struct {
 					ID       string `json:"uid"`
 					Name     string `json:"name"`

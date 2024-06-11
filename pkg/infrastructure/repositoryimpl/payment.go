@@ -2,6 +2,7 @@ package repositoryimpl
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/datti-api/pkg/domain/model"
@@ -76,29 +77,46 @@ func (p *paymentRepositoryImpl) GetPaymentByEventId(c context.Context, eventId s
 }
 
 // GetPayments implements repository.PaymentRepository.
-// func (p *paymentRepositoryImpl) GetPayments(c context.Context, uid string) ([]*model.PaymentResult, error) {
-// 	results := new([]*model.PaymentResult)
+func (p *paymentRepositoryImpl) GetPayments(c context.Context, uid string) ([]*model.PaymentResult, error) {
+	results := []*model.PaymentResult{}
 
-// 	err := p.DBEngine.Client.NewSelect().
-// 		Model((*model.Payment)(nil)).
-// 		Column(
-// 			"CASE WHEN p.paid_by = "+uid+" THEN p.paid_to ELSE p.paid_by END AS user_id",
-// 			"CASE WHEN p.paid_by = "+uid+" THEN p.amount ELSE - p.amount END AS balance",
-// 		).
-// 		Where("p.paid_by = ?", uid).
-// 		Where("p.paid_to = ?", uid).
-// 		Group("user_id", "u.user_name").
-// 		OrderExpr("user_id ASC").
-// 		Join("JOIN users u ON subquery.user_id = u.id").
-// 		Where("subquery.user_id <> ?", uid).
-// 		Scan(c, results)
+	// LendAmountsのサブクエリ
+	lendAmounts := p.DBEngine.Client.NewSelect().
+		Model((*model.Payment)(nil)).
+		ColumnExpr("paid_by AS user_id").
+		ColumnExpr("paid_to AS counterparty_id").
+		ColumnExpr("SUM(amount) AS amount").
+		Group("paid_by", "paid_to").
+		Where("deleted_at IS NULL")
 
-// 	if err != nil {
-// 		return nil, err
-// 	}
+	// BorrowAmountsのサブクエリ
+	borrowAmounts := p.DBEngine.Client.NewSelect().
+		Model((*model.Payment)(nil)).
+		ColumnExpr("paid_to AS user_id").
+		ColumnExpr("paid_by AS counterparty_id").
+		ColumnExpr("SUM(amount) AS amount").
+		Group("paid_to", "paid_by").
+		Where("deleted_at IS NULL")
 
-// 	return *results, nil
-// }
+	// メインクエリ
+	query := p.DBEngine.Client.NewSelect().
+		ColumnExpr("COALESCE(l.user_id, b.user_id) AS user_id").
+		ColumnExpr("COALESCE(l.counterparty_id, b.counterparty_id) AS counterparty_id").
+		ColumnExpr("COALESCE(l.amount, 0) - COALESCE(b.amount, 0) AS balance").
+		Join("FULL OUTER JOIN (?) AS b ON l.user_id = b.user_id AND l.counterparty_id = b.counterparty_id", borrowAmounts).
+		TableExpr("(?) AS l", lendAmounts).
+		Where("COALESCE(l.user_id, b.user_id) = ?", uid)
+
+	// クエリの実行
+	err := query.Scan(c, &results)
+
+	if err != nil {
+		fmt.Println("SQL Error: ", err)
+		return nil, err
+	}
+
+	return results, nil
+}
 
 // GetPaidBy implements repository.PaymentRepository.
 func (p *paymentRepositoryImpl) GetPaidBy(c context.Context, uid string) ([]*model.Payment, error) {

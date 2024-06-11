@@ -13,3 +13,9 @@ type Payment struct {
 	UpdatedAt time.Time  `bun:"updated_at,nullzero,notnull,default:current_timestamp"`
 	DeletedAt *time.Time `bun:"deleted_at,soft_delete"`
 }
+
+type PaymentResult struct {
+	UserID         string
+	CounterpartyID string
+	Balance        int
+}

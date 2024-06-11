@@ -10,7 +10,7 @@ import (
 )
 
 type PaymentUseCase interface {
-	CreatePayment(c context.Context, paidBy string, paidTo string, paidAt time.Time, amount int) (*model.Payment, *model.User, *model.User, error)
+	CreatePayment(c context.Context, paymentCreate *dto.PaymentCreate) (*model.Payment, *model.User, *model.User, error)
 	UpdatePayment(c context.Context, id string, paidBy string, paidTo string, paidAt time.Time, amount int) (*model.Payment, *model.User, *model.User, error)
 	GetPayments(c context.Context, uid string) (*dto.Payments, error)
 	GetPayment(c context.Context, id string) (*model.Payment, *model.User, *model.User, error)
@@ -24,9 +24,10 @@ type paymentUseCase struct {
 }
 
 // CreatePayment implements PaymentUseCase.
-func (p *paymentUseCase) CreatePayment(c context.Context, paidBy string, paidTo string, paidAt time.Time, amount int) (*model.Payment, *model.User, *model.User, error) {
+func (p *paymentUseCase) CreatePayment(c context.Context, paymentUseCaseDTO *dto.PaymentCreate) (*model.Payment, *model.User, *model.User, error) {
 	v, err := p.transacton.DoInTx(c, func(ctx context.Context) (interface{}, error) {
-		payment, err := p.paymentRepository.CreatePayment(c, paidTo, "eventId", paidBy, paidAt, amount)
+
+		payment, err := p.paymentRepository.CreatePayment(c, paymentUseCaseDTO.PaidTo, "", paymentUseCaseDTO.PaidBy, paymentUseCaseDTO.PaidAt, paymentUseCaseDTO.Amount)
 		if err != nil {
 			return nil, err
 		}
@@ -36,11 +37,11 @@ func (p *paymentUseCase) CreatePayment(c context.Context, paidBy string, paidTo 
 		return nil, nil, nil, err
 	}
 	payment := v.(*model.Payment)
-	paidToUser, err := p.userRepository.GetUserByUid(c, paidTo)
+	paidToUser, err := p.userRepository.GetUserByUid(c, paymentUseCaseDTO.PaidTo)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	paidByUser, err := p.userRepository.GetUserByUid(c, paidBy)
+	paidByUser, err := p.userRepository.GetUserByUid(c, paymentUseCaseDTO.PaidBy)
 	if err != nil {
 		return nil, nil, nil, err
 	}

@@ -3,8 +3,10 @@ package handler
 import (
 	"net/http"
 
+	"github.com/datti-api/pkg/interface/request"
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
+	"github.com/datti-api/pkg/usecase/dto"
 	"github.com/labstack/echo/v4"
 )
 
@@ -22,12 +24,45 @@ type paymentHandler struct {
 
 // HandleCreate implements PaymentHandler.
 func (p *paymentHandler) HandleCreate(c echo.Context) error {
-	panic("unimplemented")
+	userId := c.Get("uid").(string)
+	req := &request.Create{}
+	res := &response.Payment{}
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	paymentCreate := &dto.PaymentCreate{
+		PaidAt: req.PaidAt,
+		PaidTo: req.PaidTo,
+		PaidBy: userId,
+		Amount: req.Amount,
+	}
+
+	payment, paidBy, paidTo, err := p.useCase.CreatePayment(c.Request().Context(), paymentCreate)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		res.ID = payment.ID
+		res.PaidTo = *paidTo
+		res.PaidBy = *paidBy
+		res.Amount = payment.Amount
+		return c.JSON(http.StatusOK, res)
+	}
 }
 
 // HandleDelete implements PaymentHandler.
 func (p *paymentHandler) HandleDelete(c echo.Context) error {
-	panic("unimplemented")
+	payID := c.Param("payId")
+	err := p.useCase.DeletePayment(c.Request().Context(), payID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		return c.JSON(http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "delete successfully",
+		})
+	}
 }
 
 // HandleGet implements PaymentHandler.
@@ -80,12 +115,41 @@ func (p *paymentHandler) HandleGet(c echo.Context) error {
 
 // HandleGetById implements PaymentHandler.
 func (p *paymentHandler) HandleGetById(c echo.Context) error {
-	panic("unimplemented")
+	payID := c.Param("payId")
+	res := &response.Payment{}
+
+	payment, paidBy, paidTo, err := p.useCase.GetPayment(c.Request().Context(), payID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		res.ID = payment.ID
+		res.PaidTo = *paidTo
+		res.PaidBy = *paidBy
+		res.Amount = payment.Amount
+		return c.JSON(http.StatusOK, res)
+	}
+
 }
 
 // HandleUpdate implements PaymentHandler.
 func (p *paymentHandler) HandleUpdate(c echo.Context) error {
-	panic("unimplemented")
+	payID := c.Param("payId")
+	req := &request.Update{}
+	res := &response.Payment{}
+	if err := c.Bind(req); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	payment, paidBy, paidTo, err := p.useCase.UpdatePayment(c.Request().Context(), payID, req.PaidBy, req.PaidTo, req.PaidAt, req.Amount)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		res.ID = payment.ID
+		res.PaidTo = *paidTo
+		res.PaidBy = *paidBy
+		res.Amount = payment.Amount
+		return c.JSON(http.StatusOK, res)
+	}
 }
 
 func NewPaymentHandler(paymentUseCase usecase.PaymentUseCase) PaymentHandler {

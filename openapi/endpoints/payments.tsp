@@ -80,22 +80,12 @@ model Payment {
   /**
    * 支払い先のユーザー情報
    */
-  paid_to: {
-    id: string;
-    name: string;
-    email: string;
-    photoUrl: string;
-  };
+  paid_to: OmitProperties<User, "status">;
 
   /**
    * 支払い元のユーザー情報
    */
-  paid_by: {
-    id: string;
-    name: string;
-    email: string;
-    photoUrl: string;
-  };
+  paid_by: OmitProperties<User, "status">;
 
   /**
    * 支払い金額
@@ -146,13 +136,7 @@ model PaymentUser {
   /**
    * ユーザー情報
    */
-  user: {
-    uid: string;
-    name: string;
-    email: string;
-    photoUrl: string;
-  };
-
+  user: OmitProperties<User, "status">;
   /**
    * 支払い額
    */

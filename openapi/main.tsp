@@ -11,7 +11,6 @@ using TypeSpec.Http;
  */
 @service({
   title: "Datti API",
-  version: "1.0.0"
 })
 @server("https://datti-api.haebeal.net", "本番環境")
 @server("https://datti-api-dev.fly.dev", "開発環境")

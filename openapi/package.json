@@ -6,7 +6,7 @@
     "compile": "tsp compile .",
     "compile:watch": "tsp compile . --watch"
   },
-  "dependencies": {
+  "devDependencies": {
     "@typespec/compiler": "^0.57.0",
     "@typespec/http": "^0.57.0",
     "@typespec/rest": "^0.57.0",

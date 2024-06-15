@@ -15,7 +15,7 @@ namespace UserEndpoints {
    */
   @summary("メールアドレスによるユーザー情報の取得")
   @get
-  op getUserByEmail(@query email?: string, @query status?:string):
+  op getUserByEmail(@query email?: string, @query status?: Utils.Alias.Status):
   | UsersResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -113,7 +113,7 @@ model User {
   /**
    * フレンド状態のステータス
    */
-  status: "me" | "applying" | "requesting" | "none";
+  status: Utils.Alias.Status;
 }
 
 model UsersResponse {

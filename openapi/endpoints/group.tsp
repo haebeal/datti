@@ -37,7 +37,7 @@ namespace GroupEndpoints {
   @route("{groupId}/members")
   @summary("グループに対するメンバー情報の取得")
   @get
-  op getGroupMembers(@path groupId: string, @query status?: "me" | "applying" | "requesting" | "none"):
+  op getGroupMembers(@path groupId: string, @query status?: Utils.Alias.Status):
   | GroupMembers
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -122,7 +122,7 @@ model GroupMembers {
     /**
      * フレンド状態のステータス
      */
-    status: "me" | "applying" | "requesting" | "none"
+    status: Utils.Alias.Status
   }[]
 }
 
@@ -151,3 +151,4 @@ model Members {
    */
   uids: string[];
 }
+ 

@@ -1,8 +1,13 @@
 import { z } from "zod";
-import { EventCreateRequest, EventUpdateRequest } from "~/api/@types";
+import {
+  EventEndpoints_EventPostRequest,
+  EventEndpoints_EventPutRequest,
+} from "~/api/@types";
 import { ToZod } from "~/lib/toZod";
 
-export const eventCreateFormSchema = z.object<ToZod<EventCreateRequest>>({
+export const eventCreateFormSchema = z.object<
+  ToZod<EventEndpoints_EventPostRequest>
+>({
   name: z.string({
     required_error: "名前を入力してください",
   }),
@@ -17,7 +22,9 @@ export const eventCreateFormSchema = z.object<ToZod<EventCreateRequest>>({
   ),
 });
 
-export const eventUpdateFormSchema = z.object<ToZod<EventUpdateRequest>>({
+export const eventUpdateFormSchema = z.object<
+  ToZod<EventEndpoints_EventPutRequest>
+>({
   name: z.string({
     required_error: "名前を入力してください",
   }),

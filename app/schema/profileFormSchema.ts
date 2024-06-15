@@ -1,10 +1,9 @@
 import { z } from "zod";
-
-import type { UserUpdateRequest } from "~/api/@types";
+import { UserEndpoints_UserPutRequest } from "~/api/@types";
 
 import { ToZod } from "~/lib/toZod";
 
-export const profileFormSchema = z.object<ToZod<UserUpdateRequest>>({
+export const profileFormSchema = z.object<ToZod<UserEndpoints_UserPutRequest>>({
   name: z.string().min(1, {
     message: "ユーザー名を入力してください",
   }),

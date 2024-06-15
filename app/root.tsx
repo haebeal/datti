@@ -6,6 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
+import { Toaster } from "~/components/ui/toaster";
 
 import stylesheet from "~/globals.css?url";
 
@@ -27,6 +28,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body className="bg-slate-100">
         {children}
+        <Toaster />
         <ScrollRestoration />
         <Scripts />
       </body>

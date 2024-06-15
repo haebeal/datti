@@ -29,24 +29,24 @@ export const friendsLoader = async ({
   });
 
   // 申請中一覧を取得
+  const requestings = client.users.$get({
+    query: {
+      status: "requesting",
+    },
+  });
+
+  // 受理中一覧を取得
   const applyings = client.users.$get({
     query: {
       status: "applying",
     },
   });
 
-  // 受理中一覧を取得
-  const pendings = client.users.$get({
-    query: {
-      status: "pending",
-    },
-  });
-
   return defer({
     users,
     friends,
+    requestings,
     applyings,
-    pendings,
   });
 };
 

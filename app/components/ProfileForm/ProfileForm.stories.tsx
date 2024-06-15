@@ -11,11 +11,7 @@ const meta = {
       name: "テストユーザー",
       email: "test@example.com",
       photoUrl: "https://i.pravatar.cc/300",
-      bank: {
-        bankCode: "0001",
-        branchCode: "001",
-        accountCode: "1234567",
-      },
+      status: "me",
     },
   },
 } satisfies Meta<typeof ProfileForm>;

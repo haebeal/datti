@@ -12,7 +12,7 @@ function LoadingSpinner() {
 }
 
 export function FriendList() {
-  const { friends, applyings, pendings } = useLoaderData<FriendsLoader>();
+  const { friends, applyings, requestings } = useLoaderData<FriendsLoader>();
 
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
@@ -24,10 +24,10 @@ export function FriendList() {
       <Suspense fallback={<LoadingSpinner />}>
         <Await
           resolve={
-            status === "applying"
-              ? applyings
-              : status === "pending"
-                ? pendings
+            status === "requesting"
+              ? requestings
+              : status === "applying"
+                ? applyings
                 : friends
           }
         >
@@ -41,7 +41,7 @@ export function FriendList() {
             ) : (
               <div className="w-full min-h-[60vh] grid place-content-center">
                 <h2 className="font-semibold text-2xl text-center">
-                  {status === "pending"
+                  {status === "requesting"
                     ? "申請中のユーザーはいません😿"
                     : status === "applying"
                       ? "受理中のユーザーはいません😿"

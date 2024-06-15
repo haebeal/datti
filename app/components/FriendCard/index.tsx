@@ -1,5 +1,5 @@
 import { Form, useLocation, useNavigation } from "@remix-run/react";
-import { User } from "~/api/datti/@types";
+import { User } from "~/api/@types";
 import {
   AlertDialog,
   AlertDialogAction,

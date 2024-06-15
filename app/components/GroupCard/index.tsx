@@ -1,5 +1,5 @@
 import { Link } from "@remix-run/react";
-import { Group } from "~/api/datti/@types";
+import { Group } from "~/api/@types";
 
 interface Props {
   group: Group;

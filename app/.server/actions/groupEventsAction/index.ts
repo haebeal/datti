@@ -1,8 +1,11 @@
 import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
-import { createDattiClient } from "~/lib/apiClient";
+import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
-import { eventFormSchema } from "~/schema/eventFormSchema";
+import {
+  eventCreateFormSchema,
+  eventUpdateFormSchema,
+} from "~/schema/eventFormSchema";
 
 export const groupEventsAction = async ({
   request,
@@ -16,42 +19,51 @@ export const groupEventsAction = async ({
     throw new Error();
   }
 
-  const submission = parseWithZod(formData, {
-    schema: eventFormSchema,
-  });
+  const { idToken } = await getIdToken({ request, params, context });
+  const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
 
-  if (submission.status !== "success") {
+  // イベント作成
+  if (request.method === "POST") {
+    const submission = parseWithZod(formData, {
+      schema: eventCreateFormSchema,
+    });
+
+    if (submission.status !== "success") {
+      return json({
+        message: "Error!",
+        submission: submission.reply(),
+      });
+    }
+    await client.groups._groupId(groupId).events.$post({
+      body: submission.value,
+    });
     return json({
-      message: "Error!",
+      message: "Success!",
       submission: submission.reply(),
     });
   }
 
-  const { idToken } = await getIdToken({ request, params, context });
-  const dattiClient = createDattiClient(
-    idToken,
-    context.cloudflare.env.BACKEND_ENDPOINT
-  );
-
-  if (request.method === "POST") {
-    await dattiClient.groups._groupId(groupId).events.$post({
-      body: submission.value,
+  // イベント更新
+  if (request.method === "PUT") {
+    const submission = parseWithZod(formData, {
+      schema: eventUpdateFormSchema,
     });
-  } else if (request.method === "PUT") {
-    const eventId = params.eventId;
-    if (typeof eventId !== "string") {
-      throw new Error();
+
+    if (submission.status !== "success") {
+      return json({
+        message: "Error!",
+        submission: submission.reply(),
+      });
     }
 
-    await dattiClient.groups._groupId(groupId).events._eventId(eventId).$put({
+    await client.groups._groupId(groupId).events.$post({
       body: submission.value,
     });
+    return json({
+      message: "Success!",
+      submission: submission.reply(),
+    });
   }
-
-  return json({
-    message: "Success!",
-    submission: submission.reply(),
-  });
 };
 
 export type GroupEventsAction = typeof groupEventsAction;

@@ -32,7 +32,7 @@ export function FriendCard({ friend }: Props) {
       </Avatar>
       <h1 className="text-lg font-bold mr-auto">{friend.name}</h1>
 
-      {status === "requests" ? (
+      {status === "pending" ? (
         <Form method="delete">
           <input type="hidden" name="uid" value={friend.uid} />
           <Button
@@ -43,7 +43,7 @@ export function FriendCard({ friend }: Props) {
             取り消し
           </Button>
         </Form>
-      ) : status === "pendings" ? (
+      ) : status === "applying" ? (
         <>
           <Form method="post">
             <input type="hidden" name="uid" value={friend.uid} />

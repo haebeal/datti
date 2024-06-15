@@ -16,20 +16,40 @@ export const friendsLoader = async ({
     context.cloudflare.env.BACKEND_ENDPOINT
   );
 
+  // フレンド申請対象となるユーザー一覧を取得
   const users = dattiClient.users.$get({
     query: {
+      status: "none",
       email: searchQuery ?? undefined,
     },
   });
-  const friends = dattiClient.friends.$get();
-  const pendings = dattiClient.friends.pendings.$get();
-  const requests = dattiClient.friends.requests.$get();
+
+  // フレンド一覧を取得
+  const friends = dattiClient.users.$get({
+    query: {
+      status: "friend",
+    },
+  });
+
+  // 申請中一覧を取得
+  const applyings = dattiClient.users.$get({
+    query: {
+      status: "applying",
+    },
+  });
+
+  // 受理中一覧を取得
+  const pendings = dattiClient.users.$get({
+    query: {
+      status: "pending",
+    },
+  });
 
   return defer({
     users,
     friends,
+    applyings,
     pendings,
-    requests,
   });
 };
 

@@ -14,5 +14,5 @@ type Members struct {
 		Email    string `json:"email"`
 		PhotoUrl string `json:"photoUrl"`
 		Status   string `json:"status"`
-	}
+	} `json:"members"`
 }

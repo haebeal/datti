@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { UserUpdateRequest } from "~/api/datti/@types";
+import type { UserUpdateRequest } from "~/api/@types";
 
 import { ToZod } from "~/lib/toZod";
 

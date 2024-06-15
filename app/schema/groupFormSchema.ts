@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { GroupCreateRequest, GroupUpdateRequest } from "~/api/datti/@types";
+import { GroupCreateRequest, GroupUpdateRequest } from "~/api/@types";
 import { ToZod } from "~/lib/toZod";
 
 export const groupFormSchema = z.object<

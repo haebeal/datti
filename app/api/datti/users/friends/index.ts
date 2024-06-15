@@ -2,10 +2,10 @@
 import type * as Types from '../../@types'
 
 export type Methods = {
-  /** プロフィール情報の取得 */
+  /** フレンドのユーザーを取得 */
   get: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.User
+    resBody: Types.Friends
   }
 }

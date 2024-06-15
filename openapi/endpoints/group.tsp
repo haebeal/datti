@@ -37,7 +37,7 @@ namespace GroupEndpoints {
   @route("{groupId}/members")
   @summary("グループに対するメンバー情報の取得")
   @get
-  op getGroupMembers(@path groupId: string):
+  op getGroupMembers(@path groupId: string, @query status?: "me" | "applying" | "requesting" | "none"):
   | GroupMembers
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;

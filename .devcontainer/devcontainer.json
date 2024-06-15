@@ -9,7 +9,8 @@
         "SuhelMakkad.shadcn-ui",
         "bradlc.vscode-tailwindcss",
         "vitest.explorer",
-        "Postman.postman-for-vscode"
+        "Postman.postman-for-vscode",
+        "eamodio.gitlens"
       ]
     }
   }

@@ -1,5 +1,5 @@
 import { Form, useNavigation } from "@remix-run/react";
-import { User } from "~/api/datti/@types";
+import { User } from "~/api/@types";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 

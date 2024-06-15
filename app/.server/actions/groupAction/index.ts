@@ -1,6 +1,6 @@
 import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
-import { createDattiClient } from "~/lib/apiClient";
+import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 import { groupFormSchema } from "~/schema/groupFormSchema";
 
@@ -19,13 +19,10 @@ export const groupAction = async ({
   }
 
   const { idToken } = await getIdToken({ request, params, context });
-  const dattiClient = createDattiClient(
-    idToken,
-    context.cloudflare.env.BACKEND_ENDPOINT
-  );
+  const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
 
   if (request.method === "POST") {
-    await dattiClient.groups.$post({
+    await client.groups.$post({
       body: {
         ...submission.value,
         uids: [],
@@ -36,7 +33,7 @@ export const groupAction = async ({
     if (typeof groupId !== "string") {
       throw new Error();
     }
-    await dattiClient.groups._groupId(groupId).$put({
+    await client.groups._groupId(groupId).$put({
       body: submission.value,
     });
   }

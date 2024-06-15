@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
-import { createDattiClient } from "~/lib/apiClient";
+import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 
 export const friendsLoader = async ({
@@ -11,13 +11,10 @@ export const friendsLoader = async ({
   const searchQuery = searchParams.get("q");
 
   const { idToken } = await getIdToken({ request, params, context });
-  const dattiClient = createDattiClient(
-    idToken,
-    context.cloudflare.env.BACKEND_ENDPOINT
-  );
+  const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
 
   // フレンド申請対象となるユーザー一覧を取得
-  const users = dattiClient.users.$get({
+  const users = client.users.$get({
     query: {
       status: "none",
       email: searchQuery ?? undefined,
@@ -25,31 +22,31 @@ export const friendsLoader = async ({
   });
 
   // フレンド一覧を取得
-  const friends = dattiClient.users.$get({
+  const friends = client.users.$get({
     query: {
       status: "friend",
     },
   });
 
   // 申請中一覧を取得
-  const applyings = dattiClient.users.$get({
+  const requestings = client.users.$get({
     query: {
-      status: "applying",
+      status: "requesting",
     },
   });
 
   // 受理中一覧を取得
-  const pendings = dattiClient.users.$get({
+  const applyings = client.users.$get({
     query: {
-      status: "pending",
+      status: "applying",
     },
   });
 
   return defer({
     users,
     friends,
+    requestings,
     applyings,
-    pendings,
   });
 };
 

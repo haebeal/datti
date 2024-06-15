@@ -6,15 +6,15 @@ export type Methods = {
   get: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.EventResponse
+    resBody: Types.EventEndpoints_EventResponse
   }
 
   /** イベント情報の更新 */
   put: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.EventResponse
-    reqBody: Types.EventUpdateRequest
+    resBody: Types.EventEndpoints_EventResponse
+    reqBody: Types.EventEndpoints_EventPutRequest
   }
 
   /** イベント情報の削除 */

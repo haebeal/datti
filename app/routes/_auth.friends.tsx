@@ -44,7 +44,7 @@ export default function Friend() {
         <div className="flex flex-row border-b-2 text-lg font-semibold gap-5 py-1 px-4">
           <NavLink
             className={({ isActive }) =>
-              isActive && status !== "applying" && status !== "pending"
+              isActive && status !== "requesting" && status !== "applying"
                 ? undefined
                 : "opacity-40"
             }
@@ -56,11 +56,11 @@ export default function Friend() {
           </NavLink>
           <NavLink
             className={({ isActive }) =>
-              isActive && status === "pending" ? undefined : "opacity-40"
+              isActive && status === "requesting" ? undefined : "opacity-40"
             }
             to={{
               pathname: "/friends",
-              search: "?status=pending",
+              search: "?status=requesting",
             }}
           >
             申請中

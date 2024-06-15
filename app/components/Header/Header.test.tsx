@@ -2,20 +2,16 @@ import { defer } from "@remix-run/cloudflare";
 import { createRemixStub } from "@remix-run/testing";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { User } from "~/api/datti/@types";
+import { User } from "~/api/@types";
 import { Header } from "~/components/Header";
 
 const profileMock = {
   uid: "0001",
+  status: "me",
   name: "テストユーザー",
   email: "test@example.com",
   photoUrl: "https://i.pravatar.cc/300",
-  bank: {
-    bankCode: "0001",
-    branchCode: "001",
-    accountCode: "1234567",
-  },
-};
+} satisfies User;
 
 const setup = async (profile?: User, initialPath?: string) => {
   const user = userEvent.setup();

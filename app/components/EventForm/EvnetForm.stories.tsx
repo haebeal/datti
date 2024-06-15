@@ -5,20 +5,37 @@ const meta = {
   title: "EventForm",
   component: EventForm,
   tags: ["autodocs"],
-  args: {
-    defaultValue: {
-      name: "テストイベント",
-      evented_at: new Date().toISOString(),
-    },
-  },
 } satisfies Meta<typeof EventForm>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * デフォルト表示
+ * イベント作成時に表示されるフォーム
  */
-export const Default: Story = {
-  name: "デフォルト",
+export const CreateForm: Story = {
+  name: "イベント作成フォーム",
+  args: {
+    defaultValue: {
+      name: "テストイベント",
+      evented_at: new Date().toISOString(),
+      payments: [],
+    },
+    method: "post",
+  },
+};
+
+/**
+ * イベント更新時に表示されるフォーム
+ */
+export const UpdateForm: Story = {
+  name: "イベント更新フォーム",
+  args: {
+    defaultValue: {
+      name: "テストイベント",
+      evented_at: new Date().toISOString(),
+      payments: [],
+    },
+    method: "put",
+  },
 };

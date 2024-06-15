@@ -1,18 +1,12 @@
 import { z } from "zod";
 import {
-  EventCreateRequest,
-  EventUpdateRequest,
-  Payment,
-} from "~/api/datti/@types";
+  EventEndpoints_EventPostRequest,
+  EventEndpoints_EventPutRequest,
+} from "~/api/@types";
 import { ToZod } from "~/lib/toZod";
 
-export const paymentFormSchema = z.object<ToZod<Payment>>({
-  user: z.string(),
-  amount: z.number(),
-});
-
-export const eventFormSchema = z.object<
-  ToZod<EventCreateRequest | EventUpdateRequest>
+export const eventCreateFormSchema = z.object<
+  ToZod<EventEndpoints_EventPostRequest>
 >({
   name: z.string({
     required_error: "名前を入力してください",
@@ -20,5 +14,28 @@ export const eventFormSchema = z.object<
   evented_at: z.string().datetime(),
   paid_by: z.string(),
   amount: z.number(),
-  payments: paymentFormSchema.array(),
+  payments: z.array(
+    z.object({
+      paid_to: z.string(),
+      amount: z.number(),
+    })
+  ),
+});
+
+export const eventUpdateFormSchema = z.object<
+  ToZod<EventEndpoints_EventPutRequest>
+>({
+  name: z.string({
+    required_error: "名前を入力してください",
+  }),
+  evented_at: z.string().datetime(),
+  paid_by: z.string(),
+  amount: z.number(),
+  payments: z.array(
+    z.object({
+      payment_id: z.string(),
+      paid_to: z.string(),
+      amount: z.number(),
+    })
+  ),
 });

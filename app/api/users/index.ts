@@ -6,11 +6,11 @@ export type Methods = {
   get: {
     query?: {
       email?: string | undefined
-      status?: string | undefined
+      status?: 'me' | 'applying' | 'requesting' | 'friend' | 'none' | undefined
     } | undefined
 
     status: 200
     /** The request has succeeded. */
-    resBody: Types.UsersResponse
+    resBody: Types.UserEndpoints_UsersGetResponse
   }
 }

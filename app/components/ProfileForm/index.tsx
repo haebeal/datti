@@ -7,7 +7,7 @@ import {
 import { parseWithZod } from "@conform-to/zod";
 import { Form, useNavigation } from "@remix-run/react";
 import { useId } from "react";
-import { User } from "~/api/datti/@types";
+import { User } from "~/api/@types";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -20,22 +20,18 @@ interface Props {
 }
 
 export function ProfileForm({ defaultValue, lastResult }: Props) {
-  const [form, { name, photoUrl, bank }] = useForm({
+  const [form, { name, photoUrl }] = useForm({
     defaultValue,
     lastResult,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: profileFormSchema });
     },
   });
-  const { bankCode, branchCode, accountCode } = bank.getFieldset();
 
   const { state } = useNavigation();
 
   const emailId = useId();
   const nameId = useId();
-  const bankCodeId = useId();
-  const branchCodeId = useId();
-  const accountCodeId = useId();
 
   return (
     <div className="grid grid-cols-5 px-4 gap-3">
@@ -69,33 +65,6 @@ export function ProfileForm({ defaultValue, lastResult }: Props) {
             placeholder="ユーザー名を入力"
           />
           <p>{name.errors?.toString()}</p>
-        </div>
-        <div className="w-full">
-          <Label htmlFor={bankCodeId}>金融機関</Label>
-          <Input
-            {...getInputProps(bankCode, { type: "text" })}
-            disabled={state !== "idle"}
-            id={branchCodeId}
-          />
-          <p>{bankCode.errors?.toString()}</p>
-        </div>
-        <div className="w-full">
-          <Label htmlFor={branchCodeId}>支店</Label>
-          <Input
-            {...getInputProps(branchCode, { type: "text" })}
-            disabled={state !== "idle"}
-            id={branchCodeId}
-          />
-          <p>{branchCode.errors?.toString()}</p>
-        </div>
-        <div className="w-full">
-          <Label htmlFor={accountCodeId}>口座番号</Label>
-          <Input
-            {...getInputProps(accountCode, { type: "text" })}
-            disabled={state !== "idle"}
-            id={accountCodeId}
-          />
-          <p>{accountCode.errors?.toString()}</p>
         </div>
         <Button
           type="submit"

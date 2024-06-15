@@ -1,6 +1,6 @@
 import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
-import { createDattiClient } from "~/lib/apiClient";
+import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 import { profileFormSchema } from "~/schema/profileFormSchema";
 
@@ -17,12 +17,9 @@ export const profileAction = async ({
   }
 
   const { idToken } = await getIdToken({ request, params, context });
-  const dattiClient = createDattiClient(
-    idToken,
-    context.cloudflare.env.BACKEND_ENDPOINT
-  );
+  const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
 
-  await dattiClient.users.me.$put({
+  await client.users.me.$put({
     body: submission.value,
   });
 

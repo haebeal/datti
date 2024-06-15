@@ -1,5 +1,5 @@
 /* eslint-disable */
-export type EventCreateRequest = {
+export type EventEndpoints_EventPostRequest = {
   /** イベント名 */
   name: string
   /** イベントの日付 */
@@ -15,7 +15,24 @@ export type EventCreateRequest = {
   }[]
 }
 
-export type EventResponse = {
+export type EventEndpoints_EventPutRequest = {
+  /** イベント名 */
+  name: string
+  /** イベントの日付 */
+  evented_at: string
+  /** 立て替えたユーザー */
+  paid_by: string
+  /** 立て替えた金額 */
+  amount: number
+  /** 立て替えてもらったユーザー */
+  payments: {
+    payment_id: string
+    paid_to: string
+    amount: number
+  }[]
+}
+
+export type EventEndpoints_EventResponse = {
   id: string
   name: string
   evented_at: string
@@ -30,24 +47,7 @@ export type EventResponse = {
   group_id: string
 }
 
-export type EventUpdateRequest = {
-  /** イベント名 */
-  name: string
-  /** イベントの日付 */
-  evented_at: string
-  /** 立て替えたユーザー */
-  paid_by: string
-  /** 立て替えた金額 */
-  amount: number
-  /** 立て替えてもらったユーザー */
-  payments: {
-    payment_id: string
-    paid_to: string
-    amount: number
-  }[]
-}
-
-export type EventsResponse = {
+export type EventEndpoints_EventsResponse = {
   events: {
     id: string
     name: string
@@ -62,19 +62,6 @@ export type EventsResponse = {
   }[]
 }
 
-export type Friends = {
-  users: {
-    /** ユーザーID */
-    uid: string
-    /** ユーザー名 */
-    name: string
-    /** メールアドレス */
-    email: string
-    /** 画像URL */
-    photoUrl: string
-  }[]
-}
-
 export type Group = {
   /** グループID */
   id: string
@@ -82,41 +69,50 @@ export type Group = {
   name: string
 }
 
-export type GroupCreateRequest = {
+export type GroupEndpoints_GroupGetResponse = {
+  /** グループID */
+  id: string
+  /** グループ名 */
+  name: string
+}
+
+export type GroupEndpoints_GroupPostRequest = {
   /** グループ名 */
   name: string
   /** UID */
   uids: string[]
 }
 
-export type GroupMembers = {
-  members: {
-    /** ユーザーID */
-    uid: string
-    /** ユーザー名 */
-    name: string
-    /** メールアドレス */
-    email: string
-    /** 画像URL */
-    photoUrl: string
-    /** フレンド状態のステータス */
-    status: 'me' | 'applying' | 'requesting' | 'none' | 'applying' | 'requesting' | 'none'
-  }[]
-}
-
-export type GroupUpdateRequest = {
+export type GroupEndpoints_GroupPutRequest = {
   /** グループ名 */
   name: string
 }
 
-export type Groups = {
+export type GroupEndpoints_GroupsGetResponse = {
   /** グループ */
   groups: Group[]
 }
 
-export type Members = {
+export type GroupEndpoints_MembersGetResponse = {
+  members: Member[]
+}
+
+export type GroupEndpoints_MembersPostRequest = {
   /** UID */
   uids: string[]
+}
+
+export type Member = {
+  /** ユーザーID */
+  uid: string
+  /** ユーザー名 */
+  name: string
+  /** メールアドレス */
+  email: string
+  /** 画像URL */
+  photoUrl: string
+  /** フレンド状態のステータス */
+  status: 'me' | 'applying' | 'requesting' | 'friend' | 'none'
 }
 
 export type Payment = {
@@ -127,17 +123,25 @@ export type Payment = {
 
   /** 支払い先のユーザー情報 */
   paid_to: {
-    id: string
+    /** ユーザーID */
+    uid: string
+    /** ユーザー名 */
     name: string
+    /** メールアドレス */
     email: string
+    /** 画像URL */
     photoUrl: string
   }
 
   /** 支払い元のユーザー情報 */
   paid_by: {
-    id: string
+    /** ユーザーID */
+    uid: string
+    /** ユーザー名 */
     name: string
+    /** メールアドレス */
     email: string
+    /** 画像URL */
     photoUrl: string
   }
 
@@ -168,9 +172,13 @@ export type PaymentUpdate = {
 export type PaymentUser = {
   /** ユーザー情報 */
   user: {
+    /** ユーザーID */
     uid: string
+    /** ユーザー名 */
     name: string
+    /** メールアドレス */
     email: string
+    /** 画像URL */
     photoUrl: string
   }
 
@@ -192,16 +200,42 @@ export type User = {
   /** 画像URL */
   photoUrl: string
   /** フレンド状態のステータス */
-  status: 'me' | 'applying' | 'requesting' | 'none' | 'applying' | 'requesting' | 'none'
+  status: 'me' | 'applying' | 'requesting' | 'friend' | 'none'
 }
 
-export type UserUpdateRequest = {
+export type UserEndpoints_Friends = {
+  users: {
+    /** ユーザーID */
+    uid: string
+    /** ユーザー名 */
+    name: string
+    /** メールアドレス */
+    email: string
+    /** 画像URL */
+    photoUrl: string
+  }[]
+}
+
+export type UserEndpoints_UserGetResponse = {
+  /** ユーザーID */
+  uid: string
+  /** ユーザー名 */
+  name: string
+  /** メールアドレス */
+  email: string
+  /** 画像URL */
+  photoUrl: string
+  /** フレンド状態のステータス */
+  status: 'me' | 'applying' | 'requesting' | 'friend' | 'none'
+}
+
+export type UserEndpoints_UserPutRequest = {
   /** ユーザー名 */
   name: string
   /** 画像URL */
   photoUrl: string
 }
 
-export type UsersResponse = {
+export type UserEndpoints_UsersGetResponse = {
   users: User[]
 }

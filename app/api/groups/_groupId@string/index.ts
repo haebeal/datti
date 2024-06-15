@@ -2,18 +2,18 @@
 import type * as Types from '../../@types'
 
 export type Methods = {
-  /** ユーザー情報の取得 */
+  /** グループ情報の取得 */
   get: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.User
+    resBody: Types.GroupEndpoints_GroupGetResponse
   }
 
-  /** ユーザー情報の更新 */
+  /** グループ情報の更新 */
   put: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.User
-    reqBody: Types.UserUpdateRequest
+    resBody: Types.GroupEndpoints_GroupGetResponse
+    reqBody: Types.GroupEndpoints_GroupPutRequest
   }
 }

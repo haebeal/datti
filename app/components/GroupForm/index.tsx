@@ -7,7 +7,7 @@ import {
 import { parseWithZod } from "@conform-to/zod";
 import { Form, useNavigation } from "@remix-run/react";
 import { useId } from "react";
-import { Group } from "~/api/datti/@types";
+import { Group } from "~/api/@types";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";

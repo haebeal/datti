@@ -5,13 +5,16 @@ import {
   useForm,
   useInputControl,
 } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { parseWithZod } from "@conform-to/zod";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { Await, Form, useLoaderData, useNavigation } from "@remix-run/react";
 import { format } from "date-fns";
 import { Suspense, useId } from "react";
 import { GroupEventsLoader } from "~/.server/loaders";
-import { EventCreateRequest, EventUpdateRequest } from "~/api/datti/@types";
+import {
+  EventEndpoints_EventPostRequest,
+  EventEndpoints_EventPutRequest,
+} from "~/api/@types";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { Input } from "~/components/ui/input";
@@ -22,10 +25,15 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import { cn } from "~/lib/utils";
-import { eventFormSchema } from "~/schema/eventFormSchema";
+import {
+  eventCreateFormSchema,
+  eventUpdateFormSchema,
+} from "~/schema/eventFormSchema";
 
 interface Props {
-  defaultValue?: Partial<EventCreateRequest | EventUpdateRequest>;
+  defaultValue?: Partial<
+    EventEndpoints_EventPostRequest | EventEndpoints_EventPutRequest
+  >;
   lastResult?: SubmissionResult<string[]> | null | undefined;
   method: "post" | "put";
 }
@@ -36,9 +44,11 @@ export function EventForm({ defaultValue, lastResult, method }: Props) {
   const [form, { name, evented_at, amount, payments }] = useForm({
     defaultValue,
     lastResult,
-    constraint: getZodConstraint(eventFormSchema),
     onValidate({ formData }) {
-      return parseWithZod(formData, { schema: eventFormSchema });
+      return parseWithZod(formData, {
+        schema:
+          method === "post" ? eventCreateFormSchema : eventUpdateFormSchema,
+      });
     },
   });
   const paymentFields = payments.getFieldList();
@@ -138,15 +148,16 @@ export function EventForm({ defaultValue, lastResult, method }: Props) {
                   <Label>
                     {
                       members.find(
-                        ({ uid }) => uid === payment.getFieldset().user.value
+                        ({ uid }) => uid === payment.getFieldset().paid_to.value
                       )?.name
                     }
                   </Label>
+
                   <input
-                    {...getInputProps(payment.getFieldset().user, {
+                    {...getInputProps(payment.getFieldset().paid_to, {
                       type: "hidden",
                     })}
-                    key={payment.getFieldset().user.id}
+                    key={payment.getFieldset().amount.id}
                   />
                   <Input
                     {...getInputProps(payment.getFieldset().amount, {

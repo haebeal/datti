@@ -6,7 +6,7 @@
   "scripts": {
     "build": "remix vite:build",
     "deploy": "wrangler pages deploy ./build/client",
-    "api:build": "rm -rf ./app/api/datti/* && npx openapi2aspida -o app/api/datti -i https://haebeal.github.io/datti-api/openapi.yaml",
+    "api:build": "rm -rf ./app/api/* && npx openapi2aspida -o app/api -i https://haebeal.github.io/datti-api/openapi.yaml",
     "dev": "remix vite:dev",
     "start": "wrangler pages dev ./build/client",
     "typecheck": "tsc",
@@ -80,6 +80,7 @@
     "eslint-plugin-storybook": "^0.8.0",
     "globals": "^14.0.0",
     "jsdom": "^24.0.0",
+    "openapi2aspida": "^0.23.2",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "storybook": "^8.0.9",

@@ -1,23 +1,23 @@
 /* eslint-disable */
-import type * as Types from '../../../../@types'
+import type * as Types from '../../@types'
 
 export type Methods = {
-  /** 登録されているイベント情報の取得 */
+  /** 支払い情報の取得 */
   get: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.EventResponse
+    resBody: Types.Payment
   }
 
-  /** イベント情報の更新 */
+  /** 支払い情報の更新 */
   put: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.EventResponse
-    reqBody: Types.EventUpdateRequest
+    resBody: Types.Payment
+    reqBody: Types.PaymentUpdate
   }
 
-  /** イベント情報の削除 */
+  /** 支払い情報の削除 */
   delete: {
     status: 200
 

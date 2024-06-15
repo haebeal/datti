@@ -1,28 +1,4 @@
 /* eslint-disable */
-export type Bank = {
-  /** 金融機関コード */
-  bankCode: string
-  /** 支店番号 */
-  branchCode: string
-  /** 口座番号 */
-  accountCode: string
-}
-
-export type Event = {
-  /** イベントID */
-  id: string
-  /** イベント名 */
-  name: string
-  /** イベントの日付 */
-  evented_at: string
-
-  /** イベント作成者のユーザー情報 */
-  created_by: User
-
-  /** イベントの紐づいたグループID */
-  group_id?: string | undefined
-}
-
 export type EventCreateRequest = {
   /** イベント名 */
   name: string
@@ -33,7 +9,25 @@ export type EventCreateRequest = {
   /** 立て替えた金額 */
   amount: number
   /** 立て替えてもらったユーザー */
-  payments: Payment[]
+  payments: {
+    paid_to: string
+    amount: number
+  }[]
+}
+
+export type EventResponse = {
+  id: string
+  name: string
+  evented_at: string
+  created_by: string
+  paid_by: string
+  amount: number
+  paymetns: {
+    payment_id: string
+    paid_to: string
+    amount: string
+  }[]
+  group_id: string
 }
 
 export type EventUpdateRequest = {
@@ -46,11 +40,39 @@ export type EventUpdateRequest = {
   /** 立て替えた金額 */
   amount: number
   /** 立て替えてもらったユーザー */
-  payments: Payment[]
+  payments: {
+    payment_id: string
+    paid_to: string
+    amount: number
+  }[]
 }
 
 export type EventsResponse = {
-  events: Event[]
+  events: {
+    id: string
+    name: string
+    evented_at: string
+
+    paid_by: {
+      id: string
+      name: string
+    }
+
+    amount: number
+  }[]
+}
+
+export type Friends = {
+  users: {
+    /** ユーザーID */
+    uid: string
+    /** ユーザー名 */
+    name: string
+    /** メールアドレス */
+    email: string
+    /** 画像URL */
+    photoUrl: string
+  }[]
 }
 
 export type Group = {
@@ -68,15 +90,18 @@ export type GroupCreateRequest = {
 }
 
 export type GroupMembers = {
-  /** ユーザー情報 */
-  members: User[]
-}
-
-export type GroupResponse = {
-  /** グループID */
-  id: string
-  /** グループ名 */
-  name: string
+  members: {
+    /** ユーザーID */
+    uid: string
+    /** ユーザー名 */
+    name: string
+    /** メールアドレス */
+    email: string
+    /** 画像URL */
+    photoUrl: string
+    /** フレンド状態のステータス */
+    status: 'me' | 'applying' | 'requesting' | 'none' | 'applying' | 'requesting' | 'none'
+  }[]
 }
 
 export type GroupUpdateRequest = {
@@ -84,7 +109,7 @@ export type GroupUpdateRequest = {
   name: string
 }
 
-export type GroupsResponse = {
+export type Groups = {
   /** グループ */
   groups: Group[]
 }
@@ -92,6 +117,69 @@ export type GroupsResponse = {
 export type Members = {
   /** UID */
   uids: string[]
+}
+
+export type Payment = {
+  /** 支払いID */
+  id: string
+  /** 支払い日 */
+  paid_at: string
+
+  /** 支払い先のユーザー情報 */
+  paid_to: {
+    id: string
+    name: string
+    email: string
+    photoUrl: string
+  }
+
+  /** 支払い元のユーザー情報 */
+  paid_by: {
+    id: string
+    name: string
+    email: string
+    photoUrl: string
+  }
+
+  /** 支払い金額 */
+  amount: number
+}
+
+export type PaymentCreate = {
+  /** 支払い日 */
+  paid_at: string
+  /** 支払い先のユーザ-ID */
+  paid_to: string
+  /** 支払い金額 */
+  amount: number
+}
+
+export type PaymentUpdate = {
+  /** 支払い日 */
+  paid_at: string
+  /** 支払い先のユーザ-ID */
+  paid_to: string
+  /** 支払い元のユーザー */
+  paid_by: string
+  /** 支払い金額 */
+  amount: number
+}
+
+export type PaymentUser = {
+  /** ユーザー情報 */
+  user: {
+    uid: string
+    name: string
+    email: string
+    photoUrl: string
+  }
+
+  /** 支払い額 */
+  amount: number
+}
+
+export type PaymentUsers = {
+  payments: PaymentUser[]
 }
 
 export type User = {
@@ -103,12 +191,8 @@ export type User = {
   email: string
   /** 画像URL */
   photoUrl: string
-
-  /** 口座情報 */
-  bank: Bank
-
   /** フレンド状態のステータス */
-  status: 'me' | 'applying' | 'requesting' | 'none'
+  status: 'me' | 'applying' | 'requesting' | 'none' | 'applying' | 'requesting' | 'none'
 }
 
 export type UserUpdateRequest = {
@@ -116,17 +200,8 @@ export type UserUpdateRequest = {
   name: string
   /** 画像URL */
   photoUrl: string
-
-  /** 口座情報 */
-  bank: Bank
 }
 
 export type UsersResponse = {
   users: User[]
-}
-
-/** 建て替えてもらうユーザーの型 */
-export type Payment = {
-  user: string
-  amount: number
 }

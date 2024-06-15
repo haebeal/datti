@@ -93,8 +93,9 @@ func (g *groupHandler) HandleGetMembers(c echo.Context) error {
 	res := new(response.Members)
 	uid := c.Get("uid").(string)
 	id := c.Param("groupId")
+	status := c.QueryParam("status")
 
-	members, statuses, err := g.useCase.GetMembers(c.Request().Context(), id, uid)
+	members, statuses, err := g.useCase.GetMembers(c.Request().Context(), id, uid, status)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)

@@ -110,13 +110,13 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
              * グループに対するメンバー情報の取得
              * @returns The request has succeeded.
              */
-            get: (option?: { config?: T | undefined } | undefined) =>
+            get: (option?: { query?: Methods_1buoxrj['get']['query'] | undefined, config?: T | undefined } | undefined) =>
               fetch<Methods_1buoxrj['get']['resBody'], BasicHeaders, Methods_1buoxrj['get']['status']>(prefix, `${prefix1}${PATH2}`, GET, option).json(),
             /**
              * グループに対するメンバー情報の取得
              * @returns The request has succeeded.
              */
-            $get: (option?: { config?: T | undefined } | undefined) =>
+            $get: (option?: { query?: Methods_1buoxrj['get']['query'] | undefined, config?: T | undefined } | undefined) =>
               fetch<Methods_1buoxrj['get']['resBody'], BasicHeaders, Methods_1buoxrj['get']['status']>(prefix, `${prefix1}${PATH2}`, GET, option).json().then(r => r.body),
             /**
              * グループに対するメンバーの追加
@@ -130,7 +130,8 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
              */
             $post: (option: { body: Methods_1buoxrj['post']['reqBody'], config?: T | undefined }) =>
               fetch<Methods_1buoxrj['post']['resBody'], BasicHeaders, Methods_1buoxrj['post']['status']>(prefix, `${prefix1}${PATH2}`, POST, option).json().then(r => r.body),
-            $path: () => `${prefix}${prefix1}${PATH2}`,
+            $path: (option?: { method?: 'get' | undefined; query: Methods_1buoxrj['get']['query'] } | undefined) =>
+              `${prefix}${prefix1}${PATH2}${option && option.query ? `?${dataToURLString(option.query)}` : ''}`,
           },
           /**
            * グループ情報の取得

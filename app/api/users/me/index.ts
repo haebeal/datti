@@ -6,14 +6,14 @@ export type Methods = {
   get: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.User
+    resBody: Types.UserEndpoints_UserGetResponse
   }
 
   /** ユーザー情報の更新 */
   put: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.User
-    reqBody: Types.UserUpdateRequest
+    resBody: Types.UserEndpoints_UserGetResponse
+    reqBody: Types.UserEndpoints_UserPutRequest
   }
 }

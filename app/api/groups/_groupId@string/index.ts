@@ -6,14 +6,14 @@ export type Methods = {
   get: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.Group
+    resBody: Types.GroupEndpoints_GroupGetResponse
   }
 
   /** グループ情報の更新 */
   put: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.Group
-    reqBody: Types.GroupUpdateRequest
+    resBody: Types.GroupEndpoints_GroupGetResponse
+    reqBody: Types.GroupEndpoints_GroupPutRequest
   }
 }

@@ -16,7 +16,7 @@ namespace GroupEndpoints {
   @summary("所属しているグループ情報の取得")
   @get
   op getGroups():
-  | Group
+  | GroupsGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace GroupEndpoints {
   @summary("グループ情報の取得")
   @get
   op getGroup(@path groupId: string):
-  | Group
+  | GroupGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -38,7 +38,7 @@ namespace GroupEndpoints {
   @summary("グループに対するメンバー情報の取得")
   @get
   op getGroupMembers(@path groupId: string, @query status?: Utils.Alias.Status):
-  | GroupMembers
+  | MembersGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -48,8 +48,8 @@ namespace GroupEndpoints {
   @route("{groupId}/members")
   @summary("グループに対するメンバーの招待")
   @post
-  op registedUsers(@path groupId: string, @body members: Members):
-  | Group
+  op registedUsers(@path groupId: string, @body members: MembersPostRequest):
+  | GroupGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -58,8 +58,8 @@ namespace GroupEndpoints {
    */
   @summary("グループの作成")
   @post
-  op postGroup(...GroupCreateRequest):
-  | Group
+  op postGroup(...GroupPostRequest):
+  | GroupGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -69,10 +69,51 @@ namespace GroupEndpoints {
   @route("{groupId}")
   @summary("グループ情報の更新")
   @put
-  op putGroup(@path groupId: string, @body group: GroupUpdateRequest):
-  | Group
+  op putGroup(@path groupId: string, @body group: GroupPutRequest):
+  | GroupGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
+  
+  model GroupGetResponse {
+    ...Group;
+  }
+  
+  model GroupsGetResponse {
+    /**
+     * グループ
+     */
+    groups: Group[];
+  }
+  
+  model MembersGetResponse {
+    members: Member[];
+  }
+  
+  model GroupPutRequest {
+    /**
+     * グループ名
+     */
+    name: string;
+  }
+  
+  model GroupPostRequest {
+    /**
+     * グループ名
+     */
+    name: string;
+  
+    /**
+     * UID
+     */
+    uids: string[];
+  }
+  
+  model MembersPostRequest {
+    /**
+     * UID
+     */
+    uids: string[];
+  }
 }
 
 model Group {
@@ -87,68 +128,32 @@ model Group {
   name: string;
 }
 
-model Groups {
+model Member {
   /**
-   * グループ
+   * ユーザーID
    */
-  groups: Group[];
-}
+  @minLength(28)
+  @maxLength(28)
+  uid: string;
 
-model GroupMembers {
-  members: {
-
-    /**
-     * ユーザーID
-     */
-    @minLength(28)
-    @maxLength(28)
-    uid: string;
-  
-    /**
-     * ユーザー名
-     */
-    name: string;
-  
-    /**
-     * メールアドレス
-     */
-    email: string;
-  
-    /**
-     * 画像URL
-     */
-    photoUrl: string;
-  
-    /**
-     * フレンド状態のステータス
-     */
-    status: Utils.Alias.Status
-  }[]
-}
-
-model GroupUpdateRequest {
   /**
-   * グループ名
-   */
-  name: string;
-}
-
-model GroupCreateRequest {
-  /**
-   * グループ名
+   * ユーザー名
    */
   name: string;
 
   /**
-   * UID
+   * メールアドレス
    */
-  uids: string[];
-}
+  email: string;
 
-model Members {
   /**
-   * UID
+   * 画像URL
    */
-  uids: string[];
+  photoUrl: string;
+
+  /**
+   * フレンド状態のステータス
+   */
+  status: Utils.Alias.Status
 }
  

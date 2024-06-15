@@ -33,6 +33,17 @@ namespace PaymentEndpoints {
   | Utils.Error.InternalServerError;
 
   /**
+   * 返済履歴の取得
+   */
+  @route("history")
+  @summary("支払い履歴の取得")
+  @get
+  op getHistory():
+  | Payment[]
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
+
+  /**
    * 支払い情報の登録
    */
   @summary("支払い情報の登録")
@@ -63,7 +74,6 @@ namespace PaymentEndpoints {
   | Utils.Response.OKMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
-
 }
 
 model Payment {

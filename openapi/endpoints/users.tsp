@@ -160,4 +160,3 @@ model User {
    */
   status: Utils.Alias.Status;
 }
-

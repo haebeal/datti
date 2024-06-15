@@ -1,10 +1,8 @@
 import fetchClient from "@aspida/fetch";
+import api from "~/api/$api";
 
-import banksApi from "~/api/banks/$api";
-import dattiApi from "~/api/datti/$api";
-
-export const createDattiClient = (idToken: string, baseURL: string) =>
-  dattiApi(
+export const createClient = (idToken: string, baseURL: string) =>
+  api(
     fetchClient(undefined, {
       baseURL,
       headers: {
@@ -12,5 +10,3 @@ export const createDattiClient = (idToken: string, baseURL: string) =>
       },
     })
   );
-
-export const createBanksClient = () => banksApi(fetchClient());

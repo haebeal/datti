@@ -112,7 +112,7 @@ export type Member = {
   /** 画像URL */
   photoUrl: string
   /** フレンド状態のステータス */
-  status: 'me' | 'applying' | 'requesting' | 'none'
+  status: 'me' | 'applying' | 'requesting' | 'friend' | 'none'
 }
 
 export type Payment = {
@@ -200,7 +200,7 @@ export type User = {
   /** 画像URL */
   photoUrl: string
   /** フレンド状態のステータス */
-  status: 'me' | 'applying' | 'requesting' | 'none'
+  status: 'me' | 'applying' | 'requesting' | 'friend' | 'none'
 }
 
 export type UserEndpoints_Friends = {
@@ -226,7 +226,7 @@ export type UserEndpoints_UserGetResponse = {
   /** 画像URL */
   photoUrl: string
   /** フレンド状態のステータス */
-  status: 'me' | 'applying' | 'requesting' | 'none'
+  status: 'me' | 'applying' | 'requesting' | 'friend' | 'none'
 }
 
 export type UserEndpoints_UserPutRequest = {

@@ -5,7 +5,7 @@ export type Methods = {
   /** グループに対するメンバー情報の取得 */
   get: {
     query?: {
-      status?: 'me' | 'applying' | 'requesting' | 'none' | undefined
+      status?: 'me' | 'applying' | 'requesting' | 'friend' | 'none' | undefined
     } | undefined
 
     status: 200

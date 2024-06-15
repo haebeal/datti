@@ -6,7 +6,7 @@ export type Methods = {
   get: {
     query?: {
       email?: string | undefined
-      status?: 'me' | 'applying' | 'requesting' | 'none' | undefined
+      status?: 'me' | 'applying' | 'requesting' | 'friend' | 'none' | undefined
     } | undefined
 
     status: 200

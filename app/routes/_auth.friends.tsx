@@ -36,7 +36,7 @@ export default function Friend() {
         title: actionData.message,
       });
     }
-  }, [actionData]);
+  }, [actionData, toast]);
 
   return (
     <div className="flex flex-col py-3 gap-7">

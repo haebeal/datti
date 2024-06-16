@@ -8,7 +8,7 @@ import {
   eventUpdateFormSchema,
 } from "~/schema/eventFormSchema";
 
-export const groupEventsAction = async ({
+export const eventAction = async ({
   request,
   params,
   context,
@@ -103,4 +103,4 @@ export const groupEventsAction = async ({
   });
 };
 
-export type GroupEventsAction = typeof groupEventsAction;
+export type EventAction = typeof eventAction;

@@ -6,7 +6,7 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { Suspense, useEffect, useState } from "react";
-import { GroupEventsAction } from "~/.server/actions";
+import { EventAction } from "~/.server/actions";
 import { GroupEventsLoader } from "~/.server/loaders";
 import { EventForm } from "~/components/EventForm";
 import { EventList } from "~/components/EventList";
@@ -20,7 +20,7 @@ import {
 } from "~/components/ui/dialog";
 import { useToast } from "~/components/ui/use-toast";
 
-export { groupEventsAction as action } from "~/.server/actions";
+export { eventAction as action } from "~/.server/actions";
 export { groupEventsLoader as loader } from "~/.server/loaders";
 
 export default function GroupEvents() {
@@ -29,7 +29,7 @@ export default function GroupEvents() {
   const { toast } = useToast();
 
   const { members } = useLoaderData<GroupEventsLoader>();
-  const actionData = useActionData<GroupEventsAction>();
+  const actionData = useActionData<EventAction>();
   useEffect(() => {
     if (actionData) {
       toast({

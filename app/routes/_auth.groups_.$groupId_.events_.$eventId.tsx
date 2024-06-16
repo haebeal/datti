@@ -1,13 +1,13 @@
 import { MetaFunction } from "@remix-run/cloudflare";
 import { Await, useActionData, useLoaderData } from "@remix-run/react";
 import { Suspense, useEffect } from "react";
-import { GroupEventsAction } from "~/.server/actions";
+import { EventAction } from "~/.server/actions";
 import { GroupEventLoader } from "~/.server/loaders";
 import { EventForm } from "~/components/EventForm";
 import { useToast } from "~/components/ui/use-toast";
 import { eventUpdateFormSchema } from "~/schema/eventFormSchema";
 
-export { groupEventsAction as action } from "~/.server/actions";
+export { eventAction as action } from "~/.server/actions";
 export { groupEventLoader as loader } from "~/.server/loaders";
 
 export const meta: MetaFunction = () => [
@@ -27,7 +27,7 @@ export default function EventDetail() {
   const { toast } = useToast();
 
   const { event } = useLoaderData<GroupEventLoader>();
-  const actionData = useActionData<GroupEventsAction>();
+  const actionData = useActionData<EventAction>();
   useEffect(() => {
     if (actionData) {
       toast({

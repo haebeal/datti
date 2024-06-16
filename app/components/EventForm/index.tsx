@@ -15,7 +15,7 @@ import {
 } from "@remix-run/react";
 import { format } from "date-fns";
 import { Suspense, useId } from "react";
-import { GroupEventsAction } from "~/.server/actions";
+import { EventAction } from "~/.server/actions";
 import { GroupEventsLoader } from "~/.server/loaders";
 import {
   EventEndpoints_EventPostRequest,
@@ -45,7 +45,7 @@ interface Props {
 
 export function EventForm({ defaultValue, method }: Props) {
   const { members } = useLoaderData<GroupEventsLoader>();
-  const actionData = useActionData<GroupEventsAction>();
+  const actionData = useActionData<EventAction>();
   const [form, { name, evented_at, amount, payments }] = useForm({
     defaultValue,
     lastResult: actionData?.submission,

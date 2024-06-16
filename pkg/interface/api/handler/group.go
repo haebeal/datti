@@ -76,6 +76,7 @@ func (g *groupHandler) HandleGet(c echo.Context) error {
 // HandleGetById implements GroupHandler.
 func (g *groupHandler) HandleGetById(c echo.Context) error {
 	errResponse := new(response.Error)
+	res := response.Group{}
 	id := c.Param("id")
 
 	group, err := g.useCase.GetGroupById(c.Request().Context(), id)
@@ -83,7 +84,9 @@ func (g *groupHandler) HandleGetById(c echo.Context) error {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, group)
+		res.ID = group.ID
+		res.Name = group.Name
+		return c.JSON(http.StatusOK, res)
 	}
 }
 

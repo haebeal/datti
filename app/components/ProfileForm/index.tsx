@@ -4,7 +4,7 @@ import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useId } from "react";
 import { ProfileAction } from "~/.server/actions";
 import { User } from "~/api/@types";
-import { Avatar, AvatarImage } from "~/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -34,6 +34,7 @@ export function ProfileForm({ defaultValue }: Props) {
       <div className="col-span-5 md:col-span-2 grid place-content-center max-h-80 py-10">
         <Avatar className="size-full max-md max-w-60 max-h-60 border border-gray-200">
           <AvatarImage className="hover:cursor-pointer" src={photoUrl.value} />
+          <AvatarFallback>{name.value} photo</AvatarFallback>
         </Avatar>
       </div>
       <Form

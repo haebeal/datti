@@ -67,13 +67,13 @@ namespace PaymentEndpoints {
   /**
    * 支払い情報の削除
    */
-  @route("{payId}")
-  @summary("支払い情報の削除")
-  @delete
-  op deletePayments(@path payId: string):
-  | Utils.Response.OKMessage
-  | Utils.Error.UnauthorizedError
-  | Utils.Error.InternalServerError;
+  // @route("{payId}")
+  // @summary("支払い情報の削除")
+  // @delete
+  // op deletePayments(@path payId: string):
+  // | Utils.Response.OKMessage
+  // | Utils.Error.UnauthorizedError
+  // | Utils.Error.InternalServerError;
 }
 
 model Payment {

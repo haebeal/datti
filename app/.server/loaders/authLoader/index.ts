@@ -13,15 +13,18 @@ export const authLoader = async ({
     params,
     context,
   });
+
+  // IDトークンが取得できなかった場合、ログインページへと遷移を行う
   if (!idToken) {
     throw redirect("/signin");
   }
 
   const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
+
   const profile = client.users.me.$get();
 
+  // セッション更新のため、SessionStorageの取得を行う
   const authSessionStorage = getAuthSessionStorage(context);
-
   return defer(
     {
       profile,

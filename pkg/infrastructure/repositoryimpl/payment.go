@@ -146,6 +146,19 @@ func (p *paymentRepositoryImpl) GetPaidTo(c context.Context, uid string) ([]*mod
 	return *payments, nil
 }
 
+func (p *paymentRepositoryImpl) GetHistory(c context.Context, uid string) ([]*model.Payment, error) {
+	payments := []*model.Payment{}
+	err := p.DBEngine.Client.NewSelect().
+		Table("payments").
+		Where("paid_by = ?", uid).
+		Scan(c, &payments)
+	if err != nil {
+		return nil, err
+	}
+
+	return payments, nil
+}
+
 // UpdatePayment implements repository.PaymentRepository.
 func (p *paymentRepositoryImpl) UpdatePayment(c context.Context, eventId string, id string, paidTo string, paidBy string, paidAt time.Time, amount int) (*model.Payment, error) {
 	payment := new(model.Payment)

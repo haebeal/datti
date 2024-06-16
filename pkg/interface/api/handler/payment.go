@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/datti-api/pkg/interface/request"
 	"github.com/datti-api/pkg/interface/response"
@@ -15,6 +16,7 @@ type PaymentHandler interface {
 	HandleGetById(c echo.Context) error
 	HandleCreate(c echo.Context) error
 	HandleUpdate(c echo.Context) error
+	HandleHistory(c echo.Context) error
 	HandleDelete(c echo.Context) error
 }
 
@@ -147,6 +149,63 @@ func (p *paymentHandler) HandleUpdate(c echo.Context) error {
 		res.PaidTo = *paidTo
 		res.PaidBy = *paidBy
 		res.Amount = payment.Amount
+		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func (p *paymentHandler) HandleHistory(c echo.Context) error {
+	userID := c.Get("uid").(string)
+	res := &response.PaymentList{}
+
+	payments, paidByUsers, paidToUsers, err := p.useCase.GetHistory(c.Request().Context(), userID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		for i, payment := range payments {
+			res.Paymetns = append(res.Paymetns, struct {
+				ID     string    `json:"id"`
+				PaidAt time.Time `json:"paid_at"`
+				PaidBy struct {
+					ID       string `json:"uid"`
+					Name     string `json:"name"`
+					Email    string `json:"email"`
+					PhotoUrl string `json:"photoUrl"`
+				} `json:"paid_by"`
+				PaidTo struct {
+					ID       string `json:"uid"`
+					Name     string `json:"name"`
+					Email    string `json:"email"`
+					PhotoUrl string `json:"photoUrl"`
+				} `json:"paid_to"`
+				Amount int `json:"amount"`
+			}{
+				ID:     payment.ID,
+				PaidAt: payment.PaidAt,
+				PaidBy: struct {
+					ID       string `json:"uid"`
+					Name     string `json:"name"`
+					Email    string `json:"email"`
+					PhotoUrl string `json:"photoUrl"`
+				}{
+					ID:       paidByUsers[i].ID,
+					Name:     paidByUsers[i].Name,
+					Email:    paidByUsers[i].Email,
+					PhotoUrl: paidByUsers[i].PhotoUrl,
+				},
+				PaidTo: struct {
+					ID       string `json:"uid"`
+					Name     string `json:"name"`
+					Email    string `json:"email"`
+					PhotoUrl string `json:"photoUrl"`
+				}{
+					ID:       paidToUsers[i].ID,
+					Name:     paidToUsers[i].Name,
+					Email:    paidToUsers[i].Email,
+					PhotoUrl: paidToUsers[i].PhotoUrl,
+				},
+				Amount: payment.Amount,
+			})
+		}
 		return c.JSON(http.StatusOK, res)
 	}
 }

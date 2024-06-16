@@ -49,7 +49,6 @@ export const groupAction = async ({
 
   // グループ更新処理
   if (request.method === "PUT") {
-    const groupId = params.groupId;
     const submission = parseWithZod(formData, {
       schema: groupFormSchema,
     });
@@ -59,6 +58,7 @@ export const groupAction = async ({
         submission: submission.reply(),
       });
     }
+    const groupId = params.groupId;
     if (groupId === undefined) {
       return json({
         message: "グループIDの取得に失敗しました",

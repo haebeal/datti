@@ -8,7 +8,7 @@ export const groupMembersLoader = async ({
   context,
 }: LoaderFunctionArgs) => {
   const { searchParams } = new URL(request.url);
-  const searchQuery = searchParams.get("q");
+  const searchQuery = searchParams.get("q")?.toString();
 
   const groupId = params.groupId;
   if (!groupId) {

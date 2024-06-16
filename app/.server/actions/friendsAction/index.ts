@@ -1,3 +1,4 @@
+import { HTTPError } from "@aspida/fetch";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
@@ -7,23 +8,54 @@ export const friendsAction = async ({
   params,
   context,
 }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-  const uid = formData.get("uid");
-
-  if (typeof uid !== "string") {
-    throw new Error();
-  }
-
   const { idToken } = await getIdToken({ request, params, context });
   const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
 
-  if (request.method === "POST") {
-    await client.users._userId(uid).requests.$post();
-  } else if (request.method === "DELETE") {
-    await client.users.friends._userId(uid).$delete();
+  const formData = await request.formData();
+
+  const userId = formData.get("uid")?.toString();
+
+  // フレンド申請処理
+  if (request.method === "POST" && userId) {
+    try {
+      const { message } = await client.users._userId(userId).requests.$post();
+      return json({
+        message,
+        submission: undefined,
+      });
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw new Response(error.message, {
+          status: error.response.status,
+          statusText: error.response.statusText,
+        });
+      }
+    }
   }
 
-  return json({});
+  // フレンド削除、申請取り消し・却下処理
+  if (request.method === "DELETE" && userId) {
+    try {
+      await client.users._userId(userId).requests.$post();
+      const { message } = await client.users.friends._userId(userId).$delete();
+      return json({
+        message,
+        submission: undefined,
+      });
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw new Response(error.message, {
+          status: error.response.status,
+          statusText: error.response.statusText,
+        });
+      }
+    }
+  }
+
+  throw new Response("不明なエラーが発生しました", {
+    status: 500,
+    statusText: "Internal Server Error",
+  });
 };
 
 export type FriendsAction = typeof friendsAction;

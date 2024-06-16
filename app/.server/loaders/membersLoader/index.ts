@@ -11,20 +11,19 @@ export const membersLoader = async ({
   const searchQuery = searchParams.get("q")?.toString();
 
   const groupId = params.groupId;
-  if (!groupId) {
-    throw new Error("Not Found Group");
+  if (groupId === undefined) {
+    throw new Response("グループIDの取得に失敗しました", {
+      status: 400,
+      statusText: "Bad Request",
+    });
   }
 
-  const { idToken } = await getIdToken({
-    request,
-    params,
-    context,
-  });
+  const { idToken } = await getIdToken({ request, params, context });
   const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
 
   const users = client.users.$get({
     query: {
-      email: searchQuery ?? undefined,
+      email: searchQuery,
     },
   });
   const members = client.groups._groupId(groupId).members.$get();

@@ -7,7 +7,7 @@ import {
 } from "@remix-run/react";
 import { Suspense, useEffect, useState } from "react";
 import { EventAction } from "~/.server/actions";
-import { GroupEventsLoader } from "~/.server/loaders";
+import { EventsLoader } from "~/.server/loaders";
 import { EventForm } from "~/components/EventForm";
 import { EventList } from "~/components/EventList";
 import { Button } from "~/components/ui/button";
@@ -21,14 +21,14 @@ import {
 import { useToast } from "~/components/ui/use-toast";
 
 export { eventAction as action } from "~/.server/actions";
-export { groupEventsLoader as loader } from "~/.server/loaders";
+export { eventsLoader as loader } from "~/.server/loaders";
 
 export default function GroupEvents() {
   const { state } = useNavigation();
   const [isOpen, setOpen] = useState(false);
   const { toast } = useToast();
 
-  const { members } = useLoaderData<GroupEventsLoader>();
+  const { members } = useLoaderData<EventsLoader>();
   const actionData = useActionData<EventAction>();
   useEffect(() => {
     if (actionData) {

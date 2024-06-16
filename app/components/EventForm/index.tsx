@@ -16,7 +16,7 @@ import {
 import { format } from "date-fns";
 import { Suspense, useId } from "react";
 import { EventAction } from "~/.server/actions";
-import { GroupEventsLoader } from "~/.server/loaders";
+import { EventsLoader } from "~/.server/loaders";
 import {
   EventEndpoints_EventPostRequest,
   EventEndpoints_EventPutRequest,
@@ -44,7 +44,7 @@ interface Props {
 }
 
 export function EventForm({ defaultValue, method }: Props) {
-  const { members } = useLoaderData<GroupEventsLoader>();
+  const { members } = useLoaderData<EventsLoader>();
   const actionData = useActionData<EventAction>();
   const [form, { name, evented_at, amount, payments }] = useForm({
     defaultValue,

@@ -17,7 +17,7 @@ export const friendsLoader = async ({
   const users = client.users.$get({
     query: {
       status: "none",
-      email: searchQuery ?? undefined,
+      email: searchQuery,
     },
   });
 

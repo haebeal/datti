@@ -69,7 +69,7 @@ func (p *paymentRepositoryImpl) GetPaymentByEventId(c context.Context, eventId s
 	err := p.DBEngine.Client.NewSelect().
 		Table("payments").
 		Where("evented_by = ?", eventId).
-		Scan(c, payments)
+		Scan(c, &payments)
 	if err != nil {
 		return nil, err
 	}

@@ -151,7 +151,7 @@ func (p *paymentRepositoryImpl) GetHistory(c context.Context, uid string) ([]*mo
 	err := p.DBEngine.Client.NewSelect().
 		Table("payments").
 		Where("paid_by = ?", uid).
-		Scan(c, payments)
+		Scan(c, &payments)
 	if err != nil {
 		return nil, err
 	}

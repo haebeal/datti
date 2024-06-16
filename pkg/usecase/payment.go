@@ -14,7 +14,8 @@ type PaymentUseCase interface {
 	UpdatePayment(c context.Context, id string, paidBy string, paidTo string, paidAt time.Time, amount int) (*model.Payment, *model.User, *model.User, error)
 	GetPayments(c context.Context, uid string) (*dto.Payments, error)
 	GetPayment(c context.Context, id string) (*model.Payment, *model.User, *model.User, error)
-	DeletePayment(c context.Context, id string) error
+	GetHistory(c context.Context, uid string) ([]*model.Payment, []*model.User, []*model.User, error)
+	DeletePayment(c context.Context, uid string) error
 }
 
 type paymentUseCase struct {
@@ -146,6 +147,30 @@ func (p *paymentUseCase) UpdatePayment(c context.Context, id string, paidBy stri
 		return nil, nil, nil, err
 	}
 	return payment, paidToUser, paidByUser, nil
+}
+
+func (p *paymentUseCase) GetHistory(c context.Context, uid string) ([]*model.Payment, []*model.User, []*model.User, error) {
+	paidByUsers := []*model.User{}
+	paidToUsers := []*model.User{}
+	payments, err := p.paymentRepository.GetHistory(c, uid)
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	for _, payment := range payments {
+		paidBy, err := p.userRepository.GetUserByUid(c, payment.PaidBy)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		paidTo, err := p.userRepository.GetUserByUid(c, payment.PaidTo)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		paidByUsers = append(paidByUsers, paidBy)
+		paidToUsers = append(paidToUsers, paidTo)
+	}
+
+	return payments, paidByUsers, paidToUsers, nil
 }
 
 func NewPaymentUseCase(paymentRepo repository.PaymentRepository, userRepo repository.UserRepository, tx repository.Transaction) PaymentUseCase {

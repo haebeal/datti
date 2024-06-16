@@ -79,6 +79,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.PUT("/groups/:gid/events/:id", eventHandler.HandleUpdate)
 
 	r.GET("/payments", paymentHandler.HandleGet)
+	r.GET("/payments/history", paymentHandler.HandleHistory)
 
 	r.Start("0.0.0.0:8080")
 }

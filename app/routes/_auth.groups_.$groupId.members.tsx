@@ -14,7 +14,7 @@ import {
 import { useToast } from "~/components/ui/use-toast";
 
 export { memberAction as action } from "~/.server/actions";
-export { groupMembersLoader as loader } from "~/.server/loaders";
+export { membersLoader as loader } from "~/.server/loaders";
 
 export default function GroupMembers() {
   const { state } = useNavigation();

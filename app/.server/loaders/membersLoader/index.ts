@@ -2,7 +2,7 @@ import { LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 
-export const groupMembersLoader = async ({
+export const membersLoader = async ({
   request,
   params,
   context,
@@ -32,4 +32,4 @@ export const groupMembersLoader = async ({
   return defer({ users, members });
 };
 
-export type GroupMembersLoader = typeof groupMembersLoader;
+export type MembersLoader = typeof membersLoader;

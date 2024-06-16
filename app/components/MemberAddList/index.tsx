@@ -1,6 +1,6 @@
 import { Await, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
-import { GroupMembersLoader } from "~/.server/loaders";
+import { MembersLoader } from "~/.server/loaders";
 import { MemberAddCard } from "~/components/MemberAddCard";
 
 function LoadingSpinner() {
@@ -12,7 +12,7 @@ function LoadingSpinner() {
 }
 
 export function MemberAddList() {
-  const { users, members } = useLoaderData<GroupMembersLoader>();
+  const { users, members } = useLoaderData<MembersLoader>();
 
   return (
     <Suspense fallback={<LoadingSpinner />}>

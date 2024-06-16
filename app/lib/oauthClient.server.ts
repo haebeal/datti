@@ -1,19 +1,19 @@
 type FirebaseUser = {
-  federatedId: string;
-  providerId: string;
-  localId: string;
-  emailVerified: boolean;
+  federatedId?: string;
+  providerId?: string;
+  localId?: string;
+  emailVerified?: boolean;
   email: string;
-  oauthIdToken: string;
-  firstName: string;
-  lastName: string;
-  fullName: string;
+  oauthIdToken?: string;
+  firstName?: string;
+  lastName?: string;
+  fullName?: string;
   displayName: string;
   idToken: string;
-  photoUrl: string;
+  photoUrl?: string;
   refreshToken: string;
   expiresIn: string;
-  rawUserInfo: string;
+  rawUserInfo?: string;
 };
 
 type RefreshResponse = {
@@ -45,7 +45,28 @@ export const signInFirebaseWithGoogle = async (
     }
   );
   const data = await response.json<FirebaseUser>();
+  return data;
+};
 
+export const signInFirebaseWithPassword = async (
+  tenantId: string,
+  apiKey: string,
+  email: string,
+  password: string
+) => {
+  const response = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        password,
+        returnSecureToken: true,
+        tenantId: tenantId,
+      }),
+    }
+  );
+  const data = await response.json<FirebaseUser>();
   return data;
 };
 

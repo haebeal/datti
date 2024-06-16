@@ -19,11 +19,14 @@ export function MemberList() {
       <Suspense fallback={<LoadingSpinner />}>
         <Await resolve={members}>
           {({ members }) =>
-            Array.isArray(members) && members.length > 0 ? (
+            Array.isArray(members.filter((member) => member.status !== "me")) &&
+            members.length > 0 ? (
               <div className="w-full flex flex-col items-center p-4 gap-3">
-                {members.map((member) => (
-                  <MemberCard key={member.uid} user={member} />
-                ))}
+                {members
+                  .filter((member) => member.status !== "me")
+                  .map((member) => (
+                    <MemberCard key={member.uid} user={member} />
+                  ))}
               </div>
             ) : (
               <div className="w-full min-h-[60vh] grid place-content-center">

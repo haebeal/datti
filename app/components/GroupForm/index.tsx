@@ -1,28 +1,24 @@
-import {
-  SubmissionResult,
-  getFormProps,
-  getInputProps,
-  useForm,
-} from "@conform-to/react";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import { Form, useNavigation } from "@remix-run/react";
+import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useId } from "react";
-import { Group } from "~/api/@types";
+import { GroupAction } from "~/.server/actions";
+import { GroupEndpoints_GroupGetResponse } from "~/api/@types";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { groupFormSchema } from "~/schema/groupFormSchema";
 
 interface Props {
-  defaultValue?: Group;
-  lastResult?: SubmissionResult<string[] | null>;
+  defaultValue?: GroupEndpoints_GroupGetResponse;
   method: "post" | "put";
 }
 
-export function GroupForm({ defaultValue, lastResult, method }: Props) {
+export function GroupForm({ defaultValue, method }: Props) {
+  const actionData = useActionData<GroupAction>();
   const [form, { name }] = useForm({
     defaultValue,
-    lastResult,
+    lastResult: actionData?.submission,
     onValidate({ formData }) {
       return parseWithZod(formData, {
         schema: groupFormSchema,

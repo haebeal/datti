@@ -6,8 +6,8 @@ import {
   useNavigation,
 } from "@remix-run/react";
 import { Suspense, useEffect, useState } from "react";
-import { GroupEventsAction } from "~/.server/actions";
-import { GroupEventsLoader } from "~/.server/loaders";
+import { EventAction } from "~/.server/actions";
+import { EventsLoader } from "~/.server/loaders";
 import { EventForm } from "~/components/EventForm";
 import { EventList } from "~/components/EventList";
 import { Button } from "~/components/ui/button";
@@ -18,21 +18,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import { useToast } from "~/components/ui/use-toast";
 
-export { groupEventsAction as action } from "~/.server/actions";
-export { groupEventsLoader as loader } from "~/.server/loaders";
+export { eventAction as action } from "~/.server/actions";
+export { eventsLoader as loader } from "~/.server/loaders";
 
 export default function GroupEvents() {
   const { state } = useNavigation();
-  const lastResult = useActionData<GroupEventsAction>();
-  const { members } = useLoaderData<GroupEventsLoader>();
-
   const [isOpen, setOpen] = useState(false);
+  const { toast } = useToast();
+
+  const { members } = useLoaderData<EventsLoader>();
+  const actionData = useActionData<EventAction>();
   useEffect(() => {
-    if (lastResult?.submission.status === "success") {
-      setOpen(false);
+    if (actionData) {
+      toast({
+        title: actionData.message,
+      });
     }
-  }, [lastResult]);
+  }, [actionData, toast]);
 
   return (
     <div className="flex flex-col py-3 gap-3">
@@ -62,7 +66,6 @@ export default function GroupEvents() {
                           amount: 0,
                         })),
                     }}
-                    lastResult={lastResult?.submission}
                     method="post"
                   />
                 )}

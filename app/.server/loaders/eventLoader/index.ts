@@ -2,16 +2,25 @@ import { LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 
-export const groupEventLoader = async ({
+export const eventLoader = async ({
   request,
   params,
   context,
 }: LoaderFunctionArgs) => {
   const groupId = params.groupId;
-  const eventId = params.eventId;
+  if (groupId === undefined) {
+    throw new Response("グループIDの取得に失敗しました", {
+      status: 400,
+      statusText: "Bad Request",
+    });
+  }
 
-  if (typeof groupId !== "string" || typeof eventId !== "string") {
-    throw new Error("Not Found Event");
+  const eventId = params.eventId;
+  if (eventId === undefined) {
+    throw new Response("イベントIDの取得に失敗しました", {
+      status: 400,
+      statusText: "Bad Request",
+    });
   }
 
   const { idToken } = await getIdToken({ request, params, context });
@@ -22,4 +31,4 @@ export const groupEventLoader = async ({
   return defer({ event });
 };
 
-export type GroupEventLoader = typeof groupEventLoader;
+export type EventLoader = typeof eventLoader;

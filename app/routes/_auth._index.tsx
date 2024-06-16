@@ -7,8 +7,10 @@ export const meta: MetaFunction = () => [
 
 export default function Index() {
   return (
-    <div>
-      <h1 className="font-bold text-2xl">支払い一覧</h1>
+    <div className="flex flex-col py-3 gap-7">
+      <div className="flex items-center justify-between">
+        <h1 className="font-bold text-2xl">現在の支払い</h1>
+      </div>
     </div>
   );
 }

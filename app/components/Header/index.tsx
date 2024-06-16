@@ -56,9 +56,7 @@ export function Header() {
                     aria-label="avatar menu"
                   >
                     <AvatarImage src={profile.photoUrl} />
-                    <AvatarFallback>
-                      <Skeleton className="h-12 w-12 rounded-full border border-gray-200" />
-                    </AvatarFallback>
+                    <AvatarFallback>{profile.name} photo</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>

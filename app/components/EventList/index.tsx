@@ -1,6 +1,6 @@
 import { Await, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
-import { GroupEventsLoader } from "~/.server/loaders";
+import { EventsLoader } from "~/.server/loaders";
 import { EventCard } from "~/components/EventCard";
 
 function LoadingSpinner() {
@@ -12,7 +12,7 @@ function LoadingSpinner() {
 }
 
 export function EventList() {
-  const { events } = useLoaderData<GroupEventsLoader>();
+  const { events } = useLoaderData<EventsLoader>();
 
   return (
     <div className="w-full min-h-[60vh]">

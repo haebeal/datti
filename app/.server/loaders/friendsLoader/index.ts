@@ -8,7 +8,7 @@ export const friendsLoader = async ({
   context,
 }: LoaderFunctionArgs) => {
   const { searchParams } = new URL(request.url);
-  const searchQuery = searchParams.get("q");
+  const searchQuery = searchParams.get("q")?.toString();
 
   const { idToken } = await getIdToken({ request, params, context });
   const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
@@ -17,7 +17,7 @@ export const friendsLoader = async ({
   const users = client.users.$get({
     query: {
       status: "none",
-      email: searchQuery ?? undefined,
+      email: searchQuery,
     },
   });
 

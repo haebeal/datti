@@ -1,4 +1,11 @@
-import { NavLink, useNavigation, useSearchParams } from "@remix-run/react";
+import {
+  NavLink,
+  useActionData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
+import { useEffect } from "react";
+import { FriendAction } from "~/.server/actions";
 import { FriendList } from "~/components/FriendList";
 import { FriendRequestForm } from "~/components/FriendRequestForm";
 import { Button } from "~/components/ui/button";
@@ -9,15 +16,27 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import { useToast } from "~/components/ui/use-toast";
 
-export { friendsAction as action } from "~/.server/actions";
+export { friendAction as action } from "~/.server/actions";
 export { friendsLoader as loader } from "~/.server/loaders";
 
 export default function Friend() {
   const { state } = useNavigation();
-  const [searchParams] = useSearchParams();
 
-  const status = searchParams.get("status");
+  const [searchParams] = useSearchParams();
+  const status = searchParams.get("status")?.toString();
+
+  const { toast } = useToast();
+
+  const actionData = useActionData<FriendAction>();
+  useEffect(() => {
+    if (actionData) {
+      toast({
+        title: actionData.message,
+      });
+    }
+  }, [actionData, toast]);
 
   return (
     <div className="flex flex-col py-3 gap-7">

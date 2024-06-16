@@ -1,13 +1,14 @@
 import { MetaFunction } from "@remix-run/cloudflare";
 import { Await, useActionData, useLoaderData } from "@remix-run/react";
-import { Suspense } from "react";
-import { GroupEventsAction } from "~/.server/actions";
-import { GroupEventLoader } from "~/.server/loaders";
+import { Suspense, useEffect } from "react";
+import { EventAction } from "~/.server/actions";
+import { EventLoader } from "~/.server/loaders";
 import { EventForm } from "~/components/EventForm";
+import { useToast } from "~/components/ui/use-toast";
 import { eventUpdateFormSchema } from "~/schema/eventFormSchema";
 
-export { groupEventsAction as action } from "~/.server/actions";
-export { groupEventLoader as loader } from "~/.server/loaders";
+export { eventAction as action } from "~/.server/actions";
+export { eventLoader as loader } from "~/.server/loaders";
 
 export const meta: MetaFunction = () => [
   { title: "Datti | イベント編集" },
@@ -23,8 +24,17 @@ function LoadingSpinner() {
 }
 
 export default function EventDetail() {
-  const { event } = useLoaderData<GroupEventLoader>();
-  const lastResult = useActionData<GroupEventsAction>();
+  const { toast } = useToast();
+
+  const { event } = useLoaderData<EventLoader>();
+  const actionData = useActionData<EventAction>();
+  useEffect(() => {
+    if (actionData) {
+      toast({
+        title: actionData.message,
+      });
+    }
+  }, [actionData, toast]);
 
   return (
     <div className="flex flex-col py-3 gap-7">
@@ -38,7 +48,6 @@ export default function EventDetail() {
               {(event) => (
                 <EventForm
                   defaultValue={eventUpdateFormSchema.parse(event)}
-                  lastResult={lastResult?.submission}
                   method="put"
                 />
               )}

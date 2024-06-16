@@ -3,9 +3,12 @@ import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
-import { groupFormSchema } from "~/schema/groupFormSchema";
+import {
+  eventCreateFormSchema,
+  eventUpdateFormSchema,
+} from "~/schema/eventFormSchema";
 
-export const groupAction = async ({
+export const eventAction = async ({
   request,
   params,
   context,
@@ -15,42 +18,10 @@ export const groupAction = async ({
 
   const formData = await request.formData();
 
-  // グループ作成処理
+  // イベント作成処理
   if (request.method === "POST") {
     const submission = parseWithZod(formData, {
-      schema: groupFormSchema,
-    });
-    if (submission.status !== "success") {
-      return json({
-        message: "バリデーションに失敗しました",
-        submission: submission.reply(),
-      });
-    }
-    try {
-      const { name } = await client.groups.$post({
-        body: {
-          ...submission.value,
-          uids: [],
-        },
-      });
-      return json({
-        message: `${name}を作成しました`,
-        submission: submission.reply(),
-      });
-    } catch (error) {
-      if (error instanceof HTTPError) {
-        throw new Response(error.message, {
-          status: error.response.status,
-          statusText: error.response.statusText,
-        });
-      }
-    }
-  }
-
-  // グループ更新処理
-  if (request.method === "PUT") {
-    const submission = parseWithZod(formData, {
-      schema: groupFormSchema,
+      schema: eventCreateFormSchema,
     });
     if (submission.status !== "success") {
       return json({
@@ -66,11 +37,54 @@ export const groupAction = async ({
       });
     }
     try {
-      await client.groups._groupId(groupId).$put({
+      const { name } = await client.groups._groupId(groupId).events.$post({
         body: submission.value,
       });
       return json({
-        message: "グループを更新しました",
+        message: `${name}を作成しました`,
+        submission: submission.reply(),
+      });
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw new Response(error.message, {
+          status: error.response.status,
+          statusText: error.response.statusText,
+        });
+      }
+    }
+  }
+
+  // イベント更新処理
+  if (request.method === "PUT") {
+    const submission = parseWithZod(formData, {
+      schema: eventUpdateFormSchema,
+    });
+    if (submission.status !== "success") {
+      return json({
+        message: "バリデーションに失敗しました",
+        submission: submission.reply(),
+      });
+    }
+    const groupId = params.groupId;
+    if (groupId === undefined) {
+      return json({
+        message: "グループIDの取得に失敗しました",
+        submission: submission.reply(),
+      });
+    }
+    const eventId = params.eventId;
+    if (eventId === undefined) {
+      return json({
+        message: "イベントIDの取得に失敗しました",
+        submission: submission.reply(),
+      });
+    }
+    try {
+      await client.groups._groupId(groupId).events._eventId(eventId).$put({
+        body: submission.value,
+      });
+      return json({
+        message: "イベントを更新しました",
         submission: submission.reply(),
       });
     } catch (error) {
@@ -89,4 +103,4 @@ export const groupAction = async ({
   });
 };
 
-export type GroupAction = typeof groupAction;
+export type EventAction = typeof eventAction;

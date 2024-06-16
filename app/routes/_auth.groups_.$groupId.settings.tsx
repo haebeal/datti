@@ -1,8 +1,9 @@
 import { Await, useActionData, useLoaderData } from "@remix-run/react";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { GroupAction } from "~/.server/actions";
 import { GroupLoader } from "~/.server/loaders";
 import { GroupForm } from "~/components/GroupForm";
+import { useToast } from "~/components/ui/use-toast";
 
 export { groupAction as action } from "~/.server/actions";
 export { groupLoader as loader } from "~/.server/loaders";
@@ -16,20 +17,23 @@ function LoadingSpinner() {
 }
 
 export default function GroupSettings() {
+  const { toast } = useToast();
+
   const { group } = useLoaderData<GroupLoader>();
-  const lastResult = useActionData<GroupAction>();
+  const actionData = useActionData<GroupAction>();
+  useEffect(() => {
+    if (actionData) {
+      toast({
+        title: actionData.message,
+      });
+    }
+  }, [actionData, toast]);
 
   return (
     <div className="py-4">
       <Suspense fallback={<LoadingSpinner />}>
         <Await resolve={group}>
-          {(group) => (
-            <GroupForm
-              defaultValue={group}
-              lastResult={lastResult}
-              method="put"
-            />
-          )}
+          {(group) => <GroupForm defaultValue={group} method="put" />}
         </Await>
       </Suspense>
     </div>

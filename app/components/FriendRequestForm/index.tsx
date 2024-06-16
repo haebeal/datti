@@ -10,8 +10,8 @@ export function FriendRequestForm() {
   const { state } = useNavigation();
   const searchParams = new URLSearchParams(search);
 
-  const status = searchParams.get("status") ?? undefined;
-  const searchQuery = searchParams.get("q") ?? undefined;
+  const status = searchParams.get("status")?.toString();
+  const searchQuery = searchParams.get("q")?.toString();
   const searchId = useId();
 
   return (

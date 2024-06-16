@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import { useToast } from "~/components/ui/use-toast";
 
 export { groupAction as action } from "~/.server/actions";
 export { groupsLoader as loader } from "~/.server/loaders";
@@ -23,14 +24,19 @@ export const meta: MetaFunction = () => [
 
 export default function Group() {
   const { state } = useNavigation();
-  const lastResult = useActionData<GroupAction>();
+
+  const { toast } = useToast();
+
+  const actionData = useActionData<GroupAction>();
+  useEffect(() => {
+    if (actionData) {
+      toast({
+        title: actionData.message,
+      });
+    }
+  }, [actionData, toast]);
 
   const [isOpen, setOpen] = useState(false);
-  useEffect(() => {
-    if (lastResult?.status === "success") {
-      setOpen(false);
-    }
-  }, [lastResult]);
 
   return (
     <div className="flex flex-col py-3 gap-7">
@@ -49,7 +55,7 @@ export default function Group() {
             <DialogHeader>
               <DialogTitle>グループ作成</DialogTitle>
             </DialogHeader>
-            <GroupForm lastResult={lastResult} method="post" />
+            <GroupForm method="post" />
           </DialogContent>
         </Dialog>
       </div>

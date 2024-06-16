@@ -1,16 +1,14 @@
+import { Form, Link, useLocation, useNavigation } from "@remix-run/react";
+import { EventEndpoints_EventResponse } from "~/api/@types";
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
-  AlertDialogTrigger,
-} from "@radix-ui/react-alert-dialog";
-import { Form, Link, useLocation, useNavigation } from "@remix-run/react";
-import { EventEndpoints_EventResponse } from "~/api/@types";
-import {
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 

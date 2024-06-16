@@ -8,7 +8,7 @@ type TokenResponse = {
 
 export const loader = async ({ request, context }: LoaderFunctionArgs) => {
   const url = new URL(request.url);
-  const code = url.searchParams.get("code");
+  const code = url.searchParams.get("code")?.toString();
 
   if (!code) {
     throw new Response(undefined, {

@@ -1,11 +1,9 @@
 import { HTTPError } from "@aspida/fetch";
-import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
-import { profileFormSchema } from "~/schema/profileFormSchema";
 
-export const profileAction = async ({
+export const memberAction = async ({
   request,
   params,
   context,
@@ -15,22 +13,31 @@ export const profileAction = async ({
 
   const formData = await request.formData();
 
-  // プロフィール更新処理
+  // メンバー追加処理
   if (request.method === "POST") {
-    const submission = parseWithZod(formData, { schema: profileFormSchema });
-    if (submission.status !== "success") {
+    const groupId = params.groupId;
+    const userId = formData.get("uid")?.toString();
+    if (userId === undefined) {
       return json({
-        message: "バリデーションに失敗しました",
-        submission: submission.reply(),
+        message: "ユーザーIDの取得に失敗しました",
+        submission: undefined,
+      });
+    }
+    if (groupId === undefined) {
+      return json({
+        message: "グループIDの取得に失敗しました",
+        submission: undefined,
       });
     }
     try {
-      await client.users.me.$put({
-        body: submission.value,
+      const { name } = await client.groups._groupId(groupId).members.$post({
+        body: {
+          uids: [userId],
+        },
       });
       return json({
-        message: "プロフィールを更新しました",
-        submission: submission.reply(),
+        message: `${name}をメンバーに追加しました`,
+        submission: undefined,
       });
     } catch (error) {
       if (error instanceof HTTPError) {
@@ -48,4 +55,4 @@ export const profileAction = async ({
   });
 };
 
-export type ProfileAction = typeof profileAction;
+export type MemberAction = typeof memberAction;

@@ -1,12 +1,8 @@
-import {
-  SubmissionResult,
-  getFormProps,
-  getInputProps,
-  useForm,
-} from "@conform-to/react";
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import { Form, useNavigation } from "@remix-run/react";
+import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useId } from "react";
+import { ProfileAction } from "~/.server/actions";
 import { User } from "~/api/@types";
 import { Avatar, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -16,13 +12,13 @@ import { profileFormSchema } from "~/schema/profileFormSchema";
 
 interface Props {
   defaultValue?: User;
-  lastResult?: SubmissionResult<string[]> | null;
 }
 
-export function ProfileForm({ defaultValue, lastResult }: Props) {
+export function ProfileForm({ defaultValue }: Props) {
+  const actionData = useActionData<ProfileAction>();
   const [form, { name, photoUrl }] = useForm({
     defaultValue,
-    lastResult,
+    lastResult: actionData?.submission,
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: profileFormSchema });
     },

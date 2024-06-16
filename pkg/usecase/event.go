@@ -69,13 +69,13 @@ func (e *eventUseCase) CreateEvent(c context.Context, uid string, gid string, ev
 		}
 
 		eventCrateResponse.Paymetns = append(eventCrateResponse.Paymetns, struct {
-			ID     string
-			PaidTo string
-			Amount int
+			PaymentId string
+			PaidTo    string
+			Amount    int
 		}{
-			ID:     payment.ID,
-			PaidTo: user.ID,
-			Amount: payment.Amount,
+			PaymentId: payment.ID,
+			PaidTo:    user.ID,
+			Amount:    payment.Amount,
 		})
 	}
 
@@ -111,13 +111,13 @@ func (e *eventUseCase) GetEvent(c context.Context, id string) (*dto.EventRespons
 		}
 
 		eventResponse.Paymetns = append(eventResponse.Paymetns, struct {
-			ID     string
-			PaidTo string
-			Amount int
+			PaymentId string
+			PaidTo    string
+			Amount    int
 		}{
-			ID:     p.ID,
-			PaidTo: user.ID,
-			Amount: p.Amount,
+			PaymentId: p.ID,
+			PaidTo:    user.ID,
+			Amount:    p.Amount,
 		})
 	}
 
@@ -201,13 +201,13 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id string, uid string, gid
 			return nil, err
 		}
 		eventUpdateResponse.Paymetns = append(eventUpdateResponse.Paymetns, struct {
-			ID     string
-			PaidTo string
-			Amount int
+			PaymentId string
+			PaidTo    string
+			Amount    int
 		}{
-			ID:     payment.ID,
-			PaidTo: user.ID,
-			Amount: payment.Amount,
+			PaymentId: payment.ID,
+			PaidTo:    user.ID,
+			Amount:    payment.Amount,
 		})
 	}
 

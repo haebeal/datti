@@ -5,7 +5,7 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { useEffect } from "react";
-import { FriendsAction } from "~/.server/actions";
+import { FriendAction } from "~/.server/actions";
 import { FriendList } from "~/components/FriendList";
 import { FriendRequestForm } from "~/components/FriendRequestForm";
 import { Button } from "~/components/ui/button";
@@ -18,7 +18,7 @@ import {
 } from "~/components/ui/dialog";
 import { useToast } from "~/components/ui/use-toast";
 
-export { friendsAction as action } from "~/.server/actions";
+export { friendAction as action } from "~/.server/actions";
 export { friendsLoader as loader } from "~/.server/loaders";
 
 export default function Friend() {
@@ -29,7 +29,7 @@ export default function Friend() {
 
   const { toast } = useToast();
 
-  const actionData = useActionData<FriendsAction>();
+  const actionData = useActionData<FriendAction>();
   useEffect(() => {
     if (actionData) {
       toast({

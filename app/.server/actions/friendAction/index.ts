@@ -3,7 +3,7 @@ import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 
-export const friendsAction = async ({
+export const friendAction = async ({
   request,
   params,
   context,
@@ -70,4 +70,4 @@ export const friendsAction = async ({
   });
 };
 
-export type FriendsAction = typeof friendsAction;
+export type FriendAction = typeof friendAction;

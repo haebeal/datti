@@ -2,13 +2,13 @@ import { MetaFunction } from "@remix-run/cloudflare";
 import { Await, useActionData, useLoaderData } from "@remix-run/react";
 import { Suspense, useEffect } from "react";
 import { EventAction } from "~/.server/actions";
-import { GroupEventLoader } from "~/.server/loaders";
+import { EventLoader } from "~/.server/loaders";
 import { EventForm } from "~/components/EventForm";
 import { useToast } from "~/components/ui/use-toast";
 import { eventUpdateFormSchema } from "~/schema/eventFormSchema";
 
 export { eventAction as action } from "~/.server/actions";
-export { groupEventLoader as loader } from "~/.server/loaders";
+export { eventLoader as loader } from "~/.server/loaders";
 
 export const meta: MetaFunction = () => [
   { title: "Datti | イベント編集" },
@@ -26,7 +26,7 @@ function LoadingSpinner() {
 export default function EventDetail() {
   const { toast } = useToast();
 
-  const { event } = useLoaderData<GroupEventLoader>();
+  const { event } = useLoaderData<EventLoader>();
   const actionData = useActionData<EventAction>();
   useEffect(() => {
     if (actionData) {

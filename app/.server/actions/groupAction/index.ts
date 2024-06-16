@@ -70,7 +70,7 @@ export const groupAction = async ({
         body: submission.value,
       });
       return json({
-        message: `グループを更新しました`,
+        message: "グループを更新しました",
         submission: submission.reply(),
       });
     } catch (error) {

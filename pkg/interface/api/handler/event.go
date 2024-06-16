@@ -91,6 +91,7 @@ func (e *eventHandler) HandleGet(c echo.Context) error {
 			Name:      event.Name,
 			EventedAt: event.EventedAt,
 			CreatedBy: event.CreatedBy,
+			PaidBy:    event.PaidBy,
 			Amount:    event.Amount,
 			Payments: []struct {
 				PaymentId string `json:"payment_id"`

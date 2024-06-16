@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Event struct {
-	ID        string     `bun:"id"`
+	ID        string     `bun:"id,pk"`
 	Name      string     `bun:"name"`
 	CreatedBy string     `bun:"created_by"`
 	PaidBy    string     `bun:"paid_by,notnull"`

@@ -1,23 +1,11 @@
-import { Form, Link, useLocation, useNavigation } from "@remix-run/react";
+import { Link, useLocation } from "@remix-run/react";
 import { EventEndpoints_EventResponse } from "~/api/@types";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTrigger,
-} from "~/components/ui/alert-dialog";
-import { Button } from "~/components/ui/button";
 
 interface Props {
   event: Pick<EventEndpoints_EventResponse, "id" | "name">;
 }
 
 export function EventCard({ event }: Props) {
-  const { state } = useNavigation();
   const { pathname } = useLocation();
 
   return (
@@ -27,7 +15,7 @@ export function EventCard({ event }: Props) {
     >
       <h1 className="text-lg font-bold mr-auto">{event.name}</h1>
 
-      <AlertDialog>
+      {/* <AlertDialog>
         <AlertDialogTrigger asChild>
           <Button
             disabled={state === "submitting"}
@@ -57,7 +45,7 @@ export function EventCard({ event }: Props) {
             </Form>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
+      </AlertDialog> */}
     </Link>
   );
 }

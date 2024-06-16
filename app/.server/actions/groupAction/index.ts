@@ -66,11 +66,11 @@ export const groupAction = async ({
       });
     }
     try {
-      const { name } = await client.groups._groupId(groupId).$put({
+      await client.groups._groupId(groupId).$put({
         body: submission.value,
       });
       return json({
-        message: `グループ名を${name}に更新しました`,
+        message: `グループを更新しました`,
         submission: submission.reply(),
       });
     } catch (error) {

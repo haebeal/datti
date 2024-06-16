@@ -1,5 +1,10 @@
 package response
 
+type Group struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type Groups struct {
 	Groups []struct {
 		ID   string `json:"id"`

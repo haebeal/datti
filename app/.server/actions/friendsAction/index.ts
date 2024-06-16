@@ -13,10 +13,15 @@ export const friendsAction = async ({
 
   const formData = await request.formData();
 
-  const userId = formData.get("uid")?.toString();
-
   // フレンド申請処理
-  if (request.method === "POST" && userId) {
+  if (request.method === "POST") {
+    const userId = formData.get("uid")?.toString();
+    if (userId === undefined) {
+      return json({
+        message: "ユーザーIDの取得に失敗しました",
+        submission: undefined,
+      });
+    }
     try {
       const { message } = await client.users._userId(userId).requests.$post();
       return json({
@@ -34,7 +39,14 @@ export const friendsAction = async ({
   }
 
   // フレンド削除、申請取り消し・却下処理
-  if (request.method === "DELETE" && userId) {
+  if (request.method === "DELETE") {
+    const userId = formData.get("uid")?.toString();
+    if (userId === undefined) {
+      return json({
+        message: "ユーザーIDの取得に失敗しました",
+        submission: undefined,
+      });
+    }
     try {
       await client.users._userId(userId).requests.$post();
       const { message } = await client.users.friends._userId(userId).$delete();

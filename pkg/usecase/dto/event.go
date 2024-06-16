@@ -39,9 +39,9 @@ type EventResponse struct {
 	PaidBy    string
 	Amount    int
 	Paymetns  []struct {
-		ID     string
-		PaidTo string
-		Amount int
+		PaymentId string
+		PaidTo    string
+		Amount    int
 	}
 	GroupId string
 }

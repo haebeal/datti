@@ -6,11 +6,11 @@
     "compile": "tsp compile .",
     "compile:watch": "tsp compile . --watch"
   },
-  "dependencies": {
-    "@typespec/compiler": "latest",
-    "@typespec/http": "latest",
-    "@typespec/rest": "latest",
-    "@typespec/openapi3": "latest"
+  "devDependencies": {
+    "@typespec/compiler": "^0.57.0",
+    "@typespec/http": "^0.57.0",
+    "@typespec/rest": "^0.57.0",
+    "@typespec/openapi3": "^0.57.0"
   },
   "private": true
 }

@@ -15,8 +15,8 @@ namespace UserEndpoints {
    */
   @summary("メールアドレスによるユーザー情報の取得")
   @get
-  op getUserByEmail(@query email?: string, @query status?:string):
-  | UsersResponse
+  op getUserByEmail(@query email?: string, @query status?: Utils.Alias.Status):
+  | UsersGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -27,7 +27,7 @@ namespace UserEndpoints {
   @summary("ユーザー情報（自分）の取得")
   @get()
   op getMe():
-  | User
+  | UserGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
   
@@ -37,8 +37,8 @@ namespace UserEndpoints {
   @route("me")
   @summary("ユーザー情報（自分）の更新")
   @put
-  op updateMe(...UserUpdateRequest):
-  | User
+  op updateMe(...UserPutRequest):
+  | UserGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -49,7 +49,7 @@ namespace UserEndpoints {
   @route("{userId}")
   @get()
   op getUserByUid(@path userId: string):
-  | User
+  | UserGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -85,6 +85,51 @@ namespace UserEndpoints {
   | Utils.Response.OKMessage
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
+
+  model UserGetResponse {
+    ...User;
+  }
+  model UsersGetResponse {
+    users: User[];
+  }
+  
+  model UserPutRequest{
+    /**
+     * ユーザー名
+     */
+    name: string;
+  
+    /**
+     * 画像URL
+     */
+    photoUrl: string;
+  }
+  
+  model Friends {
+    users: {
+      /**
+       * ユーザーID
+       */
+      @minLength(28)
+      @maxLength(28)
+      uid: string;
+    
+      /**
+       * ユーザー名
+       */
+      name: string;
+    
+      /**
+       * メールアドレス
+       */
+      email: string;
+    
+      /**
+       * 画像URL
+       */
+      photoUrl: string;
+    }[]
+  }
 }
 
 model User {
@@ -113,47 +158,5 @@ model User {
   /**
    * フレンド状態のステータス
    */
-  status: "me" | "applying" | "requesting" | "none";
-}
-
-model UsersResponse {
-  users: User[];
-}
-
-model UserUpdateRequest{
-  /**
-   * ユーザー名
-   */
-  name: string;
-
-  /**
-   * 画像URL
-   */
-  photoUrl: string;
-}
-
-model Friends {
-  users: {
-    /**
-     * ユーザーID
-     */
-    @minLength(28)
-    @maxLength(28)
-    uid: string;
-  
-    /**
-     * ユーザー名
-     */
-    name: string;
-  
-    /**
-     * メールアドレス
-     */
-    email: string;
-  
-    /**
-     * 画像URL
-     */
-    photoUrl: string;
-  }[]
+  status: Utils.Alias.Status;
 }

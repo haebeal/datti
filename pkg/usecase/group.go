@@ -11,7 +11,7 @@ type GroupUseCase interface {
 	GetGroups(c context.Context, uid string) ([]*model.Group, error)
 	CreateGroup(c context.Context, name string, owner string, members []string) (*model.Group, []*model.User, error)
 	GetGroupById(c context.Context, id string) (*model.Group, error)
-	GetMembers(c context.Context, id string, uid string) ([]*model.User, []*string, error)
+	GetMembers(c context.Context, id string, uid string, status string) ([]*model.User, []*string, error)
 	UpdateGroup(c context.Context, id string, name string) (*model.Group, []*model.User, error)
 	RegisterdMembers(c context.Context, id string, members []string) (*model.Group, []*model.User, error)
 }
@@ -67,7 +67,7 @@ func (g *groupUseCase) GetGroupById(c context.Context, id string) (*model.Group,
 }
 
 // GetMembers implements GroupUseCase.
-func (g *groupUseCase) GetMembers(c context.Context, id string, uid string) ([]*model.User, []*string, error) {
+func (g *groupUseCase) GetMembers(c context.Context, id string, uid string, status string) ([]*model.User, []*string, error) {
 	group, err := g.groupRepository.GetGroupById(c, id)
 	if err != nil {
 		return nil, nil, err
@@ -83,15 +83,22 @@ func (g *groupUseCase) GetMembers(c context.Context, id string, uid string) ([]*
 		if err != nil {
 			return nil, nil, err
 		}
-		status, err := g.friendRepository.GetStatus(c, uid, groupUser.UserID)
+
+		s, err := g.friendRepository.GetStatus(c, uid, groupUser.UserID)
 		if err != nil {
 			return nil, nil, err
 		}
-		statuses = append(statuses, &status)
-		users = append(users, user)
-	}
 
-	// メンバーのステータスを取得
+		if status != "" {
+			if s == status {
+				statuses = append(statuses, &s)
+				users = append(users, user)
+			}
+		} else {
+			statuses = append(statuses, &s)
+			users = append(users, user)
+		}
+	}
 
 	return users, statuses, nil
 }

@@ -56,7 +56,7 @@ func (e *eventHandler) HandleCreate(c echo.Context) error {
 				PaidTo    string `json:"paid_to"`
 				Amount    int    `json:"amount"`
 			}{
-				PaymentId: p.ID,
+				PaymentId: p.PaymentId,
 				PaidTo:    p.PaidTo,
 				Amount:    p.Amount,
 			}
@@ -86,7 +86,20 @@ func (e *eventHandler) HandleGet(c echo.Context) error {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, event)
+		res := response.Event{
+			ID:        event.ID,
+			Name:      event.Name,
+			EventedAt: event.EventedAt,
+			CreatedBy: event.CreatedBy,
+			Amount:    event.Amount,
+			Payments: []struct {
+				PaymentId string `json:"payment_id"`
+				PaidTo    string `json:"paid_to"`
+				Amount    int    `json:"amount"`
+			}(event.Paymetns),
+			GroupId: event.GroupId,
+		}
+		return c.JSON(http.StatusOK, res)
 	}
 }
 
@@ -206,7 +219,7 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 				PaidTo    string `json:"paid_to"`
 				Amount    int    `json:"amount"`
 			}{
-				PaymentId: p.ID,
+				PaymentId: p.PaymentId,
 				PaidTo:    p.PaidTo,
 				Amount:    p.Amount,
 			}

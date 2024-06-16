@@ -8,10 +8,19 @@ export const eventLoader = async ({
   context,
 }: LoaderFunctionArgs) => {
   const groupId = params.groupId;
-  const eventId = params.eventId;
+  if (groupId === undefined) {
+    throw new Response("グループIDの取得に失敗しました", {
+      status: 400,
+      statusText: "Bad Request",
+    });
+  }
 
-  if (typeof groupId !== "string" || typeof eventId !== "string") {
-    throw new Error("Not Found Event");
+  const eventId = params.eventId;
+  if (eventId === undefined) {
+    throw new Response("イベントIDの取得に失敗しました", {
+      status: 400,
+      statusText: "Bad Request",
+    });
   }
 
   const { idToken } = await getIdToken({ request, params, context });

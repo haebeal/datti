@@ -1,3 +1,4 @@
+import { HTTPError } from "@aspida/fetch";
 import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createClient } from "~/lib/apiClient";
@@ -12,58 +13,94 @@ export const groupEventsAction = async ({
   params,
   context,
 }: ActionFunctionArgs) => {
-  const formData = await request.formData();
-
-  const groupId = params.groupId;
-  if (typeof groupId !== "string") {
-    throw new Error();
-  }
-
   const { idToken } = await getIdToken({ request, params, context });
   const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
 
-  // イベント作成
+  const formData = await request.formData();
+
+  // イベント作成処理
   if (request.method === "POST") {
     const submission = parseWithZod(formData, {
       schema: eventCreateFormSchema,
     });
-
     if (submission.status !== "success") {
       return json({
-        message: "Error!",
+        message: "バリデーションに失敗しました",
         submission: submission.reply(),
       });
     }
-    await client.groups._groupId(groupId).events.$post({
-      body: submission.value,
-    });
-    return json({
-      message: "Success!",
-      submission: submission.reply(),
-    });
+    const groupId = params.groupId;
+    if (groupId === undefined) {
+      return json({
+        message: "グループIDの取得に失敗しました",
+        submission: submission.reply(),
+      });
+    }
+    try {
+      const { name } = await client.groups._groupId(groupId).events.$post({
+        body: submission.value,
+      });
+      return json({
+        message: `${name}を作成しました`,
+        submission: submission.reply(),
+      });
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw new Response(error.message, {
+          status: error.response.status,
+          statusText: error.response.statusText,
+        });
+      }
+    }
   }
 
-  // イベント更新
+  // イベント更新処理
   if (request.method === "PUT") {
     const submission = parseWithZod(formData, {
       schema: eventUpdateFormSchema,
     });
-
     if (submission.status !== "success") {
       return json({
-        message: "Error!",
+        message: "バリデーションに失敗しました",
         submission: submission.reply(),
       });
     }
-
-    await client.groups._groupId(groupId).events.$post({
-      body: submission.value,
-    });
-    return json({
-      message: "Success!",
-      submission: submission.reply(),
-    });
+    const groupId = params.groupId;
+    if (groupId === undefined) {
+      return json({
+        message: "グループIDの取得に失敗しました",
+        submission: submission.reply(),
+      });
+    }
+    const eventId = params.eventId;
+    if (eventId === undefined) {
+      return json({
+        message: "イベントIDの取得に失敗しました",
+        submission: submission.reply(),
+      });
+    }
+    try {
+      await client.groups._groupId(groupId).events._eventId(eventId).$put({
+        body: submission.value,
+      });
+      return json({
+        message: "イベントを更新しました",
+        submission: submission.reply(),
+      });
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw new Response(error.message, {
+          status: error.response.status,
+          statusText: error.response.statusText,
+        });
+      }
+    }
   }
+
+  throw new Response("不明なエラーが発生しました", {
+    status: 500,
+    statusText: "Internal Server Error",
+  });
 };
 
 export type GroupEventsAction = typeof groupEventsAction;

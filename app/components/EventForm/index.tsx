@@ -1,5 +1,4 @@
 import {
-  SubmissionResult,
   getFormProps,
   getInputProps,
   useForm,
@@ -7,9 +6,16 @@ import {
 } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import { Await, Form, useLoaderData, useNavigation } from "@remix-run/react";
+import {
+  Await,
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from "@remix-run/react";
 import { format } from "date-fns";
 import { Suspense, useId } from "react";
+import { GroupEventsAction } from "~/.server/actions";
 import { GroupEventsLoader } from "~/.server/loaders";
 import {
   EventEndpoints_EventPostRequest,
@@ -34,16 +40,15 @@ interface Props {
   defaultValue?: Partial<
     EventEndpoints_EventPostRequest | EventEndpoints_EventPutRequest
   >;
-  lastResult?: SubmissionResult<string[]> | null | undefined;
   method: "post" | "put";
 }
 
-export function EventForm({ defaultValue, lastResult, method }: Props) {
+export function EventForm({ defaultValue, method }: Props) {
   const { members } = useLoaderData<GroupEventsLoader>();
-
+  const actionData = useActionData<GroupEventsAction>();
   const [form, { name, evented_at, amount, payments }] = useForm({
     defaultValue,
-    lastResult,
+    lastResult: actionData?.submission,
     onValidate({ formData }) {
       return parseWithZod(formData, {
         schema:

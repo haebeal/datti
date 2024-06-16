@@ -1,9 +1,10 @@
 import { MetaFunction } from "@remix-run/cloudflare";
 import { Await, useActionData, useLoaderData } from "@remix-run/react";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { GroupEventsAction } from "~/.server/actions";
 import { GroupEventLoader } from "~/.server/loaders";
 import { EventForm } from "~/components/EventForm";
+import { useToast } from "~/components/ui/use-toast";
 import { eventUpdateFormSchema } from "~/schema/eventFormSchema";
 
 export { groupEventsAction as action } from "~/.server/actions";
@@ -23,8 +24,17 @@ function LoadingSpinner() {
 }
 
 export default function EventDetail() {
+  const { toast } = useToast();
+
   const { event } = useLoaderData<GroupEventLoader>();
-  const lastResult = useActionData<GroupEventsAction>();
+  const actionData = useActionData<GroupEventsAction>();
+  useEffect(() => {
+    if (actionData) {
+      toast({
+        title: actionData.message,
+      });
+    }
+  }, [actionData, toast]);
 
   return (
     <div className="flex flex-col py-3 gap-7">
@@ -38,7 +48,6 @@ export default function EventDetail() {
               {(event) => (
                 <EventForm
                   defaultValue={eventUpdateFormSchema.parse(event)}
-                  lastResult={lastResult?.submission}
                   method="put"
                 />
               )}

@@ -10,7 +10,7 @@ export function MemberAddForm() {
   const { state } = useNavigation();
   const searchParams = new URLSearchParams(search);
 
-  const searchQuery = searchParams.get("q") ?? undefined;
+  const searchQuery = searchParams.get("q")?.toString();
   const searchId = useId();
 
   return (

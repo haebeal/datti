@@ -22,7 +22,7 @@ export function FriendCard({ friend }: Props) {
   const { state } = useNavigation();
   const searchParams = new URLSearchParams(search);
 
-  const status = searchParams.get("status");
+  const status = searchParams.get("status")?.toString();
 
   return (
     <div className="flex flex-row  w-full bg-white px-6 py-5 gap-5 items-center rounded-md border border-gray-200">

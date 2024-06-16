@@ -17,7 +17,7 @@ export function FriendList() {
   const { search } = useLocation();
   const searchParams = new URLSearchParams(search);
 
-  const status = searchParams.get("status");
+  const status = searchParams.get("status")?.toString();
 
   return (
     <div className="w-full min-h-[60vh]">

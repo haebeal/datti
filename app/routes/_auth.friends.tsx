@@ -16,8 +16,7 @@ export { friendsLoader as loader } from "~/.server/loaders";
 export default function Friend() {
   const { state } = useNavigation();
   const [searchParams] = useSearchParams();
-
-  const status = searchParams.get("status");
+  const status = searchParams.get("status")?.toString();
 
   return (
     <div className="flex flex-col py-3 gap-7">

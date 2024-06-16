@@ -8,15 +8,18 @@ export const eventsLoader = async ({
   context,
 }: LoaderFunctionArgs) => {
   const groupId = params.groupId;
-  if (!groupId) {
-    throw new Error("Not Found Group");
+  if (groupId === undefined) {
+    throw new Response("グループIDの取得に失敗しました", {
+      status: 400,
+      statusText: "Bad Request",
+    });
   }
 
   const { idToken } = await getIdToken({ request, params, context });
   const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
 
-  const members = client.groups._groupId(groupId).members.$get();
   const events = client.groups._groupId(groupId).events.$get();
+  const members = client.groups._groupId(groupId).members.$get();
 
   return defer({ members, events });
 };

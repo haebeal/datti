@@ -25,7 +25,7 @@ type RefreshResponse = {
   project_id: string;
 };
 
-export const signInFirebase = async (
+export const signInFirebaseWithGoogle = async (
   clientUrl: string,
   tenantId: string,
   apiKey: string,

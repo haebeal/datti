@@ -1,6 +1,6 @@
 import { LoaderFunctionArgs, redirect } from "@remix-run/cloudflare";
 import { getAuthSessionStorage } from "~/lib/authSession.server";
-import { signInFirebase } from "~/lib/oauthClient.server";
+import { signInFirebaseWithGoogle } from "~/lib/oauthClient.server";
 
 type TokenResponse = {
   id_token: string;
@@ -31,13 +31,13 @@ export const loader = async ({ request, context }: LoaderFunctionArgs) => {
     });
   }
 
-  const dt = new Date();
-  const { idToken, refreshToken, expiresIn } = await signInFirebase(
+  const { idToken, refreshToken, expiresIn } = await signInFirebaseWithGoogle(
     context.cloudflare.env.CLIENT_URL,
     context.cloudflare.env.FIREBASE_TENANT_ID,
     context.cloudflare.env.FIREBASE_API_KEY,
     tokens.id_token
   );
+  const dt = new Date();
   dt.setSeconds(dt.getSeconds() + Number(expiresIn));
 
   const authSessionStorage = getAuthSessionStorage(context);

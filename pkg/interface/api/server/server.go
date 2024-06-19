@@ -62,7 +62,6 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.GET("/users/me", userHandler.HandleGetByUid)
 	r.PUT("/users/me", userHandler.HandleUpdate)
 	r.GET("/users/:uid", userHandler.HandleGetByUidWithPahtParam)
-	r.GET("/users/friends", userHandler.HandleGetFriends)            //フレンドを取得
 	r.POST("/users/:uid/requests", userHandler.HandlerFriendRequest) //フレンド申請を送信
 	r.DELETE("/users/friends/:uid", userHandler.HandleDeleteFriend)  //フレンド登録の解除
 

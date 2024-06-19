@@ -14,7 +14,6 @@ type UserUseCase interface {
 	GetUsersByEmail(c context.Context, uid string, email string, status string) ([]*model.User, []string, error)
 	GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error)
 	UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error)
-	GetFriends(c context.Context, uid string) ([]*model.User, error)
 	SendFriendRequest(c context.Context, uid string, fuid string) error
 	DeleteFriend(c context.Context, uid string, fuid string) error
 }
@@ -100,28 +99,6 @@ func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url
 	}
 
 	return user, nil
-}
-
-// GetFriends implements FriendUseCase.
-func (u *userUseCase) GetFriends(c context.Context, uid string) ([]*model.User, error) {
-	v, err := u.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
-		return u.friendRepository.GetFriends(c, uid)
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	friends := v.([]*model.Friend)
-	users := make([]*model.User, 0)
-	for _, friend := range friends {
-		user, err := u.userRepository.GetUserByUid(c, friend.UID)
-		if err != nil {
-			return nil, err
-		}
-
-		users = append(users, user)
-	}
-	return users, nil
 }
 
 // SendFriendRequest implements FriendUseCase.

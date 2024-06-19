@@ -13,7 +13,7 @@ namespace UserEndpoints {
   /**
    * メールアドレスによるユーザー情報の取得
    */
-  @summary("メールアドレスによるユーザー情報の取得")
+  @summary("ユーザー情報の取得")
   @get
   op getUserByEmail(@query email?: string, @query status?: Utils.Alias.Status):
   | UsersGetResponse
@@ -61,17 +61,6 @@ namespace UserEndpoints {
   @post
   op friendRequest(@path userId: string):
   | Utils.Response.CreatedMessage
-  | Utils.Error.UnauthorizedError
-  | Utils.Error.InternalServerError;
-
-  /**
-   * フレンドのユーザーを取得
-   */
-  @route("friends")
-  @summary("フレンドのユーザーを取得")
-  @get
-  op getFriend():
-  | Friends
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 

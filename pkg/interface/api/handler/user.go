@@ -16,7 +16,6 @@ type UserHandler interface {
 	HandleGetByUidWithPahtParam(c echo.Context) error
 	HandleGetByEmail(c echo.Context) error
 	HandleUpdate(c echo.Context) error
-	HandleGetFriends(c echo.Context) error
 	HandlerFriendRequest(c echo.Context) error
 	HandleDeleteFriend(c echo.Context) error
 }
@@ -130,22 +129,6 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 		res.Name = user.Name
 		res.Email = user.Email
 		res.PhotoUrl = user.PhotoUrl
-		return c.JSON(http.StatusOK, res)
-	}
-}
-
-// HandleGetFriends implements FriendHandler.
-func (u *userHandler) HandleGetFriends(c echo.Context) error {
-	errResponse := new(response.Error)
-	res := new(response.Users)
-	uid := c.Get("uid").(string)
-
-	users, err := u.useCase.GetFriends(c.Request().Context(), uid)
-	if err != nil {
-		errResponse.Error = err.Error()
-		return c.JSON(http.StatusInternalServerError, errResponse)
-	} else {
-		res.Users = users
 		return c.JSON(http.StatusOK, res)
 	}
 }

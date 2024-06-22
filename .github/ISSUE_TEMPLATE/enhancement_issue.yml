@@ -1,0 +1,33 @@
+name: 機能要望
+description: 機能要望を挙げるissueテンプレート
+labels:
+  - enhancement
+body:
+  - type: checkboxes
+    id: method
+    attributes:
+      label: 対象メソッド
+      options:
+        - label: GET
+        - label: POST
+        - label: PUT
+        - label: DELETE
+
+  - type: input
+    attributes:
+      label: 対象エンドポイント
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 詳細内容
+      description: |
+        - 詳細な要望内容がわかるよう, できるだけスクリーンショット等のエビデンスを添付して記載してください
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 対応方針
+      description: 対応方針が決まっている場合は記載してください

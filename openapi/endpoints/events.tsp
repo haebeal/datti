@@ -57,13 +57,13 @@ namespace EventEndpoints {
   /**
    * イベント情報の削除
    */
-  // @route("events/{eventId}")
-  // @summary("イベント情報の削除")
-  // @delete
-  // op deleteEvent(@path groupId: string, @path eventId:string):
-  // | Utils.Response.OKMessage
-  // | Utils.Error.UnauthorizedError
-  // | Utils.Error.InternalServerError;
+  @route("events/{eventId}")
+  @summary("イベント情報の削除")
+  @delete
+  op deleteEvent(@path groupId: string, @path eventId:string):
+  | Utils.Response.OKMessage
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
 
   model EventPostRequest {
     /**

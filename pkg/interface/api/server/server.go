@@ -44,7 +44,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	paymentHandler := handler.NewPaymentHandler(paymentUseCase)
 
 	eventRepository := repositoryimpl.NewEventRepository(dbClient)
-	eventUseCase := usecase.NewEventUseCase(eventRepository, userRepository, groupRepository, paymentRepository, transaction)
+	eventUseCase := usecase.NewEventUseCase(eventRepository, userRepository, groupRepository, groupUserRepository, paymentRepository, transaction)
 	eventHandler := handler.NewEventHandler(eventUseCase)
 
 	r := echo.New()
@@ -76,6 +76,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.GET("/groups/:gid/events/:id", eventHandler.HandleGet)
 	r.POST("/groups/:groupId/events", eventHandler.HandleCreate) //イベントの作成
 	r.PUT("/groups/:gid/events/:id", eventHandler.HandleUpdate)
+	r.DELETE("/groups/:groupId/events/:eventId", eventHandler.HandleDelete)
 
 	r.GET("/payments", paymentHandler.HandleGet)
 	r.POST("/payments", paymentHandler.HandleCreate)

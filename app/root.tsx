@@ -12,6 +12,11 @@ import stylesheet from "~/globals.css?url";
 
 export const links: LinksFunction = () => [
   {
+    rel: "icon",
+    href: "/favicon.svg",
+    type: "image/png",
+  },
+  {
     rel: "stylesheet",
     href: stylesheet,
   },

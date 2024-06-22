@@ -8,7 +8,7 @@ import {
 import { Suspense, useEffect, useState } from "react";
 import { EventAction } from "~/.server/actions";
 import { EventsLoader } from "~/.server/loaders";
-import { EventForm } from "~/components/EventForm";
+import { EventCreateForm } from "~/components/EventCreateForm";
 import { EventList } from "~/components/EventList";
 import { Button } from "~/components/ui/button";
 import {
@@ -57,7 +57,7 @@ export default function GroupEvents() {
             <Suspense fallback={<p>loading...</p>}>
               <Await resolve={members}>
                 {({ members }) => (
-                  <EventForm
+                  <EventCreateForm
                     defaultValue={{
                       payments: members
                         .filter(({ status }) => status !== "me")
@@ -66,7 +66,6 @@ export default function GroupEvents() {
                           amount: 0,
                         })),
                     }}
-                    method="post"
                   />
                 )}
               </Await>

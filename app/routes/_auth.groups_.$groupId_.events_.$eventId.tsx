@@ -3,9 +3,8 @@ import { Await, useActionData, useLoaderData } from "@remix-run/react";
 import { Suspense, useEffect } from "react";
 import { EventAction } from "~/.server/actions";
 import { EventLoader } from "~/.server/loaders";
-import { EventForm } from "~/components/EventForm";
+import { EventUpdateForm } from "~/components/EventUpdateForm";
 import { useToast } from "~/components/ui/use-toast";
-import { eventUpdateFormSchema } from "~/schema/eventFormSchema";
 
 export { eventAction as action } from "~/.server/actions";
 export { eventLoader as loader } from "~/.server/loaders";
@@ -45,12 +44,7 @@ export default function EventDetail() {
         <div className="flex flex-col py-3 gap-7">
           <Suspense fallback={<LoadingSpinner />}>
             <Await resolve={event}>
-              {(event) => (
-                <EventForm
-                  defaultValue={eventUpdateFormSchema.parse(event)}
-                  method="put"
-                />
-              )}
+              {(event) => <EventUpdateForm defaultValue={event} />}
             </Await>
           </Suspense>
         </div>

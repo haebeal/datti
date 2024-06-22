@@ -1,6 +1,7 @@
 import {
   getFormProps,
   getInputProps,
+  getSelectProps,
   useForm,
   useInputControl,
 } from "@conform-to/react";
@@ -16,11 +17,8 @@ import {
 import { format } from "date-fns";
 import { Suspense, useId } from "react";
 import { EventAction } from "~/.server/actions";
-import { EventsLoader } from "~/.server/loaders";
-import {
-  EventEndpoints_EventPostRequest,
-  EventEndpoints_EventPutRequest,
-} from "~/api/@types";
+import { EventLoader } from "~/.server/loaders";
+import { EventEndpoints_EventPostRequest } from "~/api/@types";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { Input } from "~/components/ui/input";
@@ -30,29 +28,29 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { cn } from "~/lib/utils";
 import {
-  eventCreateFormSchema,
-  eventUpdateFormSchema,
-} from "~/schema/eventFormSchema";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "~/components/ui/select";
+import { cn } from "~/lib/utils";
+import { eventCreateFormSchema } from "~/schema/eventFormSchema";
 
 interface Props {
-  defaultValue?: Partial<
-    EventEndpoints_EventPostRequest | EventEndpoints_EventPutRequest
-  >;
-  method: "post" | "put";
+  defaultValue?: Partial<EventEndpoints_EventPostRequest>;
 }
 
-export function EventForm({ defaultValue, method }: Props) {
-  const { members } = useLoaderData<EventsLoader>();
+export function EventCreateForm({ defaultValue }: Props) {
+  const { members } = useLoaderData<EventLoader>();
   const actionData = useActionData<EventAction>();
-  const [form, { name, evented_at, amount, payments }] = useForm({
+  const [form, { name, evented_at, amount, payments, paid_by }] = useForm({
     defaultValue,
     lastResult: actionData?.submission,
     onValidate({ formData }) {
       return parseWithZod(formData, {
-        schema:
-          method === "post" ? eventCreateFormSchema : eventUpdateFormSchema,
+        schema: eventCreateFormSchema,
       });
     },
   });
@@ -63,13 +61,14 @@ export function EventForm({ defaultValue, method }: Props) {
 
   const nameId = useId();
   const eventedAtId = useId();
+  const paidById = useId();
   const amountId = useId();
   const burdenId = useId();
 
   return (
     <Form
-      method={method}
       {...getFormProps(form)}
+      method="post"
       className="flex flex-col gap-8 items-center col-span-4"
     >
       <div className="w-full">
@@ -119,6 +118,34 @@ export function EventForm({ defaultValue, method }: Props) {
         <p>{evented_at.errors?.toString()}</p>
       </div>
       <div className="w-full">
+        <Label htmlFor={paidById}>支払った人</Label>
+        <Select
+          {...getSelectProps(paid_by)}
+          defaultValue={paid_by.value}
+          disabled={state !== "idle"}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="ユーザーを選択" />
+          </SelectTrigger>
+          <SelectContent>
+            <Suspense>
+              <Await resolve={members}>
+                {({ members }) => (
+                  <>
+                    {members.map((member) => (
+                      <SelectItem key={member.uid} value={member.uid}>
+                        {member.name}
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
+              </Await>
+            </Suspense>
+          </SelectContent>
+        </Select>
+        <p>{paid_by.errors?.toString()}</p>
+      </div>
+      <div className="w-full">
         <Label htmlFor={amountId}>支払い額</Label>
         <Input
           {...getInputProps(amount, { type: "number" })}
@@ -158,12 +185,11 @@ export function EventForm({ defaultValue, method }: Props) {
                       )?.name
                     }
                   </Label>
-
                   <input
                     {...getInputProps(payment.getFieldset().paid_to, {
                       type: "hidden",
                     })}
-                    key={payment.getFieldset().amount.id}
+                    key={payment.getFieldset().paid_to.id}
                   />
                   <Input
                     {...getInputProps(payment.getFieldset().amount, {
@@ -185,7 +211,7 @@ export function EventForm({ defaultValue, method }: Props) {
         className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
         disabled={state !== "idle"}
       >
-        {method === "post" ? "作成" : "更新"}
+        作成
       </Button>
     </Form>
   );

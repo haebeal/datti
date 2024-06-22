@@ -19,12 +19,6 @@ type EventCreateRequest struct {
 	GroupId string `json:"group_id"`
 }
 
-type PaymentUsers struct {
-	ID     string `json:"payment_id"`
-	PaidTo string `josn:"user"`
-	Amount int    `json:"amount"`
-}
-
 func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
 	payments := make([]struct {
 		PaidTo string
@@ -61,4 +55,10 @@ type EventUpdateRequest struct {
 	Amount    int            `json:"amount"`
 	Payments  []PaymentUsers `json:"payments"`
 	GroupId   string         `json:"group_id"`
+}
+
+type PaymentUsers struct {
+	ID     string `json:"payment_id,omitempty"`
+	PaidTo string `json:"paid_to"`
+	Amount int    `json:"amount"`
 }

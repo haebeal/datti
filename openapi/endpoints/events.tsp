@@ -120,7 +120,7 @@ namespace EventEndpoints {
      * 立て替えてもらったユーザー
      */
     payments: {
-      payment_id: string;
+      payment_id?: string;
       paid_to:string;
       amount: integer;
     }[];

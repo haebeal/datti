@@ -187,6 +187,7 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id string, uid string, gid
 		ID:        event.ID,
 		Name:      event.Name,
 		EventedAt: event.EventedAt,
+		CreatedBy: event.CreatedBy,
 		PaidBy:    event.PaidBy,
 		Amount:    event.Amount,
 		GroupId:   event.GroupId,
@@ -194,14 +195,28 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id string, uid string, gid
 
 	//支払いテーブルのレコードを更新
 	for _, p := range eventUpdate.Payments {
-		payment, err := e.paymentRepository.UpdatePayment(c, event.ID, p.PaymentID, event.PaidBy, p.PaidTo, event.EventedAt, p.Amount)
-		if err != nil {
-			return nil, err
+		payment := &model.Payment{}
+
+		// 新しく登録されユーザーか判定
+		if p.PaymentID == "" {
+			// 支払い情報を新規で登録
+			payment, err = e.paymentRepository.CreatePayment(c, event.ID, p.PaidTo, event.PaidBy, event.EventedAt, p.Amount)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			// 支払い情報を更新
+			payment, err = e.paymentRepository.UpdatePayment(c, event.ID, p.PaymentID, p.PaidTo, event.PaidBy, event.EventedAt, p.Amount)
+			if err != nil {
+				return nil, err
+			}
 		}
+
 		user, err := e.userRepository.GetUserByUid(c, payment.PaidTo)
 		if err != nil {
 			return nil, err
 		}
+
 		eventUpdateResponse.Paymetns = append(eventUpdateResponse.Paymetns, struct {
 			PaymentId string
 			PaidTo    string

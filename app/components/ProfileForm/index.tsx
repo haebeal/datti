@@ -57,6 +57,7 @@ export function ProfileForm({ defaultValue }: Props) {
           <Label htmlFor={nameId}>ユーザー名</Label>
           <Input
             {...getInputProps(name, { type: "text" })}
+            data-1p-ignore
             id={nameId}
             disabled={state !== "idle"}
             placeholder="ユーザー名を入力"

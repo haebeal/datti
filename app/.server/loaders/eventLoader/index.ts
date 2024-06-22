@@ -27,8 +27,9 @@ export const eventLoader = async ({
   const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
 
   const event = client.groups._groupId(groupId).events._eventId(eventId).$get();
+  const members = client.groups._groupId(groupId).members.$get();
 
-  return defer({ event });
+  return defer({ event, members });
 };
 
 export type EventLoader = typeof eventLoader;

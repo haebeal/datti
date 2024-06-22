@@ -76,6 +76,7 @@ export function EventForm({ defaultValue, method }: Props) {
         <Label htmlFor={nameId}>イベント名</Label>
         <Input
           {...getInputProps(name, { type: "text" })}
+          data-1p-ignore
           placeholder="イベント名を入力"
           disabled={state !== "idle"}
           id={nameId}

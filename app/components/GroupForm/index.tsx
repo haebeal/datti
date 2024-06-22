@@ -40,6 +40,7 @@ export function GroupForm({ defaultValue, method }: Props) {
           <Label htmlFor={nameId}>グループ名</Label>
           <Input
             {...getInputProps(name, { type: "text" })}
+            data-1p-ignore
             placeholder="グループ名を入力"
             disabled={state !== "idle"}
             id={nameId}

@@ -169,15 +169,24 @@ func (p *paymentRepositoryImpl) UpdatePayment(c context.Context, eventId string,
 	payment.PaidAt = paidAt
 	payment.Amount = amount
 
+	//　テーブルの更新
 	_, err := p.DBEngine.Client.NewUpdate().
 		Model(payment).
 		Column("paid_by", "paid_to", "paid_at", "amount").
-		Where("evented_by = ? AND ", eventId).
+		Where("evented_by = ? ", eventId).
 		Exec(c)
 	if err != nil {
 		return nil, err
 	}
 
+	// 更新したレコードの取得
+	err = p.DBEngine.Client.NewSelect().
+		Table("payments").
+		Where("id = ?", id).
+		Scan(c, payment)
+	if err != nil {
+		return nil, err
+	}
 	return payment, nil
 }
 

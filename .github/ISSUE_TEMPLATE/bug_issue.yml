@@ -1,0 +1,21 @@
+name: バグ報告
+description: バグを報告するissueテンプレート
+labels:
+  - bug
+body:
+  - type: input
+    attributes:
+      label: 対象ページ
+
+  - type: textarea
+    attributes:
+      label: 詳細内容
+      description: |
+        - 詳細なバグ内容がわかるよう, できるだけスクリーンショット等のエビデンスを添付して事実ベースで記載してください
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 対応方針
+      description: 対応方針が決まっている場合は記載してください

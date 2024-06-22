@@ -16,6 +16,7 @@ type EventHandler interface {
 	HandleGetById(c echo.Context) error
 	HandleCreate(c echo.Context) error
 	HandleUpdate(c echo.Context) error
+	HandleDelete(c echo.Context) error
 }
 
 type eventHandler struct {
@@ -237,6 +238,23 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 			GroupId:   event.GroupId,
 		}
 		return c.JSON(http.StatusOK, res)
+	}
+}
+
+func (e *eventHandler) HandleDelete(c echo.Context) error {
+	userID := c.Get("uid").(string)
+	groupID := c.Param("groupId")
+	eventID := c.Param("eventId")
+
+	err := e.useCase.DeleteEvent(c.Request().Context(), groupID, eventID, userID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		return c.JSON(http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "delete successfully",
+		})
 	}
 }
 

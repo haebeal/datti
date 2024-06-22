@@ -14,14 +14,16 @@ type EventUseCase interface {
 	UpdateEvent(c context.Context, id string, uid string, gid string, eventRequest *dto.EventUpdate) (*dto.EventResponse, error)
 	GetEvent(c context.Context, id string) (*dto.EventResponse, error)
 	GetEvents(c context.Context, gid string) (*dto.Events, error)
+	DeleteEvent(c context.Context, groupID string, eventID string, userID string) error
 }
 
 type eventUseCase struct {
-	eventRepository   repository.EventRepository
-	userRepository    repository.UserRepository
-	groupRepository   repository.GroupRepository
-	paymentRepository repository.PaymentRepository
-	transaction       repository.Transaction
+	eventRepository     repository.EventRepository
+	userRepository      repository.UserRepository
+	groupRepository     repository.GroupRepository
+	groupUserRepository repository.GroupUserReopsitory
+	paymentRepository   repository.PaymentRepository
+	transaction         repository.Transaction
 }
 
 // CreateEvent implements EventUseCase.
@@ -214,12 +216,66 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id string, uid string, gid
 	return eventUpdateResponse, nil
 }
 
-func NewEventUseCase(eventRepo repository.EventRepository, userRepo repository.UserRepository, groupRepo repository.GroupRepository, paymentRepo repository.PaymentRepository, tx repository.Transaction) EventUseCase {
+func (e *eventUseCase) DeleteEvent(c context.Context, groupID string, eventID string, userID string) error {
+	// ユーザーの取得
+	user, err := e.userRepository.GetUserByUid(c, userID)
+	if err != nil {
+		return err
+	}
+
+	// グループを取得
+	group, err := e.groupRepository.GetGroupById(c, groupID)
+	if err != nil {
+		return err
+	}
+
+	// グループにユーザーが所属するか確認
+	_, err = e.groupUserRepository.GetGroupUser(c, group.ID, user.ID)
+	if err != nil {
+		return err
+	}
+
+	// 削除対象のイベント情報を取得
+	event, err := e.eventRepository.GetEvent(c, eventID)
+	if err != nil {
+		return err
+	}
+
+	// 削除対象のイベント情報に紐づく支払い情報を取得
+	payments, err := e.paymentRepository.GetPaymentByEventId(c, event.ID)
+	if err != nil {
+		return err
+	}
+
+	// 削除対象のイベントと支払いを削除
+	_, err = e.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
+		for _, payment := range payments {
+			if err := e.paymentRepository.DeletePayment(c, payment.ID); err != nil {
+				return nil, err
+			}
+		}
+
+		err := e.eventRepository.DeleteEvent(c, eventID)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, nil
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func NewEventUseCase(eventRepo repository.EventRepository, userRepo repository.UserRepository, groupRepo repository.GroupRepository, groupUserRepo repository.GroupUserReopsitory, paymentRepo repository.PaymentRepository, tx repository.Transaction) EventUseCase {
 	return &eventUseCase{
-		eventRepository:   eventRepo,
-		userRepository:    userRepo,
-		groupRepository:   groupRepo,
-		paymentRepository: paymentRepo,
-		transaction:       tx,
+		eventRepository:     eventRepo,
+		userRepository:      userRepo,
+		groupRepository:     groupRepo,
+		groupUserRepository: groupUserRepo,
+		paymentRepository:   paymentRepo,
+		transaction:         tx,
 	}
 }

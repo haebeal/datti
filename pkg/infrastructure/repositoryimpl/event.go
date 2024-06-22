@@ -77,6 +77,18 @@ func (e *eventRepositoryImpl) UpdateEvent(c context.Context, id string, uid stri
 	return event, nil
 }
 
+func (e *eventRepositoryImpl) DeleteEvent(c context.Context, eventID string) error {
+	_, err := e.DBEngine.Client.NewDelete().
+		Table("events").
+		Where("id = ?", eventID).
+		Exec(c)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func NewEventRepository(engine *database.DBClient) repository.EventRepository {
 	return &eventRepositoryImpl{
 		DBEngine: *engine,

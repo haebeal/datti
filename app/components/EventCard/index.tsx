@@ -1,5 +1,21 @@
-import { Link, useLocation } from "@remix-run/react";
+import {
+  Form,
+  useLocation,
+  useNavigate,
+  useNavigation,
+} from "@remix-run/react";
 import { EventEndpoints_EventResponse } from "~/api/@types";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
+import { Button } from "~/components/ui/button";
 
 interface Props {
   event: Pick<EventEndpoints_EventResponse, "id" | "name">;
@@ -7,16 +23,24 @@ interface Props {
 
 export function EventCard({ event }: Props) {
   const { pathname } = useLocation();
+  const { state } = useNavigation();
+
+  const navigate = useNavigate();
 
   return (
-    <Link
-      to={`${pathname}/${event.id}`}
-      className="flex flex-row  w-full bg-white hover:bg-slate-50 hover:cursor-pointer px-6 py-5 gap-5 items-center rounded-md border border-gray-200"
-    >
-      <h1 className="text-lg font-bold mr-auto">{event.name}</h1>
+    <div className="flex flex-row  w-full bg-white hover:bg-slate-50 items-center rounded-md border border-gray-200 px-6">
+      <div
+        className="flex-1 hover:cursor-pointer py-5 gap-5 "
+        onClick={() => navigate(`${pathname}/${event.id}`)}
+      >
+        <h1 className="text-lg font-bold mr-auto">{event.name}</h1>
+      </div>
 
-      {/* <AlertDialog>
-        <AlertDialogTrigger asChild>
+      <AlertDialog>
+        <AlertDialogTrigger
+          asChild
+          onClick={(event) => event.stopPropagation()}
+        >
           <Button
             disabled={state === "submitting"}
             className="bg-red-500 hover:bg-red-600 font-semibold"
@@ -32,11 +56,14 @@ export function EventCard({ event }: Props) {
             本当によろしいですか？
           </AlertDialogDescription>
           <AlertDialogFooter>
-            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+            <AlertDialogCancel onClick={(event) => event.stopPropagation()}>
+              キャンセル
+            </AlertDialogCancel>
             <Form method="delete">
-              <input type="hidden" name="uid" value={event.id} />
+              <input type="hidden" name="eventId" value={event.id} />
               <AlertDialogAction
                 disabled={state === "submitting"}
+                onClick={(event) => event.stopPropagation()}
                 className="font-semibold bg-red-500 hover:bg-red-600"
                 type="submit"
               >
@@ -45,7 +72,7 @@ export function EventCard({ event }: Props) {
             </Form>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog> */}
-    </Link>
+      </AlertDialog>
+    </div>
   );
 }

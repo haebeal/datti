@@ -97,6 +97,38 @@ export const eventAction = async ({
     }
   }
 
+  // イベント削除処理
+  if (request.method === "DELETE") {
+    const groupId = params.groupId;
+    if (groupId === undefined) {
+      return json({
+        message: "グループIDの取得に失敗しました",
+        submission: undefined,
+      });
+    }
+    const eventId = formData.get("eventId")?.toString();
+    if (eventId === undefined) {
+      return json({
+        message: "イベントIDの取得に失敗しました",
+        submission: undefined,
+      });
+    }
+    try {
+      await client.groups._groupId(groupId).events._eventId(eventId).$delete();
+      return json({
+        message: "イベントを削除しました",
+        submission: undefined,
+      });
+    } catch (error) {
+      if (error instanceof HTTPError) {
+        throw new Response(error.message, {
+          status: error.response.status,
+          statusText: error.response.statusText,
+        });
+      }
+    }
+  }
+
   throw new Response("不明なエラーが発生しました", {
     status: 500,
     statusText: "Internal Server Error",

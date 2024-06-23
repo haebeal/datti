@@ -5,3 +5,4 @@ export * from "./friendsLoader";
 export * from "./groupLoader";
 export * from "./groupsLoader";
 export * from "./membersLoader";
+export * from "./paymentsLoader";

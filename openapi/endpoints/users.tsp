@@ -101,7 +101,7 @@ namespace UserEndpoints {
        */
       @minLength(28)
       @maxLength(28)
-      uid: string;
+      userId: string;
     
       /**
        * ユーザー名
@@ -127,7 +127,7 @@ model User {
    */
   @minLength(28)
   @maxLength(28)
-  uid: string;
+  userId: string;
 
   /**
    * ユーザー名

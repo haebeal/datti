@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/datti-api/pkg/domain/model"
@@ -176,44 +177,76 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id string, uid string, gid
 		if err != nil {
 			return nil, err
 		}
-		return event, nil
+
+		eventUpdateResponse := &dto.EventResponse{
+			ID:        event.ID,
+			Name:      event.Name,
+			EventedAt: event.EventedAt,
+			CreatedBy: event.CreatedBy,
+			PaidBy:    event.PaidBy,
+			Amount:    event.Amount,
+			GroupId:   event.GroupId,
+		}
+
+		userIDMap := make(map[string]bool)
+
+		//支払いテーブルのレコードを更新
+		for _, p := range eventUpdate.Payments {
+			// ユーザーの重複を検証
+			if userIDMap[p.PaidTo] {
+				return nil, fmt.Errorf("err: %s", "ユーザーの重複エラー")
+			}
+
+			userIDMap[p.PaidTo] = true
+
+			payment := &model.Payment{}
+
+			// グループとユーザーの検証
+			_, err = e.groupUserRepository.GetGroupUser(c, event.GroupId, p.PaidTo)
+			if err != nil {
+				return nil, err
+			}
+
+			// 新しく登録されユーザーか判定
+			if p.PaymentID == "" {
+				// 支払い情報を新規で登録
+				payment, err = e.paymentRepository.CreatePayment(c, event.ID, p.PaidTo, event.PaidBy, event.EventedAt, p.Amount)
+				if err != nil {
+					return nil, err
+				}
+			} else {
+				// 支払い情報を更新
+				payment, err = e.paymentRepository.UpdatePayment(c, event.ID, p.PaymentID, p.PaidTo, event.PaidBy, event.EventedAt, p.Amount)
+				if err != nil {
+					return nil, err
+				}
+			}
+
+			user, err := e.userRepository.GetUserByUid(c, payment.PaidTo)
+			if err != nil {
+				return nil, err
+			}
+
+			eventUpdateResponse.Paymetns = append(eventUpdateResponse.Paymetns, struct {
+				PaymentId string
+				PaidTo    string
+				Amount    int
+			}{
+				PaymentId: payment.ID,
+				PaidTo:    user.ID,
+				Amount:    payment.Amount,
+			})
+		}
+		return eventUpdateResponse, nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	event := v.(*model.Event)
-	eventUpdateResponse := &dto.EventResponse{
-		ID:        event.ID,
-		Name:      event.Name,
-		EventedAt: event.EventedAt,
-		PaidBy:    event.PaidBy,
-		Amount:    event.Amount,
-		GroupId:   event.GroupId,
-	}
+	// event := v.(*model.Event)
+	eventResponse := v.(dto.EventResponse)
 
-	//支払いテーブルのレコードを更新
-	for _, p := range eventUpdate.Payments {
-		payment, err := e.paymentRepository.UpdatePayment(c, event.ID, p.PaymentID, event.PaidBy, p.PaidTo, event.EventedAt, p.Amount)
-		if err != nil {
-			return nil, err
-		}
-		user, err := e.userRepository.GetUserByUid(c, payment.PaidTo)
-		if err != nil {
-			return nil, err
-		}
-		eventUpdateResponse.Paymetns = append(eventUpdateResponse.Paymetns, struct {
-			PaymentId string
-			PaidTo    string
-			Amount    int
-		}{
-			PaymentId: payment.ID,
-			PaidTo:    user.ID,
-			Amount:    payment.Amount,
-		})
-	}
-
-	return eventUpdateResponse, nil
+	return &eventResponse, nil
 }
 
 func (e *eventUseCase) DeleteEvent(c context.Context, groupID string, eventID string, userID string) error {

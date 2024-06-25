@@ -65,11 +65,22 @@ func (e *eventRepositoryImpl) UpdateEvent(c context.Context, id string, uid stri
 	event.EventedAt = eventAt
 	event.GroupId = gid
 	event.CreatedBy = uid
+
+	//レコードの更新
 	_, err := e.DBEngine.Client.NewUpdate().
 		Model(event).
 		Column("name", "evented_at").
 		Where("id = ?", id).
 		Exec(c)
+	if err != nil {
+		return nil, err
+	}
+
+	// 更新したレコードを取得
+	err = e.DBEngine.Client.NewSelect().
+		Table("events").
+		Where("id = ?", id).
+		Scan(c, event)
 	if err != nil {
 		return nil, err
 	}

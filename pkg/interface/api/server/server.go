@@ -75,7 +75,7 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.GET("/groups/:gid/events", eventHandler.HandleGetById)
 	r.GET("/groups/:gid/events/:id", eventHandler.HandleGet)
 	r.POST("/groups/:groupId/events", eventHandler.HandleCreate) //イベントの作成
-	r.PUT("/groups/:gid/events/:id", eventHandler.HandleUpdate)
+	r.PUT("/groups/:groupId/events/:eventId", eventHandler.HandleUpdate)
 	r.DELETE("/groups/:groupId/events/:eventId", eventHandler.HandleDelete)
 
 	r.GET("/payments", paymentHandler.HandleGet)

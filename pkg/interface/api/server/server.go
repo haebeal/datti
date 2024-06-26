@@ -66,11 +66,11 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.DELETE("/users/friends/:userId", userHandler.HandleDeleteFriend)  //フレンド登録の解除
 
 	r.GET("/groups", groupHandler.HandleGet)                         //所属グループ一覧の取得
-	r.GET("/groups/:id", groupHandler.HandleGetById)                 //グループ情報の取得
+	r.GET("/groups/:groupId", groupHandler.HandleGetById)            //グループ情報の取得
 	r.POST("/groups", groupHandler.HandleCreate)                     //グループの作成
-	r.PUT("/groups/:id", groupHandler.HandleUpdate)                  //グループ情報の更新
+	r.PUT("/groups/:groupId", groupHandler.HandleUpdate)             //グループ情報の更新
 	r.GET("/groups/:groupId/members", groupHandler.HandleGetMembers) //グループに対するメンバー情報の取得
-	r.POST("/groups/:id/members", groupHandler.HandleRegisterd)      //グループに対するメンバーの追加
+	r.POST("/groups/:groupId/members", groupHandler.HandleRegisterd) //グループに対するメンバーの追加
 
 	r.GET("/groups/:gid/events", eventHandler.HandleGetById)
 	r.GET("/groups/:gid/events/:id", eventHandler.HandleGet)

@@ -26,19 +26,19 @@ type groupHandler struct {
 // HandleCreate implements GroupHandler.
 func (g *groupHandler) HandleCreate(c echo.Context) error {
 	errResponse := new(response.Error)
-	uid := c.Get("uid").(string)
+	userID := c.Get("uid").(string)
 	req := new(request.GroupCreate)
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	}
-	group, members, err := g.useCase.CreateGroup(c.Request().Context(), req.Name, uid, req.Uids)
+	group, members, err := g.useCase.CreateGroup(c.Request().Context(), req.Name, userID, req.Uids)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
 		return c.JSON(http.StatusOK, struct {
-			ID    string        `json:"id"`
+			ID    string        `json:"groupId"`
 			Name  string        `json:"name"`
 			Users []*model.User `json:"users"`
 		}{
@@ -53,16 +53,16 @@ func (g *groupHandler) HandleCreate(c echo.Context) error {
 func (g *groupHandler) HandleGet(c echo.Context) error {
 	errResponse := new(response.Error)
 	res := new(response.Groups)
-	uid := c.Get("uid").(string)
+	userID := c.Get("uid").(string)
 
-	groups, err := g.useCase.GetGroups(c.Request().Context(), uid)
+	groups, err := g.useCase.GetGroups(c.Request().Context(), userID)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
 		for _, group := range groups {
 			res.Groups = append(res.Groups, struct {
-				ID   string `json:"id"`
+				ID   string `json:"groupId"`
 				Name string `json:"name"`
 			}{
 				ID:   group.ID,
@@ -77,9 +77,9 @@ func (g *groupHandler) HandleGet(c echo.Context) error {
 func (g *groupHandler) HandleGetById(c echo.Context) error {
 	errResponse := new(response.Error)
 	res := response.Group{}
-	id := c.Param("id")
+	groupID := c.Param("groupId")
 
-	group, err := g.useCase.GetGroupById(c.Request().Context(), id)
+	group, err := g.useCase.GetGroupById(c.Request().Context(), groupID)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -94,18 +94,18 @@ func (g *groupHandler) HandleGetById(c echo.Context) error {
 func (g *groupHandler) HandleGetMembers(c echo.Context) error {
 	errResponse := new(response.Error)
 	res := new(response.Members)
-	uid := c.Get("uid").(string)
-	id := c.Param("groupId")
+	userID := c.Get("uid").(string)
+	groupID := c.Param("groupId")
 	status := c.QueryParam("status")
 
-	members, statuses, err := g.useCase.GetMembers(c.Request().Context(), id, uid, status)
+	members, statuses, err := g.useCase.GetMembers(c.Request().Context(), groupID, userID, status)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
 		for i, member := range members {
 			res.Members = append(res.Members, struct {
-				UID      string `json:"uid"`
+				UID      string `json:"userId"`
 				Name     string `json:"name"`
 				Email    string `json:"email"`
 				PhotoUrl string `json:"photoUrl"`
@@ -125,21 +125,21 @@ func (g *groupHandler) HandleGetMembers(c echo.Context) error {
 
 // HandleRegisterd implements GroupHandler.
 func (g *groupHandler) HandleRegisterd(c echo.Context) error {
-	uids := new(request.Uids)
+	req := new(request.Uids)
 	errResponse := new(response.Error)
 	id := c.Param("id")
-	if err := c.Bind(uids); err != nil {
+	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	}
 
-	group, members, err := g.useCase.RegisterdMembers(c.Request().Context(), id, uids.Uids)
+	group, members, err := g.useCase.RegisterdMembers(c.Request().Context(), id, req.Uids)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
 		return c.JSON(http.StatusOK, struct {
-			ID    string        `json:"id"`
+			ID    string        `json:"groupId"`
 			Name  string        `json:"name"`
 			Users []*model.User `json:"users"`
 		}{
@@ -154,19 +154,19 @@ func (g *groupHandler) HandleRegisterd(c echo.Context) error {
 func (g *groupHandler) HandleUpdate(c echo.Context) error {
 	req := new(request.GroupUpdate)
 	errResponse := new(response.Error)
-	id := c.Param("id")
+	groupID := c.Param("groupId")
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	}
 
-	group, members, err := g.useCase.UpdateGroup(c.Request().Context(), id, req.Name)
+	group, members, err := g.useCase.UpdateGroup(c.Request().Context(), groupID, req.Name)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
 		return c.JSON(http.StatusOK, struct {
-			ID    string        `json:"id"`
+			ID    string        `json:"groupId"`
 			Name  string        `json:"name"`
 			Users []*model.User `json:"users"`
 		}{

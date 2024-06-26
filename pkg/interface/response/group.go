@@ -1,20 +1,20 @@
 package response
 
 type Group struct {
-	ID   string `json:"id"`
+	ID   string `json:"groupId"`
 	Name string `json:"name"`
 }
 
 type Groups struct {
 	Groups []struct {
-		ID   string `json:"id"`
+		ID   string `json:"groupId"`
 		Name string `json:"name"`
 	} `json:"groups"`
 }
 
 type Members struct {
 	Members []struct {
-		UID      string `json:"uid"`
+		UID      string `json:"userId"`
 		Name     string `json:"name"`
 		Email    string `json:"email"`
 		PhotoUrl string `json:"photoUrl"`

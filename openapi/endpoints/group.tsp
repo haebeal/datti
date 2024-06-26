@@ -103,16 +103,16 @@ namespace GroupEndpoints {
     name: string;
   
     /**
-     * UID
+     * ユーザーID
      */
-    uids: string[];
+    userIds: string[];
   }
   
   model MembersPostRequest {
     /**
-     * UID
+     * ユーザーID
      */
-    uids: string[];
+    userIds: string[];
   }
 }
 
@@ -120,7 +120,7 @@ model Group {
   /**
    * グループID
    */
-  id: string;
+  groupId: string;
 
   /**
    * グループ名
@@ -134,7 +134,7 @@ model Member {
    */
   @minLength(28)
   @maxLength(28)
-  uid: string;
+  userId: string;
 
   /**
    * ユーザー名

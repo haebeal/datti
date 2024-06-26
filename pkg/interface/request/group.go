@@ -2,11 +2,11 @@ package request
 
 type GroupCreate struct {
 	Name string   `json:"name"`
-	Uids []string `json:"uids"`
+	Uids []string `json:"userIds"`
 }
 
 type Uids struct {
-	Uids []string `json:"uids"`
+	Uids []string `json:"userIds"`
 }
 
 type GroupUpdate struct {

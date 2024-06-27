@@ -5,7 +5,7 @@ import "time"
 type Payments struct {
 	Payments []struct {
 		User struct {
-			ID       string `json:"uid"`
+			ID       string `json:"userId"`
 			Name     string `json:"name"`
 			Email    string `json:"email"`
 			PhotoUrl string `json:"photoUrl"`
@@ -15,20 +15,20 @@ type Payments struct {
 }
 
 type Payment struct {
-	ID     string    `json:"id"`
-	PaidAt time.Time `json:"paid_at"`
+	ID     string    `json:"paymentId"`
+	PaidAt time.Time `json:"paidAt"`
 	PaidBy struct {
-		ID       string `json:"uid"`
+		ID       string `json:"userId"`
 		Name     string `json:"name"`
 		Email    string `json:"email"`
 		PhotoUrl string `json:"photoUrl"`
-	} `json:"paid_by"`
+	} `json:"paidBy"`
 	PaidTo struct {
-		ID       string `json:"uid"`
+		ID       string `json:"userId"`
 		Name     string `json:"name"`
 		Email    string `json:"email"`
 		PhotoUrl string `json:"photoUrl"`
-	} `json:"paid_to"`
+	} `json:"paidTo"`
 	Amount int `json:"amount"`
 }
 

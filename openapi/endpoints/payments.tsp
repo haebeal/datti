@@ -24,10 +24,10 @@ namespace PaymentEndpoints {
   /**
    * 支払い情報の取得
    */
-  @route("{payId}")
+  @route("{paymentId}")
   @summary("支払い情報の取得")
   @get
-  op getPayment(@path payId: string):
+  op getPayment(@path paymentId: string):
   | Payment
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -56,10 +56,10 @@ namespace PaymentEndpoints {
   /**
    * 支払い情報の更新
    */
-  @route("{payId}")
+  @route("{paymentId}")
   @summary("支払い情報の更新")
   @put
-  op putPayments(@path payId: string, @body payment: PaymentUpdate):
+  op putPayments(@path paymentId: string, @body payment: PaymentUpdate):
   | Payment
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -67,10 +67,10 @@ namespace PaymentEndpoints {
   /**
    * 支払い情報の削除
    */
-  // @route("{payId}")
+  // @route("{paymentId}")
   // @summary("支払い情報の削除")
   // @delete
-  // op deletePayments(@path payId: string):
+  // op deletePayments(@path paymentId: string):
   // | Utils.Response.OKMessage
   // | Utils.Error.UnauthorizedError
   // | Utils.Error.InternalServerError;
@@ -80,22 +80,22 @@ model Payment {
   /**
    * 支払いID
    */
-  id: string;
+  paymentId: string;
 
   /**
    * 支払い日
    */
-  paid_at: utcDateTime;
+  paidAt: utcDateTime;
 
   /**
    * 支払い先のユーザー情報
    */
-  paid_to: OmitProperties<User, "status">;
+  paidTo: OmitProperties<User, "status">;
 
   /**
    * 支払い元のユーザー情報
    */
-  paid_by: OmitProperties<User, "status">;
+  paidBy: OmitProperties<User, "status">;
 
   /**
    * 支払い金額
@@ -107,12 +107,12 @@ model PaymentCreate {
   /**
    * 支払い日
    */
-  paid_at: utcDateTime;
+  paidAt: utcDateTime;
 
   /**
    * 支払い先のユーザ-ID
    */
-  paid_to: string;
+  paidTo: string;
 
   /**
    * 支払い金額
@@ -124,17 +124,17 @@ model PaymentUpdate {
   /**
    * 支払い日
    */
-  paid_at: utcDateTime;
+  paidAt: utcDateTime;
 
   /**
    * 支払い先のユーザ-ID
    */
-  paid_to: string;
+  paidTo: string;
 
   /**
    * 支払い元のユーザー
    */
-  paid_by: string;
+  paidBy: string;
 
   /**
    * 支払い金額

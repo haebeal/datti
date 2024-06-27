@@ -28,10 +28,10 @@ type userHandler struct {
 func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
 	res := new(response.User)
 	errResponse := new(response.Error)
-	uid := c.Get("uid").(string)
-	targetId := c.Param("uid")
+	userID := c.Get("uid").(string)
+	targetID := c.Param("userId")
 
-	user, status, err := u.useCase.GetUserByUid(c.Request().Context(), uid, targetId)
+	user, status, err := u.useCase.GetUserByUid(c.Request().Context(), userID, targetID)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -47,12 +47,12 @@ func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
 
 // HandleGetByEmail implements UserHandler.
 func (u *userHandler) HandleGetByEmail(c echo.Context) error {
-	uid := c.Get("uid").(string)
+	userID := c.Get("uid").(string)
 	email := c.QueryParam("email")
 	status := c.QueryParam("status")
 	errRes := new(response.Error)
 
-	users, statuses, err := u.useCase.GetUsersByEmail(c.Request().Context(), uid, email, status)
+	users, statuses, err := u.useCase.GetUsersByEmail(c.Request().Context(), userID, email, status)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
@@ -77,9 +77,9 @@ func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 func (u *userHandler) HandleGetByUid(c echo.Context) error {
 	res := new(response.User)
 	errResponse := new(response.Error)
-	uid := c.Get("uid").(string)
+	userID := c.Get("uid").(string)
 
-	user, status, err := u.useCase.GetUserByUid(c.Request().Context(), uid, uid)
+	user, status, err := u.useCase.GetUserByUid(c.Request().Context(), userID, userID)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -96,9 +96,9 @@ func (u *userHandler) HandleGetByUid(c echo.Context) error {
 // HandleGetUsers implements UserHandler.
 func (u *userHandler) HandleGetUsers(c echo.Context) error {
 	errResponse := new(response.Error)
-	uid := c.Get("uid").(string)
+	userID := c.Get("uid").(string)
 
-	user, err := u.useCase.GetUsers(c.Request().Context(), uid)
+	user, err := u.useCase.GetUsers(c.Request().Context(), userID)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -112,7 +112,7 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 	req := new(request.UpdateUserRequest)
 	res := new(response.User)
 	errRes := new(response.Error)
-	uid := c.Get("uid").(string)
+	userID := c.Get("uid").(string)
 
 	if err := c.Bind(req); err != nil {
 		log.Print("failed json bind")
@@ -120,7 +120,7 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, errRes)
 	}
 
-	user, err := u.useCase.UpdateUser(c.Request().Context(), uid, req.Name, req.Url)
+	user, err := u.useCase.UpdateUser(c.Request().Context(), userID, req.Name, req.Url)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
@@ -136,10 +136,10 @@ func (u *userHandler) HandleUpdate(c echo.Context) error {
 // HandlerRequest implements FriendHandler.
 func (u *userHandler) HandlerFriendRequest(c echo.Context) error {
 	errResponse := new(response.Error)
-	uid := c.Get("uid").(string)
-	fuid := c.Param("uid")
+	userID := c.Get("uid").(string)
+	friendUserID := c.Param("userId")
 
-	err := u.useCase.SendFriendRequest(c.Request().Context(), uid, fuid)
+	err := u.useCase.SendFriendRequest(c.Request().Context(), userID, friendUserID)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -155,10 +155,10 @@ func (u *userHandler) HandlerFriendRequest(c echo.Context) error {
 // HandleDelete implements FriendHandler.
 func (u *userHandler) HandleDeleteFriend(c echo.Context) error {
 	errResponse := new(response.Error)
-	uid := c.Get("uid").(string)
-	fuid := c.Param("uid")
+	userID := c.Get("uid").(string)
+	friendUserID := c.Param("userID")
 
-	err := u.useCase.DeleteFriend(c.Request().Context(), uid, fuid)
+	err := u.useCase.DeleteFriend(c.Request().Context(), userID, friendUserID)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)

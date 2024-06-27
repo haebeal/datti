@@ -8,15 +8,15 @@ import (
 
 type EventCreateRequest struct {
 	Name      string    `json:"name"`
-	EventedAt time.Time `json:"evented_at"`
-	CreatedBy string    `json:"created_by"`
-	PaidBy    string    `json:"paid_by"`
+	EventedAt time.Time `json:"eventedAt"`
+	CreatedBy string    `json:"createdBy"`
+	PaidBy    string    `json:"paidBy"`
 	Amount    int       `json:"amount"`
 	Payments  []struct {
-		PaidTo string `json:"paid_to"`
+		PaidTo string `json:"paidTo"`
 		Amount int    `json:"amount"`
 	} `json:"payments"`
-	GroupId string `json:"group_id"`
+	GroupId string `json:"groupId"`
 }
 
 func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
@@ -47,18 +47,18 @@ func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
 }
 
 type EventUpdateRequest struct {
-	ID        string         `json:"id"`
+	ID        string         `json:"eventId"`
 	Name      string         `json:"name"`
-	EventedAt time.Time      `json:"evented_at"`
-	CreatedBy string         `json:"created_by"`
-	PaidBy    string         `json:"paid_by"`
+	EventedAt time.Time      `json:"eventedAT"`
+	CreatedBy string         `json:"createdBy"`
+	PaidBy    string         `json:"paidBy"`
 	Amount    int            `json:"amount"`
 	Payments  []PaymentUsers `json:"payments"`
-	GroupId   string         `json:"group_id"`
+	GroupId   string         `json:"groupId"`
 }
 
 type PaymentUsers struct {
-	ID     string `json:"payment_id,omitempty"`
-	PaidTo string `json:"paid_to"`
+	ID     string `json:"paymentId,omitempty"`
+	PaidTo string `json:"paidTo"`
 	Amount int    `json:"amount"`
 }

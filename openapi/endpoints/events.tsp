@@ -74,12 +74,12 @@ namespace EventEndpoints {
     /**
      * イベントの日付
      */
-    evented_at: utcDateTime;
+    eventedAt: utcDateTime;
 
     /**
      * 立て替えたユーザー
      */
-    paid_by: string;
+    paidBy: string;
 
     /**
      * 立て替えた金額
@@ -90,7 +90,7 @@ namespace EventEndpoints {
      * 立て替えてもらったユーザー
      */
     payments: {
-      paid_to: string;
+      paidTo: string;
       amount: integer;
     }[];
   }
@@ -104,12 +104,12 @@ namespace EventEndpoints {
     /**
      * イベントの日付
      */
-    evented_at: utcDateTime;
+    eventedAt: utcDateTime;
 
     /**
      * 立て替えたユーザー
      */
-    paid_by: string;
+    paidBy: string;
 
     /**
      * 立て替えた金額
@@ -120,34 +120,34 @@ namespace EventEndpoints {
      * 立て替えてもらったユーザー
      */
     payments: {
-      payment_id?: string;
-      paid_to:string;
+      paymentId?: string;
+      paidTo:string;
       amount: integer;
     }[];
   }
 
   model EventResponse {
-    id: string;
+    eventId: string;
     name: string;
-    evented_at: utcDateTime;
-    created_by: string;
-    paid_by: string;
+    eventedAt: utcDateTime;
+    createdBy: string;
+    paidBy: string;
     amount:integer;
     paymetns: {
-      payment_id: string;
-      paid_to: string;
+      paymentId: string;
+      paidTo: string;
       amount: string;
     }[];
-    group_id: string;
+    groupId: string;
   }
 
   model EventsResponse {
     events: {
-      id: string;
+      eventId: string;
       name: string;
-      evented_at: utcDateTime;
-      paid_by: {
-        id: string;
+      eventedAt: utcDateTime;
+      paidBy: {
+        userId: string;
         name: string;
       };
       amount: integer;

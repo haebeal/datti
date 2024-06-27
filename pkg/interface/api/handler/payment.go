@@ -73,7 +73,7 @@ func (p *paymentHandler) HandleGet(c echo.Context) error {
 	res := &response.Payments{
 		Payments: make([]struct {
 			User struct {
-				ID       string "json:\"uid\""
+				ID       string "json:\"userId\""
 				Name     string "json:\"name\""
 				Email    string "json:\"email\""
 				PhotoUrl string "json:\"photoUrl\""
@@ -89,7 +89,7 @@ func (p *paymentHandler) HandleGet(c echo.Context) error {
 		for _, payment := range payments.Payments {
 			res.Payments = append(res.Payments, struct {
 				User struct {
-					ID       string `json:"uid"`
+					ID       string `json:"userId"`
 					Name     string `json:"name"`
 					Email    string `json:"email"`
 					PhotoUrl string `json:"photoUrl"`
@@ -97,7 +97,7 @@ func (p *paymentHandler) HandleGet(c echo.Context) error {
 				Balance int `json:"amount"`
 			}{
 				User: struct {
-					ID       string `json:"uid"`
+					ID       string `json:"userId"`
 					Name     string `json:"name"`
 					Email    string `json:"email"`
 					PhotoUrl string `json:"photoUrl"`
@@ -163,26 +163,26 @@ func (p *paymentHandler) HandleHistory(c echo.Context) error {
 	} else {
 		for i, payment := range payments {
 			res.Paymetns = append(res.Paymetns, struct {
-				ID     string    `json:"id"`
-				PaidAt time.Time `json:"paid_at"`
+				ID     string    `json:"paymentId"`
+				PaidAt time.Time `json:"paidAt"`
 				PaidBy struct {
-					ID       string `json:"uid"`
+					ID       string `json:"userId"`
 					Name     string `json:"name"`
 					Email    string `json:"email"`
 					PhotoUrl string `json:"photoUrl"`
-				} `json:"paid_by"`
+				} `json:"paidBy"`
 				PaidTo struct {
-					ID       string `json:"uid"`
+					ID       string `json:"userId"`
 					Name     string `json:"name"`
 					Email    string `json:"email"`
 					PhotoUrl string `json:"photoUrl"`
-				} `json:"paid_to"`
+				} `json:"paidTo"`
 				Amount int `json:"amount"`
 			}{
 				ID:     payment.ID,
 				PaidAt: payment.PaidAt,
 				PaidBy: struct {
-					ID       string `json:"uid"`
+					ID       string `json:"userId"`
 					Name     string `json:"name"`
 					Email    string `json:"email"`
 					PhotoUrl string `json:"photoUrl"`
@@ -193,7 +193,7 @@ func (p *paymentHandler) HandleHistory(c echo.Context) error {
 					PhotoUrl: paidByUsers[i].PhotoUrl,
 				},
 				PaidTo: struct {
-					ID       string `json:"uid"`
+					ID       string `json:"userId"`
 					Name     string `json:"name"`
 					Email    string `json:"email"`
 					PhotoUrl string `json:"photoUrl"`

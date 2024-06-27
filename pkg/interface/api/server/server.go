@@ -61,27 +61,27 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.GET("/users", userHandler.HandleGetByEmail)
 	r.GET("/users/me", userHandler.HandleGetByUid)
 	r.PUT("/users/me", userHandler.HandleUpdate)
-	r.GET("/users/:uid", userHandler.HandleGetByUidWithPahtParam)
-	r.POST("/users/:uid/requests", userHandler.HandlerFriendRequest) //フレンド申請を送信
-	r.DELETE("/users/friends/:uid", userHandler.HandleDeleteFriend)  //フレンド登録の解除
+	r.GET("/users/:userId", userHandler.HandleGetByUidWithPahtParam)
+	r.POST("/users/:userId/requests", userHandler.HandlerFriendRequest) //フレンド申請を送信
+	r.DELETE("/users/friends/:userId", userHandler.HandleDeleteFriend)  //フレンド登録の解除
 
 	r.GET("/groups", groupHandler.HandleGet)                         //所属グループ一覧の取得
-	r.GET("/groups/:id", groupHandler.HandleGetById)                 //グループ情報の取得
+	r.GET("/groups/:groupId", groupHandler.HandleGetById)            //グループ情報の取得
 	r.POST("/groups", groupHandler.HandleCreate)                     //グループの作成
-	r.PUT("/groups/:id", groupHandler.HandleUpdate)                  //グループ情報の更新
+	r.PUT("/groups/:groupId", groupHandler.HandleUpdate)             //グループ情報の更新
 	r.GET("/groups/:groupId/members", groupHandler.HandleGetMembers) //グループに対するメンバー情報の取得
-	r.POST("/groups/:id/members", groupHandler.HandleRegisterd)      //グループに対するメンバーの追加
+	r.POST("/groups/:groupId/members", groupHandler.HandleRegisterd) //グループに対するメンバーの追加
 
-	r.GET("/groups/:gid/events", eventHandler.HandleGetById)
-	r.GET("/groups/:gid/events/:id", eventHandler.HandleGet)
+	r.GET("/groups/:groupId/events", eventHandler.HandleGetById)
+	r.GET("/groups/:groupId/events/:eventId", eventHandler.HandleGet)
 	r.POST("/groups/:groupId/events", eventHandler.HandleCreate) //イベントの作成
 	r.PUT("/groups/:groupId/events/:eventId", eventHandler.HandleUpdate)
 	r.DELETE("/groups/:groupId/events/:eventId", eventHandler.HandleDelete)
 
 	r.GET("/payments", paymentHandler.HandleGet)
 	r.POST("/payments", paymentHandler.HandleCreate)
-	r.GET("/payments/:payId", paymentHandler.HandleGetById)
-	r.PUT("/payments/:payId", paymentHandler.HandleUpdate)
+	r.GET("/payments/:paymentId", paymentHandler.HandleGetById)
+	r.PUT("/payments/:paymentId", paymentHandler.HandleUpdate)
 	r.GET("/payments/history", paymentHandler.HandleHistory)
 
 	r.Start("0.0.0.0:8080")

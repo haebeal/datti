@@ -5,29 +5,29 @@ import (
 )
 
 type Event struct {
-	ID        string    `json:"id"`
+	ID        string    `json:"eventId"`
 	Name      string    `json:"name"`
-	EventedAt time.Time `json:"evented_at"`
-	CreatedBy string    `json:"created_by"`
-	PaidBy    string    `json:"paid_by"`
+	EventedAt time.Time `json:"eventedAt"`
+	CreatedBy string    `json:"createdBy"`
+	PaidBy    string    `json:"paidBy"`
 	Amount    int       `json:"amount"`
 	Payments  []struct {
-		PaymentId string `json:"payment_id"`
-		PaidTo    string `json:"paid_to"`
+		PaymentId string `json:"paymentId"`
+		PaidTo    string `json:"paidTo"`
 		Amount    int    `json:"amount"`
 	} `json:"payments"`
-	GroupId string `json:"group_id"`
+	GroupId string `json:"groupId"`
 }
 
 type Events struct {
 	Events []struct {
-		ID        string    `json:"id"`
+		ID        string    `json:"eventId"`
 		Name      string    `json:"name"`
-		EventedAt time.Time `json:"evented_at"`
+		EventedAt time.Time `json:"eventedAt"`
 		PaidBy    struct {
-			ID   string `json:"id"`
+			ID   string `json:"userId"`
 			Name string `json:"name"`
-		} `json:"paid_by"`
+		} `json:"paidBy"`
 		Amount int `json:"amount"`
 	} `json:"events"`
 }

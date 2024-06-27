@@ -72,16 +72,16 @@ func Sever(dsn string, hostName string, dbInit bool) {
 	r.GET("/groups/:groupId/members", groupHandler.HandleGetMembers) //グループに対するメンバー情報の取得
 	r.POST("/groups/:groupId/members", groupHandler.HandleRegisterd) //グループに対するメンバーの追加
 
-	r.GET("/groups/:gid/events", eventHandler.HandleGetById)
-	r.GET("/groups/:gid/events/:id", eventHandler.HandleGet)
+	r.GET("/groups/:groupId/events", eventHandler.HandleGetById)
+	r.GET("/groups/:groupId/events/:eventId", eventHandler.HandleGet)
 	r.POST("/groups/:groupId/events", eventHandler.HandleCreate) //イベントの作成
 	r.PUT("/groups/:groupId/events/:eventId", eventHandler.HandleUpdate)
 	r.DELETE("/groups/:groupId/events/:eventId", eventHandler.HandleDelete)
 
 	r.GET("/payments", paymentHandler.HandleGet)
 	r.POST("/payments", paymentHandler.HandleCreate)
-	r.GET("/payments/:payId", paymentHandler.HandleGetById)
-	r.PUT("/payments/:payId", paymentHandler.HandleUpdate)
+	r.GET("/payments/:paymentId", paymentHandler.HandleGetById)
+	r.PUT("/payments/:paymentId", paymentHandler.HandleUpdate)
 	r.GET("/payments/history", paymentHandler.HandleHistory)
 
 	r.Start("0.0.0.0:8080")

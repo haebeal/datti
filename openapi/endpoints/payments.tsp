@@ -14,7 +14,7 @@ namespace PaymentEndpoints {
   /**
    * 支払い一覧情報の取得 
    */
-  @summary("支払い一覧情報の取得")
+  @summary("返済情報一覧の取得")
   @get
   op getPayments():
   | PaymentUsers
@@ -25,7 +25,7 @@ namespace PaymentEndpoints {
    * 支払い情報の取得
    */
   @route("{paymentId}")
-  @summary("支払い情報の取得")
+  @summary("返済情報の取得")
   @get
   op getPayment(@path paymentId: string):
   | Payment
@@ -36,7 +36,7 @@ namespace PaymentEndpoints {
    * 返済履歴の取得
    */
   @route("history")
-  @summary("支払い履歴の取得")
+  @summary("返済履歴の取得")
   @get
   op getHistory():
   | Payment[]
@@ -46,7 +46,7 @@ namespace PaymentEndpoints {
   /**
    * 支払い情報の登録
    */
-  @summary("支払い情報の登録")
+  @summary("返済情報の登録")
   @post
   op postPayments(@body payment: PaymentCreate):
   | Payment
@@ -57,7 +57,7 @@ namespace PaymentEndpoints {
    * 支払い情報の更新
    */
   @route("{paymentId}")
-  @summary("支払い情報の更新")
+  @summary("返済情報の更新")
   @put
   op putPayments(@path paymentId: string, @body payment: PaymentUpdate):
   | Payment

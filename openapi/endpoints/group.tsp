@@ -49,7 +49,7 @@ namespace GroupEndpoints {
   @summary("グループに対するメンバーの招待")
   @post
   op registedUsers(@path groupId: string, @body members: MembersPostRequest):
-  | GroupGetResponse
+  | GroupPostResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -59,7 +59,7 @@ namespace GroupEndpoints {
   @summary("グループの作成")
   @post
   op postGroup(...GroupPostRequest):
-  | GroupGetResponse
+  | GroupPostResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -76,6 +76,11 @@ namespace GroupEndpoints {
   
   model GroupGetResponse {
     ...Group;
+  }
+
+  model GroupPostResponse {
+    ...Group;
+    members: Member[];
   }
   
   model GroupsGetResponse {

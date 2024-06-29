@@ -3,14 +3,14 @@ export type EventEndpoints_EventPostRequest = {
   /** イベント名 */
   name: string
   /** イベントの日付 */
-  evented_at: string
+  eventedAt: string
   /** 立て替えたユーザー */
-  paid_by: string
+  paidBy: string
   /** 立て替えた金額 */
   amount: number
   /** 立て替えてもらったユーザー */
   payments: {
-    paid_to: string
+    paidTo: string
     amount: number
   }[]
 }
@@ -19,42 +19,42 @@ export type EventEndpoints_EventPutRequest = {
   /** イベント名 */
   name: string
   /** イベントの日付 */
-  evented_at: string
+  eventedAt: string
   /** 立て替えたユーザー */
-  paid_by: string
+  paidBy: string
   /** 立て替えた金額 */
   amount: number
   /** 立て替えてもらったユーザー */
   payments: {
-    payment_id: string
-    paid_to: string
+    paymentId?: string | undefined
+    paidTo: string
     amount: number
   }[]
 }
 
 export type EventEndpoints_EventResponse = {
-  id: string
+  eventId: string
   name: string
-  evented_at: string
-  created_by: string
-  paid_by: string
+  eventedAt: string
+  createdBy: string
+  paidBy: string
   amount: number
   paymetns: {
-    payment_id: string
-    paid_to: string
+    paymentId: string
+    paidTo: string
     amount: string
   }[]
-  group_id: string
+  groupId: string
 }
 
 export type EventEndpoints_EventsResponse = {
   events: {
-    id: string
+    eventId: string
     name: string
-    evented_at: string
+    eventedAt: string
 
-    paid_by: {
-      id: string
+    paidBy: {
+      userId: string
       name: string
     }
 
@@ -64,14 +64,14 @@ export type EventEndpoints_EventsResponse = {
 
 export type Group = {
   /** グループID */
-  id: string
+  groupId: string
   /** グループ名 */
   name: string
 }
 
 export type GroupEndpoints_GroupGetResponse = {
   /** グループID */
-  id: string
+  groupId: string
   /** グループ名 */
   name: string
 }
@@ -79,8 +79,8 @@ export type GroupEndpoints_GroupGetResponse = {
 export type GroupEndpoints_GroupPostRequest = {
   /** グループ名 */
   name: string
-  /** UID */
-  uids: string[]
+  /** ユーザーID */
+  userIds: string[]
 }
 
 export type GroupEndpoints_GroupPutRequest = {
@@ -98,13 +98,13 @@ export type GroupEndpoints_MembersGetResponse = {
 }
 
 export type GroupEndpoints_MembersPostRequest = {
-  /** UID */
-  uids: string[]
+  /** ユーザーID */
+  userIds: string[]
 }
 
 export type Member = {
   /** ユーザーID */
-  uid: string
+  userId: string
   /** ユーザー名 */
   name: string
   /** メールアドレス */
@@ -116,15 +116,15 @@ export type Member = {
 }
 
 export type Payment = {
-  /** 支払いID */
-  id: string
-  /** 支払い日 */
-  paid_at: string
+  /** 返済ID */
+  paymentId: string
+  /** 返済日 */
+  paidAt: string
 
-  /** 支払い先のユーザー情報 */
-  paid_to: {
+  /** 返済先のユーザー情報 */
+  paidTo: {
     /** ユーザーID */
-    uid: string
+    userId: string
     /** ユーザー名 */
     name: string
     /** メールアドレス */
@@ -133,10 +133,10 @@ export type Payment = {
     photoUrl: string
   }
 
-  /** 支払い元のユーザー情報 */
-  paid_by: {
+  /** 返済元のユーザー情報 */
+  paidBy: {
     /** ユーザーID */
-    uid: string
+    userId: string
     /** ユーザー名 */
     name: string
     /** メールアドレス */
@@ -145,27 +145,27 @@ export type Payment = {
     photoUrl: string
   }
 
-  /** 支払い金額 */
+  /** 返済金額 */
   amount: number
 }
 
 export type PaymentCreate = {
-  /** 支払い日 */
-  paid_at: string
-  /** 支払い先のユーザ-ID */
-  paid_to: string
-  /** 支払い金額 */
+  /** 返済日 */
+  paidAt: string
+  /** 返済先のユーザ-ID */
+  paidTo: string
+  /** 返済金額 */
   amount: number
 }
 
 export type PaymentUpdate = {
-  /** 支払い日 */
-  paid_at: string
-  /** 支払い先のユーザ-ID */
-  paid_to: string
-  /** 支払い元のユーザー */
-  paid_by: string
-  /** 支払い金額 */
+  /** 返済日 */
+  paidAt: string
+  /** 返済先のユーザ-ID */
+  paidTo: string
+  /** 返済元のユーザー */
+  paidBy: string
+  /** 返済金額 */
   amount: number
 }
 
@@ -173,7 +173,7 @@ export type PaymentUser = {
   /** ユーザー情報 */
   user: {
     /** ユーザーID */
-    uid: string
+    userId: string
     /** ユーザー名 */
     name: string
     /** メールアドレス */
@@ -182,7 +182,7 @@ export type PaymentUser = {
     photoUrl: string
   }
 
-  /** 支払い額 */
+  /** 返済額 */
   amount: number
 }
 
@@ -192,7 +192,7 @@ export type PaymentUsers = {
 
 export type User = {
   /** ユーザーID */
-  uid: string
+  userId: string
   /** ユーザー名 */
   name: string
   /** メールアドレス */
@@ -206,7 +206,7 @@ export type User = {
 export type UserEndpoints_Friends = {
   users: {
     /** ユーザーID */
-    uid: string
+    userId: string
     /** ユーザー名 */
     name: string
     /** メールアドレス */
@@ -218,7 +218,7 @@ export type UserEndpoints_Friends = {
 
 export type UserEndpoints_UserGetResponse = {
   /** ユーザーID */
-  uid: string
+  userId: string
   /** ユーザー名 */
   name: string
   /** メールアドレス */

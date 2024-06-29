@@ -9,11 +9,11 @@ import (
 
 type GroupUseCase interface {
 	GetGroups(c context.Context, uid string) ([]*model.Group, error)
-	CreateGroup(c context.Context, name string, owner string, members []string) (*model.Group, []*model.User, error)
+	CreateGroup(c context.Context, name string, userID string, members []string) (*model.Group, []*model.User, []*string, error)
 	GetGroupById(c context.Context, id string) (*model.Group, error)
 	GetMembers(c context.Context, id string, uid string, status string) ([]*model.User, []*string, error)
 	UpdateGroup(c context.Context, id string, name string) (*model.Group, []*model.User, error)
-	RegisterdMembers(c context.Context, id string, members []string) (*model.Group, []*model.User, error)
+	RegisterdMembers(c context.Context, userID string, id string, members []string) (*model.Group, []*model.User, []*string, error)
 }
 
 type groupUseCase struct {
@@ -25,13 +25,13 @@ type groupUseCase struct {
 }
 
 // CreateGroup implements GroupUseCase.
-func (g *groupUseCase) CreateGroup(c context.Context, name string, owner string, members []string) (*model.Group, []*model.User, error) {
+func (g *groupUseCase) CreateGroup(c context.Context, name string, userID string, members []string) (*model.Group, []*model.User, []*string, error) {
 	v, err := g.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		group, err := g.groupRepository.CreatGroup(c, name)
 		if err != nil {
 			return nil, err
 		}
-		members = append(members, owner)
+		members = append(members, userID)
 		for _, member := range members {
 			err := g.groupUserRepository.CreateGroupUser(c, member, group.ID)
 			if err != nil {
@@ -41,19 +41,26 @@ func (g *groupUseCase) CreateGroup(c context.Context, name string, owner string,
 		return group, nil
 	})
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	group := v.(*model.Group)
 	users := make([]*model.User, 0)
+	statuses := make([]*string, 0)
+
 	for _, member := range members {
 		user, err := g.userRepository.GetUserByUid(c, member)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
+		}
+		status, err := g.friendRepository.GetStatus(c, userID, user.ID)
+		if err != nil {
+			return nil, nil, nil, err
 		}
 		users = append(users, user)
+		statuses = append(statuses, &status)
 	}
 
-	return group, users, nil
+	return group, users, statuses, nil
 }
 
 // GetGroupById implements GroupUseCase.
@@ -122,7 +129,7 @@ func (g *groupUseCase) GetGroups(c context.Context, uid string) ([]*model.Group,
 }
 
 // RegisterdMembers implements GroupUseCase.
-func (g *groupUseCase) RegisterdMembers(c context.Context, id string, members []string) (*model.Group, []*model.User, error) {
+func (g *groupUseCase) RegisterdMembers(c context.Context, userID string, id string, members []string) (*model.Group, []*model.User, []*string, error) {
 	_, err := g.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		for _, member := range members {
 			err := g.groupUserRepository.CreateGroupUser(c, member, id)
@@ -133,26 +140,33 @@ func (g *groupUseCase) RegisterdMembers(c context.Context, id string, members []
 		return nil, nil
 	})
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	group, err := g.groupRepository.GetGroupById(c, id)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	groupUsers, err := g.groupUserRepository.GetGroupUserById(c, group.ID)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	users := make([]*model.User, 0)
+	statuses := make([]*string, 0)
+
 	for _, u := range groupUsers {
 		user, err := g.userRepository.GetUserByUid(c, u.UserID)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, nil, err
 		}
+		status, err := g.friendRepository.GetStatus(c, userID, user.ID)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		statuses = append(statuses, &status)
 		users = append(users, user)
 	}
 
-	return group, users, nil
+	return group, users, statuses, nil
 }
 
 // UpdateGroup implements GroupUseCase.

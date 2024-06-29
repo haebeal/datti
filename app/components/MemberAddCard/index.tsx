@@ -18,7 +18,7 @@ export function MemberAddCard({ user }: Props) {
       </Avatar>
       <h1 className="font-bold mr-auto">{user.name}</h1>
       <Form method="post">
-        <input readOnly type="hidden" name="uid" value={user.uid} />
+        <input readOnly type="hidden" name="userId" value={user.userId} />
         <Button
           disabled={state !== "idle"}
           className="font-semibold bg-sky-500 hover:bg-sky-600"

@@ -22,7 +22,7 @@ export function MemberList() {
             Array.isArray(members) && members.length > 0 ? (
               <div className="w-full flex flex-col items-center p-4 gap-3">
                 {members.map((member) => (
-                  <MemberCard key={member.uid} user={member} />
+                  <MemberCard key={member.userId} user={member} />
                 ))}
               </div>
             ) : (

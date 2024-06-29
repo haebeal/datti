@@ -9,5 +9,5 @@ export const groupFormSchema = z.object<
   ToZod<GroupEndpoints_GroupPostRequest | GroupEndpoints_GroupPutRequest>
 >({
   name: z.string(),
-  uids: z.array(z.string()),
+  userIds: z.array(z.string()),
 });

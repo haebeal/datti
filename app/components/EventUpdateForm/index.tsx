@@ -133,7 +133,7 @@ export function EventUpdateForm({ defaultValue }: Props) {
                 {({ members }) => (
                   <>
                     {members.map((member) => (
-                      <SelectItem key={member.uid} value={member.uid}>
+                      <SelectItem key={member.userId} value={member.userId}>
                         {member.name}
                       </SelectItem>
                     ))}
@@ -187,7 +187,8 @@ export function EventUpdateForm({ defaultValue }: Props) {
                   <Label>
                     {
                       members.find(
-                        ({ uid }) => uid === payment.getFieldset().paid_to.value
+                        ({ userId }) =>
+                          userId === payment.getFieldset().paid_to.value
                       )?.name
                     }
                   </Label>

@@ -34,7 +34,7 @@ export function FriendCard({ friend }: Props) {
 
       {status === "pending" ? (
         <Form method="delete">
-          <input type="hidden" name="uid" value={friend.uid} />
+          <input type="hidden" name="userId" value={friend.userId} />
           <Button
             disabled={state === "submitting"}
             className="font-semibold bg-red-500 hover:bg-red-600"
@@ -46,7 +46,7 @@ export function FriendCard({ friend }: Props) {
       ) : status === "applying" ? (
         <>
           <Form method="post">
-            <input type="hidden" name="uid" value={friend.uid} />
+            <input type="hidden" name="userId" value={friend.userId} />
             <Button
               disabled={state === "submitting"}
               className="font-semibold bg-sky-500 hover:bg-sky-600"
@@ -56,7 +56,7 @@ export function FriendCard({ friend }: Props) {
             </Button>
           </Form>
           <Form method="delete">
-            <input type="hidden" name="uid" value={friend.uid} />
+            <input type="hidden" name="userId" value={friend.userId} />
             <Button
               disabled={state === "submitting"}
               className="font-semibold bg-red-500 hover:bg-red-600"
@@ -88,7 +88,7 @@ export function FriendCard({ friend }: Props) {
             <AlertDialogFooter>
               <AlertDialogCancel>キャンセル</AlertDialogCancel>
               <Form method="delete">
-                <input type="hidden" name="uid" value={friend.uid} />
+                <input type="hidden" name="userId" value={friend.userId} />
                 <AlertDialogAction
                   disabled={state === "submitting"}
                   className="font-semibold bg-red-500 hover:bg-red-600"

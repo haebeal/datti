@@ -30,7 +30,7 @@ export const groupAction = async ({
       const { name } = await client.groups.$post({
         body: {
           ...submission.value,
-          uids: [],
+          userIds: [],
         },
       });
       return json({

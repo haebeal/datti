@@ -61,8 +61,8 @@ export default function GroupEvents() {
                     defaultValue={{
                       payments: members
                         .filter(({ status }) => status !== "me")
-                        .map(({ uid }) => ({
-                          paid_to: uid,
+                        .map(({ userId }) => ({
+                          paid_to: userId,
                           amount: 0,
                         })),
                     }}

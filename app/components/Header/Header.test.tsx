@@ -6,7 +6,7 @@ import { User } from "~/api/@types";
 import { Header } from "~/components/Header";
 
 const profileMock = {
-  uid: "0001",
+  userId: "0001",
   status: "me",
   name: "テストユーザー",
   email: "test@example.com",

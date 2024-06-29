@@ -20,7 +20,7 @@ export function FriendRequestList() {
         {({ users }) =>
           Array.isArray(users) && users.length > 0 ? (
             users.map((user) => (
-              <FriendRequestCard key={user.uid} user={user} />
+              <FriendRequestCard key={user.userId} user={user} />
             ))
           ) : (
             <div className="w-full h-full grid place-content-center">

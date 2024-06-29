@@ -15,7 +15,7 @@ export const friendAction = async ({
 
   // フレンド申請処理
   if (request.method === "POST") {
-    const userId = formData.get("uid")?.toString();
+    const userId = formData.get("userId")?.toString();
     if (userId === undefined) {
       return json({
         message: "ユーザーIDの取得に失敗しました",
@@ -40,7 +40,7 @@ export const friendAction = async ({
 
   // フレンド削除、申請取り消し・却下処理
   if (request.method === "DELETE") {
-    const userId = formData.get("uid")?.toString();
+    const userId = formData.get("userId")?.toString();
     if (userId === undefined) {
       return json({
         message: "ユーザーIDの取得に失敗しました",

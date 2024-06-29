@@ -18,7 +18,7 @@ import {
 import { Button } from "~/components/ui/button";
 
 interface Props {
-  event: Pick<EventEndpoints_EventResponse, "id" | "name">;
+  event: Pick<EventEndpoints_EventResponse, "eventId" | "name">;
 }
 
 export function EventCard({ event }: Props) {
@@ -31,7 +31,7 @@ export function EventCard({ event }: Props) {
     <div className="flex flex-row  w-full bg-white hover:bg-slate-50 items-center rounded-md border border-gray-200 px-6">
       <div
         className="flex-1 hover:cursor-pointer py-5 gap-5 "
-        onClick={() => navigate(`${pathname}/${event.id}`)}
+        onClick={() => navigate(`${pathname}/${event.eventId}`)}
       >
         <h1 className="text-lg font-bold mr-auto">{event.name}</h1>
       </div>

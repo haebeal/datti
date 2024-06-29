@@ -18,7 +18,7 @@ export const Default: Story = {
   args: {
     defaultValue: {
       name: "テストイベント",
-      evented_at: new Date().toISOString(),
+      eventedAt: new Date().toISOString(),
       payments: [],
     },
   },

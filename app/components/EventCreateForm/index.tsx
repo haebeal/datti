@@ -45,7 +45,8 @@ interface Props {
 export function EventCreateForm({ defaultValue }: Props) {
   const { members } = useLoaderData<EventLoader>();
   const actionData = useActionData<EventAction>();
-  const [form, { name, evented_at, amount, payments, paid_by }] = useForm({
+
+  const [form, { name, eventedAt, amount, payments, paidBy }] = useForm({
     defaultValue,
     lastResult: actionData?.submission,
     onValidate({ formData }) {
@@ -56,7 +57,7 @@ export function EventCreateForm({ defaultValue }: Props) {
   });
   const paymentFields = payments.getFieldList();
 
-  const { change } = useInputControl(evented_at);
+  const { change } = useInputControl(eventedAt);
   const { state } = useNavigation();
 
   const nameId = useId();
@@ -92,12 +93,12 @@ export function EventCreateForm({ defaultValue }: Props) {
               id={eventedAtId}
               className={cn(
                 "w-full pl-3 text-left font-normal",
-                !evented_at.value && "text-muted-foreground"
+                !eventedAt.value && "text-muted-foreground"
               )}
               disabled={state !== "idle"}
             >
-              {evented_at.value ? (
-                format(evented_at.value, "yyyy/MM/dd")
+              {eventedAt.value ? (
+                format(eventedAt.value, "yyyy/MM/dd")
               ) : (
                 <span>日付を選択してください</span>
               )}
@@ -107,21 +108,19 @@ export function EventCreateForm({ defaultValue }: Props) {
           <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               mode="single"
-              selected={
-                evented_at.value ? new Date(evented_at.value) : undefined
-              }
+              selected={eventedAt.value ? new Date(eventedAt.value) : undefined}
               onSelect={(value) => change(value?.toISOString())}
               initialFocus
             />
           </PopoverContent>
         </Popover>
-        <p>{evented_at.errors?.toString()}</p>
+        <p>{eventedAt.errors?.toString()}</p>
       </div>
       <div className="w-full">
         <Label htmlFor={paidById}>支払った人</Label>
         <Select
-          {...getSelectProps(paid_by)}
-          defaultValue={paid_by.value}
+          {...getSelectProps(paidBy)}
+          defaultValue={paidBy.value}
           disabled={state !== "idle"}
         >
           <SelectTrigger>
@@ -143,7 +142,7 @@ export function EventCreateForm({ defaultValue }: Props) {
             </Suspense>
           </SelectContent>
         </Select>
-        <p>{paid_by.errors?.toString()}</p>
+        <p>{paidBy.errors?.toString()}</p>
       </div>
       <div className="w-full">
         <Label htmlFor={amountId}>支払い額</Label>
@@ -182,15 +181,15 @@ export function EventCreateForm({ defaultValue }: Props) {
                     {
                       members.find(
                         ({ userId }) =>
-                          userId === payment.getFieldset().paid_to.value
+                          userId === payment.getFieldset().paidTo.value
                       )?.name
                     }
                   </Label>
                   <input
-                    {...getInputProps(payment.getFieldset().paid_to, {
+                    {...getInputProps(payment.getFieldset().paidTo, {
                       type: "hidden",
                     })}
-                    key={payment.getFieldset().paid_to.id}
+                    key={payment.getFieldset().paidTo.id}
                   />
                   <Input
                     {...getInputProps(payment.getFieldset().amount, {

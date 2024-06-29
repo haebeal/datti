@@ -62,7 +62,7 @@ export default function GroupEvents() {
                       payments: members
                         .filter(({ status }) => status !== "me")
                         .map(({ userId }) => ({
-                          paid_to: userId,
+                          paidTo: userId,
                           amount: 0,
                         })),
                     }}

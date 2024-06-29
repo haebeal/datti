@@ -39,3 +39,7 @@ export const eventUpdateFormSchema = z.object<
     })
   ),
 });
+
+export const eventDeleteFormSchema = z.object({
+  eventId: z.string(),
+});

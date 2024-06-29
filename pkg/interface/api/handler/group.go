@@ -127,13 +127,13 @@ func (g *groupHandler) HandleGetMembers(c echo.Context) error {
 func (g *groupHandler) HandleRegisterd(c echo.Context) error {
 	req := new(request.Uids)
 	errResponse := new(response.Error)
-	id := c.Param("id")
+	groupId := c.Param("groupId")
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	}
 
-	group, members, err := g.useCase.RegisterdMembers(c.Request().Context(), id, req.Uids)
+	group, members, err := g.useCase.RegisterdMembers(c.Request().Context(), groupId, req.Uids)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)

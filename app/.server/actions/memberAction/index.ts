@@ -30,13 +30,13 @@ export const memberAction = async ({
       });
     }
     try {
-      const { name } = await client.groups._groupId(groupId).members.$post({
+      const { members } = await client.groups._groupId(groupId).members.$post({
         body: {
           userIds: [userId],
         },
       });
       return json({
-        message: `${name}をメンバーに追加しました`,
+        message: `${members[0].name}をメンバーに追加しました`,
         submission: undefined,
       });
     } catch (error) {

@@ -7,18 +7,12 @@ import {
 } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { CalendarIcon } from "@radix-ui/react-icons";
-import {
-  Await,
-  Form,
-  useActionData,
-  useLoaderData,
-  useNavigation,
-} from "@remix-run/react";
+import { PopoverClose } from "@radix-ui/react-popover";
+import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { format } from "date-fns";
-import { Suspense, useId } from "react";
+import { useId } from "react";
 import { EventAction } from "~/.server/actions";
-import { EventLoader } from "~/.server/loaders";
-import { EventEndpoints_EventPostRequest } from "~/api/@types";
+import { EventEndpoints_EventPostRequest, Member } from "~/api/@types";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { Input } from "~/components/ui/input";
@@ -40,10 +34,10 @@ import { eventCreateFormSchema } from "~/schema/eventFormSchema";
 
 interface Props {
   defaultValue?: Partial<EventEndpoints_EventPostRequest>;
+  members: Member[];
 }
 
-export function EventCreateForm({ defaultValue }: Props) {
-  const { members } = useLoaderData<EventLoader>();
+export function EventCreateForm({ defaultValue, members }: Props) {
   const actionData = useActionData<EventAction>();
 
   const [form, { name, eventedAt, amount, payments, paidBy }] = useForm({
@@ -106,12 +100,16 @@ export function EventCreateForm({ defaultValue }: Props) {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={eventedAt.value ? new Date(eventedAt.value) : undefined}
-              onSelect={(value) => change(value?.toISOString())}
-              initialFocus
-            />
+            <PopoverClose>
+              <Calendar
+                mode="single"
+                selected={
+                  eventedAt.value ? new Date(eventedAt.value) : undefined
+                }
+                onSelect={(value) => change(value?.toISOString())}
+                initialFocus
+              />
+            </PopoverClose>
           </PopoverContent>
         </Popover>
         <p>{eventedAt.errors?.toString()}</p>
@@ -121,25 +119,38 @@ export function EventCreateForm({ defaultValue }: Props) {
         <Select
           {...getSelectProps(paidBy)}
           defaultValue={paidBy.value}
+          onValueChange={(value) => {
+            [...Array(members.length - 1)].forEach(() => {
+              form.remove({
+                name: payments.name,
+                index: 0,
+              });
+            });
+            window.setTimeout(() => {
+              members
+                .filter((member) => member.userId !== value)
+                .forEach((member) => {
+                  form.insert({
+                    name: payments.name,
+                    defaultValue: {
+                      paidTo: member.userId,
+                      amount: "0",
+                    },
+                  });
+                });
+            }, 250);
+          }}
           disabled={state !== "idle"}
         >
           <SelectTrigger>
             <SelectValue placeholder="ユーザーを選択" />
           </SelectTrigger>
           <SelectContent>
-            <Suspense>
-              <Await resolve={members}>
-                {({ members }) => (
-                  <>
-                    {members.map((member) => (
-                      <SelectItem key={member.userId} value={member.userId}>
-                        {member.name}
-                      </SelectItem>
-                    ))}
-                  </>
-                )}
-              </Await>
-            </Suspense>
+            {members.map((member) => (
+              <SelectItem key={member.userId} value={member.userId}>
+                {member.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
         <p>{paidBy.errors?.toString()}</p>
@@ -171,41 +182,32 @@ export function EventCreateForm({ defaultValue }: Props) {
           id={burdenId}
         />
       </div>
-      <Suspense fallback={<p>loading...</p>}>
-        <Await resolve={members}>
-          {({ members }) => (
-            <>
-              {paymentFields.map((payment) => (
-                <div key={payment.id} className="w-full">
-                  <Label>
-                    {
-                      members.find(
-                        ({ userId }) =>
-                          userId === payment.getFieldset().paidTo.value
-                      )?.name
-                    }
-                  </Label>
-                  <input
-                    {...getInputProps(payment.getFieldset().paidTo, {
-                      type: "hidden",
-                    })}
-                    key={payment.getFieldset().paidTo.id}
-                  />
-                  <Input
-                    {...getInputProps(payment.getFieldset().amount, {
-                      type: "number",
-                    })}
-                    key={payment.getFieldset().amount.id}
-                    placeholder="立替金額を入力"
-                    disabled={state !== "idle"}
-                  />
-                  <p>{payment.getFieldset().amount.errors?.toString()}</p>
-                </div>
-              ))}
-            </>
-          )}
-        </Await>
-      </Suspense>
+      {paymentFields.map((payment) => (
+        <div key={payment.id} className="w-full">
+          <Label>
+            {
+              members.find(
+                ({ userId }) => userId === payment.getFieldset().paidTo.value
+              )?.name
+            }
+          </Label>
+          <input
+            {...getInputProps(payment.getFieldset().paidTo, {
+              type: "hidden",
+            })}
+            key={payment.getFieldset().paidTo.id}
+          />
+          <Input
+            {...getInputProps(payment.getFieldset().amount, {
+              type: "number",
+            })}
+            key={payment.getFieldset().amount.id}
+            placeholder="立替金額を入力"
+            disabled={state !== "idle"}
+          />
+          <p>{payment.getFieldset().amount.errors?.toString()}</p>
+        </div>
+      ))}
       <Button
         type="submit"
         className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"

@@ -56,18 +56,7 @@ export default function GroupEvents() {
             </DialogHeader>
             <Suspense fallback={<p>loading...</p>}>
               <Await resolve={members}>
-                {({ members }) => (
-                  <EventCreateForm
-                    defaultValue={{
-                      payments: members
-                        .filter(({ status }) => status !== "me")
-                        .map(({ userId }) => ({
-                          paidTo: userId,
-                          amount: 0,
-                        })),
-                    }}
-                  />
-                )}
+                {({ members }) => <EventCreateForm members={members} />}
               </Await>
             </Suspense>
           </DialogContent>

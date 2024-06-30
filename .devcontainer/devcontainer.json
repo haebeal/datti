@@ -1,6 +1,9 @@
 {
   "name": "datti-web",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+  "containerEnv": {
+    "TZ": "Asia/Tokyo"
+  },
   "customizations": {
     "vscode": {
       "extensions": [

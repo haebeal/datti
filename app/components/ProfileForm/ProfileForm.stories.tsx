@@ -7,7 +7,7 @@ const meta = {
   tags: ["autodocs"],
   args: {
     defaultValue: {
-      uid: "0001",
+      userId: "0001",
       name: "テストユーザー",
       email: "test@example.com",
       photoUrl: "https://i.pravatar.cc/300",

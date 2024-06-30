@@ -11,12 +11,12 @@ export const eventCreateFormSchema = z.object<
   name: z.string({
     required_error: "名前を入力してください",
   }),
-  evented_at: z.string().datetime(),
-  paid_by: z.string(),
+  eventedAt: z.string().datetime(),
+  paidBy: z.string(),
   amount: z.number(),
   payments: z.array(
     z.object({
-      paid_to: z.string(),
+      paidTo: z.string(),
       amount: z.number(),
     })
   ),
@@ -28,14 +28,18 @@ export const eventUpdateFormSchema = z.object<
   name: z.string({
     required_error: "名前を入力してください",
   }),
-  evented_at: z.string().datetime(),
-  paid_by: z.string(),
+  eventedAt: z.string().datetime(),
+  paidBy: z.string(),
   amount: z.number(),
   payments: z.array(
     z.object({
-      payment_id: z.string(),
-      paid_to: z.string(),
+      paymentId: z.string().optional(),
+      paidTo: z.string(),
       amount: z.number(),
     })
   ),
+});
+
+export const eventDeleteFormSchema = z.object({
+  eventId: z.string(),
 });

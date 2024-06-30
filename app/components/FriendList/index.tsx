@@ -35,7 +35,7 @@ export function FriendList() {
             Array.isArray(users) && users.length > 0 ? (
               <div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
                 {users.map((user) => (
-                  <FriendCard key={user.uid} friend={user} />
+                  <FriendCard key={user.userId} friend={user} />
                 ))}
               </div>
             ) : (

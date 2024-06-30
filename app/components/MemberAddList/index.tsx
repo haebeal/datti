@@ -25,9 +25,11 @@ export function MemberAddList() {
               users.length > 0 ? (
                 users
                   .filter((user) =>
-                    members.every((member) => user.uid !== member.uid)
+                    members.every((member) => user.userId !== member.userId)
                   )
-                  .map((user) => <MemberAddCard key={user.uid} user={user} />)
+                  .map((user) => (
+                    <MemberAddCard key={user.userId} user={user} />
+                  ))
               ) : (
                 <div className="w-full h-full grid place-content-center">
                   <h3 className="font-semibold">

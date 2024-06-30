@@ -9,7 +9,7 @@ const meta = {
   args: {
     users: [
       {
-        uid: "001",
+        userId: "001",
         name: "テストユーザー1",
         email: "test01@example.com",
         photoUrl: "https://i.pravatar.cc/300?img=1",
@@ -20,7 +20,7 @@ const meta = {
         },
       },
       {
-        uid: "002",
+        userId: "002",
         name: "テストユーザー2",
         email: "test02@example.com",
         photoUrl: "https://i.pravatar.cc/300?img=2",

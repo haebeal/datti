@@ -1,3 +1,5 @@
+import { getFormProps, getInputProps, useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
 import {
   Form,
   useLocation,
@@ -16,9 +18,10 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
+import { eventDeleteFormSchema } from "~/schema/eventFormSchema";
 
 interface Props {
-  event: Pick<EventEndpoints_EventResponse, "id" | "name">;
+  event: Pick<EventEndpoints_EventResponse, "eventId" | "name">;
 }
 
 export function EventCard({ event }: Props) {
@@ -27,11 +30,20 @@ export function EventCard({ event }: Props) {
 
   const navigate = useNavigate();
 
+  const [form, { eventId }] = useForm({
+    defaultValue: event,
+    onValidate({ formData }) {
+      return parseWithZod(formData, {
+        schema: eventDeleteFormSchema,
+      });
+    },
+  });
+
   return (
     <div className="flex flex-row  w-full bg-white hover:bg-slate-50 items-center rounded-md border border-gray-200 px-6">
       <div
         className="flex-1 hover:cursor-pointer py-5 gap-5 "
-        onClick={() => navigate(`${pathname}/${event.id}`)}
+        onClick={() => navigate(`${pathname}/${event.eventId}`)}
       >
         <h1 className="text-lg font-bold mr-auto">{event.name}</h1>
       </div>
@@ -59,8 +71,8 @@ export function EventCard({ event }: Props) {
             <AlertDialogCancel onClick={(event) => event.stopPropagation()}>
               キャンセル
             </AlertDialogCancel>
-            <Form method="delete">
-              <input type="hidden" name="eventId" value={event.id} />
+            <Form {...getFormProps(form)} method="delete">
+              <input {...getInputProps(eventId, { type: "hidden" })} />
               <AlertDialogAction
                 disabled={state === "submitting"}
                 onClick={(event) => event.stopPropagation()}

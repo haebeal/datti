@@ -22,7 +22,7 @@ export function GroupList() {
             Array.isArray(groups) && groups.length > 0 ? (
               <div className="w-full flex flex-col items-center p-4 gap-3">
                 {groups.map((group) => (
-                  <GroupCard key={group.id} group={group} />
+                  <GroupCard key={group.groupId} group={group} />
                 ))}
               </div>
             ) : (

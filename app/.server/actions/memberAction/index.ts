@@ -16,7 +16,7 @@ export const memberAction = async ({
   // メンバー追加処理
   if (request.method === "POST") {
     const groupId = params.groupId;
-    const userId = formData.get("uid")?.toString();
+    const userId = formData.get("userId")?.toString();
     if (userId === undefined) {
       return json({
         message: "ユーザーIDの取得に失敗しました",
@@ -30,13 +30,13 @@ export const memberAction = async ({
       });
     }
     try {
-      const { name } = await client.groups._groupId(groupId).members.$post({
+      const { members } = await client.groups._groupId(groupId).members.$post({
         body: {
-          uids: [userId],
+          userIds: [userId],
         },
       });
       return json({
-        message: `${name}をメンバーに追加しました`,
+        message: `${members[0].name}をメンバーに追加しました`,
         submission: undefined,
       });
     } catch (error) {

@@ -22,7 +22,7 @@ export function EventList() {
             Array.isArray(events) && events.length > 0 ? (
               <div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
                 {events.map((event) => (
-                  <EventCard key={event.id} event={event} />
+                  <EventCard key={event.eventId} event={event} />
                 ))}
               </div>
             ) : (

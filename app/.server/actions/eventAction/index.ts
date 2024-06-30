@@ -5,6 +5,7 @@ import { createClient } from "~/lib/apiClient";
 import { getIdToken } from "~/lib/getIdToken.server";
 import {
   eventCreateFormSchema,
+  eventDeleteFormSchema,
   eventUpdateFormSchema,
 } from "~/schema/eventFormSchema";
 
@@ -99,25 +100,28 @@ export const eventAction = async ({
 
   // イベント削除処理
   if (request.method === "DELETE") {
+    const submission = parseWithZod(formData, {
+      schema: eventDeleteFormSchema,
+    });
+    if (submission.status !== "success") {
+      return json({
+        message: "バリデーションに失敗しました",
+        submission: submission.reply(),
+      });
+    }
     const groupId = params.groupId;
     if (groupId === undefined) {
       return json({
         message: "グループIDの取得に失敗しました",
-        submission: undefined,
+        submission: submission.reply(),
       });
     }
-    const eventId = formData.get("eventId")?.toString();
-    if (eventId === undefined) {
-      return json({
-        message: "イベントIDの取得に失敗しました",
-        submission: undefined,
-      });
-    }
+    const eventId = submission.value.eventId;
     try {
       await client.groups._groupId(groupId).events._eventId(eventId).$delete();
       return json({
         message: "イベントを削除しました",
-        submission: undefined,
+        submission: submission.reply(),
       });
     } catch (error) {
       if (error instanceof HTTPError) {

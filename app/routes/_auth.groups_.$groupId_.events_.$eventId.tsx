@@ -25,7 +25,7 @@ function LoadingSpinner() {
 export default function EventDetail() {
   const { toast } = useToast();
 
-  const { event } = useLoaderData<EventLoader>();
+  const { event, members } = useLoaderData<EventLoader>();
   const actionData = useActionData<EventAction>();
   useEffect(() => {
     if (actionData) {
@@ -44,7 +44,13 @@ export default function EventDetail() {
         <div className="flex flex-col py-3 gap-7">
           <Suspense fallback={<LoadingSpinner />}>
             <Await resolve={event}>
-              {(event) => <EventUpdateForm defaultValue={event} />}
+              {(event) => (
+                <Await resolve={members}>
+                  {({ members }) => (
+                    <EventUpdateForm defaultValue={event} members={members} />
+                  )}
+                </Await>
+              )}
             </Await>
           </Suspense>
         </div>

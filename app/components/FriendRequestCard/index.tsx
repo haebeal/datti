@@ -18,7 +18,7 @@ export function FriendRequestCard({ user }: Props) {
       </Avatar>
       <h1 className="font-bold mr-auto">{user.name}</h1>
       <Form method="post">
-        <input type="hidden" name="uid" value={user.uid} />
+        <input type="hidden" name="userId" value={user.userId} />
         <Button
           disabled={state !== "idle"}
           className="font-semibold bg-sky-500 hover:bg-sky-600"

@@ -74,7 +74,7 @@ export function EventUpdateForm({ defaultValue, members }: Props) {
           })
         );
     }
-  }, [members]);
+  }, [members]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const nameId = useId();
   const eventedAtId = useId();

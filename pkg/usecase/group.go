@@ -146,24 +146,25 @@ func (g *groupUseCase) RegisterdMembers(c context.Context, userID string, id str
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	groupUsers, err := g.groupUserRepository.GetGroupUserById(c, group.ID)
-	if err != nil {
-		return nil, nil, nil, err
-	}
-	users := make([]*model.User, 0)
-	statuses := make([]*string, 0)
 
-	for _, u := range groupUsers {
-		user, err := g.userRepository.GetUserByUid(c, u.UserID)
+	// 登録したユーザーを取得
+	users := make([]*model.User, 0)
+	for _, member := range members {
+		user, err := g.userRepository.GetUserByUid(c, member)
 		if err != nil {
 			return nil, nil, nil, err
 		}
-		status, err := g.friendRepository.GetStatus(c, userID, user.ID)
+		users = append(users, user)
+	}
+
+	// 登録したユーザーのステータスを取得
+	statuses := make([]*string, 0)
+	for _, u := range users {
+		status, err := g.friendRepository.GetStatus(c, userID, u.ID)
 		if err != nil {
 			return nil, nil, nil, err
 		}
 		statuses = append(statuses, &status)
-		users = append(users, user)
 	}
 
 	return group, users, statuses, nil

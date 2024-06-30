@@ -13,7 +13,7 @@ export type Methods = {
   post: {
     status: 200
     /** The request has succeeded. */
-    resBody: Types.GroupEndpoints_GroupGetResponse
+    resBody: Types.GroupEndpoints_GroupPostResponse
     reqBody: Types.GroupEndpoints_GroupPostRequest
   }
 }

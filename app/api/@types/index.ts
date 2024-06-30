@@ -83,6 +83,14 @@ export type GroupEndpoints_GroupPostRequest = {
   userIds: string[]
 }
 
+export type GroupEndpoints_GroupPostResponse = {
+  /** グループID */
+  groupId: string
+  /** グループ名 */
+  name: string
+  members: Member[]
+}
+
 export type GroupEndpoints_GroupPutRequest = {
   /** グループ名 */
   name: string

@@ -32,20 +32,30 @@ func (g *groupHandler) HandleCreate(c echo.Context) error {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	}
-	group, members, err := g.useCase.CreateGroup(c.Request().Context(), req.Name, userID, req.Uids)
+	group, members, statuses, err := g.useCase.CreateGroup(c.Request().Context(), req.Name, userID, req.Uids)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, struct {
-			ID    string        `json:"groupId"`
-			Name  string        `json:"name"`
-			Users []*model.User `json:"users"`
-		}{
-			ID:    group.ID,
-			Name:  group.Name,
-			Users: members,
-		})
+		res := new(response.GroupMembers)
+		res.ID = group.ID
+		res.Name = group.Name
+		for i, member := range members {
+			res.Members = append(res.Members, struct {
+				UID      string `json:"userId"`
+				Name     string `json:"name"`
+				Email    string `json:"email"`
+				PhotoUrl string `json:"photoUrl"`
+				Status   string `json:"status"`
+			}{
+				UID:      member.ID,
+				Name:     member.Name,
+				Email:    member.Email,
+				PhotoUrl: member.PhotoUrl,
+				Status:   *statuses[i],
+			})
+		}
+		return c.JSON(http.StatusOK, res)
 	}
 }
 
@@ -127,26 +137,37 @@ func (g *groupHandler) HandleGetMembers(c echo.Context) error {
 func (g *groupHandler) HandleRegisterd(c echo.Context) error {
 	req := new(request.Uids)
 	errResponse := new(response.Error)
-	groupId := c.Param("groupId")
+	userID := c.Get("uid").(string)
+	groupID := c.Param("groupId")
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	}
 
-	group, members, err := g.useCase.RegisterdMembers(c.Request().Context(), groupId, req.Uids)
+	group, members, statuses, err := g.useCase.RegisterdMembers(c.Request().Context(), userID, groupID, req.Uids)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
-		return c.JSON(http.StatusOK, struct {
-			ID    string        `json:"groupId"`
-			Name  string        `json:"name"`
-			Users []*model.User `json:"users"`
-		}{
-			ID:    group.ID,
-			Name:  group.Name,
-			Users: members,
-		})
+		res := new(response.GroupMembers)
+		res.ID = group.ID
+		res.Name = group.Name
+		for i, member := range members {
+			res.Members = append(res.Members, struct {
+				UID      string `json:"userId"`
+				Name     string `json:"name"`
+				Email    string `json:"email"`
+				PhotoUrl string `json:"photoUrl"`
+				Status   string `json:"status"`
+			}{
+				UID:      member.ID,
+				Name:     member.Name,
+				Email:    member.Email,
+				PhotoUrl: member.PhotoUrl,
+				Status:   *statuses[i],
+			})
+		}
+		return c.JSON(http.StatusOK, res)
 	}
 }
 

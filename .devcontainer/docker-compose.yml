@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: datti-api
+    build: 
+      context: ..
+      dockerfile: .devcontainer/dockerfile 
+    environment:
+      - TZ=Asia/Tokyo
+    volumes:
+      - ..:/datti-api:cached
+
+    command: sleep infinity
+    working_dir: /datti-api
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
+  db:
+    container_name: datti-db
+    image: postgres:15
+    ports:
+      - "5432:5432"
+    volumes:
+      - type: bind
+        source: ../docker/db
+        target: /var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: datti_db
+      TZ: Asia/Tokyo

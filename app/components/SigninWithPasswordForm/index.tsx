@@ -43,7 +43,7 @@ export function SigninWithPasswordForm() {
       <div className="w-full">
         <Label htmlFor={emailId}>パスワード</Label>
         <Input
-          {...getInputProps(password, { type: "email" })}
+          {...getInputProps(password, { type: "password" })}
           placeholder="パスワードを入力"
           disabled={state !== "idle"}
           id={passwordId}

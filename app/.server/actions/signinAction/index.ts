@@ -42,7 +42,7 @@ export const signinAction = async ({
       authSession.set("refreshToken", refreshToken);
       authSession.set("expiresDateTime", dt.toISOString());
 
-      throw redirect("/", {
+      return redirect("/", {
         headers: {
           "Set-Cookie": await authSessionStorage.commitSession(authSession),
         },

@@ -28,21 +28,21 @@ export function ProfileForm({ defaultValue }: Props) {
 
   const emailId = useId();
   const nameId = useId();
+  const photoUrlId = useId();
 
   return (
-    <div className="grid grid-cols-5 px-4 gap-3">
+    <Form
+      method="post"
+      {...getFormProps(form)}
+      className="grid grid-cols-5 px-4 gap-3"
+    >
       <div className="col-span-5 md:col-span-2 grid place-content-center max-h-80 py-10">
-        <Avatar className="size-full max-md max-w-60 max-h-60 border border-gray-200">
-          <AvatarImage className="hover:cursor-pointer" src={photoUrl.value} />
-          <AvatarFallback>{name.value} photo</AvatarFallback>
+        <Avatar className="w-40 h-40 md:w-60 md:h-60 border border-gray-200 hover:cursor-pointer">
+          <AvatarImage src={photoUrl.value} />
+          <AvatarFallback>{name.value}</AvatarFallback>
         </Avatar>
       </div>
-      <Form
-        method="post"
-        {...getFormProps(form)}
-        className="flex flex-col gap-8 items-center col-span-5 md:col-span-3"
-      >
-        <Input {...getInputProps(photoUrl, { type: "hidden" })} />
+      <div className="flex flex-col gap-8 items-center col-span-5 md:col-span-3">
         <div className="w-full">
           <Label htmlFor={emailId}>メールアドレス</Label>
           <Input
@@ -52,6 +52,17 @@ export function ProfileForm({ defaultValue }: Props) {
             id={emailId}
             placeholder="datti@example.com"
           />
+        </div>
+        <div className="w-full">
+          <Label htmlFor={photoUrlId}>プロフィール画像</Label>
+          <Input
+            {...getInputProps(photoUrl, { type: "text" })}
+            data-1p-ignore
+            id={photoUrlId}
+            disabled={state !== "idle"}
+            placeholder="プロフィール画像のURLを入力"
+          />
+          <p>{photoUrl.errors?.toString()}</p>
         </div>
         <div className="w-full">
           <Label htmlFor={nameId}>ユーザー名</Label>
@@ -71,7 +82,7 @@ export function ProfileForm({ defaultValue }: Props) {
         >
           更新
         </Button>
-      </Form>
-    </div>
+      </div>
+    </Form>
   );
 }

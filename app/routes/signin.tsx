@@ -37,12 +37,8 @@ export default function SignIn() {
           を記録するサービス
         </h2>
         <Separator />
-        {process.env.NODE_ENV !== "production" && (
-          <>
-            <SigninWithPasswordForm />
-            <Separator />
-          </>
-        )}
+        <SigninWithPasswordForm />
+        <Separator />
         <Form action="/api/auth/signin" method="post">
           <Button type="submit">Googleでログイン</Button>
         </Form>

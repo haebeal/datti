@@ -23,8 +23,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Fly Install
-        uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Install Fly CLI
+        run: curl -L https://fly.io/install.sh | sh
 
       - name: Set up Docker Buildx
         id: buildx

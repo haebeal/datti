@@ -36,7 +36,7 @@ jobs:
         with:
           file: ./dockerfile  # Dockerfile のパスを指定
           push: true
-          tags: registry.fly.io/${{ vars.FLY_APP_NAME }}:latest  # ビルドしたイメージを指定
+          tags: registry.fly.io/${{ vars.FLY_APP_NAME }} # ビルドしたイメージを指定
 
       - name: Deploy to Fly.io
         run: |

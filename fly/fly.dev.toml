@@ -3,8 +3,8 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'datti-api-dev'
-primary_region = 'nrt'
+app = "datti-api-dev"
+primary_region = "nrt"
 
 [build]
   image = "registry.fly.io/datti-api-dev:latest"
@@ -15,9 +15,9 @@ primary_region = 'nrt'
   auto_stop_machines = false
   auto_start_machines = false
   min_machines_running = 1
-  processes = ['app']
+  processes = ["app"]
 
 [[vm]]
-  cpu_kind = 'shared'
+  cpu_kind = "shared"
   cpus = 1
   memory_mb = 256

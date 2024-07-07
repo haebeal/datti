@@ -39,6 +39,14 @@ export function Header() {
           >
             グループ
           </NavLink>
+          <NavLink
+            className={({ isActive }) =>
+              !isActive ? "text-gray-400" : undefined
+            }
+            to="/payments"
+          >
+            返済
+          </NavLink>
         </div>
 
         <Suspense

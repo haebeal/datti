@@ -23,6 +23,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Fly Install
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Determine Fly.io app name
         id: get-app-name
         run: |
@@ -31,26 +38,18 @@ jobs:
           elif [ "${{ inputs.environment }}" == "dev" ]; then
             echo "FLY_APP_NAME=datti-api-dev" >> $GITHUB_ENV
           fi
-
-      - name: Fly Install
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        shell: bash
 
       - name: Build and push Docker image
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          docker buildx create --use
-          docker buildx build --platform linux/amd64,linux/arm64 -t fly-image .
-          docker images
-          docker tag fly-image registry.fly.io/${{ env.FLY_APP_NAME }}
-          docker push registry.fly.io/${{ env.FLY_APP_NAME }}
+          docker buildx build --platform linux/amd64,linux/arm64 -t registry.fly.io/${{ steps.get-app-name.outputs.app-name }} .
+          docker push registry.fly.io/${{ steps.get-app-name.outputs.app-name }}
 
       - name: Deploy to Fly.io
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          flyctl deploy -i registry.fly.io/${{ env.FLY_APP_NAME }} --org ${{ secrets.FLY_ORG }}
+          flyctl deploy -i registry.fly.io/${{ steps.get-app-name.outputs.app-name }} --org ${{ secrets.FLY_ORG }}
 

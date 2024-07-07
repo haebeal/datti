@@ -11,21 +11,45 @@ on:
         type: string
         required: true
         description: コミットID(SHA)
+
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
+
     environment:
       name: ${{ inputs.environment }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      # - name: Fly Insatll 
-      #   uses: superfly/flyctl-actions/setup-flyctl@master
-      # - name: Delpoy to Fly  
-      #   run: flyctl deploy --remote-only --config ${{ vars.FLY_CONFIG_PATH }}
-        # env:
-        #   FLY_API_TOKEN: ${{ secrets.FLY_TOKEN }}
-      - name: Build
-        run: docker build ./ -t test
-      
+
+      - name: Determine Fly.io app name
+        id: get-app-name
+        run: |
+          if [ "${{ inputs.environment }}" == "prod" ]; then
+            echo "FLY_APP_NAME=datti-api-prod" >> $GITHUB_ENV
+          elif [ "${{ inputs.environment }}" == "dev" ]; then
+            echo "FLY_APP_NAME=datti-api-dev" >> $GITHUB_ENV
+          fi
+
+      - name: Fly Install
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build and push Docker image
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          docker buildx create --use
+          docker buildx build --platform linux/amd64,linux/arm64 -t fly-image-name .
+          docker tag fly-image-name registry.fly.io/${{ env.FLY_APP_NAME }}
+          docker push registry.fly.io/${{ env.FLY_APP_NAME }}
+
+      - name: Deploy to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        run: |
+          flyctl deploy -i registry.fly.io/${{ env.FLY_APP_NAME }} --org ${{ secrets.FLY_ORG }}
+

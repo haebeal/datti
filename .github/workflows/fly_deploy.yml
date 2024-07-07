@@ -38,7 +38,6 @@ jobs:
           elif [ "${{ inputs.environment }}" == "dev" ]; then
             echo "FLY_APP_NAME=datti-api-dev" >> $GITHUB_ENV
           fi
-        shell: bash
 
       - name: Build and push Docker image
         env:

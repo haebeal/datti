@@ -48,8 +48,8 @@ jobs:
           tags: registry.fly.io/${{ env.FLY_APP_NAME }}:latest  # ビルドしたイメージを指定
 
       - name: Deploy to Fly.io
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          flyctl deploy -i registry.fly.io/${{ env.FLY_APP_NAME }} --org ${{ secrets.FLY_ORG }}
+          run: flyctl deploy --local-only --config ${{ vars.FLY_CONFIG_PATH }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_TOKEN }}
 

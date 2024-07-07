@@ -10,9 +10,10 @@ export const paymentsLoader = async ({
   const { idToken } = await getIdToken({ request, params, context });
   const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
 
-  const payments = await client.payments.$get();
+  const payments = client.payments.$get();
+  const history = client.payments.history.$get();
 
-  return defer({ payments });
+  return defer({ payments, history });
 };
 
 export type PaymentsLoader = typeof paymentsLoader;

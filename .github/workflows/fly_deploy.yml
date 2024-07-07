@@ -31,25 +31,16 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
-      - name: Determine Fly.io app name
-        id: get-app-name
-        run: |
-          if [ "${{ inputs.environment }}" == "prod" ]; then
-            echo "FLY_APP_NAME=datti-api-prod" >> $GITHUB_ENV
-          elif [ "${{ inputs.environment }}" == "dev" ]; then
-            echo "FLY_APP_NAME=datti-api-dev" >> $GITHUB_ENV
-          fi
-
       - name: Build and Push Docker image
         uses: docker/build-push-action@v5
         with:
           file: ./dockerfile  # Dockerfile のパスを指定
           push: true
-          tags: registry.fly.io/${{ env.FLY_APP_NAME }}:latest  # ビルドしたイメージを指定
+          tags: registry.fly.io/${{ vars.FLY_APP_NAME }}:latest  # ビルドしたイメージを指定
 
       - name: Deploy to Fly.io
         run: |
           flyctl deploy --local-only --debug --config ${{ vars.FLY_CONFIG_PATH }}
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 

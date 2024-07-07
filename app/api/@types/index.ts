@@ -198,6 +198,10 @@ export type PaymentUsers = {
   payments: PaymentUser[]
 }
 
+export type Payments = {
+  payments: Payment[]
+}
+
 export type User = {
   /** ユーザーID */
   userId: string

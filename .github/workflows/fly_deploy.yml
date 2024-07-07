@@ -26,9 +26,10 @@ jobs:
       - name: Install Fly CLI
         run: curl -L https://fly.io/install.sh | sh
 
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v3
+      - name: Authenticate with Fly.io Docker Registry
+        run: flyctl auth docker -t ${{ secrets.FLY_API_TOKEN }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       - name: Determine Fly.io app name
         id: get-app-name
@@ -38,24 +39,13 @@ jobs:
           elif [ "${{ inputs.environment }}" == "dev" ]; then
             echo "FLY_APP_NAME=datti-api-dev" >> $GITHUB_ENV
           fi
-      
-      - name: Fly auth Docker
-        run: |
-          fly auth docker -t ${{ secrets.FLY_API_TOKEN }} 
-      
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: registry.fly.io/${{ env.FLY_APP_NAME }}
 
-      - name: Build and Push
+      - name: Build and Push Docker image
         uses: docker/build-push-action@v5
         with:
-          file: ./dockerfile
+          file: ./dockerfile  # Dockerfile のパスを指定
           push: true
-          tags: ${{ steps.meta.outputs.tags }} # 前ステップで設定したタグを参照する
-          labels: ${{ steps.meta.outputs.labels }} # 前ステップで設定したラベルを参照する
+          tags: registry.fly.io/${{ env.FLY_APP_NAME }}:latest  # ビルドしたイメージを指定
 
       - name: Deploy to Fly.io
         env:

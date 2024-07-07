@@ -39,7 +39,7 @@ namespace PaymentEndpoints {
   @summary("返済履歴の取得")
   @get
   op getHistory():
-  | Payment[]
+  | Payments
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
 
@@ -101,6 +101,10 @@ model Payment {
    * 返済金額
    */
   amount: integer;
+}
+
+model Payments {
+  payments: Payment[];
 }
 
 model PaymentCreate {

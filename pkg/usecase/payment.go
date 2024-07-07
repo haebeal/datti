@@ -28,7 +28,7 @@ type paymentUseCase struct {
 func (p *paymentUseCase) CreatePayment(c context.Context, paymentUseCaseDTO *dto.PaymentCreate) (*model.Payment, *model.User, *model.User, error) {
 	v, err := p.transacton.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 
-		payment, err := p.paymentRepository.CreatePayment(c, paymentUseCaseDTO.PaidTo, "", paymentUseCaseDTO.PaidBy, paymentUseCaseDTO.PaidAt, paymentUseCaseDTO.Amount)
+		payment, err := p.paymentRepository.CreatePayment(c, "", paymentUseCaseDTO.PaidTo, paymentUseCaseDTO.PaidBy, paymentUseCaseDTO.PaidAt, paymentUseCaseDTO.Amount)
 		if err != nil {
 			return nil, err
 		}

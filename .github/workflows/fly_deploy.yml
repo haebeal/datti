@@ -29,18 +29,18 @@ jobs:
       - name: Authenticate with Fly.io Docker Registry
         run: flyctl auth docker
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
 
       - name: Build and Push Docker image
         uses: docker/build-push-action@v5
         with:
           file: ./dockerfile  # Dockerfile のパスを指定
           push: true
-          tags: registry.fly.io/${{ vars.FLY_APP_NAME }}:latest  # ビルドしたイメージを指定
+          tags: registry.fly.io/${{ vars.FLY_APP_NAME }} # ビルドしたイメージを指定
 
       - name: Deploy to Fly.io
         run: |
           flyctl deploy --local-only --debug --config ${{ vars.FLY_CONFIG_PATH }}
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
 

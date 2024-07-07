@@ -38,17 +38,28 @@ jobs:
           elif [ "${{ inputs.environment }}" == "dev" ]; then
             echo "FLY_APP_NAME=datti-api-dev" >> $GITHUB_ENV
           fi
-
-      - name: Build and push Docker image
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      
+      - name: Fly auth Docker
         run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t registry.fly.io/${{ steps.get-app-name.outputs.app-name }} .
-          docker push registry.fly.io/${{ steps.get-app-name.outputs.app-name }}
+          fly auth docker -t ${{ secrets.FLY_API_TOKEN }} 
+      
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: registry.fly.io/${{ env.FLY_APP_NAME }}
+
+      - name: Build and Push
+        uses: docker/build-push-action@v5
+        with:
+          file: ./dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }} # 前ステップで設定したタグを参照する
+          labels: ${{ steps.meta.outputs.labels }} # 前ステップで設定したラベルを参照する
 
       - name: Deploy to Fly.io
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          flyctl deploy -i registry.fly.io/${{ steps.get-app-name.outputs.app-name }} --org ${{ secrets.FLY_ORG }}
+          flyctl deploy -i registry.fly.io/${{ env.FLY_APP_NAME }} --org ${{ secrets.FLY_ORG }}
 

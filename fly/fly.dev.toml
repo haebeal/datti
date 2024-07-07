@@ -7,7 +7,7 @@ app = 'datti-api-dev'
 primary_region = 'nrt'
 
 [build]
-  dockerfile = "./../dockerfile"
+  image = "registry.fly.io/datti-api-dev:latest"
 
 [http_service]
   internal_port = 8080

@@ -18,7 +18,8 @@ jobs:
   #   secrets: inherit
   deploy-fly-main:
     name: deploy fly to prod environment
-    if: ${{ github.ref == 'refs/heads/feature' || github.base_ref == 'feature' }}
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    # if: ${{ github.ref == 'refs/heads/main' || github.base_ref == 'main' }}
     uses: ./.github/workflows/fly_deploy.yml
     permissions:
       id-token: write

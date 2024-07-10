@@ -1,9 +1,6 @@
 package database
 
 import (
-	"context"
-
-	"github.com/datti-api/pkg/domain/model"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/stdlib"
 	"github.com/uptrace/bun"
@@ -29,11 +26,6 @@ func NewBunClient(dsn string) (*DBClient, error) {
 	db.AddQueryHook(bundebug.NewQueryHook(
 		bundebug.WithVerbose(true),
 	))
-
-	// テーブルを削除・作成
-	if err := db.ResetModel(context.TODO(), (*model.Friend)(nil), (*model.Group)(nil), (*model.GroupUser)(nil), (*model.Event)(nil), (*model.Payment)(nil)); err != nil {
-		return nil, err
-	}
 
 	return &DBClient{Client: db}, nil
 }

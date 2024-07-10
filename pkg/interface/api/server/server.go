@@ -1,8 +1,12 @@
 package server
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/datti-api/pkg/infrastructure/database"
 	"github.com/datti-api/pkg/infrastructure/repositoryimpl"
@@ -84,5 +88,21 @@ func Sever(dsn string, hostName string) {
 	r.PUT("/payments/:paymentId", paymentHandler.HandleUpdate)
 	r.GET("/payments/history", paymentHandler.HandleHistory)
 
-	r.Start("0.0.0.0:8080")
+	// サーバーの起動
+	go func() {
+		if err := r.Start("0.0.0.0:8080"); err != nil && err != http.ErrServerClosed {
+			r.Logger.Fatal("shutting down the server")
+		}
+	}()
+
+	// 割り込みシグナルを待ち、10秒でサーバーをGracefull Shutdownする
+	// シグナルの欠落を避けるため、バッファーチャンネルを使用する
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := r.Shutdown(ctx); err != nil {
+		r.Logger.Fatal(err)
+	}
 }

@@ -17,8 +17,6 @@ func main() {
 	// .envの DSNを取得して、messageに代入します。
 	dsn := os.Getenv("DSN")
 	hostName := os.Getenv("HOST_NAME")
-	if err != nil {
-		panic("failed to lodad .env DB_INIT")
-	}
+
 	server.Sever(dsn, hostName)
 }

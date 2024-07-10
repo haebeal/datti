@@ -6,6 +6,8 @@ ENV TZ=Asia/Tokyo
 
 # 追加の依存関係をインストール
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN go install ariga.io/atlas/cmd/atlas@latest
+RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
 
 # ワーキングディレクトリの指定
 WORKDIR /workspace

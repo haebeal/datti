@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/infrastructure/database"
+	"github.com/joho/godotenv"
 	"github.com/uptrace/bun"
 )
 
@@ -30,7 +32,13 @@ func modelsToByte(db *bun.DB, models []interface{}) []byte {
 
 // スキーマ定義SQLファイルschema.sqlを生成する
 func main() {
-	db, err := database.NewBunClient("host=db user=postgres password=root dbname=datti_db port=5432 sslmode=disable TimeZone=Asia/Tokyo")
+	err := godotenv.Load()
+	if err != nil {
+		fmt.Printf("Failed Load environment: %v", err)
+	}
+
+	dsn := os.Getenv("DSN")
+	db, err := database.NewBunClient(dsn)
 	if err != nil {
 		log.Fatalf("Could not connect to database: %v", err)
 	}

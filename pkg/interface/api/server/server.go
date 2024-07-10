@@ -13,7 +13,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Sever(dsn string, hostName string, dbInit bool) {
+func Sever(dsn string, hostName string) {
 	// DBインスタンスの生成
 	dbClient, err := database.NewBunClient(dsn)
 	if err != nil {

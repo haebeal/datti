@@ -29,7 +29,7 @@ export const signInFirebaseWithGoogle = async (
   clientUrl: string,
   tenantId: string,
   apiKey: string,
-  googleIdToken: string
+  googleAccessToken: string
 ) => {
   const response = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${apiKey}`,
@@ -38,7 +38,7 @@ export const signInFirebaseWithGoogle = async (
       body: JSON.stringify({
         requestUri: clientUrl,
         tenantId: tenantId,
-        postBody: `id_token=${googleIdToken}&providerId=google.com`,
+        postBody: `access_token=${googleAccessToken}&providerId=google.com`,
         returnSecureToken: true,
         returnIdpCredential: false,
       }),

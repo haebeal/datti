@@ -1,14 +1,14 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/cloudflare";
-import { getAuthSessionStorage } from "~/lib/authSession.server";
+import { createSupabaseClient } from "~/lib/supabase.server";
 
 export const action = async ({ request, context }: ActionFunctionArgs) => {
-  const authSessionStorage = getAuthSessionStorage(context);
-  const authSession = await authSessionStorage.getSession(
-    request.headers.get("Cookie")
-  );
+  const { headers, supabase } = createSupabaseClient({
+    request,
+    context,
+  });
+  await supabase.auth.signOut();
+
   return redirect("/signin", {
-    headers: {
-      "Set-Cookie": await authSessionStorage.destroySession(authSession),
-    },
+    headers,
   });
 };

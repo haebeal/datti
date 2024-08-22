@@ -1,9 +1,25 @@
 import { ActionFunctionArgs, redirect } from "@remix-run/cloudflare";
+import { createSupabaseClient } from "~/lib/supabase.server";
 
 export const loader = () => redirect("/");
 
-export const action = ({ context }: ActionFunctionArgs) => {
-  const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?scope=https://www.googleapis.com/auth/userinfo.profile&access_type=offline&include_granted_scopes=true&response_type=code&redirect_uri=${context.cloudflare.env.CLIENT_URL}/api/auth/callback/google&client_id=${context.cloudflare.env.GOOGLE_CLIENT_ID}`;
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const { headers, supabase } = createSupabaseClient({
+    request,
+    context,
+  });
+  const { data } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      queryParams: {
+        access_type: "offline",
+        prompt: "consent",
+      },
+      redirectTo: `${context.cloudflare.env.CLIENT_URL}/api/auth/callback/google`,
+    },
+  });
 
-  return redirect(authUrl);
+  if (data.url) {
+    return redirect(data.url, { headers }); // use the redirect API for your server framework
+  }
 };

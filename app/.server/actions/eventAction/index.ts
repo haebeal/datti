@@ -1,8 +1,7 @@
 import { HTTPError } from "@aspida/fetch";
 import { parseWithZod } from "@conform-to/zod";
 import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
-import { createClient } from "~/lib/apiClient";
-import { getIdToken } from "~/lib/getIdToken.server";
+import { createAPIClient } from "~/lib/apiClient";
 import {
   eventCreateFormSchema,
   eventDeleteFormSchema,
@@ -14,8 +13,7 @@ export const eventAction = async ({
   params,
   context,
 }: ActionFunctionArgs) => {
-  const { idToken } = await getIdToken({ request, params, context });
-  const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
+  const { client } = await createAPIClient({ request, context });
 
   const formData = await request.formData();
 

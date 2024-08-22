@@ -1,6 +1,5 @@
 import { LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
-import { createClient } from "~/lib/apiClient";
-import { getIdToken } from "~/lib/getIdToken.server";
+import { createAPIClient } from "~/lib/apiClient";
 
 export const eventLoader = async ({
   request,
@@ -23,8 +22,7 @@ export const eventLoader = async ({
     });
   }
 
-  const { idToken } = await getIdToken({ request, params, context });
-  const client = createClient(idToken, context.cloudflare.env.BACKEND_ENDPOINT);
+  const { client } = await createAPIClient({ request, context });
 
   const event = client.groups._groupId(groupId).events._eventId(eventId).$get();
   const members = client.groups._groupId(groupId).members.$get();

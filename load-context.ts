@@ -9,6 +9,8 @@ interface Env {
   FIREBASE_API_KEY: string;
   FIREBASE_TENANT_ID: string;
   BACKEND_ENDPOINT: string;
+  SUPABASE_URL: string;
+  SUPABASE_ANON_KEY: string;
 }
 
 type Cloudflare = Omit<PlatformProxy<Env>, "dispose">;

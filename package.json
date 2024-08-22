@@ -38,6 +38,8 @@
     "@remix-run/cloudflare": "^2.9.2",
     "@remix-run/cloudflare-pages": "^2.9.2",
     "@remix-run/react": "^2.9.2",
+    "@supabase/ssr": "^0.4.0",
+    "@supabase/supabase-js": "^2.45.1",
     "aspida": "^1.14.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

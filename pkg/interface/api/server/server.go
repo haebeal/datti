@@ -60,7 +60,7 @@ func Sever(dsn string, hostName string) {
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodHead},
 	}))
-	r.Use(auth.FirebaseAuthMiddleware())
+	r.Use(auth.AuthMiddleware())
 
 	r.GET("/users", userHandler.HandleGetByEmail)
 	r.GET("/users/me", userHandler.HandleGetByUid)

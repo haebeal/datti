@@ -45,8 +45,12 @@ func (p *paymentHandler) HandleCreate(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
 		res.ID = payment.ID
-		res.PaidTo = *paidTo
-		res.PaidBy = *paidBy
+		res.PaidTo.ID = paidTo.ID
+		res.PaidTo.Name = paidTo.Name
+		res.PaidTo.PhotoUrl = paidTo.PhotoUrl
+		res.PaidBy.ID = paidBy.ID
+		res.PaidBy.Name = paidBy.Name
+		res.PaidBy.PhotoUrl = paidBy.PhotoUrl
 		res.Amount = payment.Amount
 		return c.JSON(http.StatusOK, res)
 	}
@@ -124,8 +128,12 @@ func (p *paymentHandler) HandleGetById(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
 		res.ID = payment.ID
-		res.PaidTo = *paidTo
-		res.PaidBy = *paidBy
+		res.PaidTo.ID = paidTo.ID
+		res.PaidTo.Name = paidTo.Name
+		res.PaidTo.PhotoUrl = paidTo.PhotoUrl
+		res.PaidBy.ID = paidBy.ID
+		res.PaidBy.Name = paidBy.Name
+		res.PaidBy.PhotoUrl = paidBy.PhotoUrl
 		res.Amount = payment.Amount
 		return c.JSON(http.StatusOK, res)
 	}
@@ -146,8 +154,12 @@ func (p *paymentHandler) HandleUpdate(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
 		res.ID = payment.ID
-		res.PaidTo = *paidTo
-		res.PaidBy = *paidBy
+		res.PaidTo.ID = paidTo.ID
+		res.PaidTo.Name = paidTo.Name
+		res.PaidTo.PhotoUrl = paidTo.PhotoUrl
+		res.PaidBy.ID = paidBy.ID
+		res.PaidBy.Name = paidBy.Name
+		res.PaidBy.PhotoUrl = paidBy.PhotoUrl
 		res.Amount = payment.Amount
 		return c.JSON(http.StatusOK, res)
 	}

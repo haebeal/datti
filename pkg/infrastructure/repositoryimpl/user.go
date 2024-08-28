@@ -3,28 +3,26 @@ package repositoryimpl
 import (
 	"context"
 
-	"firebase.google.com/go/v4/auth"
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
 )
 
 type userRepoImpl struct {
-	TenantClient database.FireBaseTenantClient
+	// TenantClient database.FireBaseTenantClient
+	DBEngine database.DBClient
 }
 
 // GetProfile implements repository.ProfileRepository.
 func (ur *userRepoImpl) GetUserByUid(c context.Context, uid string) (*model.User, error) {
 	user := new(model.User)
-	u, err := ur.TenantClient.Client.GetUser(c, uid)
+	err := ur.DBEngine.Client.NewSelect().
+		Table("users").
+		Where("id = ?", uid).
+		Scan(c, user)
 	if err != nil {
 		return nil, err
 	}
-
-	user.ID = u.UID
-	user.Name = u.DisplayName
-	user.Email = u.Email
-	user.PhotoUrl = u.PhotoURL
 
 	return user, nil
 }
@@ -32,34 +30,26 @@ func (ur *userRepoImpl) GetUserByUid(c context.Context, uid string) (*model.User
 // GetUsers implements repository.ProfileRepository.
 func (ur *userRepoImpl) GetUsers(c context.Context) ([]*model.User, error) {
 	users := make([]*model.User, 0)
-	iter := ur.TenantClient.Client.Users(c, "")
-	for {
-		user, err := iter.Next()
-		if err != nil {
-			break
-		}
-		users = append(users, &model.User{
-			ID:       user.UID,
-			Name:     user.DisplayName,
-			Email:    user.Email,
-			PhotoUrl: user.PhotoURL,
-		})
+	err := ur.DBEngine.Client.NewSelect().
+		Table("users").
+		Scan(c, users)
+	if err != nil {
+		return nil, err
 	}
+
 	return users, nil
 }
 
 // GetProfileByEmail implements repository.ProfileRepository.
 func (ur *userRepoImpl) GetUserByEmail(c context.Context, email string) (*model.User, error) {
 	user := new(model.User)
-	u, err := ur.TenantClient.Client.GetUserByEmail(c, email)
+	err := ur.DBEngine.Client.NewSelect().
+		Table("users").
+		Where("email = ?", email).
+		Scan(c, user)
 	if err != nil {
 		return nil, err
 	}
-
-	user.ID = u.UID
-	user.Name = u.DisplayName
-	user.Email = u.Email
-	user.PhotoUrl = u.PhotoURL
 
 	return user, nil
 }
@@ -67,24 +57,31 @@ func (ur *userRepoImpl) GetUserByEmail(c context.Context, email string) (*model.
 // UpdateName implements repository.ProfileRepository.
 func (ur *userRepoImpl) UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error) {
 	user := new(model.User)
-	updateUser := new(auth.UserToUpdate)
-	updateUser.DisplayName(name)
-	updateUser.PhotoURL(url)
-	u, err := ur.TenantClient.Client.UpdateUser(c, uid, updateUser)
+	user.ID = uid
+	user.Name = name
+	user.PhotoUrl = url
+
+	_, err := ur.DBEngine.Client.NewUpdate().
+		Model(user).
+		Where("id = ?", uid).
+		Exec(c)
 	if err != nil {
 		return nil, err
 	}
 
-	user.ID = u.UID
-	user.Name = u.DisplayName
-	user.Email = u.Email
-	user.PhotoUrl = u.PhotoURL
+	err = ur.DBEngine.Client.NewSelect().
+		Table("users").
+		Where("id = ?", uid).
+		Scan(c, user)
+	if err != nil {
+		return nil, err
+	}
 
 	return user, nil
 }
 
-func NewProfileRepoImpl(client *database.FireBaseTenantClient) repository.UserRepository {
+func NewProfileRepoImpl(engine *database.DBClient) repository.UserRepository {
 	return &userRepoImpl{
-		TenantClient: *client,
+		DBEngine: *engine,
 	}
 }

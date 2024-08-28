@@ -24,15 +24,10 @@ func Sever(dsn string, hostName string) {
 		log.Print(err.Error())
 	}
 
-	tenantClient, err := database.NewFireBaseClient()
-	if err != nil {
-		log.Print(err.Error())
-	}
-
 	// 依存性の解決
 	transaction := repositoryimpl.NewTransaction(dbClient.Client)
 
-	userRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
+	userRepository := repositoryimpl.NewProfileRepoImpl(dbClient)
 	friendRepository := repositoryimpl.NewFriendRepository(dbClient)
 	userUseCase := usecase.NewUserUseCase(userRepository, friendRepository, transaction)
 	userHandler := handler.NewUserHandler(userUseCase)

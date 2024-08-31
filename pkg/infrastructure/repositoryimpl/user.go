@@ -29,7 +29,7 @@ func (ur *userRepoImpl) GetUserByUid(c context.Context, uid string) (*model.User
 
 // GetUsers implements repository.ProfileRepository.
 func (ur *userRepoImpl) GetUsers(c context.Context) ([]*model.User, error) {
-	users := make([]*model.User, 0)
+	users := new([]*model.User)
 	err := ur.DBEngine.Client.NewSelect().
 		Table("users").
 		Scan(c, users)
@@ -37,7 +37,7 @@ func (ur *userRepoImpl) GetUsers(c context.Context) ([]*model.User, error) {
 		return nil, err
 	}
 
-	return users, nil
+	return *users, nil
 }
 
 // GetProfileByEmail implements repository.ProfileRepository.

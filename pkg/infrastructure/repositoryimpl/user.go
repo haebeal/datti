@@ -63,6 +63,8 @@ func (ur *userRepoImpl) UpdateUser(c context.Context, uid string, name string, u
 
 	_, err := ur.DBEngine.Client.NewUpdate().
 		Model(user).
+		Column("name").
+		Column("photo_url").
 		Where("id = ?", uid).
 		Exec(c)
 	if err != nil {

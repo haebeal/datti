@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -48,9 +47,7 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			}
 
 			// AccessトークンとユーザーIDをコンテキストに登録
-			fmt.Printf("userID: %s\n", user.ID)
-			fmt.Printf("token: %s\n", accessToken)
-			c.Set("uid", user.ID)
+			c.Set("uid", user.ID.String())
 			c.Set("idToken", accessToken)
 
 			return next(c)

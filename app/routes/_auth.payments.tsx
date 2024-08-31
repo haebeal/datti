@@ -31,19 +31,19 @@ export const meta: MetaFunction = () => [
 
 export default function Group() {
   const { state } = useNavigation();
+  const [isOpen, setOpen] = useState(false);
   const { toast } = useToast();
 
   const { payments } = useLoaderData<PaymentsLoader>();
   const actionData = useActionData<GroupAction>();
   useEffect(() => {
     if (actionData) {
+      setOpen(false);
       toast({
         title: actionData.message,
       });
     }
   }, [actionData, toast]);
-
-  const [isOpen, setOpen] = useState(false);
 
   return (
     <div className="flex flex-col py-3 gap-7">

@@ -32,6 +32,7 @@ export default function GroupEvents() {
   const actionData = useActionData<EventAction>();
   useEffect(() => {
     if (actionData) {
+      setOpen(false);
       toast({
         title: actionData.message,
       });

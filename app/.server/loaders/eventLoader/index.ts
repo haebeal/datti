@@ -22,12 +22,12 @@ export const eventLoader = async ({
     });
   }
 
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   const event = client.groups._groupId(groupId).events._eventId(eventId).$get();
   const members = client.groups._groupId(groupId).members.$get();
 
-  return defer({ event, members });
+  return defer({ event, members }, { headers });
 };
 
 export type EventLoader = typeof eventLoader;

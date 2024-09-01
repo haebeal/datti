@@ -5,13 +5,18 @@ export const groupsLoader = async ({
   request,
   context,
 }: LoaderFunctionArgs) => {
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   const groups = client.groups.$get();
 
-  return defer({
-    groups,
-  });
+  return defer(
+    {
+      groups,
+    },
+    {
+      headers,
+    }
+  );
 };
 
 export type GroupsLoader = typeof groupsLoader;

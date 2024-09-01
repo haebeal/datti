@@ -17,7 +17,7 @@ export const membersLoader = async ({
     });
   }
 
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   const users = client.users.$get({
     query: {
@@ -26,7 +26,12 @@ export const membersLoader = async ({
   });
   const members = client.groups._groupId(groupId).members.$get();
 
-  return defer({ users, members });
+  return defer(
+    { users, members },
+    {
+      headers,
+    }
+  );
 };
 
 export type MembersLoader = typeof membersLoader;

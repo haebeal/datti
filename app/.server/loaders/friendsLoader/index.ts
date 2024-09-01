@@ -8,7 +8,7 @@ export const friendsLoader = async ({
   const { searchParams } = new URL(request.url);
   const searchQuery = searchParams.get("q")?.toString();
 
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   // フレンド申請対象となるユーザー一覧を取得
   const users = client.users.$get({
@@ -39,12 +39,15 @@ export const friendsLoader = async ({
     },
   });
 
-  return defer({
-    users,
-    friends,
-    requestings,
-    applyings,
-  });
+  return defer(
+    {
+      users,
+      friends,
+      requestings,
+      applyings,
+    },
+    { headers }
+  );
 };
 
 export type FriendsLoader = typeof friendsLoader;

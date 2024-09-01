@@ -8,7 +8,7 @@ export const profileAction = async ({
   request,
   context,
 }: ActionFunctionArgs) => {
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   const formData = await request.formData();
 
@@ -16,24 +16,35 @@ export const profileAction = async ({
   if (request.method === "POST") {
     const submission = parseWithZod(formData, { schema: profileFormSchema });
     if (submission.status !== "success") {
-      return json({
-        message: "バリデーションに失敗しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "バリデーションに失敗しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     }
     try {
       await client.users.me.$put({
         body: submission.value,
       });
-      return json({
-        message: "プロフィールを更新しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "プロフィールを更新しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     } catch (error) {
       if (error instanceof HTTPError) {
         throw new Response(error.message, {
           status: error.response.status,
           statusText: error.response.statusText,
+          headers,
         });
       }
     }
@@ -42,6 +53,7 @@ export const profileAction = async ({
   throw new Response("不明なエラーが発生しました", {
     status: 500,
     statusText: "Internal Server Error",
+    headers,
   });
 };
 

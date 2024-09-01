@@ -9,7 +9,7 @@ export const groupAction = async ({
   params,
   context,
 }: ActionFunctionArgs) => {
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   const formData = await request.formData();
 
@@ -19,10 +19,15 @@ export const groupAction = async ({
       schema: groupFormSchema,
     });
     if (submission.status !== "success") {
-      return json({
-        message: "バリデーションに失敗しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "バリデーションに失敗しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     }
     try {
       const { name } = await client.groups.$post({
@@ -31,15 +36,21 @@ export const groupAction = async ({
           userIds: [],
         },
       });
-      return json({
-        message: `${name}を作成しました`,
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: `${name}を作成しました`,
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     } catch (error) {
       if (error instanceof HTTPError) {
         throw new Response(error.message, {
           status: error.response.status,
           statusText: error.response.statusText,
+          headers,
         });
       }
     }
@@ -51,31 +62,47 @@ export const groupAction = async ({
       schema: groupFormSchema,
     });
     if (submission.status !== "success") {
-      return json({
-        message: "バリデーションに失敗しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "バリデーションに失敗しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     }
     const groupId = params.groupId;
     if (groupId === undefined) {
-      return json({
-        message: "グループIDの取得に失敗しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "グループIDの取得に失敗しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     }
     try {
       await client.groups._groupId(groupId).$put({
         body: submission.value,
       });
-      return json({
-        message: "グループを更新しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "グループを更新しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     } catch (error) {
       if (error instanceof HTTPError) {
         throw new Response(error.message, {
           status: error.response.status,
           statusText: error.response.statusText,
+          headers,
         });
       }
     }
@@ -84,6 +111,7 @@ export const groupAction = async ({
   throw new Response("不明なエラーが発生しました", {
     status: 500,
     statusText: "Internal Server Error",
+    headers,
   });
 };
 

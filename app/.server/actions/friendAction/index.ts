@@ -6,7 +6,7 @@ export const friendAction = async ({
   request,
   context,
 }: ActionFunctionArgs) => {
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   const formData = await request.formData();
 
@@ -14,22 +14,33 @@ export const friendAction = async ({
   if (request.method === "POST") {
     const userId = formData.get("userId")?.toString();
     if (userId === undefined) {
-      return json({
-        message: "ユーザーIDの取得に失敗しました",
-        submission: undefined,
-      });
+      return json(
+        {
+          message: "ユーザーIDの取得に失敗しました",
+          submission: undefined,
+        },
+        {
+          headers,
+        }
+      );
     }
     try {
       const { message } = await client.users._userId(userId).requests.$post();
-      return json({
-        message,
-        submission: undefined,
-      });
+      return json(
+        {
+          message,
+          submission: undefined,
+        },
+        {
+          headers,
+        }
+      );
     } catch (error) {
       if (error instanceof HTTPError) {
         throw new Response(error.message, {
           status: error.response.status,
           statusText: error.response.statusText,
+          headers,
         });
       }
     }
@@ -39,23 +50,34 @@ export const friendAction = async ({
   if (request.method === "DELETE") {
     const userId = formData.get("userId")?.toString();
     if (userId === undefined) {
-      return json({
-        message: "ユーザーIDの取得に失敗しました",
-        submission: undefined,
-      });
+      return json(
+        {
+          message: "ユーザーIDの取得に失敗しました",
+          submission: undefined,
+        },
+        {
+          headers,
+        }
+      );
     }
     try {
       await client.users._userId(userId).requests.$post();
       const { message } = await client.users.friends._userId(userId).$delete();
-      return json({
-        message,
-        submission: undefined,
-      });
+      return json(
+        {
+          message,
+          submission: undefined,
+        },
+        {
+          headers,
+        }
+      );
     } catch (error) {
       if (error instanceof HTTPError) {
         throw new Response(error.message, {
           status: error.response.status,
           statusText: error.response.statusText,
+          headers,
         });
       }
     }
@@ -64,6 +86,7 @@ export const friendAction = async ({
   throw new Response("不明なエラーが発生しました", {
     status: 500,
     statusText: "Internal Server Error",
+    headers,
   });
 };
 

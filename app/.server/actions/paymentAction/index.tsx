@@ -12,7 +12,7 @@ export const paymentAction = async ({
   params,
   context,
 }: ActionFunctionArgs) => {
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   const formData = await request.formData();
 
@@ -22,24 +22,35 @@ export const paymentAction = async ({
       schema: paymentCreateFormSchema,
     });
     if (submission.status !== "success") {
-      return json({
-        message: "バリデーションに失敗しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "バリデーションに失敗しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     }
     try {
       await client.payments.$post({
         body: submission.value,
       });
-      return json({
-        message: "返済を作成しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "返済を作成しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     } catch (error) {
       if (error instanceof HTTPError) {
         throw new Response(error.message, {
           status: error.response.status,
           statusText: error.response.statusText,
+          headers,
         });
       }
     }
@@ -51,31 +62,47 @@ export const paymentAction = async ({
       schema: paymentUpdateFormSchema,
     });
     if (submission.status !== "success") {
-      return json({
-        message: "バリデーションに失敗しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "バリデーションに失敗しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     }
     const paymentId = params.paymentId;
     if (paymentId === undefined) {
-      return json({
-        message: "支払いIDの取得に失敗しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "支払いIDの取得に失敗しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     }
     try {
       await client.payments._paymentId(paymentId).$put({
         body: submission.value,
       });
-      return json({
-        message: "返済を更新しました",
-        submission: submission.reply(),
-      });
+      return json(
+        {
+          message: "返済を更新しました",
+          submission: submission.reply(),
+        },
+        {
+          headers,
+        }
+      );
     } catch (error) {
       if (error instanceof HTTPError) {
         throw new Response(error.message, {
           status: error.response.status,
           statusText: error.response.statusText,
+          headers,
         });
       }
     }
@@ -84,6 +111,7 @@ export const paymentAction = async ({
   throw new Response("不明なエラーが発生しました", {
     status: 500,
     statusText: "Internal Server Error",
+    headers,
   });
 };
 

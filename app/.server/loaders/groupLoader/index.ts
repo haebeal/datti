@@ -14,13 +14,18 @@ export const groupLoader = async ({
     });
   }
 
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   const group = client.groups._groupId(groupId).$get();
 
-  return defer({
-    group,
-  });
+  return defer(
+    {
+      group,
+    },
+    {
+      headers,
+    }
+  );
 };
 
 export type GroupLoader = typeof groupLoader;

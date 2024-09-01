@@ -5,12 +5,12 @@ export const paymentsLoader = async ({
   request,
   context,
 }: LoaderFunctionArgs) => {
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   const payments = client.payments.$get();
   const history = client.payments.history.$get();
 
-  return defer({ payments, history });
+  return defer({ payments, history }, { headers });
 };
 
 export type PaymentsLoader = typeof paymentsLoader;

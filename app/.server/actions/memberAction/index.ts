@@ -7,7 +7,7 @@ export const memberAction = async ({
   params,
   context,
 }: ActionFunctionArgs) => {
-  const { client } = await createAPIClient({ request, context });
+  const { client, headers } = await createAPIClient({ request, context });
 
   const formData = await request.formData();
 
@@ -16,16 +16,26 @@ export const memberAction = async ({
     const groupId = params.groupId;
     const userId = formData.get("userId")?.toString();
     if (userId === undefined) {
-      return json({
-        message: "ユーザーIDの取得に失敗しました",
-        submission: undefined,
-      });
+      return json(
+        {
+          message: "ユーザーIDの取得に失敗しました",
+          submission: undefined,
+        },
+        {
+          headers,
+        }
+      );
     }
     if (groupId === undefined) {
-      return json({
-        message: "グループIDの取得に失敗しました",
-        submission: undefined,
-      });
+      return json(
+        {
+          message: "グループIDの取得に失敗しました",
+          submission: undefined,
+        },
+        {
+          headers,
+        }
+      );
     }
     try {
       const { members } = await client.groups._groupId(groupId).members.$post({
@@ -33,15 +43,21 @@ export const memberAction = async ({
           userIds: [userId],
         },
       });
-      return json({
-        message: `${members[0].name}をメンバーに追加しました`,
-        submission: undefined,
-      });
+      return json(
+        {
+          message: `${members[0].name}をメンバーに追加しました`,
+          submission: undefined,
+        },
+        {
+          headers,
+        }
+      );
     } catch (error) {
       if (error instanceof HTTPError) {
         throw new Response(error.message, {
           status: error.response.status,
           statusText: error.response.statusText,
+          headers,
         });
       }
     }
@@ -50,6 +66,7 @@ export const memberAction = async ({
   throw new Response("不明なエラーが発生しました", {
     status: 500,
     statusText: "Internal Server Error",
+    headers,
   });
 };
 

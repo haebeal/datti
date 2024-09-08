@@ -24,15 +24,10 @@ func Sever(dsn string, hostName string) {
 		log.Print(err.Error())
 	}
 
-	tenantClient, err := database.NewFireBaseClient()
-	if err != nil {
-		log.Print(err.Error())
-	}
-
 	// 依存性の解決
 	transaction := repositoryimpl.NewTransaction(dbClient.Client)
 
-	userRepository := repositoryimpl.NewProfileRepoImpl(tenantClient)
+	userRepository := repositoryimpl.NewProfileRepoImpl(dbClient)
 	friendRepository := repositoryimpl.NewFriendRepository(dbClient)
 	userUseCase := usecase.NewUserUseCase(userRepository, friendRepository, transaction)
 	userHandler := handler.NewUserHandler(userUseCase)
@@ -60,7 +55,7 @@ func Sever(dsn string, hostName string) {
 		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization},
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodDelete, http.MethodHead},
 	}))
-	r.Use(auth.FirebaseAuthMiddleware())
+	r.Use(auth.AuthMiddleware())
 
 	r.GET("/users", userHandler.HandleGetByEmail)
 	r.GET("/users/me", userHandler.HandleGetByUid)

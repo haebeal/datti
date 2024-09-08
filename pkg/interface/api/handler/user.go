@@ -52,7 +52,7 @@ func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 	status := c.QueryParam("status")
 	errRes := new(response.Error)
 
-	users, statuses, err := u.useCase.GetUsersByEmail(c.Request().Context(), userID, email, status)
+	users, err := u.useCase.GetUsersByEmail(c.Request().Context(), userID, email, status)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
@@ -63,7 +63,7 @@ func (u *userHandler) HandleGetByEmail(c echo.Context) error {
 			res[i].Name = users[i].Name
 			res[i].Email = users[i].Email
 			res[i].PhotoUrl = users[i].PhotoUrl
-			res[i].Status = statuses[i]
+			res[i].Status = users[i].Status
 		}
 		return c.JSON(http.StatusOK, struct {
 			Users []response.User `json:"users"`

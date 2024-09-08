@@ -49,6 +49,7 @@ func (e *eventRepositoryImpl) GetEvents(c context.Context, gid string) ([]*model
 	err := e.DBEngine.Client.NewSelect().
 		Table("events").
 		Where("group_id = ?", gid).
+		Order("evented_at DESC").
 		Scan(c, events)
 	if err != nil {
 		return nil, err

@@ -68,18 +68,26 @@ func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid string, email str
 		Where("u.email LIKE ?", "%"+email+"%").
 		Where("u.deleted_at IS NULL")
 
-	err := ur.DBEngine.Client.NewSelect().
+	query := ur.DBEngine.Client.NewSelect().
 		With("friends_status", subQuery).
 		ColumnExpr("user_id, user_name, user_email, user_photo_url, status").
-		TableExpr("(SELECT user_id, user_name, user_email, user_photo_url, "+
-			"CASE "+
-			"WHEN f1_uid IS NOT NULL AND f2_uid IS NOT NULL THEN 'friend' "+
-			"WHEN f1_uid IS NOT NULL AND f2_uid IS NULL THEN 'requesting' "+
-			"WHEN f2_uid IS NOT NULL THEN 'applying' "+
-			"ELSE 'none' END AS status "+
-			"FROM friends_status) AS subquery").
-		Where("status = ?", status).
-		Scan(c, &results)
+		TableExpr("(SELECT user_id, user_name, user_email, user_photo_url, " +
+			"CASE " +
+			"WHEN f1_uid IS NOT NULL AND f2_uid IS NOT NULL THEN 'friend' " +
+			"WHEN f1_uid IS NOT NULL AND f2_uid IS NULL THEN 'requesting' " +
+			"WHEN f2_uid IS NOT NULL THEN 'applying' " +
+			"ELSE 'none' END AS status " +
+			"FROM friends_status) AS subquery")
+
+	// statusの値が空文字列のでない場合はstatusを検索条件に含める
+	if status != "" {
+		err := query.Where("status = ?", status).
+			Scan(c, &results)
+		if err != nil {
+			return nil, err
+		}
+	}
+	err := query.Scan(c, &results)
 	if err != nil {
 		return nil, err
 	}

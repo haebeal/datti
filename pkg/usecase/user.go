@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"strings"
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
@@ -11,7 +10,7 @@ import (
 type UserUseCase interface {
 	GetUsers(c context.Context, uid string) ([]*model.User, error)
 	GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, error)
-	GetUsersByEmail(c context.Context, uid string, email string, status string) ([]*model.User, []string, error)
+	GetUsersByEmail(c context.Context, uid string, email string, status string) ([]*model.UserStatus, error)
 	GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error)
 	UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error)
 	SendFriendRequest(c context.Context, uid string, fuid string) error
@@ -25,27 +24,14 @@ type userUseCase struct {
 }
 
 // GetUserByEmail implements UserUseCase.
-func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email string, status string) ([]*model.User, []string, error) {
-	users, err := u.userRepository.GetUsers(c)
+func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email string, status string) ([]*model.UserStatus, error) {
+	users, err := u.userRepository.GetUsersByEmail(c, uid, email, status)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	result := make([]*model.User, 0)
-	statuses := make([]string, 0)
-
-	for _, user := range users {
-		s, err := u.friendRepository.GetStatus(c, uid, user.ID)
-		if err != nil {
-			return nil, nil, err
-		}
-		if strings.Contains(user.Email, email) && strings.Contains(s, status) {
-			result = append(result, user)
-			statuses = append(statuses, s)
-		}
-	}
-
-	return result, statuses, nil
+	// return result, statuses, nil
+	return users, nil
 }
 
 // GetUserByUid implements UserUseCase.

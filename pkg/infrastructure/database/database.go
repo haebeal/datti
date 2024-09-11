@@ -1,8 +1,11 @@
 package database
 
 import (
-	"github.com/jackc/pgx/v4"
-	"github.com/jackc/pgx/v4/stdlib"
+	"context"
+
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/extra/bundebug"
@@ -17,10 +20,14 @@ func NewBunClient(dsn string) (*DBClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	config.PreferSimpleProtocol = true
 
-	sqlDB := stdlib.OpenDB(*config)
-	db := bun.NewDB(sqlDB, pgdialect.New())
+	pool, err := pgxpool.NewWithConfig(context.Background(), &pgxpool.Config{ConnConfig: config})
+	if err != nil {
+		return nil, err
+	}
+
+	sqldb := stdlib.OpenDBFromPool(pool)
+	db := bun.NewDB(sqldb, pgdialect.New())
 
 	// クエリーフックを追加
 	db.AddQueryHook(bundebug.NewQueryHook(

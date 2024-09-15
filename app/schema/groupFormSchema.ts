@@ -1,13 +1,13 @@
 import { z } from "zod";
-import {
-  GroupEndpoints_GroupPostRequest,
-  GroupEndpoints_GroupPutRequest,
+import type {
+	GroupEndpoints_GroupPostRequest,
+	GroupEndpoints_GroupPutRequest,
 } from "~/api/@types";
-import { ToZod } from "~/lib/toZod";
+import type { ToZod } from "~/lib/toZod";
 
 export const groupFormSchema = z.object<
-  ToZod<GroupEndpoints_GroupPostRequest | GroupEndpoints_GroupPutRequest>
+	ToZod<GroupEndpoints_GroupPostRequest | GroupEndpoints_GroupPutRequest>
 >({
-  name: z.string(),
-  userIds: z.array(z.string()),
+	name: z.string(),
+	userIds: z.array(z.string()),
 });

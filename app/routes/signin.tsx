@@ -1,5 +1,4 @@
 import { Form } from "@remix-run/react";
-import { SigninWithPasswordForm } from "~/components/SigninWithPasswordForm";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 
@@ -20,8 +19,6 @@ export default function SignIn() {
           <br />
           を記録するサービス
         </h2>
-        <Separator />
-        <SigninWithPasswordForm />
         <Separator />
         <Form action="/api/auth/signin" method="post">
           <Button type="submit">Googleでログイン</Button>

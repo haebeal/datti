@@ -2,11 +2,23 @@ package repositoryimpl
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
+	"github.com/uptrace/bun"
 )
+
+func NewCursor(users []*model.UserStatus) *model.Cursor {
+	if len(users) == 0 {
+		return &model.Cursor{}
+	}
+	return &model.Cursor{
+		Start: users[0].ID,
+		End:   users[len(users)-1].ID,
+	}
+}
 
 type userRepoImpl struct {
 	// TenantClient database.FireBaseTenantClient
@@ -54,9 +66,9 @@ func (ur *userRepoImpl) GetUserByEmail(c context.Context, email string) (*model.
 	return user, nil
 }
 
-func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid string, email string, status string) ([]*model.UserStatus, error) {
-
+func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid string, email string, status string, cursor string, limit int, getNext bool) ([]*model.UserStatus, *model.Cursor, error) {
 	var results []*model.UserStatus
+	var query *bun.SelectQuery
 
 	subQuery := ur.DBEngine.Client.NewSelect().
 		ColumnExpr("u.id AS user_id, u.name AS user_name, u.email AS user_email, u.photo_url AS user_photo_url").
@@ -68,32 +80,56 @@ func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid string, email str
 		Where("u.email LIKE ?", "%"+email+"%").
 		Where("u.deleted_at IS NULL")
 
-	query := ur.DBEngine.Client.NewSelect().
-		With("friends_status", subQuery).
-		ColumnExpr("user_id, user_name, user_email, user_photo_url, status").
-		TableExpr("(SELECT user_id, user_name, user_email, user_photo_url, "+
-			"CASE "+
-			"WHEN user_id = ? THEN 'me' "+
-			"WHEN f1_uid IS NOT NULL AND f2_uid IS NOT NULL THEN 'friend' "+
-			"WHEN f1_uid IS NOT NULL AND f2_uid IS NULL THEN 'requesting' "+
-			"WHEN f2_uid IS NOT NULL THEN 'applying' "+
-			"ELSE 'none' END AS status "+
-			"FROM friends_status) AS subquery", uid)
+	if getNext {
+		query = ur.DBEngine.Client.NewSelect().
+			With("friends_status", subQuery).
+			ColumnExpr("user_id, user_name, user_email, user_photo_url, status").
+			TableExpr("(SELECT user_id, user_name, user_email, user_photo_url, "+
+				"CASE "+
+				"WHEN user_id = ? THEN 'me' "+
+				"WHEN f1_uid IS NOT NULL AND f2_uid IS NOT NULL THEN 'friend' "+
+				"WHEN f1_uid IS NOT NULL AND f2_uid IS NULL THEN 'requesting' "+
+				"WHEN f2_uid IS NOT NULL THEN 'applying' "+
+				"ELSE 'none' END AS status "+
+				"FROM friends_status) AS subquery", uid).
+			Where("user_id > ?", cursor).
+			OrderExpr("user_id ASC").
+			Limit(limit)
+	} else {
+		query = ur.DBEngine.Client.NewSelect().
+			With("friends_status", subQuery).
+			ColumnExpr("user_id, user_name, user_email, user_photo_url, status").
+			TableExpr("(SELECT user_id, user_name, user_email, user_photo_url, "+
+				"CASE "+
+				"WHEN user_id = ? THEN 'me' "+
+				"WHEN f1_uid IS NOT NULL AND f2_uid IS NOT NULL THEN 'friend' "+
+				"WHEN f1_uid IS NOT NULL AND f2_uid IS NULL THEN 'requesting' "+
+				"WHEN f2_uid IS NOT NULL THEN 'applying' "+
+				"ELSE 'none' END AS status "+
+				"FROM friends_status) AS subquery", uid).
+			Where("user_id < ?", cursor).
+			OrderExpr("user_id DESC").
+			Limit(limit)
+	}
 
 	// statusの値が空文字列のでない場合はstatusを検索条件に含める
 	if status != "" {
 		err := query.Where("status = ?", status).
 			Scan(c, &results)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 	}
 	err := query.Scan(c, &results)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
-	return results, nil
+	for i, v := range results {
+		fmt.Println(i, v)
+	}
+
+	return results, NewCursor(results), nil
 }
 
 // UpdateName implements repository.ProfileRepository.

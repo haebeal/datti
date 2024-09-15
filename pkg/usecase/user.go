@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
@@ -10,7 +11,7 @@ import (
 type UserUseCase interface {
 	GetUsers(c context.Context, uid string) ([]*model.User, error)
 	GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, error)
-	GetUsersByEmail(c context.Context, uid string, email string, status string) ([]*model.UserStatus, error)
+	GetUsersByEmail(c context.Context, uid string, email string, status string, cursor string, limit *int, getNext bool) ([]*model.UserStatus, *model.Cursor, error)
 	GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error)
 	UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error)
 	SendFriendRequest(c context.Context, uid string, fuid string) error
@@ -23,15 +24,24 @@ type userUseCase struct {
 	transaction      repository.Transaction
 }
 
+const defaultLimit = 10
+
 // GetUserByEmail implements UserUseCase.
-func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email string, status string) ([]*model.UserStatus, error) {
-	users, err := u.userRepository.GetUsersByEmail(c, uid, email, status)
-	if err != nil {
-		return nil, err
+func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email string, status string, inputCursor string, inputLimit *int, getNext bool) ([]*model.UserStatus, *model.Cursor, error) {
+	var limit int
+
+	if inputLimit == nil {
+		limit = defaultLimit
+	} else {
+		limit = *inputLimit
 	}
 
-	// return result, statuses, nil
-	return users, nil
+	users, cursor, err := u.userRepository.GetUsersByEmail(c, uid, email, status, inputCursor, limit, getNext)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return users, cursor, nil
 }
 
 // GetUserByUid implements UserUseCase.
@@ -52,6 +62,7 @@ func (u *userUseCase) GetUserByUid(c context.Context, uid string, targetId strin
 
 // GetUsers implements UserUseCase.
 func (u *userUseCase) GetUsers(c context.Context, uid string) ([]*model.User, error) {
+	fmt.Println("get users")
 	users, err := u.userRepository.GetUsers(c)
 	if err != nil {
 		return nil, err

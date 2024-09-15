@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
@@ -62,7 +61,6 @@ func (u *userUseCase) GetUserByUid(c context.Context, uid string, targetId strin
 
 // GetUsers implements UserUseCase.
 func (u *userUseCase) GetUsers(c context.Context, uid string) ([]*model.User, error) {
-	fmt.Println("get users")
 	users, err := u.userRepository.GetUsers(c)
 	if err != nil {
 		return nil, err

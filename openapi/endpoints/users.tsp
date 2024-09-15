@@ -15,7 +15,7 @@ namespace UserEndpoints {
    */
   @summary("ユーザー情報の取得")
   @get
-  op getUserByEmail(@query email?: string, @query status?: Utils.Alias.Status):
+  op getUserByEmail(@query email?: string, @query status?: Utils.Alias.Status, @query cursor?: string, @query limit?: integer, @query getNext?: boolean):
   | UsersGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
@@ -80,6 +80,7 @@ namespace UserEndpoints {
   }
   model UsersGetResponse {
     users: User[];
+    cursor: Cursor;
   }
   
   model UserPutRequest{
@@ -148,4 +149,16 @@ model User {
    * フレンド状態のステータス
    */
   status: Utils.Alias.Status;
+}
+
+model Cursor {
+  /**
+   * 始端カーソル
+   */
+  startCursor: string;
+
+  /**
+   * 終端カーソル
+   */
+  endCursor: string;
 }

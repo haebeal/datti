@@ -1,0 +1,18 @@
+version: '3'
+
+dotenv: 
+  - '.env'
+
+tasks:
+  schema-gen:
+    desc: "schema.sqlの生成"
+    cmds:
+      - go run ./cmd/migrate/main.go
+  schema-apply:
+    desc: "マイグレーションの適用"
+    cmds:
+      - atlas schema apply 
+          --url $DSN
+          --to "file://migrations/schema.sql" 
+          --schema public 
+          --dev-url "postgres://postgres:root@localhost:5433/atlas_db?sslmode=disable&timezone=Asia/Tokyo"

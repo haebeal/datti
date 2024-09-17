@@ -32,7 +32,7 @@ func modelsToByte(db *bun.DB, models []interface{}) []byte {
 
 // スキーマ定義SQLファイルschema.sqlを生成する
 func main() {
-	err := godotenv.Load()
+	err := godotenv.Load(".env")
 	if err != nil {
 		fmt.Printf("Failed Load environment: %v", err)
 	}
@@ -44,6 +44,7 @@ func main() {
 	}
 
 	models := []interface{}{
+		(*model.User)(nil),
 		(*model.Friend)(nil),
 		(*model.Group)(nil),
 		(*model.GroupUser)(nil),
@@ -54,5 +55,5 @@ func main() {
 	var data []byte
 	data = append(data, modelsToByte(db.Client, models)...)
 
-	os.WriteFile("./pkg/infrastructure/database/migrations/schema.sql", data, 0777)
+	os.WriteFile("./migrations/schema.sql", data, 0777)
 }

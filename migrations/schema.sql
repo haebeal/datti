@@ -1,3 +1,4 @@
+CREATE TABLE "users" ("id" VARCHAR NOT NULL, "name" VARCHAR NOT NULL, "email" VARCHAR NOT NULL, "photo_url" VARCHAR, "created_at" TIMESTAMPTZ NOT NULL DEFAULT current_timestamp, "updated_at" TIMESTAMPTZ NOT NULL DEFAULT current_timestamp, "deleted_at" TIMESTAMPTZ, PRIMARY KEY ("id"));
 CREATE TABLE "friends" ("uid" VARCHAR NOT NULL, "friend_uid" VARCHAR NOT NULL, PRIMARY KEY ("uid", "friend_uid"));
 CREATE TABLE "groups" ("id" VARCHAR NOT NULL, "name" VARCHAR, "created_at" TIMESTAMPTZ NOT NULL DEFAULT current_timestamp, "updated_at" TIMESTAMPTZ NOT NULL DEFAULT current_timestamp, "deleted_at" TIMESTAMPTZ, PRIMARY KEY ("id"));
 CREATE TABLE "group_users" ("uid" VARCHAR NOT NULL, "group_id" VARCHAR NOT NULL, "owner" BOOLEAN NOT NULL, PRIMARY KEY ("uid", "group_id"));

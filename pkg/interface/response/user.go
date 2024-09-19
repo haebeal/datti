@@ -15,3 +15,8 @@ type User struct {
 type Users struct {
 	Users []*model.User `json:"users"`
 }
+
+type Cursor struct {
+	StartCursor string `json:"startCursor"`
+	EndCursor   string `json:"endCursor"`
+}

@@ -3,6 +3,7 @@ package handler
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/datti-api/pkg/interface/request"
 	"github.com/datti-api/pkg/interface/response"
@@ -47,28 +48,48 @@ func (u *userHandler) HandleGetByUidWithPahtParam(c echo.Context) error {
 
 // HandleGetByEmail implements UserHandler.
 func (u *userHandler) HandleGetByEmail(c echo.Context) error {
+	var limit *int
+	var getNext bool
+	// var err error
 	userID := c.Get("uid").(string)
 	email := c.QueryParam("email")
 	status := c.QueryParam("status")
+	inputCursor := c.QueryParam("cursor")
+	limitStr := c.QueryParam("limit")
+	limitInt, err := strconv.Atoi(limitStr)
+	if err == nil {
+		limit = &limitInt
+	}
+	getNextStr := c.QueryParam("getNext")
+	getNext, err = strconv.ParseBool(getNextStr)
+	if err != nil {
+		getNext = true
+	}
 	errRes := new(response.Error)
 
-	users, err := u.useCase.GetUsersByEmail(c.Request().Context(), userID, email, status)
+	users, cursor, err := u.useCase.GetUsersByEmail(c.Request().Context(), userID, email, status, inputCursor, limit, getNext)
 	if err != nil {
 		errRes.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errRes)
 	} else {
-		res := make([]response.User, len(users))
-		for i := 0; i < len(res); i++ {
-			res[i].UID = users[i].ID
-			res[i].Name = users[i].Name
-			res[i].Email = users[i].Email
-			res[i].PhotoUrl = users[i].PhotoUrl
-			res[i].Status = users[i].Status
+		resUsers := make([]response.User, len(users))
+		resCursor := response.Cursor{
+			StartCursor: cursor.Start,
+			EndCursor:   cursor.End,
+		}
+		for i := 0; i < len(resUsers); i++ {
+			resUsers[i].UID = users[i].ID
+			resUsers[i].Name = users[i].Name
+			resUsers[i].Email = users[i].Email
+			resUsers[i].PhotoUrl = users[i].PhotoUrl
+			resUsers[i].Status = users[i].Status
 		}
 		return c.JSON(http.StatusOK, struct {
-			Users []response.User `json:"users"`
+			Users  []response.User `json:"users"`
+			Cursor response.Cursor `json:"cursor"`
 		}{
-			res,
+			resUsers,
+			resCursor,
 		})
 	}
 }

@@ -1,0 +1,35 @@
+{
+  "name": "datti-api",
+  "dockerComposeFile": ["../.devcontainer/docker-compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/datti-api",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      },
+      "extensions": [
+        "golang.go",
+        "esbenp.prettier-vscode",
+        "eamodio.gitlens",
+        "yzhang.markdown-all-in-one",
+        "editorconfig.editorconfig",
+        "rangav.vscode-thunder-client",
+        "typespec.typespec-vscode",
+        "42Crunch.vscode-openapi",
+        "redhat.vscode-yaml",
+        "MS-CEINTL.vscode-language-pack-ja",
+        "VisualStudioExptTeam.vscodeintellicode",
+        "VisualStudioExptTeam.intellicode-api-usage-examples",
+        "GitHub.github-vscode-theme",
+        "github.vscode-github-actions",
+        "tamasfe.even-better-toml",
+        "ms-azuretools.vscode-docker",
+        "PKief.material-icon-theme",
+        "ms-vscode.makefile-tools"
+      ]
+    }
+  },
+  "postCreateCommand": "git config --global --add safe.directory /datti-api",
+  "forwardPorts": [8080, 5432]
+}

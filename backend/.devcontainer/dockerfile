@@ -1,0 +1,19 @@
+# イメージを指定
+FROM mcr.microsoft.com/devcontainers/go:1-1.22-bookworm
+
+# 環境変数の指定
+ENV TZ=Asia/Tokyo
+
+# 追加の依存関係をインストール
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN go install ariga.io/atlas/cmd/atlas@latest
+RUN go install -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+
+# ワーキングディレクトリの指定
+WORKDIR /workspace
+
+# ワーキングディレクトリにコピー
+COPY . /workspace
+
+# 依存関係の整理
+RUN go mod tidy

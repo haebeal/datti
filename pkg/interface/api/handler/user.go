@@ -177,7 +177,7 @@ func (u *userHandler) HandlerFriendRequest(c echo.Context) error {
 func (u *userHandler) HandleDeleteFriend(c echo.Context) error {
 	errResponse := new(response.Error)
 	userID := c.Get("uid").(string)
-	friendUserID := c.Param("userID")
+	friendUserID := c.Param("userId")
 
 	err := u.useCase.DeleteFriend(c.Request().Context(), userID, friendUserID)
 	if err != nil {

@@ -57,6 +57,7 @@ jobs:
           projectName: datti-web
           directory: app/web/build/client
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
       - name: Add publish URL as commit status
         uses: actions/github-script@v6
         with:

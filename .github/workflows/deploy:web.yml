@@ -55,7 +55,7 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           projectName: datti-web
-          directory: ./build/client
+          directory: app/web/build/client
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
       - name: Add publish URL as commit status
         uses: actions/github-script@v6

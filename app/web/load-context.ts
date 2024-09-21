@@ -1,8 +1,6 @@
 import { type PlatformProxy } from "wrangler";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface Env {
-  CLIENT_URL: string;
   SESSION_SECRET: string;
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;

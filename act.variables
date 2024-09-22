@@ -1,0 +1,5 @@
+FLY_APP_NAME="datti-api-dev"
+FLY_CONFIG_PATH="fly/fly.dev.toml"
+
+# FLY_APP_NAME="datti-api-prod"
+# FLY_CONFIG_PATH="fly/fly.prod.toml"

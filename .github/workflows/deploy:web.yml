@@ -42,7 +42,7 @@ jobs:
       run:
         working-directory: app/web
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'datti-web (Production)' || 'datti-web (Develop)' }}
+      name: ${{ github.ref == 'refs/heads/main' && 'datti-web (Production)' || 'datti-web (Preview)' }}
       url: ${{ steps.publish-to-cloudflare.outputs.deployment-url }} # Cloudflare Pagesのデプロイ結果URL
     steps:
       - uses: actions/checkout@v4

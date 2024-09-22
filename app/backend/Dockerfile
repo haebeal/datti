@@ -4,7 +4,6 @@ RUN mkdir ${ROOT}
 WORKDIR ${ROOT}
 
 # golang init
-COPY go.mod go.sum ./
 COPY . .
 RUN go mod tidy
 RUN ls -l

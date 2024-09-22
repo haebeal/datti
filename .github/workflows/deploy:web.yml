@@ -41,6 +41,9 @@ jobs:
     defaults:
       run:
         working-directory: app/web
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'datti-web (Production)' || 'datti-web (Develop)' }}
+      url: ${{ steps.publish-to-cloudflare.outputs.deployment-url }} # Cloudflare Pagesのデプロイ結果URL
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -55,6 +58,7 @@ jobs:
       - name: Build Artifacts
         run: npm run build
       - name: Publish to Cloudflare Pages
+        id: publish-to-cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

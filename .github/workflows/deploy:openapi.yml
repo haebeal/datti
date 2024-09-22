@@ -1,4 +1,4 @@
-# OpenAPI(swagger UI)のデプロイを行うWorkflow
+# OpenAPI(Swagger UI)のデプロイを行うWorkflow
 name: deploy:openapi
 
 on:
@@ -42,6 +42,9 @@ jobs:
     defaults:
       run:
         working-directory: docs/openapi
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'OpenAPI (Production)' || 'OpenAPI (Preview)' }}
+      url: ${{ steps.publish-to-cloudflare.outputs.deployment-url }} # Cloudflare Pagesのデプロイ結果URL
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -61,6 +64,7 @@ jobs:
           output: docs/openapi/swagger-ui
           spec-file: docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml
       - name: Publish to Cloudflare Pages
+        id: publish-to-cloudflare
         uses: cloudflare/wrangler-action@v3
         with:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

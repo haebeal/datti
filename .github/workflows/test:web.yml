@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - app/web/apps
+      - app/web/apps/**
 
 jobs:
   install:

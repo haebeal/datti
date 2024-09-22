@@ -7,7 +7,7 @@ on:
       - main
       - feature/*
     paths:
-      - app/backend
+      - app/backend/**
       - .github/workflows/deploy:backend.yml
 
 jobs:

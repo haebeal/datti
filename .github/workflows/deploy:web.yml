@@ -7,7 +7,7 @@ on:
       - main
       - feature/*
     paths:
-      - app/web/app
+      - app/web/app/**
       - .github/workflows/deploy:web.yml
 
 jobs:

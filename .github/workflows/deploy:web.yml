@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - feature/**
     paths:
       - app/web/app/**
       - .github/workflows/deploy:web.yml
@@ -31,7 +32,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: app/web/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-${{ hashFiles('app/web/package-lock.json') }}
       - name: Install Dependencies
         if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: npm ci
@@ -51,7 +52,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: app/web/node_modules
-          key: ${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-${{ hashFiles('app/web/package-lock.json') }}
       - name: Build Artifacts
         run: npm run build
       - name: Publish to Cloudflare Pages

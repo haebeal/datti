@@ -6,7 +6,6 @@ WORKDIR ${ROOT}
 # golang init
 COPY . ${ROOT}
 RUN go mod tidy
-RUN ls -l
 WORKDIR ${ROOT}/cmd/app
 RUN CGO_ENABLED=0 GOOS=linux go build -o ${ROOT}/binary
 

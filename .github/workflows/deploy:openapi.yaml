@@ -8,13 +8,13 @@ on:
       - feature/**
     paths:
       - docs/openapi/**
-      - .github/workflows/deploy:openapi.yml
+      - .github/workflows/deploy:openapi.yaml
   pull_request:
     branches:
       - main
     paths:
       - docs/openapi/**
-      - .github/workflows/deploy:openapi.yml
+      - .github/workflows/deploy:openapi.yaml
 
 jobs:
   install:

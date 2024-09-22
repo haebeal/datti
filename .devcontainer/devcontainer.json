@@ -1,6 +1,6 @@
 {
   "name": "datti",
-  "dockerComposeFile": "docker-compose.yml",
+  "dockerComposeFile": "docker-compose.yaml",
   "service": "app",
   "workspaceFolder": "/workspace/datti",
   "customizations": {

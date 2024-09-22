@@ -7,13 +7,13 @@ on:
       - main
     paths:
       - app/backend/**
-      - .github/workflows/deploy:backend.yml
+      - .github/workflows/deploy:backend.yaml
   pull_request:
     branches:
       - main
     paths:
       - app/backend/**
-      - .github/workflows/deploy:backend.yml
+      - .github/workflows/deploy:backend.yaml
 
 jobs:
   deploy:

@@ -27,7 +27,7 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
       - name: Build and Push Docker image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           file: app/backend/Dockerfile # Dockerfile のパスを指定
           push: true

@@ -1,7 +1,10 @@
-name: dependabot-patch-automerge
+# Dependabotによって作成されたPRの自動マージを行うWorkflow
+name: automarge:dependabot
+
 on:
   pull_request:
-    branches: ["main"]
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -11,13 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
-      - name: prepare
+      - name: Prepare Dependabot
         id: prepare
         uses: dependabot/fetch-metadata@v1.1.1
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
-      - name: do
-        if: ${{ steps.prepare.outputs.update-type == 'version-update:semver-patch' }}
+      - name: Merge
         run: gh pr merge --auto --merge ${{github.event.pull_request.html_url}}
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}

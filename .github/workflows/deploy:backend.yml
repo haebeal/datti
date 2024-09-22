@@ -1,0 +1,47 @@
+# Backendのデプロイを行うWorkflow
+name: deploy:backend
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - app/backend/**
+      - .github/workflows/deploy:backend.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - app/backend/**
+      - .github/workflows/deploy:backend.yml
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/backend
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'datti-api (Production)' || 'datti-api (Develop)' }}
+      url: ${{ github.ref == 'refs/heads/main' && 'https://datti-api-prod.fly.dev' || 'https://datti-api-dev.fly.dev' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+      - name: Authenticate with Fly.io Docker Registry
+        run: flyctl auth docker
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: app/backend
+          push: true
+          tags: registry.fly.io/${{ vars.FLY_APP_NAME }} # ビルドしたイメージを指定
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Deploy to Fly.io
+        run: flyctl deploy --local-only --debug --config ${{ vars.FLY_CONFIG_PATH }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_DEPLOY_TOKEN }}

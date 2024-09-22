@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.variables": "properties",
+    ".secrets": "properties"
+  }
+}

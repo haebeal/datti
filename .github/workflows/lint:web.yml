@@ -1,0 +1,28 @@
+# Webの静的検査を行うWorkflow
+name: test:web
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - app/web/apps/**
+      - app/web/biome.json
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/web
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+      - name: Run Biome
+        run: biome ci .

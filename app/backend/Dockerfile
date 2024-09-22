@@ -4,7 +4,7 @@ RUN mkdir ${ROOT}
 WORKDIR ${ROOT}
 
 # golang init
-COPY app/backend ${ROOT}
+COPY . ${ROOT}
 RUN go mod tidy
 RUN ls -l
 WORKDIR ${ROOT}/cmd/app

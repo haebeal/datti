@@ -5,9 +5,14 @@ on:
   push:
     branches:
       - main
-      - feature/*
     paths:
       - app/web/app/**
+      - .github/workflows/deploy:web.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - app/web/apps/**
       - .github/workflows/deploy:web.yml
 
 jobs:

@@ -1,4 +1,4 @@
-# Dependabotによって作成されたMRの自動マージを行うWorkflow
+# Dependabotによって作成されたPRの自動マージを行うWorkflow
 name: automarge:dependabot
 
 on:

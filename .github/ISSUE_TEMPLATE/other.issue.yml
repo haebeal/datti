@@ -1,0 +1,32 @@
+name: その他
+description: 4セクションに分けてissueの詳細を記載する汎用的に使用するissueテンプレート
+labels:
+  - refactor
+body:
+  - type: textarea
+    attributes:
+      label: 背景
+      description: |
+        - 現在の状況や課題を事実に基づいて記載する
+        - ex) 開発環境のフロントエンドが確認できない、APIが動いていない、認証ができない...など
+
+  - type: textarea
+    attributes:
+      label: 目的
+      description: |
+        - このissueで対応することにより何を解決するかを記載する
+        - ex) PR作成時にPreview環境にデプロイするように、APIの○○のバグを修正...など
+
+  - type: textarea
+    attributes:
+      label: TODO
+      description: |
+        - このissueのスコープで実施するタスクを記載する
+        - ex) ○○workflowの作成、Repositroy層の○○がバグっているので修正...など
+
+  - type: textarea
+    attributes:
+      label: なりたい姿
+      description: |
+        - 本issueが終了する際になっていたい姿を記載する
+        - ex) プレビュー環境を確認した上でレビューできる、フロントエンドの○○ページが問題なく開くことができる...など

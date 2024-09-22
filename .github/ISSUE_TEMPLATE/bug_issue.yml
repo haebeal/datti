@@ -3,9 +3,21 @@ description: バグを報告するissueテンプレート
 labels:
   - bug
 body:
+  - type: checkboxes
+    id: method
+    attributes:
+      label: 対象メソッド
+      options:
+        - label: GET
+        - label: POST
+        - label: PUT
+        - label: DELETE
+
   - type: input
     attributes:
-      label: 対象ページ
+      label: 対象ページ / エンドポイント
+    validations:
+      required: true
 
   - type: textarea
     attributes:

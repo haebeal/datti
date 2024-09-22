@@ -32,8 +32,6 @@ jobs:
           file: app/backend/Dockerfile # Dockerfile のパスを指定
           push: true
           tags: registry.fly.io/${{ vars.FLY_APP_NAME }} # ビルドしたイメージを指定
-          cache-from: type=gha
-          cache-to: type=gha,mode=max # 全レイヤーキャッシュ
       - name: Deploy to Fly.io
         run: flyctl deploy --local-only --debug --config ${{ vars.FLY_CONFIG_PATH }}
         env:

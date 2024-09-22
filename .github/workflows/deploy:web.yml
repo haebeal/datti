@@ -55,14 +55,12 @@ jobs:
       - name: Build Artifacts
         run: npm run build
       - name: Publish to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          projectName: datti-web
           workingDirectory: app/web
-          directory: ./build/client
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: pages deploy ./build/client --project-name=datti-web
       - name: Add publish URL as commit status
         uses: actions/github-script@v7
         with:

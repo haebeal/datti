@@ -1,5 +1,5 @@
 # Webの静的検査を行うWorkflow
-name: test:web
+name: lint:web
 
 on:
   pull_request:

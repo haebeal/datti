@@ -12,7 +12,7 @@ export { updateGroupAction as action } from "~/features/groups/actions";
 export { groupLoader as loader } from "~/features/groups/loaders";
 
 export const meta: MetaFunction = () => [
-	{ title: "Datti | グループ編集" },
+	{ title: "Datti | グループ設定" },
 	{ name: "description", content: "誰にいくら払ったっけ？を記録するサービス" },
 ];
 

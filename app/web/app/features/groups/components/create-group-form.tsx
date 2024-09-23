@@ -2,26 +2,27 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useId } from "react";
-import type { GroupAction } from "~/.server/actions";
 import type { GroupEndpoints_GroupGetResponse } from "~/api/@types";
+
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { groupFormSchema } from "~/schema/groupFormSchema";
+
+import type { CreateGroupAction } from "../actions";
+import { createGroupSchema as schema } from "../schemas";
 
 interface Props {
 	defaultValue?: GroupEndpoints_GroupGetResponse;
-	method: "post" | "put";
 }
 
-export function GroupForm({ defaultValue, method }: Props) {
-	const actionData = useActionData<GroupAction>();
+export function CreateGroupForm({ defaultValue }: Props) {
+	const actionData = useActionData<CreateGroupAction>();
 	const [form, { name }] = useForm({
 		defaultValue,
 		lastResult: actionData?.submission,
 		onValidate({ formData }) {
 			return parseWithZod(formData, {
-				schema: groupFormSchema,
+				schema,
 			});
 		},
 	});
@@ -32,7 +33,7 @@ export function GroupForm({ defaultValue, method }: Props) {
 	return (
 		<div className="px-4">
 			<Form
-				method={method}
+				method="post"
 				{...getFormProps(form)}
 				className="flex flex-col gap-8 items-center col-span-4"
 			>
@@ -52,7 +53,7 @@ export function GroupForm({ defaultValue, method }: Props) {
 					className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
 					disabled={state !== "idle"}
 				>
-					{method === "post" ? "作成" : "更新"}
+					作成
 				</Button>
 			</Form>
 		</div>

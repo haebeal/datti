@@ -1,7 +1,7 @@
 import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
-export const groupsLoader = async ({
+export const groupListLoader = async ({
 	request,
 	context,
 }: LoaderFunctionArgs) => {
@@ -19,4 +19,4 @@ export const groupsLoader = async ({
 	);
 };
 
-export type GroupsLoader = typeof groupsLoader;
+export type GroupListLoader = typeof groupListLoader;

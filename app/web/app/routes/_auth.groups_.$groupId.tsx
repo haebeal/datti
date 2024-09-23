@@ -7,10 +7,10 @@ import {
 	useMatches,
 } from "@remix-run/react";
 import { Suspense } from "react";
-import type { GroupLoader } from "~/.server/loaders";
 import { Skeleton } from "~/components/ui/skeleton";
+import type { GroupLoader } from "~/features/groups/loaders";
 
-export { groupLoader as loader } from "~/.server/loaders";
+export { groupLoader as loader } from "~/features/groups/loaders";
 
 export const meta: MetaFunction = () => [
 	{ title: "Datti | グループ詳細" },

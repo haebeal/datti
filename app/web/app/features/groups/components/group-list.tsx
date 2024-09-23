@@ -1,22 +1,17 @@
 import { Await, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
-import type { GroupsLoader } from "~/.server/loaders";
-import { GroupCard } from "~/components/GroupCard";
 
-function LoadingSpinner() {
-	return (
-		<div className="w-full min-h-[60vh] grid place-content-center">
-			<div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
-		</div>
-	);
-}
+import { Spinner } from "~/components";
+
+import type { GroupListLoader } from "../loaders";
+import { GroupCard } from "./group-card";
 
 export function GroupList() {
-	const { groups } = useLoaderData<GroupsLoader>();
+	const { groups } = useLoaderData<GroupListLoader>();
 
 	return (
 		<div className="w-full min-h-[60vh]">
-			<Suspense fallback={<LoadingSpinner />}>
+			<Suspense fallback={<Spinner />}>
 				<Await resolve={groups}>
 					{({ groups }) =>
 						Array.isArray(groups) && groups.length > 0 ? (

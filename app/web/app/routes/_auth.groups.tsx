@@ -1,9 +1,7 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
 import { Outlet, useActionData, useNavigation } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import type { GroupAction } from "~/.server/actions";
-import { GroupForm } from "~/components/GroupForm";
-import { GroupList } from "~/components/GroupList";
+
 import { Button } from "~/components/ui/button";
 import {
 	Dialog,
@@ -14,8 +12,10 @@ import {
 } from "~/components/ui/dialog";
 import { useToast } from "~/components/ui/use-toast";
 
-export { groupAction as action } from "~/.server/actions";
-export { groupsLoader as loader } from "~/.server/loaders";
+import type { CreateGroupAction } from "~/features/groups/actions";
+import { CreateGroupForm, GroupList } from "~/features/groups/components";
+export { createGroupAction as action } from "~/features/groups/actions";
+export { groupListLoader as loader } from "~/features/groups/loaders";
 
 export const meta: MetaFunction = () => [
 	{ title: "Datti | グループ一覧" },
@@ -27,7 +27,7 @@ export default function Group() {
 	const [isOpen, setOpen] = useState(false);
 	const { toast } = useToast();
 
-	const actionData = useActionData<GroupAction>();
+	const actionData = useActionData<CreateGroupAction>();
 	useEffect(() => {
 		if (actionData) {
 			setOpen(false);
@@ -54,7 +54,7 @@ export default function Group() {
 						<DialogHeader>
 							<DialogTitle>グループ作成</DialogTitle>
 						</DialogHeader>
-						<GroupForm method="post" />
+						<CreateGroupForm />
 					</DialogContent>
 				</Dialog>
 			</div>

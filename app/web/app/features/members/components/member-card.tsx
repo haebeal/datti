@@ -1,4 +1,5 @@
 import type { User } from "~/api/@types";
+
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 interface Props {

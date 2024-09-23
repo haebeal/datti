@@ -1,7 +1,7 @@
 import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
-export const membersLoader = async ({
+export const memberListLoader = async ({
 	request,
 	params,
 	context,
@@ -34,4 +34,4 @@ export const membersLoader = async ({
 	);
 };
 
-export type MembersLoader = typeof membersLoader;
+export type MemberListLoader = typeof memberListLoader;

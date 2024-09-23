@@ -1,22 +1,17 @@
 import { Await, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
-import type { MembersLoader } from "~/.server/loaders";
-import { MemberCard } from "~/components/MemberCard";
 
-function LoadingSpinner() {
-	return (
-		<div className="w-full min-h-[60vh] grid place-content-center">
-			<div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
-		</div>
-	);
-}
+import { Spinner } from "~/components";
+
+import type { MemberListLoader } from "~/features/members/loaders";
+import { MemberCard } from "./member-card";
 
 export function MemberList() {
-	const { members } = useLoaderData<MembersLoader>();
+	const { members } = useLoaderData<MemberListLoader>();
 
 	return (
 		<div className="w-full min-h-[60vh]">
-			<Suspense fallback={<LoadingSpinner />}>
+			<Suspense fallback={<Spinner />}>
 				<Await resolve={members}>
 					{({ members }) =>
 						Array.isArray(members) && members.length > 0 ? (

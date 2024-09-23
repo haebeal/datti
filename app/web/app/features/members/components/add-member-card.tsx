@@ -1,5 +1,6 @@
 import { Form, useNavigation } from "@remix-run/react";
 import type { User } from "~/api/@types";
+
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 
@@ -7,7 +8,7 @@ interface Props {
 	user: User;
 }
 
-export function MemberAddCard({ user }: Props) {
+export function AddMemberCard({ user }: Props) {
 	const { state } = useNavigation();
 
 	return (

@@ -1,21 +1,16 @@
 import { Await, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
-import type { MembersLoader } from "~/.server/loaders";
-import { MemberAddCard } from "~/components/MemberAddCard";
 
-function LoadingSpinner() {
-	return (
-		<div className="w-full h-full grid place-content-center">
-			<div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
-		</div>
-	);
-}
+import { Spinner } from "~/components";
 
-export function MemberAddList() {
-	const { users, members } = useLoaderData<MembersLoader>();
+import type { MemberListLoader } from "../loaders";
+import { AddMemberCard } from "./add-member-card";
+
+export function AddMemberList() {
+	const { users, members } = useLoaderData<MemberListLoader>();
 
 	return (
-		<Suspense fallback={<LoadingSpinner />}>
+		<Suspense fallback={<Spinner />}>
 			<Await resolve={users}>
 				{({ users }) => (
 					<Await resolve={members}>
@@ -28,7 +23,7 @@ export function MemberAddList() {
 										members.every((member) => user.userId !== member.userId),
 									)
 									.map((user) => (
-										<MemberAddCard key={user.userId} user={user} />
+										<AddMemberCard key={user.userId} user={user} />
 									))
 							) : (
 								<div className="w-full h-full grid place-content-center">

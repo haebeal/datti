@@ -1,2 +1,8 @@
+# Cache
+**/*/.DS_Store
+
 # Secrets for act
 .secrets
+
+# DevContainer
+.devcontainer/db/data/*

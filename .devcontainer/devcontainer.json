@@ -1,8 +1,11 @@
 {
   "name": "datti",
-  "dockerComposeFile": "docker-compose.yaml",
+  "dockerComposeFile": "compose.yaml",
   "service": "app",
   "workspaceFolder": "/workspace/datti",
+  "containerEnv": {
+    "TZ": "Asia/Tokyo"
+  },
   "customizations": {
     "vscode": {
       "settings": {
@@ -29,5 +32,16 @@
     }
   },
   "postCreateCommand": "git config --global --add safe.directory /workspace/datti",
-  "forwardPorts": [8080, 5432, 5173]
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": {
+      "version": "1.22"
+    },
+    "ghcr.io/dhoeric/features/act:1": {},
+    "ghcr.io/marcozac/devcontainer-features/atlas:1": {
+      "communityEdition": true,
+      "version": "latest",
+      "goVersion": "1.20.7"
+    },
+    "ghcr.io/audacioustux/devcontainers/taskfile:1": {}
+  }
 }

@@ -10,19 +10,22 @@
         "pattern": "started server on .+, url: (https?://.+)",
         "uriFormat": "%s",
         "action": "debugWithChrome"
-      }
+      },
+      "preLaunchTask": "npm: install"
     },
     {
       "name": "Remix: debug server-side",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev"
+      "command": "npm run dev",
+      "preLaunchTask": "npm: install"
     },
     {
       "name": "Remix: debug client-side",
       "type": "chrome",
       "request": "launch",
-      "url": "http://localhost:5173"
+      "url": "http://localhost:5173",
+      "preLaunchTask": "npm: install"
     }
   ]
 }

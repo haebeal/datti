@@ -1,22 +1,17 @@
 import { Await, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
-import type { EventsLoader } from "~/.server/loaders";
-import { EventCard } from "~/components/EventCard";
 
-function LoadingSpinner() {
-	return (
-		<div className="w-full min-h-[60vh] grid place-content-center">
-			<div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
-		</div>
-	);
-}
+import { Spinner } from "~/components";
+
+import type { EventListLoader } from "../loaders";
+import { EventCard } from "./event-card";
 
 export function EventList() {
-	const { events } = useLoaderData<EventsLoader>();
+	const { events } = useLoaderData<EventListLoader>();
 
 	return (
 		<div className="w-full min-h-[60vh]">
-			<Suspense fallback={<LoadingSpinner />}>
+			<Suspense fallback={<Spinner />}>
 				<Await resolve={events}>
 					{({ events }) =>
 						Array.isArray(events) && events.length > 0 ? (

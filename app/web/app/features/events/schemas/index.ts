@@ -5,7 +5,7 @@ import type {
 } from "~/api/@types";
 import type { ToZod } from "~/lib/toZod";
 
-export const eventCreateFormSchema = z.object<
+export const createEventSchema = z.object<
 	ToZod<EventEndpoints_EventPostRequest>
 >({
 	name: z.string({
@@ -22,7 +22,7 @@ export const eventCreateFormSchema = z.object<
 	),
 });
 
-export const eventUpdateFormSchema = z.object<
+export const updateEventSchema = z.object<
 	ToZod<EventEndpoints_EventPutRequest>
 >({
 	name: z.string({
@@ -40,6 +40,6 @@ export const eventUpdateFormSchema = z.object<
 	),
 });
 
-export const eventDeleteFormSchema = z.object({
+export const deleteEventSchema = z.object({
 	eventId: z.string(),
 });

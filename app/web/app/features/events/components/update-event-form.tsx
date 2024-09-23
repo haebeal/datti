@@ -7,13 +7,14 @@ import {
 	useInputControl,
 } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import { CalendarIcon } from "@radix-ui/react-icons";
-import { PopoverClose } from "@radix-ui/react-popover";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { format } from "date-fns";
 import { useEffect, useId } from "react";
-import type { EventAction } from "~/.server/actions";
 import type { EventEndpoints_EventPutRequest, Member } from "~/api/@types";
+import { cn } from "~/lib/utils";
+
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { PopoverClose } from "@radix-ui/react-popover";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
 import { Input } from "~/components/ui/input";
@@ -30,22 +31,23 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "~/components/ui/select";
-import { cn } from "~/lib/utils";
-import { eventUpdateFormSchema } from "~/schema/eventFormSchema";
+
+import type { UpdateEventAction } from "../actions";
+import { updateEventSchema as schema } from "../schemas";
 
 interface Props {
 	defaultValue?: Partial<EventEndpoints_EventPutRequest>;
 	members: Member[];
 }
 
-export function EventUpdateForm({ defaultValue, members }: Props) {
-	const actionData = useActionData<EventAction>();
+export function UpdateEventForm({ defaultValue, members }: Props) {
+	const actionData = useActionData<UpdateEventAction>();
 	const [form, { name, eventedAt, amount, payments, paidBy }] = useForm({
 		defaultValue,
 		lastResult: actionData?.submission,
 		onValidate({ formData }) {
 			return parseWithZod(formData, {
-				schema: eventUpdateFormSchema,
+				schema,
 			});
 		},
 	});

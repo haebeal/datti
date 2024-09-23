@@ -1,13 +1,8 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import {
-	Form,
-	Link,
-	useLocation,
-	useNavigate,
-	useNavigation,
-} from "@remix-run/react";
+import { Form, Link, useLocation, useNavigation } from "@remix-run/react";
 import type { EventEndpoints_EventResponse } from "~/api/@types";
+
 import {
 	AlertDialog,
 	AlertDialogAction,
@@ -19,7 +14,8 @@ import {
 	AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
-import { eventDeleteFormSchema } from "~/schema/eventFormSchema";
+
+import { deleteEventSchema as schema } from "../schemas";
 
 interface Props {
 	event: Pick<EventEndpoints_EventResponse, "eventId" | "name">;
@@ -29,13 +25,11 @@ export function EventCard({ event }: Props) {
 	const { pathname } = useLocation();
 	const { state } = useNavigation();
 
-	const navigate = useNavigate();
-
 	const [form, { eventId }] = useForm({
 		defaultValue: event,
 		onValidate({ formData }) {
 			return parseWithZod(formData, {
-				schema: eventDeleteFormSchema,
+				schema: schema,
 			});
 		},
 	});

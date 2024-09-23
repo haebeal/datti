@@ -1,4 +1,3 @@
-export * from "./authLoader";
 export * from "./eventLoader";
 export * from "./eventsLoader";
 export * from "./friendsLoader";

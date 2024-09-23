@@ -2,25 +2,27 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useId } from "react";
-import type { ProfileAction } from "~/.server/actions";
 import type { User } from "~/api/@types";
+
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { profileFormSchema } from "~/schema/profileFormSchema";
+
+import type { UpdateProfileAction } from "~/features/profile/actions";
+import { updateProfileSchema as schema } from "~/features/profile/schemas";
 
 interface Props {
 	defaultValue?: User;
 }
 
-export function ProfileForm({ defaultValue }: Props) {
-	const actionData = useActionData<ProfileAction>();
+export function UpdateProfileForm({ defaultValue }: Props) {
+	const actionData = useActionData<UpdateProfileAction>();
 	const [form, { name, photoUrl }] = useForm({
 		defaultValue,
 		lastResult: actionData?.submission,
 		onValidate({ formData }) {
-			return parseWithZod(formData, { schema: profileFormSchema });
+			return parseWithZod(formData, { schema });
 		},
 	});
 

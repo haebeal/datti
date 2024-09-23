@@ -1,7 +1,10 @@
 import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
-export const authLoader = async ({ request, context }: LoaderFunctionArgs) => {
+export const profileLoader = async ({
+	request,
+	context,
+}: LoaderFunctionArgs) => {
 	const { client, headers } = await createAPIClient({ request, context });
 	const profile = client.users.me.$get();
 
@@ -14,4 +17,4 @@ export const authLoader = async ({ request, context }: LoaderFunctionArgs) => {
 	);
 };
 
-export type AuthLoader = typeof authLoader;
+export type ProfileLoader = typeof profileLoader;

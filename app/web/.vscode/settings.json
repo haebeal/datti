@@ -16,5 +16,8 @@
   "typescript.preferences.importModuleSpecifier": "non-relative",
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always"
+  },
+  "files.associations": {
+    ".dev.vars": "properties"
   }
 }

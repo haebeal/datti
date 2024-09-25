@@ -7,13 +7,13 @@ on:
       - main
     paths:
       - app/web/app/**
-      - .github/workflows/deploy:web.yml
+      - .github/workflows/deploy:web.yaml
   pull_request:
     branches:
       - main
     paths:
       - app/web/apps/**
-      - .github/workflows/deploy:web.yml
+      - .github/workflows/deploy:web.yaml
 
 jobs:
   install:

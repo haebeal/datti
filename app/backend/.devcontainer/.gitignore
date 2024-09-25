@@ -1,8 +1,0 @@
-database/atlas_db/*
-database/datti_db/*
-
-volumes/db/data
-volumes/storage
-.env
-test.http
-docker-compose.override.yml

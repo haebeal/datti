@@ -10,6 +10,7 @@
 		"include": ["app/**/*"],
 		"ignore": [
 			"**/*.d.ts",
+			"node_modules/**/*",
 			"!.storybook",
 			".gitignore",
 			"app/api/**/*",

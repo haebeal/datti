@@ -5,7 +5,7 @@ updates:
       - app/web
       - docs/openapi
     schedule:
-      interval: daily
+      interval: weekly
     ignore:
       - dependency-name: "*"
         update-types:

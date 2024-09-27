@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/interface/request"
@@ -61,11 +62,23 @@ func (g *groupHandler) HandleCreate(c echo.Context) error {
 
 // HandleGet implements GroupHandler.
 func (g *groupHandler) HandleGet(c echo.Context) error {
+	var limit *int
+	var getNext bool
 	errResponse := new(response.Error)
 	res := new(response.Groups)
 	userID := c.Get("uid").(string)
-
-	groups, err := g.useCase.GetGroups(c.Request().Context(), userID)
+	inputCursor := c.QueryParam("cursor")
+	limitStr := c.QueryParam("limit")
+	limitInt, err := strconv.Atoi(limitStr)
+	if err == nil {
+		limit = &limitInt
+	}
+	getNextStr := c.QueryParam("getNext")
+	getNext, err = strconv.ParseBool(getNextStr)
+	if err != nil {
+		getNext = true
+	}
+	groups, cursor, err := g.useCase.GetGroups(c.Request().Context(), userID, inputCursor, limit, getNext)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -79,6 +92,8 @@ func (g *groupHandler) HandleGet(c echo.Context) error {
 				Name: group.Name,
 			})
 		}
+		res.StartCursor = cursor.Start
+		res.EndCursor = cursor.End
 		return c.JSON(http.StatusOK, res)
 	}
 }

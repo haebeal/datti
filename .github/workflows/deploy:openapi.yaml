@@ -61,7 +61,7 @@ jobs:
       - name: Generate Swagger UI
         uses: Legion2/swagger-ui-action@v1
         with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           output: docs/openapi/swagger-ui
           spec-file: docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml
       - name: Publish to Cloudflare Pages

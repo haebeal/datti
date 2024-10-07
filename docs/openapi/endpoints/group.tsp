@@ -15,7 +15,7 @@ namespace GroupEndpoints {
    */
   @summary("所属しているグループ情報の取得")
   @get
-  op getGroups():
+  op getGroups(@query cursor?: string, @query limit?: integer, @query getNext?: boolean):
   | GroupsGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;

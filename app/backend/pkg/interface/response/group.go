@@ -10,6 +10,8 @@ type Groups struct {
 		ID   string `json:"groupId"`
 		Name string `json:"name"`
 	} `json:"groups"`
+	StartCursor string `json:"startCursor"`
+	EndCursor   string `json:"endCursor"`
 }
 
 type GroupMembers struct {

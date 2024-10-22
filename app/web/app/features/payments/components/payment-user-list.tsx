@@ -17,7 +17,10 @@ export function PaymentUserList() {
 						Array.isArray(payments) && payments.length > 0 ? (
 							<div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
 								{payments.map((paymentUser) => (
-									<PaymentUserCard key={paymentUser.user.userId} paymentUser={paymentUser} />
+									<PaymentUserCard
+										key={paymentUser.user.userId}
+										paymentUser={paymentUser}
+									/>
 								))}
 							</div>
 						) : (

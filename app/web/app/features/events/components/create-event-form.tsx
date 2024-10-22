@@ -84,6 +84,7 @@ export function CreateEventForm({ defaultValue, members }: Props) {
 				<Popover>
 					<PopoverTrigger asChild>
 						<Button
+							// biome-ignore lint:
 							role="combobox"
 							variant="outline"
 							id={eventedAtId}

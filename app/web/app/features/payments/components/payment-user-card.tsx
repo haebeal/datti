@@ -5,7 +5,7 @@ interface Props {
 	paymentUser: PaymentUser;
 }
 
-export function PaymentUserCard({ paymentUser: {user, amount} }: Props) {
+export function PaymentUserCard({ paymentUser: { user, amount } }: Props) {
 	return (
 		<div className="flex flex-row  w-full bg-white px-6 py-5 gap-8 items-center rounded-md border border-gray-200">
 			<Avatar className="border h-14 w-14 border-gray-200">

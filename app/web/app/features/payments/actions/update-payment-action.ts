@@ -14,66 +14,66 @@ export const updatePaymentAction = async ({
 
 	const formData = await request.formData();
 
-  if (request.method !== "PUT") {
-    return json(
-      {
-        message: "許可されていないメソッドです",
-        submission: undefined
-      },
-      {
-        headers
-      }
-    )
-  }
+	if (request.method !== "PUT") {
+		return json(
+			{
+				message: "許可されていないメソッドです",
+				submission: undefined,
+			},
+			{
+				headers,
+			},
+		);
+	}
 
-		const submission = parseWithZod(formData, {
-			schema,
+	const submission = parseWithZod(formData, {
+		schema,
+	});
+	if (submission.status !== "success") {
+		return json(
+			{
+				message: "バリデーションに失敗しました",
+				submission: submission.reply(),
+			},
+			{
+				headers,
+			},
+		);
+	}
+	const paymentId = params.paymentId;
+	if (paymentId === undefined) {
+		return json(
+			{
+				message: "支払いIDの取得に失敗しました",
+				submission: submission.reply(),
+			},
+			{
+				headers,
+			},
+		);
+	}
+	try {
+		await client.payments._paymentId(paymentId).$put({
+			body: submission.value,
 		});
-		if (submission.status !== "success") {
-			return json(
-				{
-					message: "バリデーションに失敗しました",
-					submission: submission.reply(),
-				},
-				{
-					headers,
-				},
-			);
-		}
-		const paymentId = params.paymentId;
-		if (paymentId === undefined) {
-			return json(
-				{
-					message: "支払いIDの取得に失敗しました",
-					submission: submission.reply(),
-				},
-				{
-					headers,
-				},
-			);
-		}
-		try {
-			await client.payments._paymentId(paymentId).$put({
-				body: submission.value,
+		return json(
+			{
+				message: "返済を更新しました",
+				submission: submission.reply(),
+			},
+			{
+				headers,
+			},
+		);
+	} catch (error) {
+		if (error instanceof HTTPError) {
+			throw new Response(error.message, {
+				status: error.response.status,
+				statusText: error.response.statusText,
+				headers,
 			});
-			return json(
-				{
-					message: "返済を更新しました",
-					submission: submission.reply(),
-				},
-				{
-					headers,
-				},
-			);
-		} catch (error) {
-			if (error instanceof HTTPError) {
-				throw new Response(error.message, {
-					status: error.response.status,
-					statusText: error.response.statusText,
-					headers,
-				});
-			}
 		}
+	}
 
 	throw new Response("不明なエラーが発生しました", {
 		status: 500,

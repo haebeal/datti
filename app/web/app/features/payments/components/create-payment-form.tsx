@@ -64,6 +64,7 @@ export function CreatePaymentForm({ paymentUsers }: Props) {
 				<Popover>
 					<PopoverTrigger asChild>
 						<Button
+							// biome-ignore lint:
 							role="combobox"
 							variant="outline"
 							id={paidAtId}

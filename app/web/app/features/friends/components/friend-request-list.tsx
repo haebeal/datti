@@ -1,11 +1,21 @@
-import { Form, useLocation, useNavigation } from "@remix-run/react";
-import { useId } from "react";
-import { FriendRequestList } from "~/components/FriendRequestList";
+import {
+	Await,
+	Form,
+	useLoaderData,
+	useLocation,
+	useNavigation,
+} from "@remix-run/react";
+import { Suspense, useId } from "react";
+
+import { Spinner } from "~/components";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 
-export function FriendRequestForm() {
+import type { FriendRequestLoader } from "../loaders";
+import { FriendRequestCard } from "./friend-request-card";
+
+export function FriendRequestList() {
 	const { search } = useLocation();
 	const { state } = useNavigation();
 	const searchParams = new URLSearchParams(search);
@@ -13,6 +23,7 @@ export function FriendRequestForm() {
 	const status = searchParams.get("status")?.toString();
 	const searchQuery = searchParams.get("q")?.toString();
 	const searchId = useId();
+	const { users } = useLoaderData<FriendRequestLoader>();
 
 	return (
 		<div className="flex flex-col items-center p-4 gap-9">
@@ -38,7 +49,23 @@ export function FriendRequestForm() {
 				</div>
 			</Form>
 			<div className="flex flex-col gap-3 w-full h-80 overflow-y-auto">
-				<FriendRequestList />
+				<Suspense fallback={<Spinner />}>
+					<Await resolve={users}>
+						{({ users }) =>
+							Array.isArray(users) && users.length > 0 ? (
+								users.map((user) => (
+									<FriendRequestCard key={user.userId} user={user} />
+								))
+							) : (
+								<div className="w-full h-full grid place-content-center">
+									<h3 className="font-semibold">
+										ユーザーが見つかりませんでした
+									</h3>
+								</div>
+							)
+						}
+					</Await>
+				</Suspense>
 			</div>
 		</div>
 	);

@@ -1,18 +1,13 @@
 import { Await, useLoaderData, useLocation } from "@remix-run/react";
 import { Suspense } from "react";
-import type { FriendsLoader } from "~/.server/loaders";
-import { FriendCard } from "~/components/FriendCard";
 
-function LoadingSpinner() {
-	return (
-		<div className="w-full min-h-[60vh] grid place-content-center">
-			<div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
-		</div>
-	);
-}
+import { Spinner } from "~/components";
+
+import type { FriendListLoader } from "../loaders";
+import { FriendCard } from "./friend-card";
 
 export function FriendList() {
-	const { friends, applyings, requestings } = useLoaderData<FriendsLoader>();
+	const { friends, applyings, requestings } = useLoaderData<FriendListLoader>();
 
 	const { search } = useLocation();
 	const searchParams = new URLSearchParams(search);
@@ -21,7 +16,7 @@ export function FriendList() {
 
 	return (
 		<div className="w-full min-h-[60vh]">
-			<Suspense fallback={<LoadingSpinner />}>
+			<Suspense fallback={<Spinner />}>
 				<Await
 					resolve={
 						status === "requesting"

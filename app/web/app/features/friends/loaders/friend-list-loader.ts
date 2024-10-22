@@ -1,22 +1,11 @@
 import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
-export const friendsLoader = async ({
+export const friendListLoader = async ({
 	request,
 	context,
 }: LoaderFunctionArgs) => {
-	const { searchParams } = new URL(request.url);
-	const searchQuery = searchParams.get("q")?.toString();
-
 	const { client, headers } = await createAPIClient({ request, context });
-
-	// フレンド申請対象となるユーザー一覧を取得
-	const users = client.users.$get({
-		query: {
-			status: "none",
-			email: searchQuery,
-		},
-	});
 
 	// フレンド一覧を取得
 	const friends = client.users.$get({
@@ -41,7 +30,6 @@ export const friendsLoader = async ({
 
 	return defer(
 		{
-			users,
 			friends,
 			requestings,
 			applyings,
@@ -50,4 +38,4 @@ export const friendsLoader = async ({
 	);
 };
 
-export type FriendsLoader = typeof friendsLoader;
+export type FriendListLoader = typeof friendListLoader;

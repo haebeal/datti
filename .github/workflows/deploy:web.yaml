@@ -12,7 +12,7 @@ on:
     branches:
       - main
     paths:
-      - app/web/apps/**
+      - app/web/app/**
       - .github/workflows/deploy:web.yaml
 
 jobs:

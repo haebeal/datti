@@ -1,5 +1,5 @@
 import { HTTPError } from "@aspida/fetch";
-import { json, type ActionFunctionArgs } from "@remix-run/cloudflare";
+import { type ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
 export const createFriendAction = async ({

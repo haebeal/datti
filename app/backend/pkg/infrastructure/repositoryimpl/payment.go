@@ -8,7 +8,7 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
-	"github.com/rs/xid"
+	"github.com/google/uuid"
 )
 
 type paymentRepositoryImpl struct {
@@ -16,15 +16,30 @@ type paymentRepositoryImpl struct {
 }
 
 // CreatePayment implements repository.PaymentRepository.
-func (p *paymentRepositoryImpl) CreatePayment(c context.Context, eventId string, paidTo string, paidBy string, paidAt time.Time, amount int) (*model.Payment, error) {
-	pid := xid.New()
+func (p *paymentRepositoryImpl) CreatePayment(c context.Context, paidTo uuid.UUID, paidBy uuid.UUID, paidAt time.Time, amount int) (*model.Payment, error) {
 	payment := &model.Payment{
-		ID:        pid.String(),
-		EventedBy: eventId,
-		PaidBy:    paidBy,
-		PaidTo:    paidTo,
-		PaidAt:    paidAt,
-		Amount:    amount,
+		PaidBy: paidBy,
+		PaidTo: paidTo,
+		PaidAt: paidAt,
+		Amount: amount,
+	}
+	_, err := p.DBEngine.Client.NewInsert().
+		Model(payment).
+		Exec(c)
+	if err != nil {
+		return nil, err
+	}
+
+	return payment, nil
+}
+
+func (p *paymentRepositoryImpl) CreatePaymentWihtEventId(c context.Context, eventId uuid.UUID, paidTo uuid.UUID, paidBy uuid.UUID, paidAt time.Time, amount int) (*model.Payment, error) {
+	payment := &model.Payment{
+		EventID: eventId,
+		PaidBy:  paidBy,
+		PaidTo:  paidTo,
+		PaidAt:  paidAt,
+		Amount:  amount,
 	}
 	_, err := p.DBEngine.Client.NewInsert().
 		Model(payment).
@@ -37,7 +52,7 @@ func (p *paymentRepositoryImpl) CreatePayment(c context.Context, eventId string,
 }
 
 // DeletePayment implements repository.PaymentRepository.
-func (p *paymentRepositoryImpl) DeletePayment(c context.Context, id string) error {
+func (p *paymentRepositoryImpl) DeletePayment(c context.Context, id uuid.UUID) error {
 	payment := new(model.Payment)
 	_, err := p.DBEngine.Client.NewDelete().
 		Model(payment).
@@ -51,7 +66,7 @@ func (p *paymentRepositoryImpl) DeletePayment(c context.Context, id string) erro
 }
 
 // GetPayment implements repository.PaymentRepository.
-func (p *paymentRepositoryImpl) GetPayment(c context.Context, id string) (*model.Payment, error) {
+func (p *paymentRepositoryImpl) GetPayment(c context.Context, id uuid.UUID) (*model.Payment, error) {
 	payment := new(model.Payment)
 	err := p.DBEngine.Client.NewSelect().
 		Table("payments").
@@ -64,11 +79,11 @@ func (p *paymentRepositoryImpl) GetPayment(c context.Context, id string) (*model
 	return payment, nil
 }
 
-func (p *paymentRepositoryImpl) GetPaymentByEventId(c context.Context, eventId string) ([]*model.Payment, error) {
+func (p *paymentRepositoryImpl) GetPaymentByEventId(c context.Context, eventId uuid.UUID) ([]*model.Payment, error) {
 	payments := []*model.Payment{}
 	err := p.DBEngine.Client.NewSelect().
 		Table("payments").
-		Where("evented_by = ?", eventId).
+		Where("event_id = ?", eventId).
 		Scan(c, &payments)
 	if err != nil {
 		return nil, err
@@ -77,7 +92,7 @@ func (p *paymentRepositoryImpl) GetPaymentByEventId(c context.Context, eventId s
 }
 
 // GetPayments implements repository.PaymentRepository.
-func (p *paymentRepositoryImpl) GetPayments(c context.Context, uid string) ([]*model.PaymentResult, error) {
+func (p *paymentRepositoryImpl) GetPayments(c context.Context, uid uuid.UUID) ([]*model.PaymentResult, error) {
 	results := []*model.PaymentResult{}
 
 	// LendAmountsのサブクエリ
@@ -119,7 +134,7 @@ func (p *paymentRepositoryImpl) GetPayments(c context.Context, uid string) ([]*m
 }
 
 // GetPaidBy implements repository.PaymentRepository.
-func (p *paymentRepositoryImpl) GetPaidBy(c context.Context, uid string) ([]*model.Payment, error) {
+func (p *paymentRepositoryImpl) GetPaidBy(c context.Context, uid uuid.UUID) ([]*model.Payment, error) {
 	payments := new([]*model.Payment)
 	err := p.DBEngine.Client.NewSelect().
 		Table("payments").
@@ -133,7 +148,7 @@ func (p *paymentRepositoryImpl) GetPaidBy(c context.Context, uid string) ([]*mod
 }
 
 // GetPaidTo implements repository.PaymentRepository.
-func (p *paymentRepositoryImpl) GetPaidTo(c context.Context, uid string) ([]*model.Payment, error) {
+func (p *paymentRepositoryImpl) GetPaidTo(c context.Context, uid uuid.UUID) ([]*model.Payment, error) {
 	payments := new([]*model.Payment)
 	err := p.DBEngine.Client.NewSelect().
 		Table("payments").
@@ -146,7 +161,7 @@ func (p *paymentRepositoryImpl) GetPaidTo(c context.Context, uid string) ([]*mod
 	return *payments, nil
 }
 
-func (p *paymentRepositoryImpl) GetHistory(c context.Context, uid string) ([]*model.Payment, error) {
+func (p *paymentRepositoryImpl) GetHistory(c context.Context, uid uuid.UUID) ([]*model.Payment, error) {
 	payments := []*model.Payment{}
 	err := p.DBEngine.Client.NewSelect().
 		Table("payments").
@@ -161,9 +176,8 @@ func (p *paymentRepositoryImpl) GetHistory(c context.Context, uid string) ([]*mo
 }
 
 // UpdatePayment implements repository.PaymentRepository.
-func (p *paymentRepositoryImpl) UpdatePayment(c context.Context, eventId string, id string, paidTo string, paidBy string, paidAt time.Time, amount int) (*model.Payment, error) {
+func (p *paymentRepositoryImpl) UpdatePayment(c context.Context, id uuid.UUID, paidTo uuid.UUID, paidBy uuid.UUID, paidAt time.Time, amount int) (*model.Payment, error) {
 	payment := new(model.Payment)
-	payment.EventedBy = eventId
 	payment.ID = id
 	payment.PaidTo = paidTo
 	payment.PaidBy = paidBy
@@ -174,7 +188,7 @@ func (p *paymentRepositoryImpl) UpdatePayment(c context.Context, eventId string,
 	_, err := p.DBEngine.Client.NewUpdate().
 		Model(payment).
 		Column("paid_by", "paid_to", "paid_at", "amount").
-		Where("evented_by = ? ", eventId).
+		Where("id = ? ", id).
 		Exec(c)
 	if err != nil {
 		return nil, err

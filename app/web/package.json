@@ -6,7 +6,7 @@
 	"scripts": {
 		"build": "remix vite:build",
 		"deploy": "wrangler pages deploy ./build/client",
-		"api:build": "rm -rf ./app/api/* && npx openapi2aspida -o app/api -i https://haebeal.github.io/datti-api/openapi.yaml",
+		"api:build": "rm -rf ./app/api/* && npx openapi2aspida -o app/api -i https://datti-openapi.haebeal.net/openapi.yaml",
 		"dev": "remix vite:dev",
 		"start": "wrangler pages dev ./build/client",
 		"typecheck": "tsc",

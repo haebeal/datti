@@ -1,8 +1,7 @@
+import type { MetaFunction } from "@remix-run/cloudflare";
 import { Outlet, useActionData, useNavigation } from "@remix-run/react";
 import { useEffect } from "react";
-import type { MemberAction } from "~/.server/actions";
-import { MemberAddForm } from "~/components/MemberAddForm";
-import { MemberList } from "~/components/MemberList";
+
 import { Button } from "~/components/ui/button";
 import {
 	Dialog,
@@ -13,14 +12,21 @@ import {
 } from "~/components/ui/dialog";
 import { useToast } from "~/components/ui/use-toast";
 
-export { memberAction as action } from "~/.server/actions";
-export { membersLoader as loader } from "~/.server/loaders";
+import type { AddMemberAction } from "~/features/members/actions";
+import { AddMemberForm, MemberList } from "~/features/members/components";
+export { addMemberAction as action } from "~/features/members/actions";
+export { memberListLoader as loader } from "~/features/members/loaders";
+
+export const meta: MetaFunction = () => [
+	{ title: "Datti | メンバー設定" },
+	{ name: "description", content: "誰にいくら払ったっけ？を記録するサービス" },
+];
 
 export default function GroupMembers() {
 	const { state } = useNavigation();
 	const { toast } = useToast();
 
-	const actionData = useActionData<MemberAction>();
+	const actionData = useActionData<AddMemberAction>();
 	useEffect(() => {
 		if (actionData) {
 			toast({
@@ -45,7 +51,7 @@ export default function GroupMembers() {
 						<DialogHeader>
 							<DialogTitle>メンバー追加</DialogTitle>
 						</DialogHeader>
-						<MemberAddForm />
+						<AddMemberForm />
 					</DialogContent>
 				</Dialog>
 			</div>

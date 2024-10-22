@@ -1,26 +1,19 @@
 import { Await, useActionData, useLoaderData } from "@remix-run/react";
 import { Suspense, useEffect } from "react";
-import type { ProfileAction } from "~/.server/actions";
-import type { AuthLoader } from "~/.server/loaders";
-import { ProfileForm } from "~/components/ProfileForm";
+import { Spinner } from "~/components";
 import { useToast } from "~/components/ui/use-toast";
 
-export { profileAction as action } from "~/.server/actions";
-export { authLoader as loader } from "~/.server/loaders";
-
-function LoadingSpinner() {
-	return (
-		<div className="w-full min-h-[60vh] grid place-content-center">
-			<div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
-		</div>
-	);
-}
+import type { UpdateProfileAction } from "~/features/profile/actions";
+import { UpdateProfileForm } from "~/features/profile/components";
+import type { ProfileLoader } from "~/features/profile/loaders";
+export { updateProfileAction as action } from "~/features/profile/actions";
+export { profileLoader as loader } from "~/features/profile/loaders";
 
 export default function ProfileSetting() {
 	const { toast } = useToast();
 
-	const { profile } = useLoaderData<AuthLoader>();
-	const actionData = useActionData<ProfileAction>();
+	const { profile } = useLoaderData<ProfileLoader>();
+	const actionData = useActionData<UpdateProfileAction>();
 	useEffect(() => {
 		if (actionData) {
 			toast({
@@ -30,9 +23,9 @@ export default function ProfileSetting() {
 	}, [actionData, toast]);
 
 	return (
-		<Suspense fallback={<LoadingSpinner />}>
+		<Suspense fallback={<Spinner />}>
 			<Await resolve={profile}>
-				{(profile) => <ProfileForm defaultValue={profile} />}
+				{(profile) => <UpdateProfileForm defaultValue={profile} />}
 			</Await>
 		</Suspense>
 	);

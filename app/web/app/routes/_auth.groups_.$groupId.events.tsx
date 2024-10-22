@@ -1,3 +1,4 @@
+import type { MetaFunction } from "@remix-run/cloudflare";
 import {
 	Await,
 	Outlet,
@@ -6,10 +7,7 @@ import {
 	useNavigation,
 } from "@remix-run/react";
 import { Suspense, useEffect, useState } from "react";
-import type { EventAction } from "~/.server/actions";
-import type { EventsLoader } from "~/.server/loaders";
-import { EventCreateForm } from "~/components/EventCreateForm";
-import { EventList } from "~/components/EventList";
+
 import { Button } from "~/components/ui/button";
 import {
 	Dialog,
@@ -20,16 +18,24 @@ import {
 } from "~/components/ui/dialog";
 import { useToast } from "~/components/ui/use-toast";
 
-export { eventAction as action } from "~/.server/actions";
-export { eventsLoader as loader } from "~/.server/loaders";
+import type { CreateEventAction } from "~/features/events/actions";
+import { CreateEventForm, EventList } from "~/features/events/components";
+import type { EventListLoader } from "~/features/events/loaders";
+export { createEventAction as action } from "~/features/events/actions";
+export { eventListLoader as loader } from "~/features/events/loaders";
+
+export const meta: MetaFunction = () => [
+	{ title: "Datti | イベント一覧" },
+	{ name: "description", content: "誰にいくら払ったっけ？を記録するサービス" },
+];
 
 export default function GroupEvents() {
 	const { state } = useNavigation();
 	const [isOpen, setOpen] = useState(false);
 	const { toast } = useToast();
 
-	const { members } = useLoaderData<EventsLoader>();
-	const actionData = useActionData<EventAction>();
+	const { members } = useLoaderData<EventListLoader>();
+	const actionData = useActionData<CreateEventAction>();
 	useEffect(() => {
 		if (actionData) {
 			setOpen(false);
@@ -57,7 +63,7 @@ export default function GroupEvents() {
 						</DialogHeader>
 						<Suspense fallback={<p>loading...</p>}>
 							<Await resolve={members}>
-								{({ members }) => <EventCreateForm members={members} />}
+								{({ members }) => <CreateEventForm members={members} />}
 							</Await>
 						</Suspense>
 					</DialogContent>

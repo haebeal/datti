@@ -7,6 +7,9 @@ export type Methods = {
     query?: {
       email?: string | undefined
       status?: 'me' | 'applying' | 'requesting' | 'friend' | 'none' | undefined
+      cursor?: string | undefined
+      limit?: number | undefined
+      getNext?: boolean | undefined
     } | undefined
 
     status: 200

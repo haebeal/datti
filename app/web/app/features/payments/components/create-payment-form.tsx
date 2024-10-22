@@ -11,6 +11,7 @@ import { PopoverClose } from "@radix-ui/react-popover";
 import { Form, useNavigation } from "@remix-run/react";
 import { format } from "date-fns";
 import { useId } from "react";
+
 import type { PaymentUser } from "~/api/@types";
 import { Button } from "~/components/ui/button";
 import { Calendar } from "~/components/ui/calendar";
@@ -29,17 +30,18 @@ import {
 	SelectValue,
 } from "~/components/ui/select";
 import { cn } from "~/lib/utils";
-import { paymentCreateFormSchema } from "~/schema/paymentFormSchema";
+
+import { createPaymentSchema as schema } from "../schemas";
 
 interface Props {
-	payments: PaymentUser[];
+	paymentUsers: PaymentUser[];
 }
 
-export function PaymentCreateForm({ payments }: Props) {
+export function CreatePaymentForm({ paymentUsers }: Props) {
 	const [form, { paidTo, paidAt, amount }] = useForm({
 		onValidate({ formData }) {
 			return parseWithZod(formData, {
-				schema: paymentCreateFormSchema,
+				schema,
 			});
 		},
 	});
@@ -103,9 +105,9 @@ export function PaymentCreateForm({ payments }: Props) {
 						<SelectValue placeholder="ユーザーを選択" />
 					</SelectTrigger>
 					<SelectContent>
-						{payments.map((payment) => (
-							<SelectItem key={payment.user.userId} value={payment.user.userId}>
-								{payment.user.name}
+						{paymentUsers.map(({ user }) => (
+							<SelectItem key={user.userId} value={user.userId}>
+								{user.name}
 							</SelectItem>
 						))}
 					</SelectContent>

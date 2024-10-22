@@ -5,7 +5,7 @@ interface Props {
 	payment: Payment;
 }
 
-export function PaymentHistoryCard({ payment }: Props) {
+export function PaymentCard({ payment }: Props) {
 	return (
 		<div className="flex flex-row w-full bg-white px-6 py-5 gap-8 items-center rounded-md border border-gray-200">
 			<Avatar className="border h-14 w-14 border-gray-200">

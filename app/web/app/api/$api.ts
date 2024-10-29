@@ -165,13 +165,13 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
        * 所属しているグループの取得
        * @returns The request has succeeded.
        */
-      get: (option?: { config?: T | undefined } | undefined) =>
+      get: (option?: { query?: Methods_1jtp8e2['get']['query'] | undefined, config?: T | undefined } | undefined) =>
         fetch<Methods_1jtp8e2['get']['resBody'], BasicHeaders, Methods_1jtp8e2['get']['status']>(prefix, PATH0, GET, option).json(),
       /**
        * 所属しているグループの取得
        * @returns The request has succeeded.
        */
-      $get: (option?: { config?: T | undefined } | undefined) =>
+      $get: (option?: { query?: Methods_1jtp8e2['get']['query'] | undefined, config?: T | undefined } | undefined) =>
         fetch<Methods_1jtp8e2['get']['resBody'], BasicHeaders, Methods_1jtp8e2['get']['status']>(prefix, PATH0, GET, option).json().then(r => r.body),
       /**
        * グループの作成
@@ -185,7 +185,8 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
        */
       $post: (option: { body: Methods_1jtp8e2['post']['reqBody'], config?: T | undefined }) =>
         fetch<Methods_1jtp8e2['post']['resBody'], BasicHeaders, Methods_1jtp8e2['post']['status']>(prefix, PATH0, POST, option).json().then(r => r.body),
-      $path: () => `${prefix}${PATH0}`,
+      $path: (option?: { method?: 'get' | undefined; query: Methods_1jtp8e2['get']['query'] } | undefined) =>
+        `${prefix}${PATH0}${option && option.query ? `?${dataToURLString(option.query)}` : ''}`,
     },
     payments: {
       _paymentId: (val1: string) => {

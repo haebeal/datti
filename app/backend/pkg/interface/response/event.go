@@ -2,33 +2,31 @@ package response
 
 import (
 	"time"
-
-	"github.com/google/uuid"
 )
 
 type Event struct {
-	ID        uuid.UUID `json:"eventId"`
+	ID        string    `json:"eventId"`
 	Name      string    `json:"name"`
 	EventedAt time.Time `json:"eventedAt"`
-	CreatedBy uuid.UUID `json:"createdBy"`
-	PaidBy    uuid.UUID `json:"paidBy"`
+	CreatedBy string    `json:"createdBy"`
+	PaidBy    string    `json:"paidBy"`
 	Amount    int       `json:"amount"`
 	Payments  []struct {
-		PaymentId uuid.UUID `json:"paymentId"`
-		PaidTo    uuid.UUID `json:"paidTo"`
-		Amount    int       `json:"amount"`
+		PaymentId string `json:"paymentId"`
+		PaidTo    string `json:"paidTo"`
+		Amount    int    `json:"amount"`
 	} `json:"payments"`
-	GroupId uuid.UUID `json:"groupId"`
+	GroupId string `json:"groupId"`
 }
 
 type Events struct {
 	Events []struct {
-		ID        uuid.UUID `json:"eventId"`
+		ID        string    `json:"eventId"`
 		Name      string    `json:"name"`
 		EventedAt time.Time `json:"eventedAt"`
 		PaidBy    struct {
-			ID   uuid.UUID `json:"userId"`
-			Name string    `json:"name"`
+			ID   string `json:"userId"`
+			Name string `json:"name"`
 		} `json:"paidBy"`
 		Amount int `json:"amount"`
 	} `json:"events"`

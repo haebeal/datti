@@ -6,14 +6,13 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
-	"github.com/google/uuid"
 )
 
 type groupUserRepositoryImpl struct {
 	DBEngine database.DBClient
 }
 
-func (g *groupUserRepositoryImpl) GetGroupUser(c context.Context, groupID uuid.UUID, userID uuid.UUID) (*model.GroupUser, error) {
+func (g *groupUserRepositoryImpl) GetGroupUser(c context.Context, groupID string, userID string) (*model.GroupUser, error) {
 	groupUser := &model.GroupUser{}
 	err := g.DBEngine.Client.NewSelect().
 		Table("group_users").
@@ -28,7 +27,7 @@ func (g *groupUserRepositoryImpl) GetGroupUser(c context.Context, groupID uuid.U
 }
 
 // GetGroupUserById implements repository.GroupUserReopsitory.
-func (g *groupUserRepositoryImpl) GetGroupUserById(c context.Context, id uuid.UUID) ([]*model.GroupUser, error) {
+func (g *groupUserRepositoryImpl) GetGroupUserById(c context.Context, id string) ([]*model.GroupUser, error) {
 	groupUsers := new([]*model.GroupUser)
 	err := g.DBEngine.Client.NewSelect().
 		Table("group_users").
@@ -42,7 +41,7 @@ func (g *groupUserRepositoryImpl) GetGroupUserById(c context.Context, id uuid.UU
 }
 
 // GetGroupUserByUid implements repository.GroupUserReopsitory.
-func (g *groupUserRepositoryImpl) GetGroupUserByUid(c context.Context, uid uuid.UUID) ([]*model.GroupUser, error) {
+func (g *groupUserRepositoryImpl) GetGroupUserByUid(c context.Context, uid string) ([]*model.GroupUser, error) {
 	groupUsers := new([]*model.GroupUser)
 	err := g.DBEngine.Client.NewSelect().
 		Table("group_users").
@@ -56,10 +55,11 @@ func (g *groupUserRepositoryImpl) GetGroupUserByUid(c context.Context, uid uuid.
 }
 
 // CreateGroupUser implements repository.GroupUserReopsitory.
-func (g *groupUserRepositoryImpl) CreateGroupUser(c context.Context, uid uuid.UUID, id uuid.UUID) error {
+func (g *groupUserRepositoryImpl) CreateGroupUser(c context.Context, uid string, id string) error {
 	groupUser := &model.GroupUser{
 		UserID:  uid,
 		GroupID: id,
+		Owner:   true,
 	}
 	_, err := g.DBEngine.Client.NewInsert().
 		Model(groupUser).
@@ -72,7 +72,7 @@ func (g *groupUserRepositoryImpl) CreateGroupUser(c context.Context, uid uuid.UU
 }
 
 // DeleteGroupUser implements repository.GroupUserReopsitory.
-func (g *groupUserRepositoryImpl) DeleteGroupUser(c context.Context, uid uuid.UUID, id uuid.UUID) error {
+func (g *groupUserRepositoryImpl) DeleteGroupUser(c context.Context, uid string, id string) error {
 	groupUser := new(model.GroupUser)
 	_, err := g.DBEngine.Client.NewDelete().
 		Model(groupUser).
@@ -86,7 +86,7 @@ func (g *groupUserRepositoryImpl) DeleteGroupUser(c context.Context, uid uuid.UU
 }
 
 // UpdateGroupUser implements repository.GroupUserReopsitory.
-func (g *groupUserRepositoryImpl) UpdateGroupUser(c context.Context, uid uuid.UUID, id uuid.UUID) error {
+func (g *groupUserRepositoryImpl) UpdateGroupUser(c context.Context, uid string, id string) error {
 	groupUser := new(model.GroupUser)
 	_, err := g.DBEngine.Client.NewUpdate().
 		Model(groupUser).

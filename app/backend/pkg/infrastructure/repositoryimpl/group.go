@@ -6,7 +6,7 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
-	"github.com/google/uuid"
+	"github.com/rs/xid"
 )
 
 type groupRepoImpl struct {
@@ -15,7 +15,9 @@ type groupRepoImpl struct {
 
 // CreatGroup implements repository.GroupRepository.
 func (g *groupRepoImpl) CreatGroup(c context.Context, name string) (*model.Group, error) {
+	id := xid.New()
 	group := &model.Group{
+		ID:   id.String(),
 		Name: name,
 	}
 	_, err := g.DBEngine.Client.NewInsert().
@@ -29,7 +31,7 @@ func (g *groupRepoImpl) CreatGroup(c context.Context, name string) (*model.Group
 }
 
 // GetGroupById implements repository.GroupRepository.
-func (g *groupRepoImpl) GetGroupById(c context.Context, id uuid.UUID) (*model.Group, error) {
+func (g *groupRepoImpl) GetGroupById(c context.Context, id string) (*model.Group, error) {
 	group := new(model.Group)
 	err := g.DBEngine.Client.NewSelect().
 		Table("groups").
@@ -43,7 +45,7 @@ func (g *groupRepoImpl) GetGroupById(c context.Context, id uuid.UUID) (*model.Gr
 }
 
 // GetGroups implements repository.GroupRepository.
-func (g *groupRepoImpl) GetGroups(c context.Context, uid uuid.UUID) ([]*model.Group, error) {
+func (g *groupRepoImpl) GetGroups(c context.Context, uid string) ([]*model.Group, error) {
 	groups := make([]*model.Group, 0)
 	err := g.DBEngine.Client.NewSelect().
 		Table("groups").
@@ -57,7 +59,7 @@ func (g *groupRepoImpl) GetGroups(c context.Context, uid uuid.UUID) ([]*model.Gr
 }
 
 // UpdateGroup implements repository.GroupRepository.
-func (g *groupRepoImpl) UpdateGroup(c context.Context, id uuid.UUID, name string) (*model.Group, error) {
+func (g *groupRepoImpl) UpdateGroup(c context.Context, id string, name string) (*model.Group, error) {
 	group := new(model.Group)
 	group.ID = id
 	group.Name = name

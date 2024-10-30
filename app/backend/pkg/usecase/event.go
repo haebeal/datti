@@ -8,15 +8,14 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/usecase/dto"
-	"github.com/google/uuid"
 )
 
 type EventUseCase interface {
-	CreateEvent(c context.Context, uid uuid.UUID, gid uuid.UUID, eventRequest *dto.EventCreate) (*dto.EventResponse, error)
-	UpdateEvent(c context.Context, id uuid.UUID, uid uuid.UUID, gid uuid.UUID, eventRequest *dto.EventUpdate) (*dto.EventResponse, error)
-	GetEvent(c context.Context, id uuid.UUID) (*dto.EventResponse, error)
-	GetEvents(c context.Context, gid uuid.UUID) (*dto.Events, error)
-	DeleteEvent(c context.Context, groupID uuid.UUID, eventID uuid.UUID, userID uuid.UUID) error
+	CreateEvent(c context.Context, uid string, gid string, eventRequest *dto.EventCreate) (*dto.EventResponse, error)
+	UpdateEvent(c context.Context, id string, uid string, gid string, eventRequest *dto.EventUpdate) (*dto.EventResponse, error)
+	GetEvent(c context.Context, id string) (*dto.EventResponse, error)
+	GetEvents(c context.Context, gid string) (*dto.Events, error)
+	DeleteEvent(c context.Context, groupID string, eventID string, userID string) error
 }
 
 type eventUseCase struct {
@@ -29,7 +28,7 @@ type eventUseCase struct {
 }
 
 // CreateEvent implements EventUseCase.
-func (e *eventUseCase) CreateEvent(c context.Context, uid uuid.UUID, gid uuid.UUID, eventCreated *dto.EventCreate) (*dto.EventResponse, error) {
+func (e *eventUseCase) CreateEvent(c context.Context, uid string, gid string, eventCreated *dto.EventCreate) (*dto.EventResponse, error) {
 	eventCreate := &model.Event{
 		Name:      eventCreated.Name,
 		CreatedBy: eventCreated.CreatedBy,
@@ -63,7 +62,7 @@ func (e *eventUseCase) CreateEvent(c context.Context, uid uuid.UUID, gid uuid.UU
 
 	// 支払いを登録
 	for i, p := range eventCreated.Payments {
-		payment, err := e.paymentRepository.CreatePaymentWihtEventId(c, event.ID, eventCreated.Payments[i].PaidTo, eventCreated.PaidBy, eventCreated.EventedAt, p.Amount)
+		payment, err := e.paymentRepository.CreatePayment(c, event.ID, eventCreated.Payments[i].PaidTo, eventCreated.PaidBy, eventCreated.EventedAt, p.Amount)
 		if err != nil {
 			return nil, err
 		}
@@ -73,8 +72,8 @@ func (e *eventUseCase) CreateEvent(c context.Context, uid uuid.UUID, gid uuid.UU
 		}
 
 		eventCrateResponse.Paymetns = append(eventCrateResponse.Paymetns, struct {
-			PaymentId uuid.UUID
-			PaidTo    uuid.UUID
+			PaymentId string
+			PaidTo    string
 			Amount    int
 		}{
 			PaymentId: payment.ID,
@@ -87,7 +86,7 @@ func (e *eventUseCase) CreateEvent(c context.Context, uid uuid.UUID, gid uuid.UU
 }
 
 // GetEvent implements EventUseCase.
-func (e *eventUseCase) GetEvent(c context.Context, id uuid.UUID) (*dto.EventResponse, error) {
+func (e *eventUseCase) GetEvent(c context.Context, id string) (*dto.EventResponse, error) {
 	event, err := e.eventRepository.GetEvent(c, id)
 	if err != nil {
 		return nil, err
@@ -115,8 +114,8 @@ func (e *eventUseCase) GetEvent(c context.Context, id uuid.UUID) (*dto.EventResp
 		}
 
 		eventResponse.Paymetns = append(eventResponse.Paymetns, struct {
-			PaymentId uuid.UUID
-			PaidTo    uuid.UUID
+			PaymentId string
+			PaidTo    string
 			Amount    int
 		}{
 			PaymentId: p.ID,
@@ -129,7 +128,7 @@ func (e *eventUseCase) GetEvent(c context.Context, id uuid.UUID) (*dto.EventResp
 }
 
 // GetEvents implements EventUseCase.
-func (e *eventUseCase) GetEvents(c context.Context, gid uuid.UUID) (*dto.Events, error) {
+func (e *eventUseCase) GetEvents(c context.Context, gid string) (*dto.Events, error) {
 	events, err := e.eventRepository.GetEvents(c, gid)
 	if err != nil {
 		return nil, err
@@ -144,11 +143,11 @@ func (e *eventUseCase) GetEvents(c context.Context, gid uuid.UUID) (*dto.Events,
 		}
 
 		eventList.Events = append(eventList.Events, struct {
-			ID        uuid.UUID
+			ID        string
 			Name      string
 			EventedAt time.Time
 			PaidBy    struct {
-				ID   uuid.UUID
+				ID   string
 				Name string
 			}
 			Amount int
@@ -157,7 +156,7 @@ func (e *eventUseCase) GetEvents(c context.Context, gid uuid.UUID) (*dto.Events,
 			Name:      event.Name,
 			EventedAt: event.EventedAt,
 			PaidBy: struct {
-				ID   uuid.UUID
+				ID   string
 				Name string
 			}{
 				ID:   user.ID,
@@ -171,7 +170,7 @@ func (e *eventUseCase) GetEvents(c context.Context, gid uuid.UUID) (*dto.Events,
 }
 
 // UpdateEvent implements EventUseCase.
-func (e *eventUseCase) UpdateEvent(c context.Context, id uuid.UUID, uid uuid.UUID, gid uuid.UUID, eventUpdate *dto.EventUpdate) (*dto.EventResponse, error) {
+func (e *eventUseCase) UpdateEvent(c context.Context, id string, uid string, gid string, eventUpdate *dto.EventUpdate) (*dto.EventResponse, error) {
 	// イベントテーブルのレコードを更新
 	v, err := e.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		event, err := e.eventRepository.UpdateEvent(c, id, uid, gid, eventUpdate.Name, eventUpdate.EventedAt)
@@ -194,11 +193,11 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id uuid.UUID, uid uuid.UUI
 		//支払いテーブルのレコードを更新
 		for _, p := range eventUpdate.Payments {
 			// ユーザーの重複を検証
-			if userIDMap[p.PaidTo.String()] {
+			if userIDMap[p.PaidTo] {
 				return nil, fmt.Errorf("err: %s", "ユーザーの重複エラー")
 			}
 
-			userIDMap[p.PaidTo.String()] = true
+			userIDMap[p.PaidTo] = true
 
 			payment := &model.Payment{}
 
@@ -209,15 +208,15 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id uuid.UUID, uid uuid.UUI
 			}
 
 			// 新しく登録されユーザーか判定
-			if p.PaymentID.String() == "" {
+			if p.PaymentID == "" {
 				// 支払い情報を新規で登録
-				payment, err = e.paymentRepository.CreatePaymentWihtEventId(c, event.ID, p.PaidTo, event.PaidBy, event.EventedAt, p.Amount)
+				payment, err = e.paymentRepository.CreatePayment(c, event.ID, p.PaidTo, event.PaidBy, event.EventedAt, p.Amount)
 				if err != nil {
 					return nil, err
 				}
 			} else {
 				// 支払い情報を更新
-				payment, err = e.paymentRepository.UpdatePayment(c, p.PaymentID, p.PaidTo, event.PaidBy, event.EventedAt, p.Amount)
+				payment, err = e.paymentRepository.UpdatePayment(c, event.ID, p.PaymentID, p.PaidTo, event.PaidBy, event.EventedAt, p.Amount)
 				if err != nil {
 					return nil, err
 				}
@@ -229,8 +228,8 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id uuid.UUID, uid uuid.UUI
 			}
 
 			eventUpdateResponse.Paymetns = append(eventUpdateResponse.Paymetns, struct {
-				PaymentId uuid.UUID
-				PaidTo    uuid.UUID
+				PaymentId string
+				PaidTo    string
 				Amount    int
 			}{
 				PaymentId: payment.ID,
@@ -250,7 +249,7 @@ func (e *eventUseCase) UpdateEvent(c context.Context, id uuid.UUID, uid uuid.UUI
 	return &eventResponse, nil
 }
 
-func (e *eventUseCase) DeleteEvent(c context.Context, groupID uuid.UUID, eventID uuid.UUID, userID uuid.UUID) error {
+func (e *eventUseCase) DeleteEvent(c context.Context, groupID string, eventID string, userID string) error {
 	// ユーザーの取得
 	user, err := e.userRepository.GetUserByUid(c, userID)
 	if err != nil {

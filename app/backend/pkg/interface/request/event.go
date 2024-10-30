@@ -4,31 +4,30 @@ import (
 	"time"
 
 	"github.com/datti-api/pkg/usecase/dto"
-	"github.com/google/uuid"
 )
 
 type EventCreateRequest struct {
 	Name      string    `json:"name"`
 	EventedAt time.Time `json:"eventedAt"`
-	CreatedBy uuid.UUID `json:"createdBy"`
-	PaidBy    uuid.UUID `json:"paidBy"`
+	CreatedBy string    `json:"createdBy"`
+	PaidBy    string    `json:"paidBy"`
 	Amount    int       `json:"amount"`
 	Payments  []struct {
-		PaidTo uuid.UUID `json:"paidTo"`
-		Amount int       `json:"amount"`
+		PaidTo string `json:"paidTo"`
+		Amount int    `json:"amount"`
 	} `json:"payments"`
-	GroupId uuid.UUID `json:"groupId"`
+	GroupId string `json:"groupId"`
 }
 
 func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
 	payments := make([]struct {
-		PaidTo uuid.UUID
+		PaidTo string
 		Amount int
 	}, len(req.Payments))
 
 	for i, p := range req.Payments {
 		payments[i] = struct {
-			PaidTo uuid.UUID
+			PaidTo string
 			Amount int
 		}{
 			PaidTo: p.PaidTo,
@@ -48,18 +47,18 @@ func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
 }
 
 type EventUpdateRequest struct {
-	ID        uuid.UUID      `json:"eventId"`
+	ID        string         `json:"eventId"`
 	Name      string         `json:"name"`
 	EventedAt time.Time      `json:"eventedAT"`
-	CreatedBy uuid.UUID      `json:"createdBy"`
-	PaidBy    uuid.UUID      `json:"paidBy"`
+	CreatedBy string         `json:"createdBy"`
+	PaidBy    string         `json:"paidBy"`
 	Amount    int            `json:"amount"`
 	Payments  []PaymentUsers `json:"payments"`
-	GroupId   uuid.UUID      `json:"groupId"`
+	GroupId   string         `json:"groupId"`
 }
 
 type PaymentUsers struct {
-	ID     uuid.UUID `json:"paymentId,omitempty"`
-	PaidTo uuid.UUID `json:"paidTo"`
-	Amount int       `json:"amount"`
+	ID     string `json:"paymentId,omitempty"`
+	PaidTo string `json:"paidTo"`
+	Amount int    `json:"amount"`
 }

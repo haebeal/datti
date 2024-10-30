@@ -7,7 +7,6 @@ import (
 	"github.com/datti-api/pkg/interface/request"
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -27,10 +26,7 @@ type groupHandler struct {
 // HandleCreate implements GroupHandler.
 func (g *groupHandler) HandleCreate(c echo.Context) error {
 	errResponse := new(response.Error)
-	userID, err := uuid.Parse(c.Get("uid").(string))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, errResponse)
-	}
+	userID := c.Get("uid").(string)
 	req := new(request.GroupCreate)
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
@@ -46,11 +42,11 @@ func (g *groupHandler) HandleCreate(c echo.Context) error {
 		res.Name = group.Name
 		for i, member := range members {
 			res.Members = append(res.Members, struct {
-				UID      uuid.UUID `json:"userId"`
-				Name     string    `json:"name"`
-				Email    string    `json:"email"`
-				PhotoUrl string    `json:"photoUrl"`
-				Status   string    `json:"status"`
+				UID      string `json:"userId"`
+				Name     string `json:"name"`
+				Email    string `json:"email"`
+				PhotoUrl string `json:"photoUrl"`
+				Status   string `json:"status"`
 			}{
 				UID:      member.ID,
 				Name:     member.Name,
@@ -67,10 +63,7 @@ func (g *groupHandler) HandleCreate(c echo.Context) error {
 func (g *groupHandler) HandleGet(c echo.Context) error {
 	errResponse := new(response.Error)
 	res := new(response.Groups)
-	userID, err := uuid.Parse(c.Get("uid").(string))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+	userID := c.Get("uid").(string)
 
 	groups, err := g.useCase.GetGroups(c.Request().Context(), userID)
 	if err != nil {
@@ -79,8 +72,8 @@ func (g *groupHandler) HandleGet(c echo.Context) error {
 	} else {
 		for _, group := range groups {
 			res.Groups = append(res.Groups, struct {
-				ID   uuid.UUID `json:"groupId"`
-				Name string    `json:"name"`
+				ID   string `json:"groupId"`
+				Name string `json:"name"`
 			}{
 				ID:   group.ID,
 				Name: group.Name,
@@ -94,10 +87,7 @@ func (g *groupHandler) HandleGet(c echo.Context) error {
 func (g *groupHandler) HandleGetById(c echo.Context) error {
 	errResponse := new(response.Error)
 	res := response.Group{}
-	groupID, err := uuid.Parse(c.Param("groupId"))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
+	groupID := c.Param("groupId")
 
 	group, err := g.useCase.GetGroupById(c.Request().Context(), groupID)
 	if err != nil {
@@ -114,15 +104,8 @@ func (g *groupHandler) HandleGetById(c echo.Context) error {
 func (g *groupHandler) HandleGetMembers(c echo.Context) error {
 	errResponse := new(response.Error)
 	res := new(response.Members)
-	userID, err := uuid.Parse(c.Get("uid").(string))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-	groupID, err := uuid.Parse(c.Param("groupId"))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-
+	userID := c.Get("uid").(string)
+	groupID := c.Param("groupId")
 	status := c.QueryParam("status")
 
 	members, statuses, err := g.useCase.GetMembers(c.Request().Context(), groupID, userID, status)
@@ -132,11 +115,11 @@ func (g *groupHandler) HandleGetMembers(c echo.Context) error {
 	} else {
 		for i, member := range members {
 			res.Members = append(res.Members, struct {
-				UID      uuid.UUID `json:"userId"`
-				Name     string    `json:"name"`
-				Email    string    `json:"email"`
-				PhotoUrl string    `json:"photoUrl"`
-				Status   string    `json:"status"`
+				UID      string `json:"userId"`
+				Name     string `json:"name"`
+				Email    string `json:"email"`
+				PhotoUrl string `json:"photoUrl"`
+				Status   string `json:"status"`
 			}{
 				UID:      member.ID,
 				Name:     member.Name,
@@ -154,16 +137,8 @@ func (g *groupHandler) HandleGetMembers(c echo.Context) error {
 func (g *groupHandler) HandleRegisterd(c echo.Context) error {
 	req := new(request.Uids)
 	errResponse := new(response.Error)
-	userID, err := uuid.Parse(c.Get("uid").(string))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-
-	groupID, err := uuid.Parse(c.Param("groupId"))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-
+	userID := c.Get("uid").(string)
+	groupID := c.Param("groupId")
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -179,11 +154,11 @@ func (g *groupHandler) HandleRegisterd(c echo.Context) error {
 		res.Name = group.Name
 		for i, member := range members {
 			res.Members = append(res.Members, struct {
-				UID      uuid.UUID `json:"userId"`
-				Name     string    `json:"name"`
-				Email    string    `json:"email"`
-				PhotoUrl string    `json:"photoUrl"`
-				Status   string    `json:"status"`
+				UID      string `json:"userId"`
+				Name     string `json:"name"`
+				Email    string `json:"email"`
+				PhotoUrl string `json:"photoUrl"`
+				Status   string `json:"status"`
 			}{
 				UID:      member.ID,
 				Name:     member.Name,
@@ -200,11 +175,7 @@ func (g *groupHandler) HandleRegisterd(c echo.Context) error {
 func (g *groupHandler) HandleUpdate(c echo.Context) error {
 	req := new(request.GroupUpdate)
 	errResponse := new(response.Error)
-	groupID, err := uuid.Parse(c.Param("groupId"))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-
+	groupID := c.Param("groupId")
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
@@ -216,7 +187,7 @@ func (g *groupHandler) HandleUpdate(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
 		return c.JSON(http.StatusOK, struct {
-			ID    uuid.UUID     `json:"groupId"`
+			ID    string        `json:"groupId"`
 			Name  string        `json:"name"`
 			Users []*model.User `json:"users"`
 		}{

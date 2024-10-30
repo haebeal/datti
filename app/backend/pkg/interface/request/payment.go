@@ -1,20 +1,16 @@
 package request
 
-import (
-	"time"
-
-	"github.com/google/uuid"
-)
+import "time"
 
 type Create struct {
 	PaidAt time.Time `json:"paidAt"`
-	PaidTo uuid.UUID `json:"paidTo"`
+	PaidTo string    `json:"paidTo"`
 	Amount int       `json:"amount"`
 }
 
 type Update struct {
 	PaidAt time.Time `json:"paidAt"`
-	PaidTo uuid.UUID `json:"paidTo"`
-	PaidBy uuid.UUID `json:"paidBy"`
+	PaidTo string    `json:"paidTo"`
+	PaidBy string    `json:"paidBy"`
 	Amount int       `json:"amount"`
 }

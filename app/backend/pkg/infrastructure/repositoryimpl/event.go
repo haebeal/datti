@@ -7,7 +7,7 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
-	"github.com/google/uuid"
+	"github.com/rs/xid"
 )
 
 type eventRepositoryImpl struct {
@@ -16,6 +16,9 @@ type eventRepositoryImpl struct {
 
 // CreateEvent implements repository.EventRepository.
 func (e *eventRepositoryImpl) CreateEvent(c context.Context, event *model.Event) (*model.Event, error) {
+	id := xid.New()
+	event.ID = id.String()
+
 	_, err := e.DBEngine.Client.NewInsert().
 		Model(event).
 		Exec(c)
@@ -27,7 +30,7 @@ func (e *eventRepositoryImpl) CreateEvent(c context.Context, event *model.Event)
 }
 
 // GetEvent implements repository.EventRepository.
-func (e *eventRepositoryImpl) GetEvent(c context.Context, id uuid.UUID) (*model.Event, error) {
+func (e *eventRepositoryImpl) GetEvent(c context.Context, id string) (*model.Event, error) {
 	event := new(model.Event)
 	err := e.DBEngine.Client.NewSelect().
 		Table("events").
@@ -41,7 +44,7 @@ func (e *eventRepositoryImpl) GetEvent(c context.Context, id uuid.UUID) (*model.
 }
 
 // GetEvents implements repository.EventRepository.
-func (e *eventRepositoryImpl) GetEvents(c context.Context, gid uuid.UUID) ([]*model.Event, error) {
+func (e *eventRepositoryImpl) GetEvents(c context.Context, gid string) ([]*model.Event, error) {
 	events := new([]*model.Event)
 	err := e.DBEngine.Client.NewSelect().
 		Table("events").
@@ -56,7 +59,7 @@ func (e *eventRepositoryImpl) GetEvents(c context.Context, gid uuid.UUID) ([]*mo
 }
 
 // UpdateEvent implements repository.EventRepository.
-func (e *eventRepositoryImpl) UpdateEvent(c context.Context, id uuid.UUID, uid uuid.UUID, gid uuid.UUID, name string, eventAt time.Time) (*model.Event, error) {
+func (e *eventRepositoryImpl) UpdateEvent(c context.Context, id string, uid string, gid string, name string, eventAt time.Time) (*model.Event, error) {
 	event := new(model.Event)
 	event.ID = id
 	event.Name = name
@@ -86,7 +89,7 @@ func (e *eventRepositoryImpl) UpdateEvent(c context.Context, id uuid.UUID, uid u
 	return event, nil
 }
 
-func (e *eventRepositoryImpl) DeleteEvent(c context.Context, eventID uuid.UUID) error {
+func (e *eventRepositoryImpl) DeleteEvent(c context.Context, eventID string) error {
 	_, err := e.DBEngine.Client.NewDelete().
 		Table("events").
 		Where("id = ?", eventID).

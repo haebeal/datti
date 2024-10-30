@@ -1,13 +1,9 @@
 package model
 
-import (
-	"time"
-
-	"github.com/google/uuid"
-)
+import "time"
 
 type User struct {
-	ID        uuid.UUID  `bun:"id,pk,type:uuid,default:gen_random_uuid()"`
+	ID        string     `bun:"id,pk,notnull"`
 	Name      string     `bun:"name,notnull"`
 	Email     string     `bun:"email,notnull"`
 	PhotoUrl  string     `bun:"photo_url,nullzero"`

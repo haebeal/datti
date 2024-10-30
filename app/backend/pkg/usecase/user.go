@@ -5,17 +5,16 @@ import (
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
-	"github.com/google/uuid"
 )
 
 type UserUseCase interface {
-	GetUsers(c context.Context, uid uuid.UUID) ([]*model.User, error)
-	GetUserByUid(c context.Context, uid uuid.UUID, targetId uuid.UUID) (*model.User, string, error)
-	GetUsersByEmail(c context.Context, uid uuid.UUID, email string, status string, cursor string, limit *int, getNext bool) ([]*model.UserStatus, *model.Cursor, error)
-	GetUserStatus(c context.Context, uid uuid.UUID, fuid uuid.UUID) (*model.User, string, error)
-	UpdateUser(c context.Context, uid uuid.UUID, name string, url string) (*model.User, error)
-	SendFriendRequest(c context.Context, uid uuid.UUID, fuid uuid.UUID) error
-	DeleteFriend(c context.Context, uid uuid.UUID, fuid uuid.UUID) error
+	GetUsers(c context.Context, uid string) ([]*model.User, error)
+	GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, error)
+	GetUsersByEmail(c context.Context, uid string, email string, status string, cursor string, limit *int, getNext bool) ([]*model.UserStatus, *model.Cursor, error)
+	GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error)
+	UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error)
+	SendFriendRequest(c context.Context, uid string, fuid string) error
+	DeleteFriend(c context.Context, uid string, fuid string) error
 }
 
 type userUseCase struct {
@@ -27,7 +26,7 @@ type userUseCase struct {
 const defaultLimit = 10
 
 // GetUserByEmail implements UserUseCase.
-func (u *userUseCase) GetUsersByEmail(c context.Context, uid uuid.UUID, email string, status string, inputCursor string, inputLimit *int, getNext bool) ([]*model.UserStatus, *model.Cursor, error) {
+func (u *userUseCase) GetUsersByEmail(c context.Context, uid string, email string, status string, inputCursor string, inputLimit *int, getNext bool) ([]*model.UserStatus, *model.Cursor, error) {
 	var limit int
 
 	if inputLimit == nil {
@@ -45,7 +44,7 @@ func (u *userUseCase) GetUsersByEmail(c context.Context, uid uuid.UUID, email st
 }
 
 // GetUserByUid implements UserUseCase.
-func (u *userUseCase) GetUserByUid(c context.Context, uid uuid.UUID, targetId uuid.UUID) (*model.User, string, error) {
+func (u *userUseCase) GetUserByUid(c context.Context, uid string, targetId string) (*model.User, string, error) {
 	user, err := u.userRepository.GetUserByUid(c, targetId)
 	if err != nil {
 		return nil, "", err
@@ -61,7 +60,7 @@ func (u *userUseCase) GetUserByUid(c context.Context, uid uuid.UUID, targetId uu
 }
 
 // GetUsers implements UserUseCase.
-func (u *userUseCase) GetUsers(c context.Context, uid uuid.UUID) ([]*model.User, error) {
+func (u *userUseCase) GetUsers(c context.Context, uid string) ([]*model.User, error) {
 	users, err := u.userRepository.GetUsers(c)
 	if err != nil {
 		return nil, err
@@ -71,7 +70,7 @@ func (u *userUseCase) GetUsers(c context.Context, uid uuid.UUID) ([]*model.User,
 }
 
 // GetUserStatus implements UserUseCase.
-func (u *userUseCase) GetUserStatus(c context.Context, uid uuid.UUID, fuid uuid.UUID) (*model.User, string, error) {
+func (u *userUseCase) GetUserStatus(c context.Context, uid string, fuid string) (*model.User, string, error) {
 	user, err := u.userRepository.GetUserByUid(c, fuid)
 	if err != nil {
 		return nil, "", err
@@ -88,7 +87,7 @@ func (u *userUseCase) GetUserStatus(c context.Context, uid uuid.UUID, fuid uuid.
 }
 
 // UpdateUser implements UserUseCase.
-func (u *userUseCase) UpdateUser(c context.Context, uid uuid.UUID, name string, url string) (*model.User, error) {
+func (u *userUseCase) UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error) {
 	user, err := u.userRepository.UpdateUser(c, uid, name, url)
 	if err != nil {
 		return nil, err
@@ -98,7 +97,7 @@ func (u *userUseCase) UpdateUser(c context.Context, uid uuid.UUID, name string, 
 }
 
 // SendFriendRequest implements FriendUseCase.
-func (u *userUseCase) SendFriendRequest(c context.Context, uid uuid.UUID, fuid uuid.UUID) error {
+func (u *userUseCase) SendFriendRequest(c context.Context, uid string, fuid string) error {
 	if user, err := u.userRepository.GetUserByUid(c, fuid); err != nil {
 		return err
 	} else {
@@ -118,7 +117,7 @@ func (u *userUseCase) SendFriendRequest(c context.Context, uid uuid.UUID, fuid u
 }
 
 // DeleteFriend implements FriendUseCase.
-func (u *userUseCase) DeleteFriend(c context.Context, uid uuid.UUID, fuid uuid.UUID) error {
+func (u *userUseCase) DeleteFriend(c context.Context, uid string, fuid string) error {
 	_, err := u.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		err := u.friendRepository.DeleteFriend(c, uid, fuid)
 		if err != nil {

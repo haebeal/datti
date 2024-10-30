@@ -7,16 +7,15 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/usecase/dto"
-	"github.com/google/uuid"
 )
 
 type PaymentUseCase interface {
 	CreatePayment(c context.Context, paymentCreate *dto.PaymentCreate) (*model.Payment, *model.User, *model.User, error)
-	UpdatePayment(c context.Context, id uuid.UUID, paidBy uuid.UUID, paidTo uuid.UUID, paidAt time.Time, amount int) (*model.Payment, *model.User, *model.User, error)
-	GetPayments(c context.Context, uid uuid.UUID) (*dto.Payments, error)
-	GetPayment(c context.Context, id uuid.UUID) (*model.Payment, *model.User, *model.User, error)
-	GetHistory(c context.Context, uid uuid.UUID) ([]*model.Payment, []*model.User, []*model.User, error)
-	DeletePayment(c context.Context, uid uuid.UUID) error
+	UpdatePayment(c context.Context, id string, paidBy string, paidTo string, paidAt time.Time, amount int) (*model.Payment, *model.User, *model.User, error)
+	GetPayments(c context.Context, uid string) (*dto.Payments, error)
+	GetPayment(c context.Context, id string) (*model.Payment, *model.User, *model.User, error)
+	GetHistory(c context.Context, uid string) ([]*model.Payment, []*model.User, []*model.User, error)
+	DeletePayment(c context.Context, uid string) error
 }
 
 type paymentUseCase struct {
@@ -29,7 +28,7 @@ type paymentUseCase struct {
 func (p *paymentUseCase) CreatePayment(c context.Context, paymentUseCaseDTO *dto.PaymentCreate) (*model.Payment, *model.User, *model.User, error) {
 	v, err := p.transacton.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 
-		payment, err := p.paymentRepository.CreatePayment(c, paymentUseCaseDTO.PaidTo, paymentUseCaseDTO.PaidBy, paymentUseCaseDTO.PaidAt, paymentUseCaseDTO.Amount)
+		payment, err := p.paymentRepository.CreatePayment(c, "", paymentUseCaseDTO.PaidTo, paymentUseCaseDTO.PaidBy, paymentUseCaseDTO.PaidAt, paymentUseCaseDTO.Amount)
 		if err != nil {
 			return nil, err
 		}
@@ -50,33 +49,8 @@ func (p *paymentUseCase) CreatePayment(c context.Context, paymentUseCaseDTO *dto
 	return payment, paidToUser, paidByUser, nil
 }
 
-// CreatePayment implements PaymentUseCase.
-// func (p *paymentUseCase) CreatePaymentWihtEventId(c context.Context, paymentUseCaseDTO *dto.PaymentCreate) (*model.Payment, *model.User, *model.User, error) {
-// 	v, err := p.transacton.DoInTx(c, func(ctx context.Context) (interface{}, error) {
-
-// 		payment, err := p.paymentRepository.CreatePayment(c, eve, paymentUseCaseDTO.PaidTo, paymentUseCaseDTO.PaidBy, paymentUseCaseDTO.PaidAt, paymentUseCaseDTO.Amount)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		return payment, nil
-// 	})
-// 	if err != nil {
-// 		return nil, nil, nil, err
-// 	}
-// 	payment := v.(*model.Payment)
-// 	paidToUser, err := p.userRepository.GetUserByUid(c, paymentUseCaseDTO.PaidTo)
-// 	if err != nil {
-// 		return nil, nil, nil, err
-// 	}
-// 	paidByUser, err := p.userRepository.GetUserByUid(c, paymentUseCaseDTO.PaidBy)
-// 	if err != nil {
-// 		return nil, nil, nil, err
-// 	}
-// 	return payment, paidToUser, paidByUser, nil
-// }
-
 // DeletePayment implements PaymentUseCase.
-func (p *paymentUseCase) DeletePayment(c context.Context, id uuid.UUID) error {
+func (p *paymentUseCase) DeletePayment(c context.Context, id string) error {
 	_, err := p.transacton.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		err := p.paymentRepository.DeletePayment(c, id)
 		if err != nil {
@@ -92,7 +66,7 @@ func (p *paymentUseCase) DeletePayment(c context.Context, id uuid.UUID) error {
 }
 
 // GetPayment implements PaymentUseCase.
-func (p *paymentUseCase) GetPayment(c context.Context, id uuid.UUID) (*model.Payment, *model.User, *model.User, error) {
+func (p *paymentUseCase) GetPayment(c context.Context, id string) (*model.Payment, *model.User, *model.User, error) {
 	payment, err := p.paymentRepository.GetPayment(c, id)
 	if err != nil {
 		return nil, nil, nil, err
@@ -112,7 +86,7 @@ func (p *paymentUseCase) GetPayment(c context.Context, id uuid.UUID) (*model.Pay
 }
 
 // GetPayments implements PaymentUseCase.
-func (p *paymentUseCase) GetPayments(c context.Context, uid uuid.UUID) (*dto.Payments, error) {
+func (p *paymentUseCase) GetPayments(c context.Context, uid string) (*dto.Payments, error) {
 	payments, err := p.paymentRepository.GetPayments(c, uid)
 	if err != nil {
 		return nil, err
@@ -120,13 +94,13 @@ func (p *paymentUseCase) GetPayments(c context.Context, uid uuid.UUID) (*dto.Pay
 
 	result := &dto.Payments{}
 	for _, payment := range payments {
-		user, err := p.userRepository.GetUserByUid(c, payment.UserID)
+		user, err := p.userRepository.GetUserByUid(c, payment.CounterpartyID)
 		if err != nil {
 			return nil, err
 		}
 		result.Payments = append(result.Payments, struct {
 			User struct {
-				ID       uuid.UUID
+				ID       string
 				Name     string
 				Email    string
 				PhotoUrl string
@@ -134,7 +108,7 @@ func (p *paymentUseCase) GetPayments(c context.Context, uid uuid.UUID) (*dto.Pay
 			Balance int
 		}{
 			User: struct {
-				ID       uuid.UUID
+				ID       string
 				Name     string
 				Email    string
 				PhotoUrl string
@@ -152,9 +126,9 @@ func (p *paymentUseCase) GetPayments(c context.Context, uid uuid.UUID) (*dto.Pay
 }
 
 // UpdatePayment implements PaymentUseCase.
-func (p *paymentUseCase) UpdatePayment(c context.Context, id uuid.UUID, paidBy uuid.UUID, paidTo uuid.UUID, paidAt time.Time, amount int) (*model.Payment, *model.User, *model.User, error) {
+func (p *paymentUseCase) UpdatePayment(c context.Context, id string, paidBy string, paidTo string, paidAt time.Time, amount int) (*model.Payment, *model.User, *model.User, error) {
 	v, err := p.transacton.DoInTx(c, func(ctx context.Context) (interface{}, error) {
-		payment, err := p.paymentRepository.UpdatePayment(c, id, paidBy, paidTo, paidAt, amount)
+		payment, err := p.paymentRepository.UpdatePayment(c, id, "eventId", paidBy, paidTo, paidAt, amount)
 		if err != nil {
 			return nil, err
 		}
@@ -175,7 +149,7 @@ func (p *paymentUseCase) UpdatePayment(c context.Context, id uuid.UUID, paidBy u
 	return payment, paidToUser, paidByUser, nil
 }
 
-func (p *paymentUseCase) GetHistory(c context.Context, uid uuid.UUID) ([]*model.Payment, []*model.User, []*model.User, error) {
+func (p *paymentUseCase) GetHistory(c context.Context, uid string) ([]*model.Payment, []*model.User, []*model.User, error) {
 	paidByUsers := []*model.User{}
 	paidToUsers := []*model.User{}
 	payments, err := p.paymentRepository.GetHistory(c, uid)

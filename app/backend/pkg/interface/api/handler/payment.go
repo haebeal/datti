@@ -8,7 +8,6 @@ import (
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
 	"github.com/datti-api/pkg/usecase/dto"
-	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -27,10 +26,7 @@ type paymentHandler struct {
 
 // HandleCreate implements PaymentHandler.
 func (p *paymentHandler) HandleCreate(c echo.Context) error {
-	userId, err := uuid.Parse(c.Get("uid").(string))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
-	}
+	userId := c.Get("uid").(string)
 	req := &request.Create{}
 	res := &response.Payment{}
 	if err := c.Bind(req); err != nil {
@@ -62,11 +58,8 @@ func (p *paymentHandler) HandleCreate(c echo.Context) error {
 
 // HandleDelete implements PaymentHandler.
 func (p *paymentHandler) HandleDelete(c echo.Context) error {
-	payID, err := uuid.Parse(c.Param("payId"))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
-	}
-	err = p.useCase.DeletePayment(c.Request().Context(), payID)
+	payID := c.Param("payId")
+	err := p.useCase.DeletePayment(c.Request().Context(), payID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	} else {
@@ -80,17 +73,14 @@ func (p *paymentHandler) HandleDelete(c echo.Context) error {
 
 // HandleGet implements PaymentHandler.
 func (p *paymentHandler) HandleGet(c echo.Context) error {
-	userId, err := uuid.Parse(c.Get("uid").(string))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
-	}
+	userId := c.Get("uid").(string)
 	res := &response.Payments{
 		Payments: make([]struct {
 			User struct {
-				ID       uuid.UUID "json:\"userId\""
-				Name     string    "json:\"name\""
-				Email    string    "json:\"email\""
-				PhotoUrl string    "json:\"photoUrl\""
+				ID       string "json:\"userId\""
+				Name     string "json:\"name\""
+				Email    string "json:\"email\""
+				PhotoUrl string "json:\"photoUrl\""
 			} "json:\"user\""
 			Balance int "json:\"amount\""
 		}, 0),
@@ -103,18 +93,18 @@ func (p *paymentHandler) HandleGet(c echo.Context) error {
 		for _, payment := range payments.Payments {
 			res.Payments = append(res.Payments, struct {
 				User struct {
-					ID       uuid.UUID `json:"userId"`
-					Name     string    `json:"name"`
-					Email    string    `json:"email"`
-					PhotoUrl string    `json:"photoUrl"`
+					ID       string `json:"userId"`
+					Name     string `json:"name"`
+					Email    string `json:"email"`
+					PhotoUrl string `json:"photoUrl"`
 				} `json:"user"`
 				Balance int `json:"amount"`
 			}{
 				User: struct {
-					ID       uuid.UUID `json:"userId"`
-					Name     string    `json:"name"`
-					Email    string    `json:"email"`
-					PhotoUrl string    `json:"photoUrl"`
+					ID       string `json:"userId"`
+					Name     string `json:"name"`
+					Email    string `json:"email"`
+					PhotoUrl string `json:"photoUrl"`
 				}{
 					ID:       payment.User.ID,
 					Name:     payment.User.Name,
@@ -130,10 +120,7 @@ func (p *paymentHandler) HandleGet(c echo.Context) error {
 
 // HandleGetById implements PaymentHandler.
 func (p *paymentHandler) HandleGetById(c echo.Context) error {
-	payID, err := uuid.Parse(c.Param("payId"))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
-	}
+	payID := c.Param("payId")
 	res := &response.Payment{}
 
 	payment, paidBy, paidTo, err := p.useCase.GetPayment(c.Request().Context(), payID)
@@ -155,10 +142,7 @@ func (p *paymentHandler) HandleGetById(c echo.Context) error {
 
 // HandleUpdate implements PaymentHandler.
 func (p *paymentHandler) HandleUpdate(c echo.Context) error {
-	payID, err := uuid.Parse(c.Param("payId"))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
-	}
+	payID := c.Param("payId")
 	req := &request.Update{}
 	res := &response.Payment{}
 	if err := c.Bind(req); err != nil {
@@ -182,10 +166,7 @@ func (p *paymentHandler) HandleUpdate(c echo.Context) error {
 }
 
 func (p *paymentHandler) HandleHistory(c echo.Context) error {
-	userID, err := uuid.Parse(c.Get("uid").(string))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err)
-	}
+	userID := c.Get("uid").(string)
 	res := &response.PaymentList{}
 
 	payments, paidByUsers, paidToUsers, err := p.useCase.GetHistory(c.Request().Context(), userID)
@@ -194,29 +175,29 @@ func (p *paymentHandler) HandleHistory(c echo.Context) error {
 	} else {
 		for i, payment := range payments {
 			res.Paymetns = append(res.Paymetns, struct {
-				ID     uuid.UUID `json:"paymentId"`
+				ID     string    `json:"paymentId"`
 				PaidAt time.Time `json:"paidAt"`
 				PaidBy struct {
-					ID       uuid.UUID `json:"userId"`
-					Name     string    `json:"name"`
-					Email    string    `json:"email"`
-					PhotoUrl string    `json:"photoUrl"`
+					ID       string `json:"userId"`
+					Name     string `json:"name"`
+					Email    string `json:"email"`
+					PhotoUrl string `json:"photoUrl"`
 				} `json:"paidBy"`
 				PaidTo struct {
-					ID       uuid.UUID `json:"userId"`
-					Name     string    `json:"name"`
-					Email    string    `json:"email"`
-					PhotoUrl string    `json:"photoUrl"`
+					ID       string `json:"userId"`
+					Name     string `json:"name"`
+					Email    string `json:"email"`
+					PhotoUrl string `json:"photoUrl"`
 				} `json:"paidTo"`
 				Amount int `json:"amount"`
 			}{
 				ID:     payment.ID,
 				PaidAt: payment.PaidAt,
 				PaidBy: struct {
-					ID       uuid.UUID `json:"userId"`
-					Name     string    `json:"name"`
-					Email    string    `json:"email"`
-					PhotoUrl string    `json:"photoUrl"`
+					ID       string `json:"userId"`
+					Name     string `json:"name"`
+					Email    string `json:"email"`
+					PhotoUrl string `json:"photoUrl"`
 				}{
 					ID:       paidByUsers[i].ID,
 					Name:     paidByUsers[i].Name,
@@ -224,10 +205,10 @@ func (p *paymentHandler) HandleHistory(c echo.Context) error {
 					PhotoUrl: paidByUsers[i].PhotoUrl,
 				},
 				PaidTo: struct {
-					ID       uuid.UUID `json:"userId"`
-					Name     string    `json:"name"`
-					Email    string    `json:"email"`
-					PhotoUrl string    `json:"photoUrl"`
+					ID       string `json:"userId"`
+					Name     string `json:"name"`
+					Email    string `json:"email"`
+					PhotoUrl string `json:"photoUrl"`
 				}{
 					ID:       paidToUsers[i].ID,
 					Name:     paidToUsers[i].Name,

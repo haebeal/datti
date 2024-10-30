@@ -1,0 +1,67 @@
+# Webのデプロイを行うWorkflow
+name: deploy:web
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - app/web/app/**
+      - .github/workflows/deploy:web.yaml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - app/web/app/**
+      - .github/workflows/deploy:web.yaml
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: app/web/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('app/web/package-lock.json') }}
+      - name: Install Dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci
+  deploy:
+    needs: install
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/web
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'datti-web (Production)' || 'datti-web (Preview)' }}
+      url: ${{ steps.publish-to-cloudflare.outputs.deployment-url }} # Cloudflare Pagesのデプロイ結果URL
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Restore node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: app/web/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('app/web/package-lock.json') }}
+      - name: Build Artifacts
+        run: npm run build
+      - name: Publish to Cloudflare Pages
+        id: publish-to-cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: app/web
+          command: pages deploy ./build/client --project-name=datti-web

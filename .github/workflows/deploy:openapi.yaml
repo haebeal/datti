@@ -1,0 +1,74 @@
+# OpenAPI(Swagger UI)のデプロイを行うWorkflow
+name: deploy:openapi
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+    paths:
+      - docs/openapi/**
+      - .github/workflows/deploy:openapi.yaml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - docs/openapi/**
+      - .github/workflows/deploy:openapi.yaml
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs/openapi
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: docs/openapi/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('docs/openapi/package-lock.json') }}
+      - name: Install Dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: npm ci
+  deploy:
+    needs: install
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs/openapi
+    environment:
+      name: ${{ github.ref == 'refs/heads/main' && 'OpenAPI (Production)' || 'OpenAPI (Preview)' }}
+      url: ${{ steps.publish-to-cloudflare.outputs.deployment-url }} # Cloudflare Pagesのデプロイ結果URL
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Restore node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          path: docs/openapi/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('docs/openapi/package-lock.json') }}
+      - name: Compile TypeSpec
+        run: npm run compile
+      - name: Generate Swagger UI
+        uses: Legion2/swagger-ui-action@v1
+        with:
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          output: docs/openapi/swagger-ui
+          spec-file: docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml
+      - name: Publish to Cloudflare Pages
+        id: publish-to-cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: docs/openapi
+          command: pages deploy ./swagger-ui --project-name=datti-openapi

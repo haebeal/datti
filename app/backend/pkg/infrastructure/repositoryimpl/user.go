@@ -2,7 +2,6 @@ package repositoryimpl
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
@@ -10,16 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
-
-func NewCursor(users []*model.UserStatus) *model.Cursor {
-	if len(users) == 0 {
-		return &model.Cursor{}
-	}
-	return &model.Cursor{
-		Start: users[0].ID,
-		End:   users[len(users)-1].ID,
-	}
-}
 
 type userRepoImpl struct {
 	// TenantClient database.FireBaseTenantClient
@@ -130,11 +119,7 @@ func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid uuid.UUID, email 
 		return nil, nil, err
 	}
 
-	for i, v := range results {
-		fmt.Println(i, v)
-	}
-
-	return results, NewCursor(results), nil
+	return results, newUsersCursor(results), nil
 }
 
 // UpdateName implements repository.ProfileRepository.
@@ -168,5 +153,15 @@ func (ur *userRepoImpl) UpdateUser(c context.Context, uid uuid.UUID, name string
 func NewProfileRepoImpl(engine *database.DBClient) repository.UserRepository {
 	return &userRepoImpl{
 		DBEngine: *engine,
+	}
+}
+
+func newUsersCursor(users []*model.UserStatus) *model.Cursor {
+	if len(users) == 0 {
+		return &model.Cursor{}
+	}
+	return &model.Cursor{
+		Start: users[0].ID,
+		End:   users[len(users)-1].ID,
 	}
 }

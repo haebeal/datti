@@ -24,14 +24,14 @@ type userUseCase struct {
 	transaction      repository.Transaction
 }
 
-const defaultLimit = 10
+const defaultUsersLimit = 10
 
 // GetUserByEmail implements UserUseCase.
 func (u *userUseCase) GetUsersByEmail(c context.Context, uid uuid.UUID, email string, status string, inputCursor string, inputLimit *int, getNext bool) ([]*model.UserStatus, *model.Cursor, error) {
 	var limit int
 
 	if inputLimit == nil {
-		limit = defaultLimit
+		limit = defaultUsersLimit
 	} else {
 		limit = *inputLimit
 	}

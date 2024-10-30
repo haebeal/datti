@@ -12,6 +12,8 @@ type Groups struct {
 		ID   uuid.UUID `json:"groupId"`
 		Name string    `json:"name"`
 	} `json:"groups"`
+	StartCursor uuid.UUID `json:"startCursor"`
+	EndCursor   uuid.UUID `json:"endCursor"`
 }
 
 type GroupMembers struct {

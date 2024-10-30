@@ -9,7 +9,7 @@ import (
 )
 
 type GroupUseCase interface {
-	GetGroups(c context.Context, uid uuid.UUID) ([]*model.Group, error)
+	GetGroups(c context.Context, uid uuid.UUID, inputCursor uuid.UUID, inputLimit *int, getNext bool) ([]*model.Group, *model.Cursor, error)
 	CreateGroup(c context.Context, name string, userID uuid.UUID, members uuid.UUIDs) (*model.Group, []*model.User, []*string, error)
 	GetGroupById(c context.Context, id uuid.UUID) (*model.Group, error)
 	GetMembers(c context.Context, id uuid.UUID, uid uuid.UUID, status string) ([]*model.User, []*string, error)
@@ -24,6 +24,8 @@ type groupUseCase struct {
 	groupUserRepository repository.GroupUserReopsitory
 	transaction         repository.Transaction
 }
+
+const defaultGroupsLimit = 10
 
 // CreateGroup implements GroupUseCase.
 func (g *groupUseCase) CreateGroup(c context.Context, name string, userID uuid.UUID, members uuid.UUIDs) (*model.Group, []*model.User, []*string, error) {
@@ -111,22 +113,32 @@ func (g *groupUseCase) GetMembers(c context.Context, id uuid.UUID, uid uuid.UUID
 	return users, statuses, nil
 }
 
-// GetGroups implements GroupUseCase.
-func (g *groupUseCase) GetGroups(c context.Context, uid uuid.UUID) ([]*model.Group, error) {
-	groupUsers, err := g.groupUserRepository.GetGroupUserByUid(c, uid)
-	if err != nil {
-		return nil, err
-	}
-	groups := make([]*model.Group, 0)
-	for _, groupUser := range groupUsers {
-		group, err := g.groupRepository.GetGroupById(c, groupUser.GroupID)
-		if err != nil {
-			return nil, err
-		}
-		groups = append(groups, group)
-	}
+func (g *groupUseCase) GetGroups(c context.Context, uid uuid.UUID, inputCursor uuid.UUID, inputLimit *int, getNext bool) ([]*model.Group, *model.Cursor, error) {
+	// groupUsers, err := g.groupUserRepository.GetGroupUserByUid(c, uid)
+	// if err != nil {
+	// 	return nil, nil, err
+	// }
+	// groups := make([]*model.Group, 0)
+	// for _, groupUser := range groupUsers {
+	// 	group, err := g.groupRepository.GetGroupById(c, groupUser.GroupID)
+	// 	if err != nil {
+	// 		return nil, nil, err
+	// 	}
+	// 	groups = append(groups, group)
+	// }
 
-	return groups, nil
+	var limit int
+
+	if inputLimit == nil {
+		limit = defaultGroupsLimit
+	} else {
+		limit = *inputLimit
+	}
+	groups, cursor, err := g.groupRepository.GetGroupsByUid(c, uid, inputCursor, limit, getNext)
+	if err != nil {
+		return nil, nil, err
+	}
+	return groups, cursor, nil
 }
 
 // RegisterdMembers implements GroupUseCase.

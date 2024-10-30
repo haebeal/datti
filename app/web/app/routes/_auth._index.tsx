@@ -1,7 +1,7 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { PaymentList } from "~/components/PaymentList";
 
-export { paymentsLoader as loader } from "~/.server/loaders";
+import { PaymentUserList } from "~/features/payments/components";
+export { paymentUserListLoader as loader } from "~/features/payments/loaders";
 
 export const meta: MetaFunction = () => [
 	{ title: "Datti" },
@@ -15,7 +15,7 @@ export default function Index() {
 				<h1 className="font-bold text-2xl">現在の返済一覧</h1>
 			</div>
 			<div className="rounded-lg bg-white py-3 px-5">
-				<PaymentList />
+				<PaymentUserList />
 			</div>
 		</div>
 	);

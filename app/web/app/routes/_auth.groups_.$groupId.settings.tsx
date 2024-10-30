@@ -1,26 +1,26 @@
+import type { MetaFunction } from "@remix-run/cloudflare";
 import { Await, useActionData, useLoaderData } from "@remix-run/react";
 import { Suspense, useEffect } from "react";
-import type { GroupAction } from "~/.server/actions";
-import type { GroupLoader } from "~/.server/loaders";
-import { GroupForm } from "~/components/GroupForm";
+
+import { Spinner } from "~/components";
 import { useToast } from "~/components/ui/use-toast";
 
-export { groupAction as action } from "~/.server/actions";
-export { groupLoader as loader } from "~/.server/loaders";
+import type { UpdateGroupAction } from "~/features/groups/actions";
+import { UpdateGroupForm } from "~/features/groups/components";
+import type { GroupLoader } from "~/features/groups/loaders";
+export { updateGroupAction as action } from "~/features/groups/actions";
+export { groupLoader as loader } from "~/features/groups/loaders";
 
-function LoadingSpinner() {
-	return (
-		<div className="w-full min-h-[60vh] grid place-content-center">
-			<div className="animate-spin h-10 w-10 border-4 border-blue-500 rounded-full border-t-transparent" />
-		</div>
-	);
-}
+export const meta: MetaFunction = () => [
+	{ title: "Datti | グループ設定" },
+	{ name: "description", content: "誰にいくら払ったっけ？を記録するサービス" },
+];
 
 export default function GroupSettings() {
 	const { toast } = useToast();
 
 	const { group } = useLoaderData<GroupLoader>();
-	const actionData = useActionData<GroupAction>();
+	const actionData = useActionData<UpdateGroupAction>();
 	useEffect(() => {
 		if (actionData) {
 			toast({
@@ -31,9 +31,9 @@ export default function GroupSettings() {
 
 	return (
 		<div className="py-4">
-			<Suspense fallback={<LoadingSpinner />}>
+			<Suspense fallback={<Spinner />}>
 				<Await resolve={group}>
-					{(group) => <GroupForm defaultValue={group} method="put" />}
+					{(group) => <UpdateGroupForm defaultValue={group} />}
 				</Await>
 			</Suspense>
 		</div>

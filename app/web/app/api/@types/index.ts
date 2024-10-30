@@ -1,4 +1,11 @@
 /* eslint-disable */
+export type Cursor = {
+  /** 始端カーソル */
+  startCursor: string
+  /** 終端カーソル */
+  endCursor: string
+}
+
 export type EventEndpoints_EventPostRequest = {
   /** イベント名 */
   name: string
@@ -250,4 +257,5 @@ export type UserEndpoints_UserPutRequest = {
 
 export type UserEndpoints_UsersGetResponse = {
   users: User[]
+  cursor: Cursor
 }

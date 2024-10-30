@@ -1,7 +1,7 @@
 import { Outlet } from "@remix-run/react";
 import { Header } from "~/components/Header";
 
-export { authLoader as loader } from "~/.server/loaders";
+export { profileLoader as loader } from "~/features/profile/loaders";
 
 export default function Auth() {
 	return (

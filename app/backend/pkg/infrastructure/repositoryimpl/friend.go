@@ -51,8 +51,8 @@ func (f *friendRepositoryImpl) GetApplieds(c context.Context, uid uuid.UUID) ([]
 		Column("f2.*").
 		Table("friends").
 		TableExpr("friends AS f2").
-		Where("f1.uid = f2.friend_uid").
-		Where("f1.friend_uid = f2.uid")
+		Where("f1.user_id = f2.friend_user_id").
+		Where("f1.friend_user_id = f2.user_id")
 
 	err := f.DBEngine.Client.NewSelect().
 		Distinct().
@@ -60,7 +60,7 @@ func (f *friendRepositoryImpl) GetApplieds(c context.Context, uid uuid.UUID) ([]
 		Table("friends").
 		TableExpr("friends AS f1").
 		Where("NOT EXISTS (?)", subq).
-		Where("f1.friend_uid = ?", uid).
+		Where("f1.friend_user_id = ?", uid).
 		Scan(c, applieds)
 
 	if err != nil {
@@ -77,8 +77,8 @@ func (f *friendRepositoryImpl) GetApplyings(c context.Context, uid uuid.UUID) ([
 		Column("f2.*").
 		Table("friends").
 		TableExpr("friends AS f2").
-		Where("f1.uid = f2.friend_uid").
-		Where("f1.friend_uid = f2.uid")
+		Where("f1.user_id = f2.friend_user_id").
+		Where("f1.friend_user_id = f2.user_id")
 
 	err := f.DBEngine.Client.NewSelect().
 		Distinct().
@@ -86,7 +86,7 @@ func (f *friendRepositoryImpl) GetApplyings(c context.Context, uid uuid.UUID) ([
 		Table("friends").
 		TableExpr("friends AS f1").
 		Where("NOT EXISTS (?)", subq).
-		Where("f1.uid = ?", uid).
+		Where("f1.user_id = ?", uid).
 		Scan(c, applyings)
 
 	if err != nil {
@@ -114,14 +114,14 @@ func (f *friendRepositoryImpl) GetStatus(c context.Context, uid uuid.UUID, fuid 
 
 	query := f.DBEngine.Client.NewSelect().
 		ColumnExpr(`CASE
-			WHEN f1.uid IS NOT NULL AND f2.uid IS NOT NULL THEN 'friend'
-			WHEN f2.uid IS NOT NULL THEN 'applying'
-			WHEN f1.uid IS NOT NULL AND f2.uid IS NULL THEN 'requesting'
+			WHEN f1.user_id IS NOT NULL AND f2.user_id IS NOT NULL THEN 'friend'
+			WHEN f2.user_id IS NOT NULL THEN 'applying'
+			WHEN f1.user_id IS NOT NULL AND f2.user_id IS NULL THEN 'requesting'
 		END AS status`).
 		With("f1", subquery1).
 		With("f2", subquery2).
 		TableExpr("f1").
-		Join("FULL JOIN f2 ON f1.uid = f2.friend_uid AND f1.friend_uid = f2.uid")
+		Join("FULL JOIN f2 ON f1.user_id = f2.friend_user_id AND f1.friend_user_id = f2.user_id")
 
 	err := query.Scan(c, &status)
 	if err != nil {
@@ -143,8 +143,8 @@ func (f *friendRepositoryImpl) GetFriends(c context.Context, uid uuid.UUID) ([]*
 		Column("f1.*").
 		Table("friends").
 		TableExpr("friends AS f1").
-		Join("JOIN friends AS f2 ON f1.uid = f2.friend_uid AND f1.friend_uid = f2.uid").
-		Where("f1.friend_uid = ?", uid).
+		Join("JOIN friends AS f2 ON f1.user_id = f2.friend_user_id AND f1.friend_user_id = f2.user_id").
+		Where("f1.friend_user_id = ?", uid).
 		Scan(c, friends)
 	if err != nil {
 		return nil, err

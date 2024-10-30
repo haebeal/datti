@@ -71,6 +71,10 @@ func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid uuid.UUID, email 
 	var results []*model.UserStatus
 	var query *bun.SelectQuery
 
+	if len([]rune(cursor)) == 0 {
+		cursor = uuid.Nil.String()
+	}
+
 	subQuery := ur.DBEngine.Client.NewSelect().
 		ColumnExpr("u.id AS user_id, u.name AS user_name, u.email AS user_email, u.photo_url AS user_photo_url").
 		ColumnExpr("f1.user_id AS f1_uid, f1.friend_user_id AS f1_friend_uid").

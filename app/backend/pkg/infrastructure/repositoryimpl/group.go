@@ -47,7 +47,7 @@ func (g *groupRepoImpl) GetGroups(c context.Context, uid uuid.UUID) ([]*model.Gr
 	groups := make([]*model.Group, 0)
 	err := g.DBEngine.Client.NewSelect().
 		Table("groups").
-		Where("uid = ?", uid).
+		Where("user_id = ?", uid).
 		Scan(c, groups)
 	if err != nil {
 		return nil, err

@@ -18,7 +18,7 @@ func (g *groupUserRepositoryImpl) GetGroupUser(c context.Context, groupID uuid.U
 	err := g.DBEngine.Client.NewSelect().
 		Table("group_users").
 		Where("group_id = ?", groupID).
-		Where("uid = ?", userID).
+		Where("user_id = ?", userID).
 		Scan(c, groupUser)
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func (g *groupUserRepositoryImpl) GetGroupUserByUid(c context.Context, uid uuid.
 	groupUsers := new([]*model.GroupUser)
 	err := g.DBEngine.Client.NewSelect().
 		Table("group_users").
-		Where("uid = ?", uid).
+		Where("user_id = ?", uid).
 		Scan(c, groupUsers)
 	if err != nil {
 		return nil, err
@@ -76,7 +76,7 @@ func (g *groupUserRepositoryImpl) DeleteGroupUser(c context.Context, uid uuid.UU
 	groupUser := new(model.GroupUser)
 	_, err := g.DBEngine.Client.NewDelete().
 		Model(groupUser).
-		Where("uid = ? AND group_id = ?", uid, id).
+		Where("user_id = ? AND group_id = ?", uid, id).
 		Exec(c)
 	if err != nil {
 		return err
@@ -90,7 +90,7 @@ func (g *groupUserRepositoryImpl) UpdateGroupUser(c context.Context, uid uuid.UU
 	groupUser := new(model.GroupUser)
 	_, err := g.DBEngine.Client.NewUpdate().
 		Model(groupUser).
-		Where("uid = ? AND group_id = ?", uid, id).
+		Where("user_id = ? AND group_id = ?", uid, id).
 		Set("owner = ?", true).
 		Exec(c)
 	if err != nil {

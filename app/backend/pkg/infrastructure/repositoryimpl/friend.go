@@ -34,8 +34,8 @@ func (f *friendRepositoryImpl) DeleteFriend(c context.Context, uid uuid.UUID, fu
 	friend := new(model.Friend)
 	_, err := f.DBEngine.Client.NewDelete().
 		Model(friend).
-		Where("uid = ? AND friend_uid = ?", uid, fuid).
-		WhereOr("uid = ? AND friend_uid = ?", fuid, uid).
+		Where("user_id = ? AND friend_user_id = ?", uid, fuid).
+		WhereOr("user_id = ? AND friend_user_id = ?", fuid, uid).
 		Exec(c)
 	if err != nil {
 		return err
@@ -106,11 +106,11 @@ func (f *friendRepositoryImpl) GetStatus(c context.Context, uid uuid.UUID, fuid 
 
 	subquery1 := f.DBEngine.Client.NewSelect().
 		Table("friends").
-		Where("uid = ? AND friend_uid = ?", uid, fuid)
+		Where("user_id = ? AND friend_user_id = ?", uid, fuid)
 
 	subquery2 := f.DBEngine.Client.NewSelect().
 		Table("friends").
-		Where("uid = ? AND friend_uid = ?", fuid, uid)
+		Where("user_id = ? AND friend_user_id = ?", fuid, uid)
 
 	query := f.DBEngine.Client.NewSelect().
 		ColumnExpr(`CASE

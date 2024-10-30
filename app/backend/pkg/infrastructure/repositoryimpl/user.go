@@ -73,11 +73,11 @@ func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid uuid.UUID, email 
 
 	subQuery := ur.DBEngine.Client.NewSelect().
 		ColumnExpr("u.id AS user_id, u.name AS user_name, u.email AS user_email, u.photo_url AS user_photo_url").
-		ColumnExpr("f1.user_id AS f1_uid, f1.friend_user_id AS f1_friend_uid").
-		ColumnExpr("f2.user_id AS f2_uid, f2.friend_user_id AS f2_friend_uid").
+		ColumnExpr("f1.uid AS f1_uid, f1.friend_uid AS f1_friend_uid").
+		ColumnExpr("f2.uid AS f2_uid, f2.friend_uid AS f2_friend_uid").
 		TableExpr("users u").
-		Join("LEFT JOIN friends f1 ON u.id = f1.friend_user_id AND f1.user_id = ?", uid).
-		Join("LEFT JOIN friends f2 ON u.id = f2.user_id AND f2.friend_user_id = ?", uid).
+		Join("LEFT JOIN friends f1 ON u.id = f1.friend_uid AND f1.uid = ?", uid).
+		Join("LEFT JOIN friends f2 ON u.id = f2.uid AND f2.friend_uid = ?", uid).
 		Where("u.email LIKE ?", "%"+email+"%").
 		Where("u.deleted_at IS NULL")
 

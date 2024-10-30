@@ -7,6 +7,7 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
+	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
 
@@ -26,7 +27,7 @@ type userRepoImpl struct {
 }
 
 // GetProfile implements repository.ProfileRepository.
-func (ur *userRepoImpl) GetUserByUid(c context.Context, uid string) (*model.User, error) {
+func (ur *userRepoImpl) GetUserByUid(c context.Context, uid uuid.UUID) (*model.User, error) {
 	user := new(model.User)
 	err := ur.DBEngine.Client.NewSelect().
 		Table("users").
@@ -66,7 +67,7 @@ func (ur *userRepoImpl) GetUserByEmail(c context.Context, email string) (*model.
 	return user, nil
 }
 
-func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid string, email string, status string, cursor string, limit int, getNext bool) ([]*model.UserStatus, *model.Cursor, error) {
+func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid uuid.UUID, email string, status string, cursor string, limit int, getNext bool) ([]*model.UserStatus, *model.Cursor, error) {
 	var results []*model.UserStatus
 	var query *bun.SelectQuery
 
@@ -133,7 +134,7 @@ func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid string, email str
 }
 
 // UpdateName implements repository.ProfileRepository.
-func (ur *userRepoImpl) UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error) {
+func (ur *userRepoImpl) UpdateUser(c context.Context, uid uuid.UUID, name string, url string) (*model.User, error) {
 	user := new(model.User)
 	user.ID = uid
 	user.Name = name

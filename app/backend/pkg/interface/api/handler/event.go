@@ -8,6 +8,7 @@ import (
 	"github.com/datti-api/pkg/interface/response"
 	"github.com/datti-api/pkg/usecase"
 	"github.com/datti-api/pkg/usecase/dto"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,8 +27,15 @@ type eventHandler struct {
 // HandleCreate implements EventHandler.
 func (e *eventHandler) HandleCreate(c echo.Context) error {
 	errResponse := new(response.Error)
-	userID := c.Get("uid").(string)
-	groupID := c.Param("groupId")
+	userID, err := uuid.Parse(c.Get("uid").(string))
+	if err != nil {
+		errResponse.Error = err.Error()
+		return c.JSON(http.StatusInternalServerError, errResponse)
+	}
+	groupID, err := uuid.Parse(c.Param("groupId"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 	req := new(request.EventCreateRequest)
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
@@ -46,16 +54,16 @@ func (e *eventHandler) HandleCreate(c echo.Context) error {
 	} else {
 		// レスポンスに詰め替え
 		payments := make([]struct {
-			PaymentId string `json:"paymentId"`
-			PaidTo    string `json:"paidTo"`
-			Amount    int    `json:"amount"`
+			PaymentId uuid.UUID `json:"paymentId"`
+			PaidTo    uuid.UUID `json:"paidTo"`
+			Amount    int       `json:"amount"`
 		}, len(event.Paymetns))
 
 		for i, p := range event.Paymetns {
 			payments[i] = struct {
-				PaymentId string `json:"paymentId"`
-				PaidTo    string `json:"paidTo"`
-				Amount    int    `json:"amount"`
+				PaymentId uuid.UUID `json:"paymentId"`
+				PaidTo    uuid.UUID `json:"paidTo"`
+				Amount    int       `json:"amount"`
 			}{
 				PaymentId: p.PaymentId,
 				PaidTo:    p.PaidTo,
@@ -80,13 +88,35 @@ func (e *eventHandler) HandleCreate(c echo.Context) error {
 // HandleGet implements EventHandler.
 func (e *eventHandler) HandleGet(c echo.Context) error {
 	errResponse := new(response.Error)
-	eventID := c.Param("eventId")
+	eventID, err := uuid.Parse(c.Param("eventId"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 
 	event, err := e.useCase.GetEvent(c.Request().Context(), eventID)
 	if err != nil {
 		errResponse.Error = err.Error()
 		return c.JSON(http.StatusInternalServerError, errResponse)
 	} else {
+		// レスポンスに詰め替え
+		payments := make([]struct {
+			PaymentId uuid.UUID `json:"paymentId"`
+			PaidTo    uuid.UUID `json:"paidTo"`
+			Amount    int       `json:"amount"`
+		}, len(event.Paymetns))
+
+		for i, p := range event.Paymetns {
+			payments[i] = struct {
+				PaymentId uuid.UUID `json:"paymentId"`
+				PaidTo    uuid.UUID `json:"paidTo"`
+				Amount    int       `json:"amount"`
+			}{
+				PaymentId: p.PaymentId,
+				PaidTo:    p.PaidTo,
+				Amount:    p.Amount,
+			}
+		}
+
 		res := response.Event{
 			ID:        event.ID,
 			Name:      event.Name,
@@ -94,12 +124,8 @@ func (e *eventHandler) HandleGet(c echo.Context) error {
 			CreatedBy: event.CreatedBy,
 			PaidBy:    event.PaidBy,
 			Amount:    event.Amount,
-			Payments: []struct {
-				PaymentId string `json:"paymentId"`
-				PaidTo    string `json:"paidTo"`
-				Amount    int    `json:"amount"`
-			}(event.Paymetns),
-			GroupId: event.GroupId,
+			Payments:  payments,
+			GroupId:   event.GroupId,
 		}
 		return c.JSON(http.StatusOK, res)
 	}
@@ -108,15 +134,19 @@ func (e *eventHandler) HandleGet(c echo.Context) error {
 // HandleGetById implements EventHandler.
 func (e *eventHandler) HandleGetById(c echo.Context) error {
 	errResponse := new(response.Error)
-	groupID := c.Param("groupId")
+	groupID, err := uuid.Parse(c.Get("groupId").(string))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+
 	res := &response.Events{
 		Events: make([]struct {
-			ID        string    `json:"eventId"`
+			ID        uuid.UUID `json:"eventId"`
 			Name      string    `json:"name"`
 			EventedAt time.Time `json:"eventedAt"`
 			PaidBy    struct {
-				ID   string `json:"userId"`
-				Name string `json:"name"`
+				ID   uuid.UUID `json:"userId"`
+				Name string    `json:"name"`
 			} `json:"paidBy"`
 			Amount int `json:"amount"`
 		}, 0),
@@ -131,12 +161,12 @@ func (e *eventHandler) HandleGetById(c echo.Context) error {
 		} else {
 			for _, event := range events.Events {
 				res.Events = append(res.Events, struct {
-					ID        string    `json:"eventId"`
+					ID        uuid.UUID `json:"eventId"`
 					Name      string    `json:"name"`
 					EventedAt time.Time `json:"eventedAt"`
 					PaidBy    struct {
-						ID   string `json:"userId"`
-						Name string `json:"name"`
+						ID   uuid.UUID `json:"userId"`
+						Name string    `json:"name"`
 					} `json:"paidBy"`
 					Amount int `json:"amount"`
 				}{
@@ -144,8 +174,8 @@ func (e *eventHandler) HandleGetById(c echo.Context) error {
 					Name:      event.Name,
 					EventedAt: event.EventedAt,
 					PaidBy: struct {
-						ID   string `json:"userId"`
-						Name string `json:"name"`
+						ID   uuid.UUID `json:"userId"`
+						Name string    `json:"name"`
 					}{
 						ID:   event.PaidBy.ID,
 						Name: event.PaidBy.Name,
@@ -161,9 +191,18 @@ func (e *eventHandler) HandleGetById(c echo.Context) error {
 // HandleUpdate implements EventHandler.
 func (e *eventHandler) HandleUpdate(c echo.Context) error {
 	errResponse := new(response.Error)
-	eventID := c.Param("eventId")
-	groupID := c.Param("groupId")
-	userID := c.Get("uid").(string)
+	eventID, err := uuid.Parse(c.Param("eventId"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	groupID, err := uuid.Parse(c.Param("groupId"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
+	userID, err := uuid.Parse(c.Get("uid").(string))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err)
+	}
 	req := new(request.EventUpdateRequest)
 	if err := c.Bind(req); err != nil {
 		errResponse.Error = err.Error()
@@ -175,15 +214,15 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 
 	// ユースケース層のDTOへ詰め替え
 	payments := make([]struct {
-		PaymentID string
-		PaidTo    string
+		PaymentID uuid.UUID
+		PaidTo    uuid.UUID
 		Amount    int
 	}, len(req.Payments))
 
 	for i, p := range req.Payments {
 		payments[i] = struct {
-			PaymentID string
-			PaidTo    string
+			PaymentID uuid.UUID
+			PaidTo    uuid.UUID
 			Amount    int
 		}{
 			PaymentID: p.ID,
@@ -210,16 +249,16 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 	} else {
 		// レスポンスに詰め替え
 		payments := make([]struct {
-			PaymentId string `json:"paymentId"`
-			PaidTo    string `json:"paidTo"`
-			Amount    int    `json:"amount"`
+			PaymentId uuid.UUID `json:"paymentId"`
+			PaidTo    uuid.UUID `json:"paidTo"`
+			Amount    int       `json:"amount"`
 		}, len(event.Paymetns))
 
 		for i, p := range event.Paymetns {
 			payments[i] = struct {
-				PaymentId string `json:"paymentId"`
-				PaidTo    string `json:"paidTo"`
-				Amount    int    `json:"amount"`
+				PaymentId uuid.UUID `json:"paymentId"`
+				PaidTo    uuid.UUID `json:"paidTo"`
+				Amount    int       `json:"amount"`
 			}{
 				PaymentId: p.PaymentId,
 				PaidTo:    p.PaidTo,
@@ -242,11 +281,20 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 }
 
 func (e *eventHandler) HandleDelete(c echo.Context) error {
-	userID := c.Get("uid").(string)
-	groupID := c.Param("groupId")
-	eventID := c.Param("eventId")
+	userID, err := uuid.Parse(c.Get("uid").(string))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	groupID, err := uuid.Parse(c.Param("groupId"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	eventID, err := uuid.Parse(c.Param("eventId"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
 
-	err := e.useCase.DeleteEvent(c.Request().Context(), groupID, eventID, userID)
+	err = e.useCase.DeleteEvent(c.Request().Context(), groupID, eventID, userID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	} else {

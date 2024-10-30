@@ -2,57 +2,59 @@ package dto
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type EventCreate struct {
 	Name      string
 	EventedAt time.Time
-	CreatedBy string
-	PaidBy    string
+	CreatedBy uuid.UUID
+	PaidBy    uuid.UUID
 	Amount    int
 	Payments  []struct {
-		PaidTo string
+		PaidTo uuid.UUID
 		Amount int
 	}
-	GroupId string
+	GroupId uuid.UUID
 }
 
 type EventUpdate struct {
 	Name      string
 	EventedAt time.Time
-	CreatedBy string
-	PaidBy    string
+	CreatedBy uuid.UUID
+	PaidBy    uuid.UUID
 	Amount    int
 	Payments  []struct {
-		PaymentID string
-		PaidTo    string
+		PaymentID uuid.UUID
+		PaidTo    uuid.UUID
 		Amount    int
 	}
-	GroupId string
+	GroupId uuid.UUID
 }
 
 type EventResponse struct {
-	ID        string
+	ID        uuid.UUID
 	Name      string
 	EventedAt time.Time
-	CreatedBy string
-	PaidBy    string
+	CreatedBy uuid.UUID
+	PaidBy    uuid.UUID
 	Amount    int
 	Paymetns  []struct {
-		PaymentId string
-		PaidTo    string
+		PaymentId uuid.UUID
+		PaidTo    uuid.UUID
 		Amount    int
 	}
-	GroupId string
+	GroupId uuid.UUID
 }
 
 type Events struct {
 	Events []struct {
-		ID        string
+		ID        uuid.UUID
 		Name      string
 		EventedAt time.Time
 		PaidBy    struct {
-			ID   string
+			ID   uuid.UUID
 			Name string
 		}
 		Amount int

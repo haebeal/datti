@@ -1,6 +1,8 @@
 package model
 
+import "github.com/google/uuid"
+
 type Cursor struct {
-	Start string
-	End   string
+	Start uuid.UUID
+	End   uuid.UUID
 }

@@ -134,7 +134,7 @@ func (e *eventHandler) HandleGet(c echo.Context) error {
 // HandleGetById implements EventHandler.
 func (e *eventHandler) HandleGetById(c echo.Context) error {
 	errResponse := new(response.Error)
-	groupID, err := uuid.Parse(c.Get("groupId").(string))
+	groupID, err := uuid.Parse(c.Param("groupId"))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err)
 	}

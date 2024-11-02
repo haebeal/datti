@@ -68,16 +68,25 @@ func (g *groupHandler) HandleCreate(c echo.Context) error {
 func (g *groupHandler) HandleGet(c echo.Context) error {
 	var limit *int
 	var getNext bool
+	var inputCursor uuid.UUID
+
 	errResponse := new(response.Error)
 	res := new(response.Groups)
 	userID, err := uuid.Parse(c.Get("uid").(string))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	inputCursor, err := uuid.Parse(c.QueryParam("cursor"))
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+	// inputCursor, err := uuid.Parse(c.QueryParam("cursor"))
+	cursorParam := c.QueryParam("cursor")
+	if cursorParam == "" {
+		inputCursor = uuid.Nil
+	} else {
+		inputCursor, err = uuid.Parse(cursorParam)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
 	}
+
 	limitStr := c.QueryParam("limit")
 	limitInt, err := strconv.Atoi(limitStr)
 	if err == nil {

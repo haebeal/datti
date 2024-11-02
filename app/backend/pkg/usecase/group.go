@@ -114,18 +114,6 @@ func (g *groupUseCase) GetMembers(c context.Context, id uuid.UUID, uid uuid.UUID
 }
 
 func (g *groupUseCase) GetGroups(c context.Context, uid uuid.UUID, inputCursor uuid.UUID, inputLimit *int, getNext bool) ([]*model.Group, *model.Cursor, error) {
-	// groupUsers, err := g.groupUserRepository.GetGroupUserByUid(c, uid)
-	// if err != nil {
-	// 	return nil, nil, err
-	// }
-	// groups := make([]*model.Group, 0)
-	// for _, groupUser := range groupUsers {
-	// 	group, err := g.groupRepository.GetGroupById(c, groupUser.GroupID)
-	// 	if err != nil {
-	// 		return nil, nil, err
-	// 	}
-	// 	groups = append(groups, group)
-	// }
 
 	var limit int
 

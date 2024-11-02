@@ -66,7 +66,7 @@ func (g *groupRepoImpl) GetGroupsByUid(c context.Context, uid uuid.UUID, cursor 
 			Table("groups").
 			ColumnExpr("groups.*").
 			Join("INNER JOIN group_users ON groups.id = group_users.group_id").
-			Where("group_users.uid = ?", uid).
+			Where("group_users.user_id = ?", uid).
 			Where("id > ?", cursor).
 			OrderExpr("id ASC").
 			Limit(limit)
@@ -75,7 +75,7 @@ func (g *groupRepoImpl) GetGroupsByUid(c context.Context, uid uuid.UUID, cursor 
 			Table("groups").
 			ColumnExpr("groups.*").
 			Join("INNER JOIN group_users ON groups.id = group_users.group_id").
-			Where("group_users.uid = ?", uid).
+			Where("group_users.user_id = ?", uid).
 			Where("id < ?", cursor).
 			OrderExpr("id DESC").
 			Limit(limit)

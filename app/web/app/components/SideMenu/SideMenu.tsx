@@ -35,8 +35,8 @@ export function SideMenu() {
 							{({ name }) => (
 								<div className="flex flex-row">
 									<p className="break-all">
-										<span className="text-std-24M-5 pe-2">{name}</span>
-										<span className="text-std-18M-6">さん</span>
+										<span className="text-std-24N-150 pe-2">{name}</span>
+										<span className="text-std-18N-160">さん</span>
 									</p>
 								</div>
 							)}

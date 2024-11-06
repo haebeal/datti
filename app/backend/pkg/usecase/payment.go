@@ -120,7 +120,7 @@ func (p *paymentUseCase) GetPayments(c context.Context, uid uuid.UUID) (*dto.Pay
 
 	result := &dto.Payments{}
 	for _, payment := range payments {
-		user, err := p.userRepository.GetUserByUid(c, payment.UserID)
+		user, err := p.userRepository.GetUserByUid(c, payment.CounterpartyID)
 		if err != nil {
 			return nil, err
 		}

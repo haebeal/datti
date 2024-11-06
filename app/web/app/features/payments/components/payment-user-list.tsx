@@ -15,7 +15,7 @@ export function PaymentUserList() {
 				<Await resolve={paymentUsers}>
 					{({ payments }) =>
 						Array.isArray(payments) && payments.length > 0 ? (
-							<div className="flex flex-col gap-9 py-5">
+							<div className="flex flex-col gap-8 py-5">
 								{payments.map((payment) => (
 									<>
 										<PaymentUserCard

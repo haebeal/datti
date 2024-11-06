@@ -29,25 +29,21 @@ export default function EventDetail() {
 	}, [actionData, toast]);
 
 	return (
-		<div className="flex flex-col py-3 gap-7">
-			<div className="flex items-center justify-between">
-				<h1 className="font-bold text-2xl">イベント編集</h1>
+		<div className="flex flex-col gap-7">
+			<div className="flex flex-row items-center justify-between py-5 px-3">
+				<h1 className="text-std-32N-150">イベント編集</h1>
 			</div>
-			<div className="rounded-lg bg-white py-3 px-5">
-				<div className="flex flex-col py-3 gap-7">
-					<Suspense fallback={<Spinner />}>
-						<Await resolve={event}>
-							{(event) => (
-								<Await resolve={members}>
-									{({ members }) => (
-										<UpdateEventForm defaultValue={event} members={members} />
-									)}
-								</Await>
+			<Suspense fallback={<Spinner />}>
+				<Await resolve={event}>
+					{(event) => (
+						<Await resolve={members}>
+							{({ members }) => (
+								<UpdateEventForm defaultValue={event} members={members} />
 							)}
 						</Await>
-					</Suspense>
-				</div>
-			</div>
+					)}
+				</Await>
+			</Suspense>
 		</div>
 	);
 }

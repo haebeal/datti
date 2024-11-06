@@ -27,6 +27,6 @@ type Payment struct {
 
 type PaymentResult struct {
 	UserID         uuid.UUID
-	CounterpartyID string
+	CounterpartyID uuid.UUID
 	Balance        int
 }

@@ -1,5 +1,6 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { BreadcrumbLink } from "~/components/Breadcrumbs";
+
+import { BreadcrumbLink } from "~/components";
 
 import { PaymentUserList } from "~/features/payments/components";
 export { paymentUserListLoader as loader } from "~/features/payments/loaders";

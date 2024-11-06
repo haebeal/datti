@@ -1,20 +1,11 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import { Form, Link, useLocation, useNavigation } from "@remix-run/react";
+import { Form, Link, useLocation } from "@remix-run/react";
 import type { EventEndpoints_EventResponse } from "~/api/@types";
 
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTrigger,
-} from "~/components/ui/alert-dialog";
-import { Button } from "~/components/ui/button";
+import { Button, Dialog, DialogBody } from "~/components";
 
+import { useRef } from "react";
 import { deleteEventSchema as schema } from "../schemas";
 
 interface Props {
@@ -23,7 +14,8 @@ interface Props {
 
 export function EventCard({ event }: Props) {
 	const { pathname } = useLocation();
-	const { state } = useNavigation();
+
+	const dialogRef = useRef<HTMLDialogElement>(null);
 
 	const [form, { eventId }] = useForm({
 		defaultValue: event,
@@ -35,51 +27,57 @@ export function EventCard({ event }: Props) {
 	});
 
 	return (
-		<div className="flex flex-row  w-full bg-white hover:bg-slate-50 items-center rounded-md border border-gray-200 px-6">
+		<>
 			<Link
-				className="flex-1 hover:cursor-pointer py-5 gap-5 "
 				to={`${pathname}/${event.eventId}`}
+				className="flex flex-row gap-5 items-center justify-between py-5 px-3"
 			>
-				<h1 className="text-lg font-bold mr-auto">{event.name}</h1>
-			</Link>
-
-			<AlertDialog>
-				<AlertDialogTrigger
-					asChild
-					onClick={(event) => event.stopPropagation()}
+				<span className="text-std-20N-150 pl-3">{event.name}</span>
+				<Button
+					size="md"
+					onClick={(event) => {
+						event.preventDefault();
+						event.stopPropagation();
+						dialogRef.current?.showModal();
+					}}
+					variant="solid-fill"
+					className="bg-red-900 hover:bg-red-1000 active:bg-red-1100"
 				>
-					<Button
-						disabled={state === "submitting"}
-						className="bg-red-500 hover:bg-red-600 font-semibold"
-					>
-						削除
-					</Button>
-				</AlertDialogTrigger>
-				<AlertDialogContent>
-					<AlertDialogHeader>イベントを削除しますか?</AlertDialogHeader>
-					<AlertDialogDescription>
+					削除
+				</Button>
+			</Link>
+			<Dialog
+				aria-labelledby="confirm-delete-event"
+				className="w-full max-w-[calc(560/16*1rem)]"
+				ref={dialogRef}
+			>
+				<DialogBody>
+					<h2 className="text-std-24N-150">イベントを削除しますか?</h2>
+					<p>
 						イベントを削除すると他のユーザーからも削除されます。
 						<br />
-						本当によろしいですか？
-					</AlertDialogDescription>
-					<AlertDialogFooter>
-						<AlertDialogCancel onClick={(event) => event.stopPropagation()}>
-							キャンセル
-						</AlertDialogCancel>
-						<Form {...getFormProps(form)} method="delete">
-							<input {...getInputProps(eventId, { type: "hidden" })} />
-							<AlertDialogAction
-								disabled={state === "submitting"}
-								onClick={(event) => event.stopPropagation()}
-								className="font-semibold bg-red-500 hover:bg-red-600"
-								type="submit"
-							>
-								削除
-							</AlertDialogAction>
-						</Form>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
-		</div>
+						本当によろしいですか?
+					</p>
+					<Form {...getFormProps(form)} method="delete">
+						<input {...getInputProps(eventId, { type: "hidden" })} />
+						<Button
+							size="md"
+							type="submit"
+							variant="solid-fill"
+							className="bg-red-900 hover:bg-red-1000 active:bg-red-1100"
+						>
+							削除
+						</Button>
+					</Form>
+					<Button
+						size="md"
+						onClick={() => dialogRef.current?.close()}
+						variant="outline"
+					>
+						キャンセル
+					</Button>
+				</DialogBody>
+			</Dialog>
+		</>
 	);
 }

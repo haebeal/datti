@@ -6,16 +6,9 @@ import {
 	useLoaderData,
 	useNavigation,
 } from "@remix-run/react";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 
-import { Button } from "~/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "~/components/ui/dialog";
+import { Button, Dialog, DialogBody } from "~/components";
 import { useToast } from "~/components/ui/use-toast";
 
 import type { CreateEventAction } from "~/features/events/actions";
@@ -34,6 +27,8 @@ export default function GroupEvents() {
 	const [isOpen, setOpen] = useState(false);
 	const { toast } = useToast();
 
+	const dialogRef = useRef<HTMLDialogElement>(null);
+
 	const { members } = useLoaderData<EventListLoader>();
 	const actionData = useActionData<CreateEventAction>();
 	useEffect(() => {
@@ -47,26 +42,29 @@ export default function GroupEvents() {
 
 	return (
 		<div className="flex flex-col py-3 gap-3">
+			<div className="flex flex-row-reverse">
+				<Button
+					size="md"
+					onClick={() => dialogRef.current?.showModal()}
+					variant="solid-fill"
+				>
+					イベント作成
+				</Button>
+			</div>
 			<div className="flex flex-row-reverse items-center justify-items-end">
-				<Dialog open={isOpen} onOpenChange={setOpen}>
-					<DialogTrigger asChild>
-						<Button
-							disabled={state === "loading"}
-							className="bg-sky-500 hover:bg-sky-600 font-semibold"
-						>
-							イベント作成
-						</Button>
-					</DialogTrigger>
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>イベント作成</DialogTitle>
-						</DialogHeader>
+				<Dialog
+					aria-labelledby="create-event-dialog"
+					className="w-full max-w-[calc(560/16*1rem)]"
+					ref={dialogRef}
+				>
+					<DialogBody>
+						<h2 className="text-std-24N-150">イベント作成</h2>
 						<Suspense fallback={<p>loading...</p>}>
 							<Await resolve={members}>
 								{({ members }) => <CreateEventForm members={members} />}
 							</Await>
 						</Suspense>
-					</DialogContent>
+					</DialogBody>
 				</Dialog>
 			</div>
 			<EventList />

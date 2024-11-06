@@ -7,6 +7,7 @@ export * from "./Input";
 export * from "./Label";
 export * from "./Link";
 export * from "./RequirementBadge";
+export * from "./Select";
 export * from "./SideMenu";
 export * from "./Spinner";
 export * from "./SupportText";

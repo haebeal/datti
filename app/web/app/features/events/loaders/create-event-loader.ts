@@ -1,7 +1,7 @@
 import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
-export const eventListLoader = async ({
+export const createEventLoader = async ({
 	request,
 	params,
 	context,
@@ -13,17 +13,14 @@ export const eventListLoader = async ({
 			statusText: "Bad Request",
 		});
 	}
+	const { client, headers } = await createAPIClient({
+		request,
+		context,
+	});
 
-	const { client, headers } = await createAPIClient({ request, context });
+	const members = client.groups._groupId(groupId).members.$get();
 
-	const events = client.groups._groupId(groupId).events.$get();
-
-	return defer(
-		{ events },
-		{
-			headers,
-		},
-	);
+	return defer({ members }, { headers });
 };
 
-export type EventListLoader = typeof eventListLoader;
+export type createEventLoader = typeof createEventLoader;

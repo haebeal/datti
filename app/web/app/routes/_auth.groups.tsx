@@ -1,15 +1,8 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { Outlet, useActionData, useNavigation } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useActionData } from "@remix-run/react";
+import { useEffect, useRef } from "react";
 
-import { Button } from "~/components/ui/button";
-import {
-	Dialog,
-	DialogContent,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from "~/components/ui/dialog";
+import { BreadcrumbLink, Button, Dialog, DialogBody } from "~/components";
 import { useToast } from "~/components/ui/use-toast";
 
 import type { CreateGroupAction } from "~/features/groups/actions";
@@ -22,15 +15,23 @@ export const meta: MetaFunction = () => [
 	{ name: "description", content: "誰にいくら払ったっけ？を記録するサービス" },
 ];
 
+export const handle = {
+	breadcrumb: () => (
+		<BreadcrumbLink href="/groups" key="groups">
+			グループ一覧
+		</BreadcrumbLink>
+	),
+};
+
 export default function Group() {
-	const { state } = useNavigation();
-	const [isOpen, setOpen] = useState(false);
 	const { toast } = useToast();
+
+	const dialogRef = useRef<HTMLDialogElement>(null);
 
 	const actionData = useActionData<CreateGroupAction>();
 	useEffect(() => {
 		if (actionData) {
-			setOpen(false);
+			dialogRef.current?.close();
 			toast({
 				title: actionData.message,
 			});
@@ -38,30 +39,36 @@ export default function Group() {
 	}, [actionData, toast]);
 
 	return (
-		<div className="flex flex-col py-3 gap-7">
-			<div className="flex items-center justify-between">
-				<h1 className="font-bold text-2xl">グループ一覧</h1>
-				<Dialog open={isOpen} onOpenChange={setOpen}>
-					<DialogTrigger asChild>
-						<Button
-							disabled={state === "loading"}
-							className="bg-sky-500 hover:bg-sky-600 font-semibold"
-						>
-							グループ作成
-						</Button>
-					</DialogTrigger>
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>グループ作成</DialogTitle>
-						</DialogHeader>
-						<CreateGroupForm />
-					</DialogContent>
-				</Dialog>
+		<div className="flex flex-col gap-7">
+			<div className="flex flex-row items-center justify-between py-5 px-3">
+				<h1 className="text-std-32N-150">グループ一覧</h1>
+				<Button
+					size="md"
+					onClick={() => dialogRef.current?.showModal()}
+					variant="solid-fill"
+				>
+					グループ作成
+				</Button>
 			</div>
-			<div className="rounded-lg bg-white py-3 px-5">
-				<GroupList />
-			</div>
-			<Outlet />
+			<Dialog
+				aria-labelledby="create-group-dialog"
+				className="w-full max-w-[calc(560/16*1rem)]"
+				ref={dialogRef}
+			>
+				<DialogBody>
+					<h2 className="text-std-24N-150">グループ作成</h2>
+					<CreateGroupForm />
+					<Button
+						size="md"
+						onClick={() => dialogRef.current?.close()}
+						variant="outline"
+						className="w-full"
+					>
+						キャンセル
+					</Button>
+				</DialogBody>
+			</Dialog>
+			<GroupList />
 		</div>
 	);
 }

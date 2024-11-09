@@ -6,7 +6,7 @@ export { profileLoader as loader } from "~/features/profile/loaders";
 
 export default function Auth() {
 	return (
-		<div className="grid grid-cols-12 justify-center container gap-6">
+		<div className="grid grid-cols-12 justify-center container gap-6 mb-10">
 			<header className="col-span-12 my-5">
 				<RouterLink to="/" className="text-std-20N-150">
 					Datti

@@ -55,6 +55,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
 				aria-labelledby={props["aria-labelledby"]}
 				onChange={(value) => {
 					setValue(value);
+					setOpen(false);
 				}}
 			>
 				<Group

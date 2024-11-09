@@ -39,7 +39,7 @@ export default function Group() {
 	}, [actionData, pathname, toast, navigate]);
 
 	return (
-		<div className="flex flex-col py-3 gap-7">
+		<div className="flex flex-col gap-7">
 			<div className="flex flex-col md:flex-row gap-5 justify-between md:py-5 px-3">
 				<h1 className="text-std-32N-150">返済作成</h1>
 			</div>

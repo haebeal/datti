@@ -18,6 +18,7 @@ type GroupHandler interface {
 	HandleGetById(c echo.Context) error
 	HandleGetMembers(c echo.Context) error
 	HandleUpdate(c echo.Context) error
+	HandleDelete(c echo.Context) error
 	HandleRegisterd(c echo.Context) error
 }
 
@@ -220,6 +221,24 @@ func (g *groupHandler) HandleRegisterd(c echo.Context) error {
 			})
 		}
 		return c.JSON(http.StatusOK, res)
+	}
+}
+
+// HandleDelete implements GroupHandler.
+func (g *groupHandler) HandleDelete(c echo.Context) error {
+	groupID, err := uuid.Parse(c.Param("groupId"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	err = g.useCase.DeleteGroup(c.Request().Context(), groupID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	} else {
+		return c.JSON(http.StatusOK, struct {
+			Message string `json:"message"`
+		}{
+			Message: "delete successfully",
+		})
 	}
 }
 

@@ -14,6 +14,19 @@ type groupRepoImpl struct {
 	DBEngine *database.DBClient
 }
 
+// DeleteGroupById implements repository.GroupRepository.
+func (g *groupRepoImpl) DeleteGroupById(c context.Context, id uuid.UUID) error {
+	_, err := g.DBEngine.Client.NewDelete().
+		Table("groups").
+		Where("id = ?", id).
+		Exec(c)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // CreatGroup implements repository.GroupRepository.
 func (g *groupRepoImpl) CreatGroup(c context.Context, name string) (*model.Group, error) {
 	group := &model.Group{

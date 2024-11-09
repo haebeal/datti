@@ -14,6 +14,7 @@ type GroupUseCase interface {
 	GetGroupById(c context.Context, id uuid.UUID) (*model.Group, error)
 	GetMembers(c context.Context, id uuid.UUID, uid uuid.UUID, status string) ([]*model.User, []*string, error)
 	UpdateGroup(c context.Context, id uuid.UUID, name string) (*model.Group, []*model.User, error)
+	DeleteGroup(c context.Context, id uuid.UUID) error
 	RegisterdMembers(c context.Context, userID uuid.UUID, id uuid.UUID, members uuid.UUIDs) (*model.Group, []*model.User, []*string, error)
 }
 
@@ -127,6 +128,16 @@ func (g *groupUseCase) GetGroups(c context.Context, uid uuid.UUID, inputCursor u
 		return nil, nil, err
 	}
 	return groups, cursor, nil
+}
+
+// DeleteGroup implements GroupUseCase.
+func (g *groupUseCase) DeleteGroup(c context.Context, id uuid.UUID) error {
+	err := g.groupRepository.DeleteGroupById(c, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // RegisterdMembers implements GroupUseCase.

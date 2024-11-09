@@ -1,5 +1,5 @@
 import { Await, useLoaderData } from "@remix-run/react";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 
 import { Divider, Spinner } from "~/components";
 
@@ -17,10 +17,10 @@ export function GroupList() {
 						Array.isArray(groups) && groups.length > 0 ? (
 							<div className="flex flex-col gap-1 py-5">
 								{groups.map((group) => (
-									<>
-										<GroupCard key={`${group.groupId}-card`} group={group} />
-										<Divider key={`${group.groupId}-divider`} />
-									</>
+									<Fragment key={group.groupId}>
+										<GroupCard group={group} />
+										<Divider />
+									</Fragment>
 								))}
 							</div>
 						) : (

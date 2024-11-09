@@ -1,5 +1,5 @@
 import { Await, useLoaderData } from "@remix-run/react";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 
 import { Divider, Spinner } from "~/components";
 
@@ -17,10 +17,10 @@ export function EventList() {
 						Array.isArray(events) && events.length > 0 ? (
 							<div className="flex flex-col gap-1 py-5">
 								{events.map((event) => (
-									<>
-										<EventCard key={`${event.eventId}-card`} event={event} />
-										<Divider key={`${event.eventId}-divider`} />
-									</>
+									<Fragment key={event.eventId}>
+										<EventCard event={event} />
+										<Divider />
+									</Fragment>
 								))}
 							</div>
 						) : (

@@ -1,5 +1,5 @@
 import { Await, useLoaderData } from "@remix-run/react";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 
 import { Divider, Spinner } from "~/components";
 
@@ -17,13 +17,10 @@ export function PaymentUserList() {
 						Array.isArray(payments) && payments.length > 0 ? (
 							<div className="flex flex-col gap-8 py-5">
 								{payments.map((payment) => (
-									<>
-										<PaymentUserCard
-											key={`${payment.user.userId}-card`}
-											paymentUser={payment}
-										/>
-										<Divider key={`${payment.user.userId}-divider`} />
-									</>
+									<Fragment key={payment.user.userId}>
+										<PaymentUserCard paymentUser={payment} />
+										<Divider />
+									</Fragment>
 								))}
 							</div>
 						) : (

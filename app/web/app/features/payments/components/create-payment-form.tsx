@@ -3,7 +3,6 @@ import {
 	getInputProps,
 	getSelectProps,
 	useForm,
-	useInputControl,
 } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { Form, useNavigation } from "@remix-run/react";
@@ -35,7 +34,6 @@ export function CreatePaymentForm({ paymentUsers }: Props) {
 		},
 	});
 
-	const { change } = useInputControl(paidAt);
 	const { state } = useNavigation();
 
 	const paidToId = useId();
@@ -86,7 +84,10 @@ export function CreatePaymentForm({ paymentUsers }: Props) {
 				<ErrorText>{paidTo.errors?.toString()}</ErrorText>
 			</div>
 			<div className="w-full flex flex-col gap-2">
-				<Label htmlFor={amountId}>返済額</Label>
+				<Label htmlFor={amountId}>
+					返済額
+					<RequirementBadge>※必須</RequirementBadge>
+				</Label>
 				<Input
 					{...getInputProps(amount, { type: "number" })}
 					data-1p-ignore

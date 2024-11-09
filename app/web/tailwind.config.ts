@@ -83,6 +83,7 @@ const config = {
 	},
 	plugins: [
 		require("tailwindcss-animate"),
+		require("tailwindcss-react-aria-components"),
 		require("@digital-go-jp/tailwind-theme-plugin"),
 	],
 } satisfies Config;

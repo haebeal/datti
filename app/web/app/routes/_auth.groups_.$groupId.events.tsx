@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "@remix-run/react";
 import { Button } from "~/components";
 
 import { EventList } from "~/features/events/components";
-export { createEventAction as action } from "~/features/events/actions";
+export { deleteEventAction as action } from "~/features/events/actions";
 export { eventListLoader as loader } from "~/features/events/loaders";
 
 export const meta: MetaFunction = () => [
@@ -13,8 +13,8 @@ export const meta: MetaFunction = () => [
 ];
 
 export default function GroupEvents() {
-	const { pathname } = useLocation();
 	const navigate = useNavigate();
+	const { pathname } = useLocation();
 
 	return (
 		<div className="flex flex-col py-3 gap-3">

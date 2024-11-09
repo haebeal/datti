@@ -6,30 +6,19 @@ import {
 	useInputControl,
 } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import { CalendarIcon } from "@radix-ui/react-icons";
-import { PopoverClose } from "@radix-ui/react-popover";
 import { Form, useNavigation } from "@remix-run/react";
-import { format } from "date-fns";
 import { useId } from "react";
 
 import type { PaymentUser } from "~/api/@types";
-import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "~/components/ui/popover";
-import {
+	Button,
+	DatePicker,
+	ErrorText,
+	Input,
+	Label,
+	RequirementBadge,
 	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "~/components/ui/select";
-import { cn } from "~/lib/utils";
+} from "~/components";
 
 import { createPaymentSchema as schema } from "../schemas";
 
@@ -57,77 +46,62 @@ export function CreatePaymentForm({ paymentUsers }: Props) {
 		<Form
 			{...getFormProps(form)}
 			method="post"
-			className="flex flex-col gap-8 items-center col-span-4"
+			className="w-full flex flex-col gap-8 items-center col-span-4"
 		>
-			<div className="w-full">
-				<Label htmlFor={paidToId}>返済日</Label>
-				<Popover>
-					<PopoverTrigger asChild>
-						<Button
-							// biome-ignore lint:
-							role="combobox"
-							variant="outline"
-							id={paidAtId}
-							className={cn(
-								"w-full pl-3 text-left font-normal",
-								!paidAt.value && "text-muted-foreground",
-							)}
-							disabled={state !== "idle"}
-						>
-							{paidAt.value ? (
-								format(paidAt.value, "yyyy/MM/dd")
-							) : (
-								<span>日付を選択してください</span>
-							)}
-							<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-						</Button>
-					</PopoverTrigger>
-					<PopoverContent className="w-auto p-0" align="start">
-						<PopoverClose>
-							<Calendar
-								mode="single"
-								selected={paidAt.value ? new Date(paidAt.value) : undefined}
-								onSelect={(value) => change(value?.toISOString())}
-								initialFocus
-							/>
-						</PopoverClose>
-					</PopoverContent>
-				</Popover>
-				<p>{paidAt.errors?.toString()}</p>
+			<div className="w-full flex flex-col gap-2">
+				<Label htmlFor={paidAtId}>
+					返済日
+					<RequirementBadge>※必須</RequirementBadge>
+				</Label>
+				<DatePicker
+					{...getInputProps(paidAt, { type: "text" })}
+					data-1p-ignore
+					placeholder="返済日を選択"
+					disabled={state !== "idle"}
+					isError={paidAt.errors !== undefined}
+					id={paidAtId}
+				/>
+				<ErrorText>{paidAt.errors?.toString()}</ErrorText>
 			</div>
 			<div className="w-full">
-				<Label htmlFor={paidToId}>返済対象ユーザー</Label>
+				<Label htmlFor={paidToId}>
+					返済する人
+					<RequirementBadge>※必須</RequirementBadge>
+				</Label>
 				<Select
 					{...getSelectProps(paidTo)}
-					defaultValue={paidTo.value}
+					isError={paidTo.errors !== undefined}
 					disabled={state !== "idle"}
+					id={paidToId}
 				>
-					<SelectTrigger>
-						<SelectValue placeholder="ユーザーを選択" />
-					</SelectTrigger>
-					<SelectContent>
-						{paymentUsers.map(({ user }) => (
-							<SelectItem key={user.userId} value={user.userId}>
-								{user.name}
-							</SelectItem>
-						))}
-					</SelectContent>
+					<option hidden value="">
+						ユーザーを選択
+					</option>
+					{paymentUsers.map(({ user }) => (
+						<option key={user.userId} value={user.userId}>
+							{user.name}
+						</option>
+					))}
 				</Select>
-				<p>{paidTo.errors?.toString()}</p>
+				<ErrorText>{paidTo.errors?.toString()}</ErrorText>
 			</div>
-			<div className="w-full">
+			<div className="w-full flex flex-col gap-2">
 				<Label htmlFor={amountId}>返済額</Label>
 				<Input
 					{...getInputProps(amount, { type: "number" })}
+					data-1p-ignore
 					placeholder="支払額を入力"
 					disabled={state !== "idle"}
+					isError={amount.errors !== undefined}
 					id={amountId}
 				/>
-				<p>{amount.errors?.toString()}</p>
+				<ErrorText>{amount.errors?.toString()}</ErrorText>
 			</div>
 			<Button
 				type="submit"
-				className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
+				size="md"
+				variant="solid-fill"
+				className="w-full"
 				disabled={state !== "idle"}
 			>
 				作成

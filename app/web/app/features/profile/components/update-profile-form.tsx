@@ -2,12 +2,9 @@ import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useId } from "react";
-import type { User } from "~/api/@types";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+import type { User } from "~/api/@types";
+import { Button, ErrorText, Input, Label } from "~/components";
 
 import type { UpdateProfileAction } from "~/features/profile/actions";
 import { updateProfileSchema as schema } from "~/features/profile/schemas";
@@ -36,16 +33,17 @@ export function UpdateProfileForm({ defaultValue }: Props) {
 		<Form
 			method="post"
 			{...getFormProps(form)}
-			className="grid grid-cols-5 px-4 gap-3"
+			className="grid grid-cols-5 gap-8 md:gap-3"
 		>
-			<div className="col-span-5 md:col-span-2 grid place-content-center max-h-80 py-10">
-				<Avatar className="w-40 h-40 md:w-60 md:h-60 border border-gray-200 hover:cursor-pointer">
-					<AvatarImage src={photoUrl.value} />
-					<AvatarFallback>{name.value}</AvatarFallback>
-				</Avatar>
+			<div className="col-span-5 md:col-span-2 grid place-content-center max-h-80 md:py-10">
+				<img
+					aria-label={`${defaultValue?.name}-avator`}
+					src={photoUrl.value}
+					className="w-40 h-40 md:w-60 md:h-60 rounded-full border border-gray-200 hover:cursor-pointer"
+				/>
 			</div>
 			<div className="flex flex-col gap-8 items-center col-span-5 md:col-span-3">
-				<div className="w-full">
+				<div className="w-full flex flex-col gap-2">
 					<Label htmlFor={emailId}>メールアドレス</Label>
 					<Input
 						defaultValue={defaultValue?.email}
@@ -55,32 +53,36 @@ export function UpdateProfileForm({ defaultValue }: Props) {
 						placeholder="datti@example.com"
 					/>
 				</div>
-				<div className="w-full">
-					<Label htmlFor={photoUrlId}>プロフィール画像</Label>
-					<Input
-						{...getInputProps(photoUrl, { type: "text" })}
-						data-1p-ignore
-						id={photoUrlId}
-						disabled={state !== "idle"}
-						placeholder="プロフィール画像のURLを入力"
-					/>
-					<p>{photoUrl.errors?.toString()}</p>
-				</div>
-				<div className="w-full">
+				<div className="w-full flex flex-col gap-2">
 					<Label htmlFor={nameId}>ユーザー名</Label>
 					<Input
 						{...getInputProps(name, { type: "text" })}
 						data-1p-ignore
-						id={nameId}
-						disabled={state !== "idle"}
 						placeholder="ユーザー名を入力"
+						disabled={state !== "idle"}
+						isError={name.errors !== undefined}
+						id={nameId}
 					/>
-					<p>{name.errors?.toString()}</p>
+					<ErrorText>{name.errors?.toString()}</ErrorText>
+				</div>
+				<div className="w-full flex flex-col gap-2">
+					<Label htmlFor={photoUrlId}>プロフィール画像</Label>
+					<Input
+						{...getInputProps(photoUrl, { type: "text" })}
+						data-1p-ignore
+						placeholder="プロフィール画像のURLを入力"
+						disabled={state !== "idle"}
+						isError={photoUrl.errors !== undefined}
+						id={photoUrlId}
+					/>
+					<ErrorText>{photoUrl.errors?.toString()}</ErrorText>
 				</div>
 				<Button
+					variant="solid-fill"
+					size="md"
 					type="submit"
-					className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
-					disabled={state !== "idle"}
+					className="w-full"
+					aria-disabled={state !== "idle"}
 				>
 					更新
 				</Button>

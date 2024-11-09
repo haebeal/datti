@@ -1,6 +1,6 @@
 import { Outlet, Link as RouterLink } from "@remix-run/react";
 
-import { SideMenu } from "~/components";
+import { MobileMenu, SideMenu } from "~/components";
 
 export { profileLoader as loader } from "~/features/profile/loaders";
 
@@ -21,6 +21,7 @@ export default function Auth() {
 			<div className="col-span-12 md:col-span-9">
 				<Outlet />
 			</div>
+			<MobileMenu />
 		</div>
 	);
 }

@@ -1,43 +1,33 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { Link, Outlet, useActionData } from "@remix-run/react";
-import { useEffect } from "react";
-import { Button } from "~/components/ui/button";
-import { useToast } from "~/components/ui/use-toast";
+import { useNavigate } from "@remix-run/react";
 
-import type { CreatePaymentSchema } from "~/features/payments/actions";
+import { Button } from "~/components";
+
 import { PaymentList } from "~/features/payments/components";
 export { createPaymentAction as action } from "~/features/payments/actions";
 export { paymentListLoader as loader } from "~/features/payments/loaders";
 
 export const meta: MetaFunction = () => [
-	{ title: "Datti | 返済作成" },
+	{ title: "Datti | 返済履歴" },
 	{ name: "description", content: "誰にいくら払ったっけ？を記録するサービス" },
 ];
 
-export default function Group() {
-	const { toast } = useToast();
-
-	const actionData = useActionData<CreatePaymentSchema>();
-	useEffect(() => {
-		if (actionData) {
-			toast({
-				title: actionData.message,
-			});
-		}
-	}, [actionData, toast]);
+export default function PaymentsHistory() {
+	const navigate = useNavigate();
 
 	return (
-		<div className="flex flex-col py-3 gap-7">
-			<div className="flex items-center justify-between">
-				<h1 className="font-bold text-2xl">返済一覧</h1>
-				<Button className="bg-sky-500 hover:bg-sky-600 font-semibold">
-					<Link to="/payments/create">返済作成</Link>
+		<div className="flex flex-col gap-7">
+			<div className="flex flex-col md:flex-row gap-5 justify-between md:py-5 px-3">
+				<h1 className="text-std-32N-150">返済履歴</h1>
+				<Button
+					size="md"
+					onClick={() => navigate("/payments/create")}
+					variant="solid-fill"
+				>
+					返済登録
 				</Button>
 			</div>
-			<div className="rounded-lg bg-white py-3 px-5">
-				<PaymentList />
-			</div>
-			<Outlet />
+			<PaymentList />
 		</div>
 	);
 }

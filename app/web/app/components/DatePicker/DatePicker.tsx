@@ -36,6 +36,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
 		const {
 			className,
 			defaultValue,
+			placeholder,
 			readOnly,
 			isError,
 			blockSize = "lg",
@@ -71,7 +72,11 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
 					onClick={() => setOpen(true)}
 					onTouchStart={() => setOpen(true)}
 				>
-					<p>{value?.toString()}</p>
+					{value ? (
+						<p>{value.toString()}</p>
+					) : (
+						<p className="text-gray-400">{placeholder}</p>
+					)}
 					<input
 						{...rest}
 						value={value?.toDate("Asia/Tokyo").toISOString()}

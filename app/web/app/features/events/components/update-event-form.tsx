@@ -101,6 +101,7 @@ export function UpdateEventForm({ defaultValue, members }: Props) {
 					<DatePicker
 						{...getInputProps(eventedAt, { type: "text" })}
 						data-1p-ignore
+						placeholder="イベント日を選択"
 						disabled={state !== "idle"}
 						isError={name.errors !== undefined}
 						id={eventedAtId}

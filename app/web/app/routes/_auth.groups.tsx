@@ -40,7 +40,7 @@ export default function Group() {
 
 	return (
 		<div className="flex flex-col gap-7">
-			<div className="flex flex-row items-center justify-between py-5 px-3">
+			<div className="flex flex-col md:flex-row gap-5 justify-between md:py-5 px-3">
 				<h1 className="text-std-32N-150">グループ一覧</h1>
 				<Button
 					size="md"

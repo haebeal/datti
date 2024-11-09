@@ -7,11 +7,11 @@ export { profileLoader as loader } from "~/features/profile/loaders";
 export default function Auth() {
 	return (
 		<div className="grid grid-cols-12 justify-center container gap-6">
-			<header className="col-span-12 my-5">
+			<header className="col-span-12 mt-3 md:my-5">
 				<RouterLink to="/" className="text-std-20N-150">
 					Datti
 				</RouterLink>
-				<p className="text-std-16N-170">
+				<p className="text-std-16N-170 hidden md:block">
 					誰にいくら払ったっけ？を記録するサービス
 				</p>
 			</header>

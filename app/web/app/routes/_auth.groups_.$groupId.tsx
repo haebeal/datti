@@ -27,7 +27,7 @@ export default function GroupDetail() {
 
 	return (
 		<div className="flex flex-col gap-7">
-			<div className="flex flex-row items-center justify-between py-5 px-3">
+			<div className="flex flex-col md:flex-row gap-5 justify-between md:py-5 px-3">
 				<Suspense
 					fallback={<div className="animate-pulse bg-slate-200 h-12 w-full" />}
 				>

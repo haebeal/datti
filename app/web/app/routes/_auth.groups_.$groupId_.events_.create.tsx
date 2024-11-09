@@ -1,5 +1,11 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { Await, useActionData, useLoaderData } from "@remix-run/react";
+import {
+	Await,
+	useActionData,
+	useLoaderData,
+	useLocation,
+	useNavigate,
+} from "@remix-run/react";
 import { Suspense, useEffect } from "react";
 
 import { Spinner } from "~/components";
@@ -18,6 +24,8 @@ export const meta: MetaFunction = () => [
 
 export default function EventDetail() {
 	const { toast } = useToast();
+	const { pathname } = useLocation();
+	const navigate = useNavigate();
 
 	const { members } = useLoaderData<createEventLoader>();
 	const actionData = useActionData<UpdateEventAction>();
@@ -26,8 +34,9 @@ export default function EventDetail() {
 			toast({
 				title: actionData.message,
 			});
+			navigate(pathname.slice(0, -7));
 		}
-	}, [actionData, toast]);
+	}, [actionData, pathname, toast, navigate]);
 
 	return (
 		<div className="flex flex-col gap-7">

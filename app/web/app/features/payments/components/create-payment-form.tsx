@@ -61,9 +61,9 @@ export function CreatePaymentForm({ paymentUsers }: Props) {
 				/>
 				<ErrorText>{paidAt.errors?.toString()}</ErrorText>
 			</div>
-			<div className="w-full">
+			<div className="w-full flex flex-col gap-2">
 				<Label htmlFor={paidToId}>
-					返済する人
+					返済先
 					<RequirementBadge>※必須</RequirementBadge>
 				</Label>
 				<Select

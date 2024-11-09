@@ -7,7 +7,7 @@ import { useToast } from "~/components/ui/use-toast";
 import type { UpdateEventAction } from "~/features/events/actions";
 import { UpdateEventForm } from "~/features/events/components";
 import type { EventLoader } from "~/features/events/loaders";
-export { createEventAction as action } from "~/features/events/actions";
+export { updateEventAction as action } from "~/features/events/actions";
 export { eventLoader as loader } from "~/features/events/loaders";
 
 export const meta: MetaFunction = () => [

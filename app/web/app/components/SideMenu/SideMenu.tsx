@@ -10,7 +10,7 @@ export function SideMenu() {
 	const { profile } = useLoaderData<ProfileLoader>();
 
 	return (
-		<div className="flex flex-col gap-9 px-1">
+		<nav className="flex flex-col gap-9 px-1">
 			<div className="flex flex-row gap-3">
 				<Suspense
 					fallback={
@@ -138,6 +138,6 @@ export function SideMenu() {
 					ログアウト
 				</Button>
 			</Form>
-		</div>
+		</nav>
 	);
 }

@@ -59,24 +59,32 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
 					setOpen(false);
 				}}
 			>
-				<Group
-					className={`
-						flex items-center justify-between p-1
-						min-w-80 max-w-full rounded-lg border bg-white px-4 py-3 text-oln-16N-100 text-solid-gray-800
-						aria-disabled:border-solid-gray-300 aria-disabled:bg-solid-gray-50 aria-disabled:text-solid-gray-420 aria-disabled:pointer-events-none aria-disabled:forced-colors:text-[GrayText] aria-disabled:forced-colors:border-[GrayText]
-						${InputBlockSizeStyle[blockSize]}
-						${isError ? "border-error-1" : "border-solid-gray-900"}
-						focus:outline focus:outline-4 focus:outline-black focus:outline-offset-[calc(2/16*1rem)] focus:ring-[calc(2/16*1rem)] focus:ring-yellow-300
-						${className ?? ""}
-					`}
-					onClick={() => setOpen(true)}
-					onTouchStart={() => setOpen(true)}
-				>
-					{value ? (
-						<p>{value.toString()}</p>
-					) : (
-						<p className="text-gray-400">{placeholder}</p>
-					)}
+				<Group>
+					<div
+						onClick={() => setOpen(true)}
+						onTouchStart={() => setOpen(true)}
+						onKeyDown={(e) => {
+							if (e.code === "Space") setOpen(true);
+							else if (e.code === "Escape") e.currentTarget.blur();
+						}}
+						className={`
+							flex items-center justify-between p-1
+							min-w-80 max-w-full rounded-lg border bg-white px-4 py-3 text-oln-16N-100 text-solid-gray-800
+							aria-disabled:border-solid-gray-300 aria-disabled:bg-solid-gray-50 aria-disabled:text-solid-gray-420 aria-disabled:pointer-events-none aria-disabled:forced-colors:text-[GrayText] aria-disabled:forced-colors:border-[GrayText]
+							${InputBlockSizeStyle[blockSize]}
+							${isError ? "border-error-1" : "border-solid-gray-900"}
+							focus:outline focus:outline-4 focus:outline-black focus:outline-offset-[calc(2/16*1rem)] focus:ring-[calc(2/16*1rem)] focus:ring-yellow-300
+							${className ?? ""}
+						`}
+						// biome-ignore lint/a11y/noNoninteractiveTabindex: <explanation>
+						tabIndex={0}
+					>
+						{value ? (
+							<p>{value.toString()}</p>
+						) : (
+							<p className="text-gray-400">{placeholder}</p>
+						)}
+					</div>
 					<input
 						{...rest}
 						value={value?.toDate("Asia/Tokyo").toISOString()}

@@ -24,8 +24,8 @@ export function GroupList() {
 								))}
 							</div>
 						) : (
-							<div className="w-full min-h-[60vh] grid place-content-center">
-								<h2 className="font-std-24N-150 text-center">
+							<div className="w-full">
+								<h2 className="mt-20 text-std-24N-150 text-center">
 									グループに参加していません
 								</h2>
 							</div>

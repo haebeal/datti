@@ -27,9 +27,9 @@ export function PaymentUserList() {
 								))}
 							</div>
 						) : (
-							<div className="w-full min-h-[60vh] grid place-content-center">
-								<h2 className="text-std-24N-150 text-2xl text-center">
-									返済は存在しません
+							<div className="w-full">
+								<h2 className="mt-36 text-std-24N-150 text-center">
+									現在の返済はありません
 								</h2>
 							</div>
 						)

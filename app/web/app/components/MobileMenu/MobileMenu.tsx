@@ -4,7 +4,7 @@ import { cn } from "~/lib/utils";
 
 export function MobileMenu() {
 	return (
-		<nav className="md:hidden bg-white border-t-2 py-3 left-0 bottom-0 w-screen fixed flex flex-row justify-around">
+		<nav className="bg-white border-t-2 py-3 left-0 bottom-0 w-screen fixed flex flex-row justify-around">
 			<NavLink
 				to="/"
 				className={({ isActive }) =>

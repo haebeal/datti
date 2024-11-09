@@ -18,10 +18,12 @@ export default function Auth() {
 			<div className="hidden md:flex col-span-3 flex-col my-10">
 				<SideMenu />
 			</div>
-			<div className="col-span-12 md:col-span-9 mb-20">
+			<div className="col-span-12 md:col-span-9 mb-22 md:mb-20">
 				<Outlet />
 			</div>
-			<MobileMenu />
+			<div className="md:hidden">
+				<MobileMenu />
+			</div>
 		</div>
 	);
 }

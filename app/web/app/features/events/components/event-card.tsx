@@ -1,11 +1,13 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import { Form, Link, useLocation } from "@remix-run/react";
+import { Form, Link, useActionData, useLocation } from "@remix-run/react";
+import { useEffect, useRef } from "react";
+
 import type { EventEndpoints_EventResponse } from "~/api/@types";
-
 import { Button, Dialog, DialogBody } from "~/components";
+import { useToast } from "~/components/ui/use-toast";
 
-import { useRef } from "react";
+import type { DeleteEventAction } from "~/features/events/actions";
 import { deleteEventSchema as schema } from "../schemas";
 
 interface Props {
@@ -13,6 +15,7 @@ interface Props {
 }
 
 export function EventCard({ event }: Props) {
+	const { toast } = useToast();
 	const { pathname } = useLocation();
 
 	const dialogRef = useRef<HTMLDialogElement>(null);
@@ -25,6 +28,16 @@ export function EventCard({ event }: Props) {
 			});
 		},
 	});
+
+	const actionData = useActionData<DeleteEventAction>();
+	useEffect(() => {
+		if (actionData) {
+			toast({
+				title: actionData.message,
+			});
+			dialogRef.current?.close();
+		}
+	}, [actionData, toast]);
 
 	return (
 		<>

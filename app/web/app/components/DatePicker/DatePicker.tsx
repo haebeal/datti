@@ -68,6 +68,7 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
 						${className ?? ""}
 					`}
 					onClick={() => setOpen(true)}
+					onTouchStart={() => setOpen(true)}
 				>
 					<p>{value?.toString()}</p>
 					<input

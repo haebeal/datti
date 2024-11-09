@@ -6,6 +6,8 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "@remix-run/react";
+
+import { MobileMenu } from "~/components";
 import { Toaster } from "~/components/ui/toaster";
 
 import stylesheet from "~/globals.css?url";
@@ -36,6 +38,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 				<Toaster />
 				<ScrollRestoration />
 				<Scripts />
+				<MobileMenu />
 			</body>
 		</html>
 	);

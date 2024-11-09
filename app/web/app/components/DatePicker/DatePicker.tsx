@@ -32,7 +32,7 @@ export type DatePickerProps = ComponentProps<"input"> & {
 };
 
 export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
-	(props) => {
+	(props, ref) => {
 		const {
 			className,
 			defaultValue,
@@ -47,13 +47,13 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
 		const [value, setValue] = useState(
 			typeof defaultValue === "string"
 				? parseDate(new Date(defaultValue).toLocaleDateString("sv-SE"))
-				: undefined,
+				: null,
 		);
 
 		return (
 			<AriaDatePicker
 				value={value}
-				aria-labelledby={props["aria-labelledby"]}
+				aria-labelledby={props.id}
 				onChange={(value) => {
 					setValue(value);
 					setOpen(false);
@@ -87,7 +87,8 @@ export const DatePicker = forwardRef<HTMLInputElement, DatePickerProps>(
 					</div>
 					<input
 						{...rest}
-						value={value?.toDate("Asia/Tokyo").toISOString()}
+						ref={ref}
+						value={value?.toDate("Asia/Tokyo").toISOString() ?? ""}
 						type="hidden"
 					/>
 				</Group>

@@ -9,15 +9,27 @@ export const createEventSchema = z.object<
 	ToZod<EventEndpoints_EventPostRequest>
 >({
 	name: z.string({
-		required_error: "名前を入力してください",
+		required_error: "必須項目です",
 	}),
-	eventedAt: z.string().datetime(),
-	paidBy: z.string(),
-	amount: z.number(),
+	eventedAt: z
+		.string({
+			required_error: "必須項目です",
+		})
+		.datetime(),
+	paidBy: z.string({
+		required_error: "必須項目です",
+	}),
+	amount: z.number({
+		required_error: "必須項目です",
+	}),
 	payments: z.array(
 		z.object({
-			paidTo: z.string(),
-			amount: z.number(),
+			paidTo: z.string({
+				required_error: "必須項目です",
+			}),
+			amount: z.number({
+				required_error: "必須項目です",
+			}),
 		}),
 	),
 });
@@ -26,16 +38,28 @@ export const updateEventSchema = z.object<
 	ToZod<EventEndpoints_EventPutRequest>
 >({
 	name: z.string({
-		required_error: "名前を入力してください",
+		required_error: "必須項目です",
 	}),
-	eventedAt: z.string().datetime(),
-	paidBy: z.string(),
-	amount: z.number(),
+	eventedAt: z
+		.string({
+			required_error: "必須項目です",
+		})
+		.datetime(),
+	paidBy: z.string({
+		required_error: "必須項目です",
+	}),
+	amount: z.number({
+		required_error: "必須項目です",
+	}),
 	payments: z.array(
 		z.object({
 			paymentId: z.string().optional(),
-			paidTo: z.string(),
-			amount: z.number(),
+			paidTo: z.string({
+				required_error: "必須項目です",
+			}),
+			amount: z.number({
+				required_error: "必須項目です",
+			}),
 		}),
 	),
 });

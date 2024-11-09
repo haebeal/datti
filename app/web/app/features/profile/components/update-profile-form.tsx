@@ -4,7 +4,13 @@ import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useId } from "react";
 
 import type { User } from "~/api/@types";
-import { Button, ErrorText, Input, Label } from "~/components";
+import {
+	Button,
+	ErrorText,
+	Input,
+	Label,
+	RequirementBadge,
+} from "~/components";
 
 import type { UpdateProfileAction } from "~/features/profile/actions";
 import { updateProfileSchema as schema } from "~/features/profile/schemas";
@@ -54,7 +60,10 @@ export function UpdateProfileForm({ defaultValue }: Props) {
 					/>
 				</div>
 				<div className="w-full flex flex-col gap-2">
-					<Label htmlFor={nameId}>ユーザー名</Label>
+					<Label htmlFor={nameId}>
+						ユーザー名
+						<RequirementBadge>※必須</RequirementBadge>
+					</Label>
 					<Input
 						{...getInputProps(name, { type: "text" })}
 						data-1p-ignore
@@ -66,7 +75,10 @@ export function UpdateProfileForm({ defaultValue }: Props) {
 					<ErrorText>{name.errors?.toString()}</ErrorText>
 				</div>
 				<div className="w-full flex flex-col gap-2">
-					<Label htmlFor={photoUrlId}>プロフィール画像</Label>
+					<Label htmlFor={photoUrlId}>
+						プロフィール画像
+						<RequirementBadge>※必須</RequirementBadge>
+					</Label>
 					<Input
 						{...getInputProps(photoUrl, { type: "text" })}
 						data-1p-ignore

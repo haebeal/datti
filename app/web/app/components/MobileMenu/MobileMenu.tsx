@@ -8,20 +8,18 @@ export function MobileMenu() {
 			<NavLink
 				to="/"
 				className={({ isActive }) =>
-					cn("flex flex-col items-center gap-1", isActive && "text-blue-900")
+					cn("flex flex-col items-center", isActive && "text-blue-900")
 				}
 			>
 				{({ isActive }) => (
 					<>
-						<span
-							className={cn("px-3 py-1 rounded-2xl", isActive && "bg-blue-50")}
-						>
+						<span className={cn("px-3 rounded-2xl", isActive && "bg-blue-50")}>
 							<svg
 								role="img"
 								aria-label="ホームアイコン"
 								xmlns="http://www.w3.org/2000/svg"
-								height="32px"
-								width="32px"
+								height="28px"
+								width="28px"
 								viewBox="0 -960 960 960"
 								className={isActive ? "fill-blue-900" : "fill-black"}
 							>
@@ -35,20 +33,18 @@ export function MobileMenu() {
 			<NavLink
 				to="/groups"
 				className={({ isActive }) =>
-					cn("flex flex-col items-center gap-1", isActive && "text-blue-900")
+					cn("flex flex-col items-center", isActive && "text-blue-900")
 				}
 			>
 				{({ isActive }) => (
 					<>
-						<span
-							className={cn("px-3 py-1 rounded-2xl", isActive && "bg-blue-50")}
-						>
+						<span className={cn("px-3 rounded-2xl", isActive && "bg-blue-50")}>
 							<svg
 								role="img"
 								aria-label="グループアイコン"
 								xmlns="http://www.w3.org/2000/svg"
-								height="32px"
-								width="32px"
+								height="28px"
+								width="28px"
 								viewBox="0 -960 960 960"
 								className={isActive ? "fill-blue-900" : "fill-black"}
 							>
@@ -62,20 +58,18 @@ export function MobileMenu() {
 			<NavLink
 				to="/payments"
 				className={({ isActive }) =>
-					cn("flex flex-col items-center gap-1", isActive && "text-blue-900")
+					cn("flex flex-col items-center", isActive && "text-blue-900")
 				}
 			>
 				{({ isActive }) => (
 					<>
-						<span
-							className={cn("px-3 py-1 rounded-2xl", isActive && "bg-blue-50")}
-						>
+						<span className={cn("px-3 rounded-2xl", isActive && "bg-blue-50")}>
 							<svg
 								role="img"
 								aria-label="返済アイコン"
 								xmlns="http://www.w3.org/2000/svg"
-								height="32px"
-								width="32px"
+								height="28px"
+								width="28px"
 								viewBox="0 -960 960 960"
 								className={isActive ? "fill-blue-900" : "fill-black"}
 							>
@@ -89,20 +83,18 @@ export function MobileMenu() {
 			<NavLink
 				to="/setting"
 				className={({ isActive }) =>
-					cn("flex flex-col items-center gap-1", isActive && "text-blue-900")
+					cn("flex flex-col items-center", isActive && "text-blue-900")
 				}
 			>
 				{({ isActive }) => (
 					<>
-						<span
-							className={cn("px-3 py-1 rounded-2xl", isActive && "bg-blue-50")}
-						>
+						<span className={cn("px-3 rounded-2xl", isActive && "bg-blue-50")}>
 							<svg
 								role="img"
 								aria-label="設定アイコン"
 								xmlns="http://www.w3.org/2000/svg"
-								height="32px"
-								width="32px"
+								height="28px"
+								width="28px"
 								viewBox="0 -960 960 960"
 								className={isActive ? "fill-blue-900" : "fill-black"}
 							>

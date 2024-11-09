@@ -1,9 +1,7 @@
 import { Form, useLocation, useNavigation } from "@remix-run/react";
 import { useId } from "react";
 
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+import { Button, Input, Label } from "~/components";
 
 import { AddMemberList } from "./add-member-list";
 
@@ -29,17 +27,16 @@ export function AddMemberForm() {
 						/>
 					</div>
 					<Button
+						size="md"
+						variant="solid-fill"
 						type="submit"
-						className="bg-sky-500 hover:bg-sky-600  font-semibold"
 						disabled={state !== "idle"}
 					>
 						検索
 					</Button>
 				</div>
 			</Form>
-			<div className="flex flex-col gap-3 w-full h-80 overflow-y-auto">
-				<AddMemberList />
-			</div>
+			<AddMemberList />
 		</div>
 	);
 }

@@ -1,8 +1,8 @@
 import { Form, useNavigation } from "@remix-run/react";
-import type { User } from "~/api/@types";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/components";
+
+import type { User } from "~/api/@types";
 
 interface Props {
 	user: User;
@@ -10,19 +10,22 @@ interface Props {
 
 export function AddMemberCard({ user }: Props) {
 	const { state } = useNavigation();
-
 	return (
-		<div className="flex flex-row w-full bg-white px-6 py-3 gap-5 items-center rounded-md border border-gray-200">
-			<Avatar className="border h-10 w-10 border-gray-200">
-				<AvatarImage src={user.photoUrl} />
-				<AvatarFallback>{user.name} photo</AvatarFallback>
-			</Avatar>
-			<h1 className="font-bold mr-auto">{user.name}</h1>
+		<div className="flex flex-row gap-5 items-center">
+			<img
+				src={user.photoUrl}
+				aria-label={`${user.name} photo`}
+				className="rounded-full h-14 w-14"
+			/>
+			<p className="flex md:flex-row flex-col items-start md:items-center flex-1 px-10">
+				<span className="text-std-18N-160">{user.name}</span>
+			</p>
 			<Form method="post">
 				<input readOnly type="hidden" name="userId" value={user.userId} />
 				<Button
+					size="sm"
+					variant="solid-fill"
 					disabled={state !== "idle"}
-					className="font-semibold bg-sky-500 hover:bg-sky-600"
 					type="submit"
 				>
 					追加

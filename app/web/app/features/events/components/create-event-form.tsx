@@ -7,10 +7,12 @@ import {
 import { parseWithZod } from "@conform-to/zod";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
 import { useId } from "react";
+
 import type { EventEndpoints_EventPostRequest, Member } from "~/api/@types";
 
 import {
 	Button,
+	DatePicker,
 	ErrorText,
 	Input,
 	Label,
@@ -75,17 +77,16 @@ export function CreateEventForm({ defaultValue, members }: Props) {
 					イベント日
 					<RequirementBadge>※必須</RequirementBadge>
 				</Label>
-				<Input
-					{...getInputProps(eventedAt, { type: "date" })}
+				<DatePicker
+					{...getInputProps(eventedAt, { type: "text" })}
 					data-1p-ignore
-					placeholder="イベント日を入力"
 					disabled={state !== "idle"}
 					isError={name.errors !== undefined}
-					id={nameId}
+					id={eventedAtId}
 				/>
 				<ErrorText>{eventedAt.errors?.toString()}</ErrorText>
 			</div>
-			<div className="w-full">
+			<div className="w-full flex flex-col gap-2">
 				<Label htmlFor={paidById}>
 					支払った人
 					<RequirementBadge>※必須</RequirementBadge>

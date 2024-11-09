@@ -12,6 +12,7 @@ import { useEffect, useId } from "react";
 import type { EventEndpoints_EventPutRequest, Member } from "~/api/@types";
 import {
 	Button,
+	DatePicker,
 	ErrorText,
 	Input,
 	Label,
@@ -97,17 +98,16 @@ export function UpdateEventForm({ defaultValue, members }: Props) {
 						イベント日
 						<RequirementBadge>※必須</RequirementBadge>
 					</Label>
-					<Input
-						{...getInputProps(eventedAt, { type: "datetime-local" })}
+					<DatePicker
+						{...getInputProps(eventedAt, { type: "text" })}
 						data-1p-ignore
-						placeholder="イベント日を入力"
 						disabled={state !== "idle"}
 						isError={name.errors !== undefined}
-						id={nameId}
+						id={eventedAtId}
 					/>
 					<ErrorText>{eventedAt.errors?.toString()}</ErrorText>
 				</div>
-				<div className="w-full">
+				<div className="w-full flex flex-col gap-2">
 					<Label htmlFor={paidById}>
 						支払った人
 						<RequirementBadge>※必須</RequirementBadge>
@@ -137,6 +137,7 @@ export function UpdateEventForm({ defaultValue, members }: Props) {
 							}, 250);
 						}}
 						disabled={state !== "idle"}
+						id={paidById}
 					>
 						<option hidden value="">
 							ユーザーを選択
@@ -185,7 +186,7 @@ export function UpdateEventForm({ defaultValue, members }: Props) {
 				</div>
 				{paymentFields.map((payment) => (
 					<div key={payment.id} className="w-full flex flex-col gap-2">
-						<Label>
+						<Label htmlFor={payment.formId}>
 							{
 								members.find(
 									({ userId }) => userId === payment.getFieldset().paidTo.value,
@@ -206,6 +207,7 @@ export function UpdateEventForm({ defaultValue, members }: Props) {
 							placeholder="立替金額を入力"
 							isError={payment.getFieldset().amount.errors !== undefined}
 							disabled={state !== "idle"}
+							id={payment.formId}
 						/>
 						<ErrorText>
 							{payment.getFieldset().amount.errors?.toString()}

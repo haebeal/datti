@@ -3,7 +3,7 @@ import { useId } from "react";
 
 import { Button, Input, Label } from "~/components";
 
-export function AddMemberForm() {
+export function SearchUserForm() {
 	const { search } = useLocation();
 	const { state } = useNavigation();
 	const searchParams = new URLSearchParams(search);

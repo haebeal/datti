@@ -1,1 +1,1 @@
-export { Dialog, DialogBody } from './Dialog';
+export { Dialog, DialogBody } from "./Dialog";

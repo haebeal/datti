@@ -1,1 +1,1 @@
-export { SupportText } from './SupportText';
+export { SupportText } from "./SupportText";

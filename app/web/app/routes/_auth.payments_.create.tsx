@@ -18,7 +18,7 @@ export { createPaymentAction as action } from "~/features/payments/actions";
 export { paymentUserListLoader as loader } from "~/features/payments/loaders";
 
 export const meta: MetaFunction = () => [
-	{ title: "Datti | 返済作成" },
+	{ title: "Datti | 返済登録" },
 	{ name: "description", content: "誰にいくら払ったっけ？を記録するサービス" },
 ];
 
@@ -41,7 +41,7 @@ export default function Group() {
 	return (
 		<div className="flex flex-col gap-7">
 			<div className="flex flex-col md:flex-row gap-5 justify-between md:py-5 px-3">
-				<h1 className="text-std-32N-150">返済作成</h1>
+				<h1 className="text-std-32N-150">返済登録</h1>
 			</div>
 			<Suspense fallback={<Spinner />}>
 				<Await resolve={paymentUsers}>

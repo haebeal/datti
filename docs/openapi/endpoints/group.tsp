@@ -73,6 +73,17 @@ namespace GroupEndpoints {
   | GroupGetResponse
   | Utils.Error.UnauthorizedError
   | Utils.Error.InternalServerError;
+
+  /**
+   * グループの削除
+   */
+  @route("/{groupId}")
+  @summary("グループ情報の削除")
+  @delete
+  op deleteGroup(@path groupId: string):
+  | Utils.Response.OKMessage
+  | Utils.Error.UnauthorizedError
+  | Utils.Error.InternalServerError;
   
   model GroupGetResponse {
     ...Group;

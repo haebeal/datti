@@ -1,8 +1,7 @@
+import type { MetaFunction } from "@remix-run/cloudflare";
 import { Form } from "@remix-run/react";
-import { Button } from "~/components/ui/button";
-import { Separator } from "~/components/ui/separator";
 
-import type { MetaFunction } from "@remix-run/node";
+import { Button, Divider } from "~/components";
 
 export const meta: MetaFunction = () => [
 	{ title: "Datti | ログイン" },
@@ -12,16 +11,18 @@ export const meta: MetaFunction = () => [
 export default function SignIn() {
 	return (
 		<div className="grid place-content-center h-screen">
-			<div className="rounded-md bg-white px-6 py-8 w-160 flex flex-col items-center gap-5">
-				<h1 className="font-bold text-5xl">Datti</h1>
-				<h2 className="text-center">
+			<div className="flex flex-col items-center gap-5">
+				<h1 className="text-std-45B-140">Datti</h1>
+				<h2 className="text-center text-std-18N-160-150">
 					誰にいくら払ったっけ？
 					<br />
 					を記録するサービス
 				</h2>
-				<Separator />
+				<Divider />
 				<Form action="/api/auth/signin" method="post">
-					<Button type="submit">Googleでログイン</Button>
+					<Button variant="solid-fill" size="md" type="submit">
+						Googleでログイン
+					</Button>
 				</Form>
 			</div>
 		</div>

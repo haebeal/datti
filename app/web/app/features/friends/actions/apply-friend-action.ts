@@ -2,7 +2,7 @@ import { HTTPError } from "@aspida/fetch";
 import { type ActionFunctionArgs, json } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
-export const createFriendAction = async ({
+export const applyFriendAction = async ({
 	request,
 	context,
 }: ActionFunctionArgs) => {
@@ -13,7 +13,7 @@ export const createFriendAction = async ({
 
 	const formData = await request.formData();
 
-	if (request.method !== "POST") {
+	if (request.method !== "POST" && request.method !== "DELETE") {
 		return json(
 			{
 				message: "許可されていないメソッドです",
@@ -39,7 +39,19 @@ export const createFriendAction = async ({
 	}
 
 	try {
-		const { message } = await client.users._userId(userId).requests.$post();
+		if (request.method === "POST") {
+			const { message } = await client.users._userId(userId).requests.$post();
+			return json(
+				{
+					message,
+					submission: undefined,
+				},
+				{
+					headers,
+				},
+			);
+		}
+		const { message } = await client.users.friends._userId(userId).$delete();
 		return json(
 			{
 				message,
@@ -66,4 +78,4 @@ export const createFriendAction = async ({
 	});
 };
 
-export type CreateFriendAction = typeof createFriendAction;
+export type ApplyFriendAction = typeof applyFriendAction;

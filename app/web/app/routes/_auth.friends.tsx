@@ -1,42 +1,18 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
 import {
+	Link,
 	NavLink,
-	useActionData,
+	Outlet,
+	useLocation,
 	useNavigate,
-	useSearchParams,
 } from "@remix-run/react";
-import { useEffect } from "react";
 
 import { Button } from "~/components";
-import { useToast } from "~/components/ui/use-toast";
 
 import { cn } from "~/lib/utils";
 
-import type { DeleteFriendAction } from "~/features/friends/actions";
-import { FriendList } from "~/features/friends/components";
-export { deleteFriendAction as action } from "~/features/friends/actions";
-export { friendListLoader as loader } from "~/features/friends/loaders";
-
-export const meta: MetaFunction = () => [
-	{ title: "Datti | フレンド一覧" },
-	{ name: "description", content: "誰にいくら払ったっけ？を記録するサービス" },
-];
-
 export default function Friend() {
-	const [searchParams] = useSearchParams();
-	const status = searchParams.get("status")?.toString();
-
-	const { toast } = useToast();
+	const { pathname } = useLocation();
 	const navigate = useNavigate();
-
-	const actionData = useActionData<DeleteFriendAction>();
-	useEffect(() => {
-		if (actionData) {
-			toast({
-				title: actionData.message,
-			});
-		}
-	}, [actionData, toast]);
 
 	return (
 		<div className="flex flex-col gap-7">
@@ -51,51 +27,36 @@ export default function Friend() {
 				</Button>
 			</div>
 			<div className="flex flex-row gap-5">
-				<NavLink
-					className={({ isActive }) =>
-						cn(
-							"text-std-18B-160",
-							isActive &&
-								(status === "requesting" || status === "applying") &&
-								"opacity-40",
-						)
-					}
+				{/* /friendsのみ完全一致である必要があるのでNavLinkは使用しない */}
+				<Link
+					className={cn(
+						"text-std-18B-160",
+						pathname !== "/friends" && "opacity-40",
+					)}
 					to={{
 						pathname: "/friends",
 					}}
 				>
 					フレンド
-				</NavLink>
+				</Link>
 				<NavLink
 					className={({ isActive }) =>
-						cn(
-							"text-std-18B-160",
-							isActive && status !== "requesting" && "opacity-40",
-						)
+						cn("text-std-18B-160", !isActive && "opacity-40")
 					}
-					to={{
-						pathname: "/friends",
-						search: "?status=requesting",
-					}}
+					to="/friends/requesting"
 				>
 					申請中
 				</NavLink>
 				<NavLink
 					className={({ isActive }) =>
-						cn(
-							"text-std-18B-160",
-							isActive && status !== "applying" && "opacity-40",
-						)
+						cn("text-std-18B-160", !isActive && "opacity-40")
 					}
-					to={{
-						pathname: "/friends",
-						search: "?status=applying",
-					}}
+					to="/friends/applying"
 				>
 					承認待ち
 				</NavLink>
 			</div>
-			<FriendList />
+			<Outlet />
 		</div>
 	);
 }

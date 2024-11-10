@@ -1,13 +1,13 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { useActionData } from "@remix-run/react";
+import { useActionData, useNavigate } from "@remix-run/react";
 import { useEffect } from "react";
 
 import { useToast } from "~/components/ui/use-toast";
 
-import type { CreateFriendAction } from "~/features/friends/actions";
+import type { RequestFriendAction } from "~/features/friends/actions";
 import { FriendRequestList } from "~/features/friends/components/friend-request-list";
 import { SearchUserForm } from "~/features/users/components";
-export { createFriendAction as action } from "~/features/friends/actions";
+export { requestFriendAction as action } from "~/features/friends/actions";
 export { friendRequestLoader as loader } from "~/features/friends/loaders";
 
 export const meta: MetaFunction = () => [
@@ -17,15 +17,17 @@ export const meta: MetaFunction = () => [
 
 export default function FriendRequest() {
 	const { toast } = useToast();
+	const navigate = useNavigate();
 
-	const actionData = useActionData<CreateFriendAction>();
+	const actionData = useActionData<RequestFriendAction>();
 	useEffect(() => {
 		if (actionData) {
 			toast({
 				title: actionData.message,
 			});
+			navigate("/friends/requesting");
 		}
-	}, [actionData, toast]);
+	}, [actionData, toast, navigate]);
 
 	return (
 		<div className="flex flex-col gap-7">

@@ -1,10 +1,5 @@
-import {
-	Await,
-	useLoaderData,
-	useLocation,
-	useNavigation,
-} from "@remix-run/react";
-import { Fragment, Suspense, useId } from "react";
+import { Await, useLoaderData } from "@remix-run/react";
+import { Fragment, Suspense } from "react";
 
 import { Divider, Spinner } from "~/components";
 
@@ -12,13 +7,6 @@ import type { FriendRequestLoader } from "../loaders";
 import { FriendRequestCard } from "./friend-request-card";
 
 export function FriendRequestList() {
-	const { search } = useLocation();
-	const { state } = useNavigation();
-	const searchParams = new URLSearchParams(search);
-
-	const status = searchParams.get("status")?.toString();
-	const searchQuery = searchParams.get("q")?.toString();
-	const searchId = useId();
 	const { users } = useLoaderData<FriendRequestLoader>();
 
 	return (

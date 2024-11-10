@@ -23,7 +23,7 @@ export function AddMemberCard({ user }: Props) {
 			<Form method="post">
 				<input readOnly type="hidden" name="userId" value={user.userId} />
 				<Button
-					size="sm"
+					size="md"
 					variant="solid-fill"
 					disabled={state !== "idle"}
 					type="submit"

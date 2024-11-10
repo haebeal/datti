@@ -3,8 +3,6 @@ import { useId } from "react";
 
 import { Button, Input, Label } from "~/components";
 
-import { AddMemberList } from "./add-member-list";
-
 export function AddMemberForm() {
 	const { search } = useLocation();
 	const { state } = useNavigation();
@@ -14,18 +12,17 @@ export function AddMemberForm() {
 	const searchId = useId();
 
 	return (
-		<div className="flex flex-col items-center p-4 gap-9">
-			<Form method="get" className="w-full">
-				<div className="w-full flex items-end gap-3">
-					<div className="grow">
-						<Label htmlFor={searchId}>検索</Label>
-						<Input
-							placeholder="メールアドレスを入力"
-							defaultValue={searchQuery}
-							name="q"
-							disabled={state !== "idle"}
-						/>
-					</div>
+		<Form method="get" className="w-full flex gap-3">
+			<div className="w-full flex flex-col gap-2">
+				<Label htmlFor={searchId}>検索</Label>
+				<div className="flex flex-row gap-3">
+					<Input
+						placeholder="メールアドレスを入力"
+						defaultValue={searchQuery}
+						name="q"
+						className="w-full"
+						disabled={state !== "idle"}
+					/>
 					<Button
 						size="md"
 						variant="solid-fill"
@@ -35,8 +32,7 @@ export function AddMemberForm() {
 						検索
 					</Button>
 				</div>
-			</Form>
-			<AddMemberList />
-		</div>
+			</div>
+		</Form>
 	);
 }

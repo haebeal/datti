@@ -3,14 +3,14 @@ import { Fragment, Suspense } from "react";
 
 import { Divider, Spinner } from "~/components";
 
-import type { MemberListLoader } from "../loaders";
+import type { AddMemberLoader } from "../loaders";
 import { AddMemberCard } from "./add-member-card";
 
 export function AddMemberList() {
-	const { users, members } = useLoaderData<MemberListLoader>();
+	const { users, members } = useLoaderData<AddMemberLoader>();
 
 	return (
-		<div className="w-full h-80 overflow-y-auto">
+		<div className="w-full">
 			<Suspense fallback={<Spinner />}>
 				<Await resolve={users}>
 					{({ users }) => (
@@ -18,7 +18,9 @@ export function AddMemberList() {
 							{({ members }) =>
 								Array.isArray(users) &&
 								Array.isArray(members) &&
-								users.length > 0 ? (
+								users.filter((user) =>
+									members.every((member) => user.userId !== member.userId),
+								).length > 0 ? (
 									<div className="flex flex-col gap-5 py-5">
 										{users
 											.filter((user) =>

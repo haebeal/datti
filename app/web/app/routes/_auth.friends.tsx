@@ -1,24 +1,33 @@
+import type { MetaFunction } from "@remix-run/cloudflare";
 import {
-	Link,
 	NavLink,
 	useActionData,
+	useNavigate,
 	useSearchParams,
 } from "@remix-run/react";
 import { useEffect } from "react";
 
-import { Button } from "~/components/ui/button";
+import { Button } from "~/components";
 import { useToast } from "~/components/ui/use-toast";
+
+import { cn } from "~/lib/utils";
 
 import type { DeleteFriendAction } from "~/features/friends/actions";
 import { FriendList } from "~/features/friends/components";
 export { deleteFriendAction as action } from "~/features/friends/actions";
 export { friendListLoader as loader } from "~/features/friends/loaders";
 
+export const meta: MetaFunction = () => [
+	{ title: "Datti | フレンド一覧" },
+	{ name: "description", content: "誰にいくら払ったっけ？を記録するサービス" },
+];
+
 export default function Friend() {
 	const [searchParams] = useSearchParams();
 	const status = searchParams.get("status")?.toString();
 
 	const { toast } = useToast();
+	const navigate = useNavigate();
 
 	const actionData = useActionData<DeleteFriendAction>();
 	useEffect(() => {
@@ -30,57 +39,63 @@ export default function Friend() {
 	}, [actionData, toast]);
 
 	return (
-		<div className="flex flex-col py-3 gap-7">
-			<div className="flex items-center justify-between">
-				<h1 className="font-bold text-2xl">フレンド一覧</h1>
-				<Button className="bg-sky-500 hover:bg-sky-600 font-semibold">
-					<Link
-						to="/friends/request"
-						className="bg-sky-500 hover:bg-sky-600 font-semibold"
-					>
-						フレンド申請
-					</Link>
+		<div className="flex flex-col gap-7">
+			<div className="flex flex-col md:flex-row gap-5 justify-between md:py-5 px-3">
+				<h1 className="text-std-32N-150">フレンド</h1>
+				<Button
+					size="md"
+					onClick={() => navigate("/friends/request")}
+					variant="solid-fill"
+				>
+					フレンド申請
 				</Button>
 			</div>
-			<div className="rounded-lg bg-white py-3 px-5">
-				<div className="flex flex-row border-b-2 text-lg font-semibold gap-5 py-1 px-4">
-					<NavLink
-						className={({ isActive }) =>
-							isActive && status !== "requesting" && status !== "applying"
-								? undefined
-								: "opacity-40"
-						}
-						to={{
-							pathname: "/friends",
-						}}
-					>
-						フレンド
-					</NavLink>
-					<NavLink
-						className={({ isActive }) =>
-							isActive && status === "requesting" ? undefined : "opacity-40"
-						}
-						to={{
-							pathname: "/friends",
-							search: "?status=requesting",
-						}}
-					>
-						申請中
-					</NavLink>
-					<NavLink
-						className={({ isActive }) =>
-							isActive && status === "applying" ? undefined : "opacity-40"
-						}
-						to={{
-							pathname: "/friends",
-							search: "?status=applying",
-						}}
-					>
-						受理中
-					</NavLink>
-				</div>
-				<FriendList />
+			<div className="flex flex-row gap-5">
+				<NavLink
+					className={({ isActive }) =>
+						cn(
+							"text-std-18B-160",
+							isActive &&
+								(status === "requesting" || status === "applying") &&
+								"opacity-40",
+						)
+					}
+					to={{
+						pathname: "/friends",
+					}}
+				>
+					フレンド
+				</NavLink>
+				<NavLink
+					className={({ isActive }) =>
+						cn(
+							"text-std-18B-160",
+							isActive && status !== "requesting" && "opacity-40",
+						)
+					}
+					to={{
+						pathname: "/friends",
+						search: "?status=requesting",
+					}}
+				>
+					申請中
+				</NavLink>
+				<NavLink
+					className={({ isActive }) =>
+						cn(
+							"text-std-18B-160",
+							isActive && status !== "applying" && "opacity-40",
+						)
+					}
+					to={{
+						pathname: "/friends",
+						search: "?status=applying",
+					}}
+				>
+					承認待ち
+				</NavLink>
 			</div>
+			<FriendList />
 		</div>
 	);
 }

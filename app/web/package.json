@@ -70,11 +70,11 @@
 		"globals": "^14.0.0",
 		"jsdom": "^24.0.0",
 		"openapi2aspida": "^0.23.2",
-		"postcss": "^8.4.47",
+		"postcss": "^8.4.49",
 		"storybook": "^8.3.6",
 		"tailwindcss": "^3.4.13",
 		"typescript": "^5.4.5",
-		"vite": "^5.4.10",
+		"vite": "^5.4.11",
 		"vite-tsconfig-paths": "^4.3.2",
 		"vitest": "^1.5.3",
 		"wrangler": "^3.52.0"

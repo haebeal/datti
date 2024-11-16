@@ -6,9 +6,6 @@ export const memberListLoader = async ({
 	params,
 	context,
 }: LoaderFunctionArgs) => {
-	const { searchParams } = new URL(request.url);
-	const searchQuery = searchParams.get("q")?.toString();
-
 	const groupId = params.groupId;
 	if (groupId === undefined) {
 		throw new Response("グループIDの取得に失敗しました", {
@@ -19,15 +16,10 @@ export const memberListLoader = async ({
 
 	const { client, headers } = await createAPIClient({ request, context });
 
-	const users = client.users.$get({
-		query: {
-			email: searchQuery,
-		},
-	});
 	const members = client.groups._groupId(groupId).members.$get();
 
 	return defer(
-		{ users, members },
+		{ members },
 		{
 			headers,
 		},

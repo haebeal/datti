@@ -1,46 +1,32 @@
-import { Await, useLoaderData, useLocation } from "@remix-run/react";
-import { Suspense } from "react";
+import { Await, useLoaderData } from "@remix-run/react";
+import { Fragment, Suspense } from "react";
 
-import { Spinner } from "~/components";
+import { Divider, Spinner } from "~/components";
 
 import type { FriendListLoader } from "../loaders";
 import { FriendCard } from "./friend-card";
 
 export function FriendList() {
-	const { friends, applyings, requestings } = useLoaderData<FriendListLoader>();
-
-	const { search } = useLocation();
-	const searchParams = new URLSearchParams(search);
-
-	const status = searchParams.get("status")?.toString();
+	const { friends } = useLoaderData<FriendListLoader>();
 
 	return (
 		<div className="w-full min-h-[60vh]">
 			<Suspense fallback={<Spinner />}>
-				<Await
-					resolve={
-						status === "requesting"
-							? requestings
-							: status === "applying"
-								? applyings
-								: friends
-					}
-				>
+				<Await resolve={friends}>
 					{({ users }) =>
 						Array.isArray(users) && users.length > 0 ? (
-							<div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
+							<div className="flex flex-col gap-8 py-5">
 								{users.map((user) => (
-									<FriendCard key={user.userId} friend={user} />
+									<Fragment key={user.userId}>
+										<FriendCard user={user} />
+										<Divider />
+									</Fragment>
 								))}
 							</div>
 						) : (
-							<div className="w-full min-h-[60vh] grid place-content-center">
-								<h2 className="font-semibold text-2xl text-center">
-									{status === "requesting"
-										? "申請中のユーザーはいません😿"
-										: status === "applying"
-											? "受理中のユーザーはいません😿"
-											: "フレンドがいません😿"}
+							<div className="w-full">
+								<h2 className="mt-36 text-std-24N-150 text-center">
+									フレンドが存在しません
 								</h2>
 							</div>
 						)

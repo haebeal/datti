@@ -7,8 +7,9 @@ import {
 	useMatches,
 } from "@remix-run/react";
 import { Suspense } from "react";
-import { Skeleton } from "~/components/ui/skeleton";
+
 import type { GroupLoader } from "~/features/groups/loaders";
+import { cn } from "~/lib/utils";
 
 export { groupLoader as loader } from "~/features/groups/loaders";
 
@@ -25,37 +26,43 @@ export default function GroupDetail() {
 	const { group } = useLoaderData<GroupLoader>();
 
 	return (
-		<div className="flex flex-col py-3 gap-7">
-			<Suspense fallback={<Skeleton className="h-8 w-full" />}>
-				<div className="flex items-center justify-between">
+		<div className="flex flex-col gap-7">
+			<div className="flex flex-col md:flex-row gap-5 justify-between md:py-5 px-3">
+				<Suspense
+					fallback={<div className="animate-pulse bg-slate-200 h-12 w-full" />}
+				>
 					<Await resolve={group}>
-						{(group) => <h1 className="font-bold text-2xl">{group.name}</h1>}
+						{(group) => <h1 className="text-std-32N-150">{group.name}</h1>}
 					</Await>
-				</div>
-			</Suspense>
-			<div className="rounded-lg bg-white py-3 px-5">
-				<div className="flex flex-row border-b-2 text-lg font-semibold gap-5 py-1 px-4">
-					<NavLink
-						className={({ isActive }) => (isActive ? undefined : "opacity-40")}
-						to={`/groups/${groupId}/events`}
-					>
-						イベント
-					</NavLink>
-					<NavLink
-						className={({ isActive }) => (isActive ? undefined : "opacity-40")}
-						to={`/groups/${groupId}/members`}
-					>
-						メンバー
-					</NavLink>
-					<NavLink
-						className={({ isActive }) => (isActive ? undefined : "opacity-40")}
-						to={`/groups/${groupId}/settings`}
-					>
-						設定
-					</NavLink>
-				</div>
-				<Outlet />
+				</Suspense>
 			</div>
+			<div className="flex flex-row gap-5">
+				<NavLink
+					className={({ isActive }) =>
+						cn("text-std-18B-160", !isActive && "opacity-40")
+					}
+					to={`/groups/${groupId}/events`}
+				>
+					イベント
+				</NavLink>
+				<NavLink
+					className={({ isActive }) =>
+						cn("text-std-18B-160", !isActive && "opacity-40")
+					}
+					to={`/groups/${groupId}/members`}
+				>
+					メンバー
+				</NavLink>
+				<NavLink
+					className={({ isActive }) =>
+						cn("text-std-18B-160", !isActive && "opacity-40")
+					}
+					to={`/groups/${groupId}/settings`}
+				>
+					設定
+				</NavLink>
+			</div>
+			<Outlet />
 		</div>
 	);
 }

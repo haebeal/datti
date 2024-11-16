@@ -15,10 +15,13 @@ export const createAPIClient = async ({
 		context,
 	});
 	const {
+		data: { user },
+	} = await supabase.auth.getUser();
+	const {
 		data: { session },
 	} = await supabase.auth.getSession();
 
-	if (!session || !session.provider_token) {
+	if (!user || !session || !session.provider_token) {
 		throw redirect("/signin");
 	}
 

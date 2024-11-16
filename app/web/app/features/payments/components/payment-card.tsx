@@ -1,5 +1,4 @@
 import type { Payment } from "~/api/@types";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 
 interface Props {
 	payment: Payment;
@@ -7,16 +6,21 @@ interface Props {
 
 export function PaymentCard({ payment }: Props) {
 	return (
-		<div className="flex flex-row w-full bg-white px-6 py-5 gap-8 items-center rounded-md border border-gray-200">
-			<Avatar className="border h-14 w-14 border-gray-200">
-				<AvatarImage src={payment.paidTo.photoUrl} />
-				<AvatarFallback>{payment.paidTo.name} photo</AvatarFallback>
-			</Avatar>
-			<h1 className="font-bold">
-				{new Date(payment.paidAt).toLocaleDateString()}
-			</h1>
-			<h1 className="text-xl font-bold">{payment.paidTo.name}</h1>
-			<h1 className="text-xl font-bold ml-auto mr-32">￥{payment.amount}</h1>
+		<div className="flex flex-row gap-8 items-center">
+			<img
+				src={payment.paidTo.photoUrl}
+				aria-label={`${payment.paidTo.name} photo`}
+				className="rounded-full h-16 w-16"
+			/>
+			<p className="flex md:flex-row flex-col items-start gap-1 md:gap-4 md:items-center flex-1 px-10">
+				<span className="text-std-18N-150">
+					{new Date(payment.paidAt).toLocaleDateString()}
+				</span>
+				<span className="text-std-24N-150">{payment.paidTo.name}</span>
+				<span className="text-std-22B-150 flex-1 text-right">
+					￥{payment.amount}
+				</span>
+			</p>
 		</div>
 	);
 }

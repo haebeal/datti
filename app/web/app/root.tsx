@@ -6,6 +6,7 @@ import {
 	Scripts,
 	ScrollRestoration,
 } from "@remix-run/react";
+
 import { Toaster } from "~/components/ui/toaster";
 
 import stylesheet from "~/globals.css?url";

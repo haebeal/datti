@@ -14,17 +14,11 @@ export default defineConfig({
 	},
 	plugins: [
 		remixCloudflareDevProxy(),
-		!process.env.VITEST &&
-			!isStorybook &&
-			remix({
-				future: {
-					unstable_singleFetch: true,
-				},
-			}),
+		!process.env.VITEST && !isStorybook && remix(),
 		tsconfigPaths(),
 	],
 	server: {
-		host: "127.0.0.1",
+		host: true,
 	},
 	test: {
 		globals: true,

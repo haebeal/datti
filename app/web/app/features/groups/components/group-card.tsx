@@ -9,9 +9,20 @@ export function GroupCard({ group }: Props) {
 	return (
 		<Link
 			to={`/groups/${group.groupId}`}
-			className="flex flex-row  w-full bg-white hover:bg-slate-50 hover:cursor-pointer px-6 py-5 gap-5 items-center rounded-md border border-gray-200"
+			className="flex flex-row gap-5 items-center justify-between py-5 px-3"
 		>
-			<h1 className="text-lg font-bold mr-auto">{group.name}</h1>
+			<span className="text-std-20N-150 pl-3">{group.name}</span>
+			<svg
+				role="img"
+				aria-label={`${group.name}を開く`}
+				xmlns="http://www.w3.org/2000/svg"
+				height="45px"
+				width="45px"
+				viewBox="0 -960 960 960"
+				fill="#000000"
+			>
+				<path d="M540-480 356-664l20-20 204 204-204 204-20-20 184-184Z" />
+			</svg>
 		</Link>
 	);
 }

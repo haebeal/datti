@@ -17,10 +17,9 @@ export const eventListLoader = async ({
 	const { client, headers } = await createAPIClient({ request, context });
 
 	const events = client.groups._groupId(groupId).events.$get();
-	const members = client.groups._groupId(groupId).members.$get();
 
 	return defer(
-		{ members, events },
+		{ events },
 		{
 			headers,
 		},

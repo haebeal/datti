@@ -3,33 +3,23 @@ import {
 	getInputProps,
 	getSelectProps,
 	useForm,
-	useInputControl,
 } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { Form, useActionData, useNavigation } from "@remix-run/react";
-import { format } from "date-fns";
 import { useId } from "react";
-import type { EventEndpoints_EventPostRequest, Member } from "~/api/@types";
-import { cn } from "~/lib/utils";
 
-import { CalendarIcon } from "@radix-ui/react-icons";
-import { PopoverClose } from "@radix-ui/react-popover";
-import { Button } from "~/components/ui/button";
-import { Calendar } from "~/components/ui/calendar";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+import type { EventEndpoints_EventPostRequest, Member } from "~/api/@types";
+
 import {
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-} from "~/components/ui/popover";
-import {
+	Button,
+	DatePicker,
+	ErrorText,
+	Input,
+	Label,
+	RequirementBadge,
 	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "~/components/ui/select";
+	SupportText,
+} from "~/components";
 
 import type { CreateEventAction } from "../actions";
 import { createEventSchema as schema } from "../schemas";
@@ -53,7 +43,6 @@ export function CreateEventForm({ defaultValue, members }: Props) {
 	});
 	const paymentFields = payments.getFieldList();
 
-	const { change } = useInputControl(eventedAt);
 	const { state } = useNavigation();
 
 	const nameId = useId();
@@ -68,61 +57,45 @@ export function CreateEventForm({ defaultValue, members }: Props) {
 			method="post"
 			className="flex flex-col gap-8 items-center col-span-4"
 		>
-			<div className="w-full">
-				<Label htmlFor={nameId}>イベント名</Label>
+			<div className="w-full flex flex-col gap-2">
+				<Label htmlFor={nameId}>
+					イベント名
+					<RequirementBadge>※必須</RequirementBadge>
+				</Label>
 				<Input
 					{...getInputProps(name, { type: "text" })}
 					data-1p-ignore
 					placeholder="イベント名を入力"
 					disabled={state !== "idle"}
+					isError={name.errors !== undefined}
 					id={nameId}
 				/>
-				<p>{name.errors?.toString()}</p>
+				<ErrorText>{name.errors?.toString()}</ErrorText>
 			</div>
-			<div className="w-full">
-				<Label htmlFor={eventedAtId}>イベント日</Label>
-				<Popover>
-					<PopoverTrigger asChild>
-						<Button
-							// biome-ignore lint:
-							role="combobox"
-							variant="outline"
-							id={eventedAtId}
-							className={cn(
-								"w-full pl-3 text-left font-normal",
-								!eventedAt.value && "text-muted-foreground",
-							)}
-							disabled={state !== "idle"}
-						>
-							{eventedAt.value ? (
-								format(eventedAt.value, "yyyy/MM/dd")
-							) : (
-								<span>日付を選択してください</span>
-							)}
-							<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-						</Button>
-					</PopoverTrigger>
-					<PopoverContent className="w-auto p-0" align="start">
-						<PopoverClose>
-							<Calendar
-								mode="single"
-								selected={
-									eventedAt.value ? new Date(eventedAt.value) : undefined
-								}
-								onSelect={(value) => change(value?.toISOString())}
-								initialFocus
-							/>
-						</PopoverClose>
-					</PopoverContent>
-				</Popover>
-				<p>{eventedAt.errors?.toString()}</p>
+			<div className="w-full flex flex-col gap-2">
+				<Label htmlFor={eventedAtId}>
+					イベント日
+					<RequirementBadge>※必須</RequirementBadge>
+				</Label>
+				<DatePicker
+					{...getInputProps(eventedAt, { type: "text" })}
+					data-1p-ignore
+					placeholder="イベント日を選択"
+					disabled={state !== "idle"}
+					isError={name.errors !== undefined}
+					id={eventedAtId}
+				/>
+				<ErrorText>{eventedAt.errors?.toString()}</ErrorText>
 			</div>
-			<div className="w-full">
-				<Label htmlFor={paidById}>支払った人</Label>
+			<div className="w-full flex flex-col gap-2">
+				<Label htmlFor={paidById}>
+					支払った人
+					<RequirementBadge>※必須</RequirementBadge>
+				</Label>
 				<Select
 					{...getSelectProps(paidBy)}
-					defaultValue={paidBy.value}
-					onValueChange={(value) => {
+					isError={paidBy.errors !== undefined}
+					onChange={(event) => {
 						for (let i = 0; i < members.length; i++) {
 							form.remove({
 								name: payments.name,
@@ -131,7 +104,7 @@ export function CreateEventForm({ defaultValue, members }: Props) {
 						}
 						window.setTimeout(() => {
 							for (const member of members.filter(
-								(member) => member.userId !== value,
+								(member) => member.userId !== event.target.value,
 							)) {
 								form.insert({
 									name: payments.name,
@@ -145,31 +118,22 @@ export function CreateEventForm({ defaultValue, members }: Props) {
 					}}
 					disabled={state !== "idle"}
 				>
-					<SelectTrigger>
-						<SelectValue placeholder="ユーザーを選択" />
-					</SelectTrigger>
-					<SelectContent>
-						{members.map((member) => (
-							<SelectItem key={member.userId} value={member.userId}>
-								{member.name}
-							</SelectItem>
-						))}
-					</SelectContent>
+					<option hidden value="">
+						ユーザーを選択
+					</option>
+					{members.map((member) => (
+						<option key={member.userId} value={member.userId}>
+							{member.name}
+						</option>
+					))}
 				</Select>
-				<p>{paidBy.errors?.toString()}</p>
+				<ErrorText>{paidBy.errors?.toString()}</ErrorText>
 			</div>
-			<div className="w-full">
-				<Label htmlFor={amountId}>支払い額</Label>
-				<Input
-					{...getInputProps(amount, { type: "number" })}
-					placeholder="支払額を入力"
-					disabled={state !== "idle"}
-					id={amountId}
-				/>
-				<p>{amount.errors?.toString()}</p>
-			</div>
-			<div className="w-full">
-				<Label htmlFor={burdenId}>負担額</Label>
+			<div className="w-full flex flex-col gap-2">
+				<Label htmlFor={burdenId}>
+					負担額
+					<SupportText>※自動計算</SupportText>
+				</Label>
 				<Input
 					value={
 						Number(form.value?.amount ?? 0) -
@@ -181,12 +145,26 @@ export function CreateEventForm({ defaultValue, members }: Props) {
 								)
 							: 0)
 					}
-					disabled
+					aria-disabled
 					id={burdenId}
 				/>
 			</div>
+			<div className="w-full flex flex-col gap-2">
+				<Label htmlFor={amountId}>
+					支払額
+					<RequirementBadge>※必須</RequirementBadge>
+				</Label>
+				<Input
+					{...getInputProps(amount, { type: "number" })}
+					placeholder="支払額を入力"
+					disabled={state !== "idle"}
+					isError={amount.errors !== undefined}
+					id={amountId}
+				/>
+				<ErrorText>{amount.errors?.toString()}</ErrorText>
+			</div>
 			{paymentFields.map((payment) => (
-				<div key={payment.id} className="w-full">
+				<div key={payment.id} className="w-full flex flex-col gap-2">
 					<Label>
 						{
 							members.find(
@@ -206,14 +184,19 @@ export function CreateEventForm({ defaultValue, members }: Props) {
 						})}
 						key={payment.getFieldset().amount.id}
 						placeholder="立替金額を入力"
+						isError={payment.getFieldset().amount.errors !== undefined}
 						disabled={state !== "idle"}
 					/>
-					<p>{payment.getFieldset().amount.errors?.toString()}</p>
+					<ErrorText>
+						{payment.getFieldset().amount.errors?.toString()}
+					</ErrorText>
 				</div>
 			))}
 			<Button
 				type="submit"
-				className="w-full max-w-2xl bg-sky-500 hover:bg-sky-600  font-semibold"
+				size="md"
+				variant="solid-fill"
+				className="w-full"
 				disabled={state !== "idle"}
 			>
 				作成

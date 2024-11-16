@@ -18,6 +18,9 @@ const config = {
 			},
 		},
 		extend: {
+			fontFamily: {
+				mono: ["Noto Sans Mono"],
+			},
 			width: {
 				"128": "32rem",
 				"160": "36rem",
@@ -78,7 +81,11 @@ const config = {
 			},
 		},
 	},
-	plugins: [require("tailwindcss-animate")],
+	plugins: [
+		require("tailwindcss-animate"),
+		require("tailwindcss-react-aria-components"),
+		require("@digital-go-jp/tailwind-theme-plugin"),
+	],
 } satisfies Config;
 
 export default config;

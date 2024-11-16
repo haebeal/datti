@@ -6,8 +6,12 @@ import type { ToZod } from "~/lib/toZod";
 export const updateProfileSchema = z.object<
 	ToZod<UserEndpoints_UserPutRequest>
 >({
-	name: z.string().min(1, {
-		message: "ユーザー名を入力してください",
+	name: z.string({
+		required_error: "必須項目です",
 	}),
-	photoUrl: z.string().url(),
+	photoUrl: z
+		.string({
+			required_error: "必須項目です",
+		})
+		.url("URLの形式が正しくありません"),
 });

@@ -1,7 +1,7 @@
 import { Await, useLoaderData } from "@remix-run/react";
-import { Suspense } from "react";
+import { Fragment, Suspense } from "react";
 
-import { Spinner } from "~/components";
+import { Divider, Spinner } from "~/components";
 
 import type { EventListLoader } from "../loaders";
 import { EventCard } from "./event-card";
@@ -15,15 +15,18 @@ export function EventList() {
 				<Await resolve={events}>
 					{({ events }) =>
 						Array.isArray(events) && events.length > 0 ? (
-							<div className="w-full min-h-[60vh] flex flex-col items-center p-4 gap-3">
+							<div className="flex flex-col gap-1 py-5">
 								{events.map((event) => (
-									<EventCard key={event.eventId} event={event} />
+									<Fragment key={event.eventId}>
+										<EventCard event={event} />
+										<Divider />
+									</Fragment>
 								))}
 							</div>
 						) : (
-							<div className="w-full min-h-[60vh] grid place-content-center">
-								<h2 className="font-semibold text-2xl text-center">
-									イベントが存在しません😿
+							<div className="w-full">
+								<h2 className="mt-20 text-std-24N-150 text-center">
+									イベントが存在しません
 								</h2>
 							</div>
 						)

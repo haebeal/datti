@@ -6,6 +6,7 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
+	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
 
@@ -15,7 +16,7 @@ type userRepoImpl struct {
 }
 
 // GetProfile implements repository.ProfileRepository.
-func (ur *userRepoImpl) GetUserByUid(c context.Context, uid string) (*model.User, error) {
+func (ur *userRepoImpl) GetUserByUid(c context.Context, uid uuid.UUID) (*model.User, error) {
 	user := new(model.User)
 	err := ur.DBEngine.Client.NewSelect().
 		Table("users").
@@ -55,17 +56,21 @@ func (ur *userRepoImpl) GetUserByEmail(c context.Context, email string) (*model.
 	return user, nil
 }
 
-func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid string, email string, status string, cursor string, limit int, getNext bool) ([]*model.UserStatus, *model.Cursor, error) {
+func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid uuid.UUID, email string, status string, cursor string, limit int, getNext bool) ([]*model.UserStatus, *model.Cursor, error) {
 	var results []*model.UserStatus
 	var query *bun.SelectQuery
 
+	if len([]rune(cursor)) == 0 {
+		cursor = uuid.Nil.String()
+	}
+
 	subQuery := ur.DBEngine.Client.NewSelect().
 		ColumnExpr("u.id AS user_id, u.name AS user_name, u.email AS user_email, u.photo_url AS user_photo_url").
-		ColumnExpr("f1.uid AS f1_uid, f1.friend_uid AS f1_friend_uid").
-		ColumnExpr("f2.uid AS f2_uid, f2.friend_uid AS f2_friend_uid").
+		ColumnExpr("f1.user_id AS f1_uid, f1.friend_user_id AS f1_friend_uid").
+		ColumnExpr("f2.user_id AS f2_uid, f2.friend_user_id AS f2_friend_uid").
 		TableExpr("users u").
-		Join("LEFT JOIN friends f1 ON u.id = f1.friend_uid AND f1.uid = ?", uid).
-		Join("LEFT JOIN friends f2 ON u.id = f2.uid AND f2.friend_uid = ?", uid).
+		Join("LEFT JOIN friends f1 ON u.id = f1.friend_user_id AND f1.user_id = ?", uid).
+		Join("LEFT JOIN friends f2 ON u.id = f2.user_id AND f2.friend_user_id = ?", uid).
 		Where("u.email LIKE ?", "%"+email+"%").
 		Where("u.deleted_at IS NULL")
 
@@ -118,7 +123,7 @@ func (ur *userRepoImpl) GetUsersByEmail(c context.Context, uid string, email str
 }
 
 // UpdateName implements repository.ProfileRepository.
-func (ur *userRepoImpl) UpdateUser(c context.Context, uid string, name string, url string) (*model.User, error) {
+func (ur *userRepoImpl) UpdateUser(c context.Context, uid uuid.UUID, name string, url string) (*model.User, error) {
 	user := new(model.User)
 	user.ID = uid
 	user.Name = name

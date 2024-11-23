@@ -6,7 +6,7 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
-	"github.com/rs/xid"
+	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
 
@@ -14,11 +14,22 @@ type groupRepoImpl struct {
 	DBEngine *database.DBClient
 }
 
+// DeleteGroupById implements repository.GroupRepository.
+func (g *groupRepoImpl) DeleteGroupById(c context.Context, id uuid.UUID) error {
+	_, err := g.DBEngine.Client.NewDelete().
+		Table("groups").
+		Where("id = ?", id).
+		Exec(c)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // CreatGroup implements repository.GroupRepository.
 func (g *groupRepoImpl) CreatGroup(c context.Context, name string) (*model.Group, error) {
-	id := xid.New()
 	group := &model.Group{
-		ID:   id.String(),
 		Name: name,
 	}
 	_, err := g.DBEngine.Client.NewInsert().
@@ -32,7 +43,7 @@ func (g *groupRepoImpl) CreatGroup(c context.Context, name string) (*model.Group
 }
 
 // GetGroupById implements repository.GroupRepository.
-func (g *groupRepoImpl) GetGroupById(c context.Context, id string) (*model.Group, error) {
+func (g *groupRepoImpl) GetGroupById(c context.Context, id uuid.UUID) (*model.Group, error) {
 	group := new(model.Group)
 	err := g.DBEngine.Client.NewSelect().
 		Table("groups").
@@ -46,20 +57,21 @@ func (g *groupRepoImpl) GetGroupById(c context.Context, id string) (*model.Group
 }
 
 // GetGroups implements repository.GroupRepository.
-func (g *groupRepoImpl) GetGroups(c context.Context) ([]*model.Group, error) {
-	groups := new([]*model.Group)
+func (g *groupRepoImpl) GetGroups(c context.Context, uid uuid.UUID) ([]*model.Group, error) {
+	groups := make([]*model.Group, 0)
 	err := g.DBEngine.Client.NewSelect().
 		Table("groups").
+		Where("user_id = ?", uid).
 		Scan(c, groups)
 	if err != nil {
 		return nil, err
 	}
 
-	return *groups, nil
+	return groups, nil
 }
 
 // GetGroups implements repository.GroupRepository.
-func (g *groupRepoImpl) GetGroupsByUid(c context.Context, uid string, cursor string, limit int, getNext bool) ([]*model.Group, *model.Cursor, error) {
+func (g *groupRepoImpl) GetGroupsByUid(c context.Context, uid uuid.UUID, cursor uuid.UUID, limit int, getNext bool) ([]*model.Group, *model.Cursor, error) {
 	groups := new([]*model.Group)
 	var query *bun.SelectQuery
 	if getNext {
@@ -67,7 +79,7 @@ func (g *groupRepoImpl) GetGroupsByUid(c context.Context, uid string, cursor str
 			Table("groups").
 			ColumnExpr("groups.*").
 			Join("INNER JOIN group_users ON groups.id = group_users.group_id").
-			Where("group_users.uid = ?", uid).
+			Where("group_users.user_id = ?", uid).
 			Where("id > ?", cursor).
 			OrderExpr("id ASC").
 			Limit(limit)
@@ -76,7 +88,7 @@ func (g *groupRepoImpl) GetGroupsByUid(c context.Context, uid string, cursor str
 			Table("groups").
 			ColumnExpr("groups.*").
 			Join("INNER JOIN group_users ON groups.id = group_users.group_id").
-			Where("group_users.uid = ?", uid).
+			Where("group_users.user_id = ?", uid).
 			Where("id < ?", cursor).
 			OrderExpr("id DESC").
 			Limit(limit)
@@ -91,7 +103,7 @@ func (g *groupRepoImpl) GetGroupsByUid(c context.Context, uid string, cursor str
 }
 
 // UpdateGroup implements repository.GroupRepository.
-func (g *groupRepoImpl) UpdateGroup(c context.Context, id string, name string) (*model.Group, error) {
+func (g *groupRepoImpl) UpdateGroup(c context.Context, id uuid.UUID, name string) (*model.Group, error) {
 	group := new(model.Group)
 	group.ID = id
 	group.Name = name

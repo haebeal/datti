@@ -69,6 +69,7 @@ func Sever(dsn string, hostName string) {
 	r.POST("/groups", groupHandler.HandleCreate)                     //グループの作成
 	r.PUT("/groups/:groupId", groupHandler.HandleUpdate)             //グループ情報の更新
 	r.GET("/groups/:groupId/members", groupHandler.HandleGetMembers) //グループに対するメンバー情報の取得
+	r.DELETE("/groups/:groupId", groupHandler.HandleDelete)
 	r.POST("/groups/:groupId/members", groupHandler.HandleRegisterd) //グループに対するメンバーの追加
 
 	r.GET("/groups/:groupId/events", eventHandler.HandleGetById)

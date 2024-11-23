@@ -5,15 +5,17 @@ import (
 
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
+	"github.com/google/uuid"
 )
 
 type GroupUseCase interface {
-	GetGroups(c context.Context, uid string, cursor string, limit *int, getNext bool) ([]*model.Group, *model.Cursor, error)
-	CreateGroup(c context.Context, name string, userID string, members []string) (*model.Group, []*model.User, []*string, error)
-	GetGroupById(c context.Context, id string) (*model.Group, error)
-	GetMembers(c context.Context, id string, uid string, status string) ([]*model.User, []*string, error)
-	UpdateGroup(c context.Context, id string, name string) (*model.Group, []*model.User, error)
-	RegisterdMembers(c context.Context, userID string, id string, members []string) (*model.Group, []*model.User, []*string, error)
+	GetGroups(c context.Context, uid uuid.UUID, inputCursor uuid.UUID, inputLimit *int, getNext bool) ([]*model.Group, *model.Cursor, error)
+	CreateGroup(c context.Context, name string, userID uuid.UUID, members uuid.UUIDs) (*model.Group, []*model.User, []*string, error)
+	GetGroupById(c context.Context, id uuid.UUID) (*model.Group, error)
+	GetMembers(c context.Context, id uuid.UUID, uid uuid.UUID, status string) ([]*model.User, []*string, error)
+	UpdateGroup(c context.Context, id uuid.UUID, name string) (*model.Group, []*model.User, error)
+	DeleteGroup(c context.Context, id uuid.UUID) error
+	RegisterdMembers(c context.Context, userID uuid.UUID, id uuid.UUID, members uuid.UUIDs) (*model.Group, []*model.User, []*string, error)
 }
 
 type groupUseCase struct {
@@ -27,7 +29,7 @@ type groupUseCase struct {
 const defaultGroupsLimit = 10
 
 // CreateGroup implements GroupUseCase.
-func (g *groupUseCase) CreateGroup(c context.Context, name string, userID string, members []string) (*model.Group, []*model.User, []*string, error) {
+func (g *groupUseCase) CreateGroup(c context.Context, name string, userID uuid.UUID, members uuid.UUIDs) (*model.Group, []*model.User, []*string, error) {
 	v, err := g.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		group, err := g.groupRepository.CreatGroup(c, name)
 		if err != nil {
@@ -66,7 +68,7 @@ func (g *groupUseCase) CreateGroup(c context.Context, name string, userID string
 }
 
 // GetGroupById implements GroupUseCase.
-func (g *groupUseCase) GetGroupById(c context.Context, id string) (*model.Group, error) {
+func (g *groupUseCase) GetGroupById(c context.Context, id uuid.UUID) (*model.Group, error) {
 	group, err := g.groupRepository.GetGroupById(c, id)
 	if err != nil {
 		return nil, err
@@ -76,7 +78,7 @@ func (g *groupUseCase) GetGroupById(c context.Context, id string) (*model.Group,
 }
 
 // GetMembers implements GroupUseCase.
-func (g *groupUseCase) GetMembers(c context.Context, id string, uid string, status string) ([]*model.User, []*string, error) {
+func (g *groupUseCase) GetMembers(c context.Context, id uuid.UUID, uid uuid.UUID, status string) ([]*model.User, []*string, error) {
 	group, err := g.groupRepository.GetGroupById(c, id)
 	if err != nil {
 		return nil, nil, err
@@ -112,8 +114,8 @@ func (g *groupUseCase) GetMembers(c context.Context, id string, uid string, stat
 	return users, statuses, nil
 }
 
-// GetGroups implements GroupUseCase.
-func (g *groupUseCase) GetGroups(c context.Context, uid string, inputCursor string, inputLimit *int, getNext bool) ([]*model.Group, *model.Cursor, error) {
+func (g *groupUseCase) GetGroups(c context.Context, uid uuid.UUID, inputCursor uuid.UUID, inputLimit *int, getNext bool) ([]*model.Group, *model.Cursor, error) {
+
 	var limit int
 
 	if inputLimit == nil {
@@ -121,17 +123,25 @@ func (g *groupUseCase) GetGroups(c context.Context, uid string, inputCursor stri
 	} else {
 		limit = *inputLimit
 	}
-
 	groups, cursor, err := g.groupRepository.GetGroupsByUid(c, uid, inputCursor, limit, getNext)
 	if err != nil {
 		return nil, nil, err
 	}
-
 	return groups, cursor, nil
 }
 
+// DeleteGroup implements GroupUseCase.
+func (g *groupUseCase) DeleteGroup(c context.Context, id uuid.UUID) error {
+	err := g.groupRepository.DeleteGroupById(c, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // RegisterdMembers implements GroupUseCase.
-func (g *groupUseCase) RegisterdMembers(c context.Context, userID string, id string, members []string) (*model.Group, []*model.User, []*string, error) {
+func (g *groupUseCase) RegisterdMembers(c context.Context, userID uuid.UUID, id uuid.UUID, members uuid.UUIDs) (*model.Group, []*model.User, []*string, error) {
 	_, err := g.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		for _, member := range members {
 			err := g.groupUserRepository.CreateGroupUser(c, member, id)
@@ -173,7 +183,7 @@ func (g *groupUseCase) RegisterdMembers(c context.Context, userID string, id str
 }
 
 // UpdateGroup implements GroupUseCase.
-func (g *groupUseCase) UpdateGroup(c context.Context, id string, name string) (*model.Group, []*model.User, error) {
+func (g *groupUseCase) UpdateGroup(c context.Context, id uuid.UUID, name string) (*model.Group, []*model.User, error) {
 	v, err := g.transaction.DoInTx(c, func(ctx context.Context) (interface{}, error) {
 		group, err := g.groupRepository.UpdateGroup(c, id, name)
 		if err != nil {

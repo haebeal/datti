@@ -4,30 +4,31 @@ import (
 	"time"
 
 	"github.com/datti-api/pkg/usecase/dto"
+	"github.com/google/uuid"
 )
 
 type EventCreateRequest struct {
 	Name      string    `json:"name"`
 	EventedAt time.Time `json:"eventedAt"`
-	CreatedBy string    `json:"createdBy"`
-	PaidBy    string    `json:"paidBy"`
+	CreatedBy uuid.UUID `json:"createdBy"`
+	PaidBy    uuid.UUID `json:"paidBy"`
 	Amount    int       `json:"amount"`
 	Payments  []struct {
-		PaidTo string `json:"paidTo"`
-		Amount int    `json:"amount"`
+		PaidTo uuid.UUID `json:"paidTo"`
+		Amount int       `json:"amount"`
 	} `json:"payments"`
-	GroupId string `json:"groupId"`
+	GroupId uuid.UUID `json:"groupId"`
 }
 
 func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
 	payments := make([]struct {
-		PaidTo string
+		PaidTo uuid.UUID
 		Amount int
 	}, len(req.Payments))
 
 	for i, p := range req.Payments {
 		payments[i] = struct {
-			PaidTo string
+			PaidTo uuid.UUID
 			Amount int
 		}{
 			PaidTo: p.PaidTo,
@@ -37,7 +38,7 @@ func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
 
 	return &dto.EventCreate{
 		Name:      req.Name,
-		EventedAt: req.EventedAt,
+		EventOn:   req.EventedAt,
 		CreatedBy: req.CreatedBy,
 		PaidBy:    req.PaidBy,
 		Amount:    req.Amount,
@@ -47,18 +48,18 @@ func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
 }
 
 type EventUpdateRequest struct {
-	ID        string         `json:"eventId"`
+	ID        uuid.UUID      `json:"eventId"`
 	Name      string         `json:"name"`
 	EventedAt time.Time      `json:"eventedAT"`
-	CreatedBy string         `json:"createdBy"`
-	PaidBy    string         `json:"paidBy"`
+	CreatedBy uuid.UUID      `json:"createdBy"`
+	PaidBy    uuid.UUID      `json:"paidBy"`
 	Amount    int            `json:"amount"`
 	Payments  []PaymentUsers `json:"payments"`
-	GroupId   string         `json:"groupId"`
+	GroupId   uuid.UUID      `json:"groupId"`
 }
 
 type PaymentUsers struct {
-	ID     string `json:"paymentId,omitempty"`
-	PaidTo string `json:"paidTo"`
-	Amount int    `json:"amount"`
+	ID     uuid.UUID `json:"paymentId,omitempty"`
+	PaidTo uuid.UUID `json:"paidTo"`
+	Amount int       `json:"amount"`
 }

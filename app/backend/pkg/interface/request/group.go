@@ -1,12 +1,14 @@
 package request
 
+import "github.com/google/uuid"
+
 type GroupCreate struct {
-	Name string   `json:"name"`
-	Uids []string `json:"userIds"`
+	Name string     `json:"name"`
+	Uids uuid.UUIDs `json:"userIds"`
 }
 
 type Uids struct {
-	Uids []string `json:"userIds"`
+	Uids uuid.UUIDs `json:"userIds"`
 }
 
 type GroupUpdate struct {

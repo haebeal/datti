@@ -8,6 +8,7 @@ import (
 	"github.com/datti-api/pkg/domain/model"
 	"github.com/datti-api/pkg/domain/repository"
 	"github.com/datti-api/pkg/infrastructure/database"
+	"github.com/google/uuid"
 )
 
 type friendRepositoryImpl struct {
@@ -15,10 +16,10 @@ type friendRepositoryImpl struct {
 }
 
 // SetFriends implements repository.FriendRepository.
-func (f *friendRepositoryImpl) SetFriends(c context.Context, uid string, fuid string) error {
+func (f *friendRepositoryImpl) SetFriends(c context.Context, uid uuid.UUID, fuid uuid.UUID) error {
 	friend := &model.Friend{
-		UID:  uid,
-		FUID: fuid,
+		UserID:       uid,
+		FriendUserID: fuid,
 	}
 	_, err := f.DBEngine.Client.NewInsert().Model(friend).Exec(c)
 	if err != nil {
@@ -29,12 +30,12 @@ func (f *friendRepositoryImpl) SetFriends(c context.Context, uid string, fuid st
 }
 
 // DeleteFriend implements repository.FriendRepository.
-func (f *friendRepositoryImpl) DeleteFriend(c context.Context, uid string, fuid string) error {
+func (f *friendRepositoryImpl) DeleteFriend(c context.Context, uid uuid.UUID, fuid uuid.UUID) error {
 	friend := new(model.Friend)
 	_, err := f.DBEngine.Client.NewDelete().
 		Model(friend).
-		Where("uid = ? AND friend_uid = ?", uid, fuid).
-		WhereOr("uid = ? AND friend_uid = ?", fuid, uid).
+		Where("user_id = ? AND friend_user_id = ?", uid, fuid).
+		WhereOr("user_id = ? AND friend_user_id = ?", fuid, uid).
 		Exec(c)
 	if err != nil {
 		return err
@@ -44,14 +45,14 @@ func (f *friendRepositoryImpl) DeleteFriend(c context.Context, uid string, fuid 
 }
 
 // GetApplied implements repository.FriendRepository.
-func (f *friendRepositoryImpl) GetApplieds(c context.Context, uid string) ([]*model.Friend, error) {
+func (f *friendRepositoryImpl) GetApplieds(c context.Context, uid uuid.UUID) ([]*model.Friend, error) {
 	applieds := new([]*model.Friend)
 	subq := f.DBEngine.Client.NewSelect().
 		Column("f2.*").
 		Table("friends").
 		TableExpr("friends AS f2").
-		Where("f1.uid = f2.friend_uid").
-		Where("f1.friend_uid = f2.uid")
+		Where("f1.user_id = f2.friend_user_id").
+		Where("f1.friend_user_id = f2.user_id")
 
 	err := f.DBEngine.Client.NewSelect().
 		Distinct().
@@ -59,7 +60,7 @@ func (f *friendRepositoryImpl) GetApplieds(c context.Context, uid string) ([]*mo
 		Table("friends").
 		TableExpr("friends AS f1").
 		Where("NOT EXISTS (?)", subq).
-		Where("f1.friend_uid = ?", uid).
+		Where("f1.friend_user_id = ?", uid).
 		Scan(c, applieds)
 
 	if err != nil {
@@ -70,14 +71,14 @@ func (f *friendRepositoryImpl) GetApplieds(c context.Context, uid string) ([]*mo
 }
 
 // GetApplyings implements repository.FriendRepository.
-func (f *friendRepositoryImpl) GetApplyings(c context.Context, uid string) ([]*model.Friend, error) {
+func (f *friendRepositoryImpl) GetApplyings(c context.Context, uid uuid.UUID) ([]*model.Friend, error) {
 	applyings := new([]*model.Friend)
 	subq := f.DBEngine.Client.NewSelect().
 		Column("f2.*").
 		Table("friends").
 		TableExpr("friends AS f2").
-		Where("f1.uid = f2.friend_uid").
-		Where("f1.friend_uid = f2.uid")
+		Where("f1.user_id = f2.friend_user_id").
+		Where("f1.friend_user_id = f2.user_id")
 
 	err := f.DBEngine.Client.NewSelect().
 		Distinct().
@@ -85,7 +86,7 @@ func (f *friendRepositoryImpl) GetApplyings(c context.Context, uid string) ([]*m
 		Table("friends").
 		TableExpr("friends AS f1").
 		Where("NOT EXISTS (?)", subq).
-		Where("f1.uid = ?", uid).
+		Where("f1.user_id = ?", uid).
 		Scan(c, applyings)
 
 	if err != nil {
@@ -96,7 +97,7 @@ func (f *friendRepositoryImpl) GetApplyings(c context.Context, uid string) ([]*m
 }
 
 // Getstatus implements repository.FriendRepository.
-func (f *friendRepositoryImpl) GetStatus(c context.Context, uid string, fuid string) (string, error) {
+func (f *friendRepositoryImpl) GetStatus(c context.Context, uid uuid.UUID, fuid uuid.UUID) (string, error) {
 	var status string
 
 	if uid == fuid {
@@ -105,22 +106,22 @@ func (f *friendRepositoryImpl) GetStatus(c context.Context, uid string, fuid str
 
 	subquery1 := f.DBEngine.Client.NewSelect().
 		Table("friends").
-		Where("uid = ? AND friend_uid = ?", uid, fuid)
+		Where("user_id = ? AND friend_user_id = ?", uid, fuid)
 
 	subquery2 := f.DBEngine.Client.NewSelect().
 		Table("friends").
-		Where("uid = ? AND friend_uid = ?", fuid, uid)
+		Where("user_id = ? AND friend_user_id = ?", fuid, uid)
 
 	query := f.DBEngine.Client.NewSelect().
 		ColumnExpr(`CASE
-			WHEN f1.uid IS NOT NULL AND f2.uid IS NOT NULL THEN 'friend'
-			WHEN f2.uid IS NOT NULL THEN 'applying'
-			WHEN f1.uid IS NOT NULL AND f2.uid IS NULL THEN 'requesting'
+			WHEN f1.user_id IS NOT NULL AND f2.user_id IS NOT NULL THEN 'friend'
+			WHEN f2.user_id IS NOT NULL THEN 'applying'
+			WHEN f1.user_id IS NOT NULL AND f2.user_id IS NULL THEN 'requesting'
 		END AS status`).
 		With("f1", subquery1).
 		With("f2", subquery2).
 		TableExpr("f1").
-		Join("FULL JOIN f2 ON f1.uid = f2.friend_uid AND f1.friend_uid = f2.uid")
+		Join("FULL JOIN f2 ON f1.user_id = f2.friend_user_id AND f1.friend_user_id = f2.user_id")
 
 	err := query.Scan(c, &status)
 	if err != nil {
@@ -135,15 +136,15 @@ func (f *friendRepositoryImpl) GetStatus(c context.Context, uid string, fuid str
 }
 
 // GetFriends implements repository.FriendRepository.
-func (f *friendRepositoryImpl) GetFriends(c context.Context, uid string) ([]*model.Friend, error) {
+func (f *friendRepositoryImpl) GetFriends(c context.Context, uid uuid.UUID) ([]*model.Friend, error) {
 	friends := new([]*model.Friend)
 	err := f.DBEngine.Client.NewSelect().
 		Distinct().
 		Column("f1.*").
 		Table("friends").
 		TableExpr("friends AS f1").
-		Join("JOIN friends AS f2 ON f1.uid = f2.friend_uid AND f1.friend_uid = f2.uid").
-		Where("f1.friend_uid = ?", uid).
+		Join("JOIN friends AS f2 ON f1.user_id = f2.friend_user_id AND f1.friend_user_id = f2.user_id").
+		Where("f1.friend_user_id = ?", uid).
 		Scan(c, friends)
 	if err != nil {
 		return nil, err

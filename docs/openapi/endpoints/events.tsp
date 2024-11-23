@@ -74,7 +74,7 @@ namespace EventEndpoints {
     /**
      * イベントの日付
      */
-    eventedAt: utcDateTime;
+    eventOn: utcDateTime;
 
     /**
      * 立て替えたユーザー
@@ -104,7 +104,7 @@ namespace EventEndpoints {
     /**
      * イベントの日付
      */
-    eventedAt: utcDateTime;
+    eventeOn: utcDateTime;
 
     /**
      * 立て替えたユーザー
@@ -129,7 +129,7 @@ namespace EventEndpoints {
   model EventResponse {
     eventId: string;
     name: string;
-    eventedAt: utcDateTime;
+    eventeOn: utcDateTime;
     createdBy: string;
     paidBy: string;
     amount:integer;
@@ -145,7 +145,7 @@ namespace EventEndpoints {
     events: {
       eventId: string;
       name: string;
-      eventedAt: utcDateTime;
+      eventeOn: utcDateTime;
       paidBy: {
         userId: string;
         name: string;

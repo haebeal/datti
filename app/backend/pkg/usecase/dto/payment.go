@@ -1,11 +1,15 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Payments struct {
 	Payments []struct {
 		User struct {
-			ID       string
+			ID       uuid.UUID
 			Name     string
 			Email    string
 			PhotoUrl string
@@ -18,13 +22,13 @@ type Payment struct {
 	ID     string
 	PaidAt time.Time
 	PaidTo struct {
-		ID       string
+		ID       uuid.UUID
 		Name     string
 		Email    string
 		PhotoUrl string
 	}
 	PaidBy struct {
-		ID       string
+		ID       uuid.UUID
 		Name     string
 		Email    string
 		PhotoUrl string
@@ -34,7 +38,7 @@ type Payment struct {
 
 type PaymentCreate struct {
 	PaidAt time.Time
-	PaidTo string
-	PaidBy string
+	PaidTo uuid.UUID
+	PaidBy uuid.UUID
 	Amount int
 }

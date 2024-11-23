@@ -21,7 +21,7 @@ type Event struct {
 	Group   *Group    `bun:"rel:belongs-to,join:group_id=id"`
 	GroupId uuid.UUID `bun:"group_id,notnull,type:uuid,type:uuid"`
 
-	EventedAt time.Time  `bun:"evented_at,nullzero,notnull"`
+	EventOn   time.Time  `bun:"event_on,nullzero,notnull"`
 	CreatedAt time.Time  `bun:"created_at,nullzero,notnull,default:current_timestamp"`
 	UpdatedAt time.Time  `bun:"updated_at,nullzero,notnull,default:current_timestamp"`
 	DeletedAt *time.Time `bun:"deleted_at,soft_delete"`

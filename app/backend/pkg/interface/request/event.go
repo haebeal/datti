@@ -38,7 +38,7 @@ func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
 
 	return &dto.EventCreate{
 		Name:      req.Name,
-		EventedAt: req.EventedAt,
+		EventOn:   req.EventedAt,
 		CreatedBy: req.CreatedBy,
 		PaidBy:    req.PaidBy,
 		Amount:    req.Amount,

@@ -8,7 +8,7 @@ import (
 
 type EventCreate struct {
 	Name      string
-	EventedAt time.Time
+	EventOn   time.Time
 	CreatedBy uuid.UUID
 	PaidBy    uuid.UUID
 	Amount    int
@@ -21,7 +21,7 @@ type EventCreate struct {
 
 type EventUpdate struct {
 	Name      string
-	EventedAt time.Time
+	EventOn   time.Time
 	CreatedBy uuid.UUID
 	PaidBy    uuid.UUID
 	Amount    int
@@ -36,7 +36,7 @@ type EventUpdate struct {
 type EventResponse struct {
 	ID        uuid.UUID
 	Name      string
-	EventedAt time.Time
+	EventOn   time.Time
 	CreatedBy uuid.UUID
 	PaidBy    uuid.UUID
 	Amount    int
@@ -50,10 +50,10 @@ type EventResponse struct {
 
 type Events struct {
 	Events []struct {
-		ID        uuid.UUID
-		Name      string
-		EventedAt time.Time
-		PaidBy    struct {
+		ID      uuid.UUID
+		Name    string
+		EventOn time.Time
+		PaidBy  struct {
 			ID   uuid.UUID
 			Name string
 		}

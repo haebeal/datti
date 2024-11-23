@@ -46,7 +46,7 @@ func (e *eventRepositoryImpl) GetEvents(c context.Context, gid uuid.UUID) ([]*mo
 	err := e.DBEngine.Client.NewSelect().
 		Table("events").
 		Where("group_id = ?", gid).
-		Order("evented_at DESC").
+		Order("event_on DESC").
 		Scan(c, events)
 	if err != nil {
 		return nil, err
@@ -60,14 +60,14 @@ func (e *eventRepositoryImpl) UpdateEvent(c context.Context, id uuid.UUID, uid u
 	event := new(model.Event)
 	event.ID = id
 	event.Name = name
-	event.EventedAt = eventAt
+	event.EventOn = eventAt
 	event.GroupId = gid
 	event.CreatedBy = uid
 
 	//レコードの更新
 	_, err := e.DBEngine.Client.NewUpdate().
 		Model(event).
-		Column("name", "evented_at").
+		Column("name", "event_on").
 		Where("id = ?", id).
 		Exec(c)
 	if err != nil {

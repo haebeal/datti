@@ -55,7 +55,7 @@
 		"@cloudflare/workers-types": "^4.20240423.0",
 		"@remix-run/dev": "^2.9.2",
 		"@remix-run/testing": "^2.9.2",
-		"@storybook/addon-essentials": "^8.3.7",
+		"@storybook/addon-essentials": "^8.4.5",
 		"@storybook/addon-interactions": "^8.4.5",
 		"@storybook/addon-links": "^8.4.5",
 		"@storybook/addon-onboarding": "^8.3.7",

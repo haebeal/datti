@@ -57,7 +57,7 @@
 		"@remix-run/testing": "^2.9.2",
 		"@storybook/addon-essentials": "^8.3.7",
 		"@storybook/addon-interactions": "^8.4.5",
-		"@storybook/addon-links": "^8.3.7",
+		"@storybook/addon-links": "^8.4.5",
 		"@storybook/addon-onboarding": "^8.3.7",
 		"@storybook/blocks": "^8.4.5",
 		"@storybook/react": "^8.0.10",

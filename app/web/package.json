@@ -40,7 +40,7 @@
 		"cmdk": "^1.0.4",
 		"isbot": "^4.4.0",
 		"lucide-react": "^0.376.0",
-		"miniflare": "^3.20240419.1",
+		"miniflare": "^3.20241106.1",
 		"react": "^18.3.1",
 		"react-aria-components": "^1.4.1",
 		"react-dom": "^18.3.1",

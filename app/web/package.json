@@ -28,7 +28,7 @@
 		"@conform-to/zod": "^1.1.5",
 		"@digital-go-jp/tailwind-theme-plugin": "^0.2.1",
 		"@internationalized/date": "^3.5.6",
-		"@radix-ui/react-toast": "^1.1.5",
+		"@radix-ui/react-toast": "^1.2.3",
 		"@remix-run/cloudflare": "^2.9.2",
 		"@remix-run/cloudflare-pages": "^2.9.2",
 		"@remix-run/react": "^2.9.2",

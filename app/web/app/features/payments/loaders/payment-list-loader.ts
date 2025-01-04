@@ -1,15 +1,12 @@
-import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
+import { defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
-export const paymentListLoader = async ({
-	request,
-	context,
-}: LoaderFunctionArgs) => {
-	const { client, headers } = await createAPIClient({ request, context });
+export const paymentListLoader = async () => {
+	const client = createAPIClient();
 
 	const payments = client.payments.history.$get();
 
-	return defer({ payments }, { headers });
+	return defer({ payments });
 };
 
 export type PaymentListLoader = typeof paymentListLoader;

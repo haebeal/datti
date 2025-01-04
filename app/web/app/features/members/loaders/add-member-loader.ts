@@ -5,7 +5,6 @@ import { createAPIClient } from "~/lib/apiClient";
 export const addMemberLoader = async ({
 	request,
 	params,
-	context,
 }: LoaderFunctionArgs) => {
 	const { searchParams } = new URL(request.url);
 	const searchQuery = searchParams.get("q")?.toString();
@@ -18,7 +17,7 @@ export const addMemberLoader = async ({
 		});
 	}
 
-	const { client, headers } = await createAPIClient({ request, context });
+	const client = createAPIClient();
 
 	const members = client.groups._groupId(groupId).members.$get();
 	const users = client.users.$get({
@@ -27,12 +26,7 @@ export const addMemberLoader = async ({
 		},
 	});
 
-	return defer(
-		{ members, users },
-		{
-			headers,
-		},
-	);
+	return defer({ members, users });
 };
 
 export type AddMemberLoader = typeof addMemberLoader;

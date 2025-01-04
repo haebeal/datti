@@ -1,11 +1,8 @@
-import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
+import { defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
-export const friendListLoader = async ({
-	request,
-	context,
-}: LoaderFunctionArgs) => {
-	const { client, headers } = await createAPIClient({ request, context });
+export const friendListLoader = async () => {
+	const client = createAPIClient();
 
 	// フレンド一覧を取得
 	const friends = client.users.$get({
@@ -14,12 +11,9 @@ export const friendListLoader = async ({
 		},
 	});
 
-	return defer(
-		{
-			friends,
-		},
-		{ headers },
-	);
+	return defer({
+		friends,
+	});
 };
 
 export type FriendListLoader = typeof friendListLoader;

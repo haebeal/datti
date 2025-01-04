@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { contextStorage } from "hono/context-storage";
+import auth from "server/auth";
 import { authMiddleware } from "server/middlewares/authMiddleware";
 
 export type Env = {
@@ -23,5 +24,6 @@ const app = new Hono<Env>();
 app.use(contextStorage());
 app.use(authMiddleware);
 
+app.route("/auth", auth);
 
 export default app;

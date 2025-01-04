@@ -42,7 +42,7 @@ export function SideMenu() {
 							)}
 						</Await>
 					</Suspense>
-					<Link href="/setting">プロフィールを編集</Link>
+					<Link href="/setting/profile">プロフィールを編集</Link>
 				</div>
 			</div>
 			<Divider />

@@ -1,37 +1,22 @@
 import fetchClient from "@aspida/fetch";
-import { type AppLoadContext, redirect } from "@remix-run/cloudflare";
+import { redirect } from "@remix-run/cloudflare";
+import { getContext } from "hono/context-storage";
+import type { Env } from "server";
 import api from "~/api/$api";
-import { createSupabaseClient } from "~/lib/supabase.server";
 
-export const createAPIClient = async ({
-	request,
-	context,
-}: {
-	request: Request;
-	context: AppLoadContext;
-}) => {
-	const { headers, supabase } = createSupabaseClient({
-		request,
-		context,
-	});
-	const {
-		data: { user },
-	} = await supabase.auth.getUser();
-	const {
-		data: { session },
-	} = await supabase.auth.getSession();
-
-	if (!user || !session || !session.provider_token) {
+export const createAPIClient = () => {
+	const c = getContext<Env>();
+	const accessToken = c.get("accessToken");
+	if (accessToken === undefined) {
 		throw redirect("/signin");
 	}
 
-	const client = api(
+	return api(
 		fetchClient(undefined, {
-			baseURL: context.cloudflare.env.BACKEND_ENDPOINT,
+			baseURL: c.env.BACKEND_ENDPOINT,
 			headers: {
-				Authorization: `Bearer ${session.access_token}`,
+				Authorization: `Bearer ${accessToken}`,
 			},
 		}),
 	);
-	return { client, headers };
 };

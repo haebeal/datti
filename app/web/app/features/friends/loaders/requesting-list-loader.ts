@@ -1,14 +1,8 @@
-import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
+import { defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
-export const requestingListLoader = async ({
-	request,
-	context,
-}: LoaderFunctionArgs) => {
-	const { client, headers } = await createAPIClient({
-		request,
-		context,
-	});
+export const requestingListLoader = async () => {
+	const client = createAPIClient();
 
 	// 申請中一覧を取得
 	const requestigList = client.users.$get({
@@ -17,12 +11,9 @@ export const requestingListLoader = async ({
 		},
 	});
 
-	return defer(
-		{
-			requestigList,
-		},
-		{ headers },
-	);
+	return defer({
+		requestigList,
+	});
 };
 
 export type RequestigListLoader = typeof requestingListLoader;

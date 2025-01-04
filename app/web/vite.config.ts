@@ -1,8 +1,10 @@
+import adapter from "@hono/vite-dev-server/cloudflare";
 /// <reference types="vitest" />
 import {
 	vitePlugin as remix,
 	cloudflareDevProxyVitePlugin as remixCloudflareDevProxy,
 } from "@remix-run/dev";
+import serverAdapter from "hono-remix-adapter/vite";
 import { flatRoutes } from "remix-flat-routes";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
@@ -23,6 +25,10 @@ export default defineConfig({
 					return flatRoutes("routes", defineRoutes);
 				},
 			}),
+		serverAdapter({
+			adapter,
+			entry: "./server/index.ts",
+		}),
 		tsconfigPaths(),
 	],
 	server: {

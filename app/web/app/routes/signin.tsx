@@ -1,5 +1,4 @@
 import type { MetaFunction } from "@remix-run/cloudflare";
-import { Form } from "@remix-run/react";
 
 import { Button, Divider } from "~/components";
 
@@ -19,11 +18,11 @@ export default function SignIn() {
 					を記録するサービス
 				</h2>
 				<Divider />
-				<Form action="/api/auth/signin" method="post">
+				<form action="/auth/signin" method="post">
 					<Button variant="solid-fill" size="md" type="submit">
 						Googleでログイン
 					</Button>
-				</Form>
+				</form>
 			</div>
 		</div>
 	);

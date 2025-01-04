@@ -1,11 +1,7 @@
 import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
-export const createEventLoader = async ({
-	request,
-	params,
-	context,
-}: LoaderFunctionArgs) => {
+export const createEventLoader = async ({ params }: LoaderFunctionArgs) => {
 	const groupId = params.groupId;
 	if (groupId === undefined) {
 		throw new Response("グループIDの取得に失敗しました", {
@@ -13,14 +9,11 @@ export const createEventLoader = async ({
 			statusText: "Bad Request",
 		});
 	}
-	const { client, headers } = await createAPIClient({
-		request,
-		context,
-	});
+	const client = createAPIClient();
 
 	const members = client.groups._groupId(groupId).members.$get();
 
-	return defer({ members }, { headers });
+	return defer({ members });
 };
 
 export type createEventLoader = typeof createEventLoader;

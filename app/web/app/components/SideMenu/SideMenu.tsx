@@ -1,4 +1,4 @@
-import { Await, Form, NavLink, useLoaderData } from "@remix-run/react";
+import { Await, NavLink, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
 
 import { Button, Divider, Link } from "~/components";
@@ -155,7 +155,7 @@ export function SideMenu() {
 				)}
 			</NavLink>
 			<Divider />
-			<Form action="/api/auth/signout" method="post">
+			<form action="/auth/signout" method="post">
 				<Button
 					type="submit"
 					variant="solid-fill"
@@ -164,7 +164,7 @@ export function SideMenu() {
 				>
 					ログアウト
 				</Button>
-			</Form>
+			</form>
 		</nav>
 	);
 }

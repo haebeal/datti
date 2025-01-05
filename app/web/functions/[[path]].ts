@@ -1,4 +1,4 @@
-import handle from "hono-remix-adapter/cloudflare-pages";
+import handle from "hono-react-router-adapter/cloudflare-pages";
 
 import app from "server";
 // ビルド未実施の場合 TS2307: Cannot find module が出る

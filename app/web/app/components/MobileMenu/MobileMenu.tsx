@@ -106,7 +106,7 @@ export function MobileMenu() {
 				)}
 			</NavLink>
 			<NavLink
-				to="/setting"
+				to="/setting/profile"
 				className={({ isActive }) =>
 					cn("flex flex-col items-center", isActive && "text-blue-900")
 				}

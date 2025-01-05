@@ -1,5 +1,5 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
-import { Outlet } from "@remix-run/react";
+import type { MetaFunction } from "react-router";
+import { Outlet } from "react-router";
 
 export const meta: MetaFunction = () => [
 	{ title: "Datti | 設定" },

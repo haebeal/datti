@@ -1,6 +1,6 @@
 import { HTTPError } from "@aspida/fetch";
 import { parseWithZod } from "@conform-to/zod";
-import { type ActionFunctionArgs, json } from "@remix-run/cloudflare";
+import type { ActionFunctionArgs } from "react-router";
 import { createAPIClient } from "~/lib/apiClient";
 
 import { updateEventSchema as schema } from "../schemas";
@@ -16,43 +16,43 @@ export const updateEventAction = async ({
 		schema,
 	});
 	if (submission.status !== "success") {
-		return json({
+		return {
 			message: "バリデーションに失敗しました",
 			submission: submission.reply(),
-		});
+		};
 	}
 
 	if (request.method !== "PUT") {
-		return json({
+		return {
 			message: "許可されていないメソッドです",
 			submission: submission.reply(),
-		});
+		};
 	}
 
 	const groupId = params.groupId;
 	if (groupId === undefined) {
-		return json({
+		return {
 			message: "グループIDの取得に失敗しました",
 			submission: submission.reply(),
-		});
+		};
 	}
 
 	const eventId = params.eventId;
 	if (eventId === undefined) {
-		return json({
+		return {
 			message: "イベントIDの取得に失敗しました",
 			submission: submission.reply(),
-		});
+		};
 	}
 
 	try {
 		await client.groups._groupId(groupId).events._eventId(eventId).$put({
 			body: submission.value,
 		});
-		return json({
+		return {
 			message: "イベントを更新しました",
 			submission: submission.reply(),
-		});
+		};
 	} catch (error) {
 		if (error instanceof HTTPError) {
 			throw new Response(error.message, {

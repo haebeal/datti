@@ -1,5 +1,5 @@
 import fetchClient from "@aspida/fetch";
-import { redirect } from "@remix-run/cloudflare";
+import { redirect } from "react-router";
 import { getContext } from "hono/context-storage";
 import type { Env } from "server";
 import api from "~/api/$api";

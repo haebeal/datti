@@ -1,6 +1,6 @@
 import { HTTPError } from "@aspida/fetch";
 import { parseWithZod } from "@conform-to/zod";
-import { type ActionFunctionArgs, json } from "@remix-run/cloudflare";
+import type { ActionFunctionArgs } from "react-router";
 import { createAPIClient } from "~/lib/apiClient";
 
 import { deleteEventSchema as schema } from "../schemas";
@@ -16,34 +16,34 @@ export const deleteEventAction = async ({
 		schema,
 	});
 	if (submission.status !== "success") {
-		return json({
+		return {
 			message: "バリデーションに失敗しました",
 			submission: submission.reply(),
-		});
+		};
 	}
 
 	if (request.method !== "DELETE") {
-		return json({
+		return {
 			message: "許可されていないメソッドです",
 			submission: submission.reply(),
-		});
+		};
 	}
 
 	const groupId = params.groupId;
 	if (groupId === undefined) {
-		return json({
+		return {
 			message: "グループIDの取得に失敗しました",
 			submission: submission.reply(),
-		});
+		};
 	}
 
 	try {
 		const eventId = submission.value.eventId;
 		await client.groups._groupId(groupId).events._eventId(eventId).$delete();
-		return json({
+		return {
 			message: "イベントを削除しました",
 			submission: submission.reply(),
-		});
+		};
 	} catch (error) {
 		if (error instanceof HTTPError) {
 			throw new Response(error.message, {

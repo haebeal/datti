@@ -1,11 +1,5 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
-import {
-	Await,
-	useActionData,
-	useLoaderData,
-	useLocation,
-	useNavigate,
-} from "@remix-run/react";
+import type { MetaFunction } from "react-router";
+import { Await, useActionData, useLoaderData, useLocation, useNavigate } from "react-router";
 import { Suspense, useEffect } from "react";
 
 import { Spinner } from "~/components";

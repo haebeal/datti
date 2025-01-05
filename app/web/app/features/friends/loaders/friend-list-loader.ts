@@ -1,4 +1,3 @@
-import { defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
 export const friendListLoader = async () => {
@@ -11,9 +10,9 @@ export const friendListLoader = async () => {
 		},
 	});
 
-	return defer({
+	return {
 		friends,
-	});
+	};
 };
 
 export type FriendListLoader = typeof friendListLoader;

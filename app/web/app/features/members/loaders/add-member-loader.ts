@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
+import type { LoaderFunctionArgs } from "react-router";
 
 import { createAPIClient } from "~/lib/apiClient";
 
@@ -26,7 +26,7 @@ export const addMemberLoader = async ({
 		},
 	});
 
-	return defer({ members, users });
+	return { members, users };
 };
 
 export type AddMemberLoader = typeof addMemberLoader;

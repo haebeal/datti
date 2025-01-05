@@ -1,4 +1,4 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
+import type { MetaFunction } from "react-router";
 
 import { MemberList } from "~/features/members/components";
 export { memberListLoader as loader } from "~/features/members/loaders";

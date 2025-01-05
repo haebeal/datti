@@ -1,11 +1,8 @@
-import adapter from "@hono/vite-dev-server/cloudflare";
 /// <reference types="vitest" />
-import {
-	vitePlugin as remix,
-	cloudflareDevProxyVitePlugin as remixCloudflareDevProxy,
-} from "@remix-run/dev";
-import serverAdapter from "hono-remix-adapter/vite";
-import { flatRoutes } from "remix-flat-routes";
+import adapter from "@hono/vite-dev-server/cloudflare";
+import { reactRouter } from "@react-router/dev/vite";
+import { cloudflareDevProxy } from "@react-router/dev/vite/cloudflare";
+import serverAdapter from "hono-react-router-adapter/vite";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
@@ -16,15 +13,8 @@ export default defineConfig({
 		noExternal: ["aspida", "@aspida/fetch"],
 	},
 	plugins: [
-		remixCloudflareDevProxy(),
-		!process.env.VITEST &&
-			!isStorybook &&
-			remix({
-				ignoredRouteFiles: ["**/.*"],
-				routes: async (defineRoutes) => {
-					return flatRoutes("routes", defineRoutes);
-				},
-			}),
+		cloudflareDevProxy(),
+		!process.env.VITEST && !isStorybook && reactRouter(),
 		serverAdapter({
 			adapter,
 			entry: "./server/index.ts",

@@ -1,4 +1,4 @@
-import { Await, Link, useLoaderData, useLocation } from "@remix-run/react";
+import { Await, Link, useLoaderData, useLocation } from "react-router";
 import { Fragment, Suspense } from "react";
 
 import { Divider, Spinner } from "~/components";

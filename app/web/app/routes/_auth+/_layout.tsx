@@ -1,4 +1,4 @@
-import { Outlet, Link as RouterLink } from "@remix-run/react";
+import { Outlet, Link as RouterLink } from "react-router";
 
 import { Button, MobileMenu, SideMenu } from "~/components";
 

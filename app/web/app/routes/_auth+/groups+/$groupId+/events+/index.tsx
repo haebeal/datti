@@ -1,5 +1,5 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
-import { useLocation, useNavigate } from "@remix-run/react";
+import type { MetaFunction } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import { Button } from "~/components";
 

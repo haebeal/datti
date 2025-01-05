@@ -1,4 +1,3 @@
-import { defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
 export const applyingListLoader = async () => {
@@ -11,9 +10,9 @@ export const applyingListLoader = async () => {
 		},
 	});
 
-	return defer({
+	return {
 		applyingList,
-	});
+	};
 };
 
 export type ApplyingListLoader = typeof applyingListLoader;

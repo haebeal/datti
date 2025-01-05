@@ -1,5 +1,5 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
-import { useActionData, useNavigate } from "@remix-run/react";
+import type { MetaFunction } from "react-router";
+import { useActionData, useNavigate } from "react-router";
 import { useEffect } from "react";
 
 import { useToast } from "~/components/ui/use-toast";

@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
+import type { LoaderFunctionArgs } from "react-router";
 import { createAPIClient } from "~/lib/apiClient";
 
 export const friendRequestLoader = async ({ request }: LoaderFunctionArgs) => {
@@ -15,9 +15,9 @@ export const friendRequestLoader = async ({ request }: LoaderFunctionArgs) => {
 		},
 	});
 
-	return defer({
+	return {
 		users,
-	});
+	};
 };
 
 export type FriendRequestLoader = typeof friendRequestLoader;

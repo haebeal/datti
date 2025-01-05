@@ -1,6 +1,6 @@
 import { HTTPError } from "@aspida/fetch";
 import { parseWithZod } from "@conform-to/zod";
-import { type ActionFunctionArgs, json } from "@remix-run/cloudflare";
+import type { ActionFunctionArgs } from "react-router";
 import { createAPIClient } from "~/lib/apiClient";
 
 import { updatePaymentSchema as schema } from "../schemas";
@@ -14,36 +14,36 @@ export const updatePaymentAction = async ({
 	const formData = await request.formData();
 
 	if (request.method !== "PUT") {
-		return json({
+		return {
 			message: "許可されていないメソッドです",
 			submission: undefined,
-		});
+		};
 	}
 
 	const submission = parseWithZod(formData, {
 		schema,
 	});
 	if (submission.status !== "success") {
-		return json({
+		return {
 			message: "バリデーションに失敗しました",
 			submission: submission.reply(),
-		});
+		};
 	}
 	const paymentId = params.paymentId;
 	if (paymentId === undefined) {
-		return json({
+		return {
 			message: "支払いIDの取得に失敗しました",
 			submission: submission.reply(),
-		});
+		};
 	}
 	try {
 		await client.payments._paymentId(paymentId).$put({
 			body: submission.value,
 		});
-		return json({
+		return {
 			message: "返済を更新しました",
 			submission: submission.reply(),
-		});
+		};
 	} catch (error) {
 		if (error instanceof HTTPError) {
 			throw new Response(error.message, {

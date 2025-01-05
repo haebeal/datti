@@ -1,4 +1,4 @@
-import { Await, useActionData, useLoaderData } from "@remix-run/react";
+import { Await, useActionData, useLoaderData } from "react-router";
 import { Suspense, useEffect } from "react";
 import { Spinner } from "~/components";
 import { useToast } from "~/components/ui/use-toast";

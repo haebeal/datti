@@ -1,4 +1,3 @@
-import { defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
 export const groupListLoader = async () => {
@@ -6,9 +5,9 @@ export const groupListLoader = async () => {
 
 	const groups = client.groups.$get();
 
-	return defer({
+	return {
 		groups,
-	});
+	};
 };
 
 export type GroupListLoader = typeof groupListLoader;

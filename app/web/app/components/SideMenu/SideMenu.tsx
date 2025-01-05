@@ -1,5 +1,5 @@
-import { Await, NavLink, useLoaderData } from "@remix-run/react";
 import { Suspense } from "react";
+import { Await, NavLink, useLoaderData } from "react-router";
 
 import { Button, Divider, Link } from "~/components";
 import { cn } from "~/lib/utils";

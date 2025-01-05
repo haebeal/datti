@@ -1,5 +1,5 @@
 import { HTTPError } from "@aspida/fetch";
-import { type ActionFunctionArgs, json } from "@remix-run/cloudflare";
+import type { ActionFunctionArgs } from "react-router";
 import { createAPIClient } from "~/lib/apiClient";
 
 export const addMemberAction = async ({
@@ -11,26 +11,26 @@ export const addMemberAction = async ({
 	const formData = await request.formData();
 
 	if (request.method !== "POST") {
-		return json({
+		return {
 			message: "許可されていないメソッドです",
 			submission: undefined,
-		});
+		};
 	}
 
 	const groupId = params.groupId;
 	if (groupId === undefined) {
-		return json({
+		return {
 			message: "グループIDの取得に失敗しました",
 			submission: undefined,
-		});
+		};
 	}
 
 	const userId = formData.get("userId")?.toString();
 	if (userId === undefined) {
-		return json({
+		return {
 			message: "ユーザーIDの取得に失敗しました",
 			submission: undefined,
-		});
+		};
 	}
 
 	try {
@@ -39,10 +39,10 @@ export const addMemberAction = async ({
 				userIds: [userId],
 			},
 		});
-		return json({
+		return {
 			message: `${members[0].name}をメンバーに追加しました`,
 			submission: undefined,
-		});
+		};
 	} catch (error) {
 		if (error instanceof HTTPError) {
 			throw new Response(error.message, {

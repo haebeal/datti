@@ -1,4 +1,4 @@
-import { type LoaderFunctionArgs, defer } from "@remix-run/cloudflare";
+import type { LoaderFunctionArgs } from "react-router";
 import { createAPIClient } from "~/lib/apiClient";
 
 export const memberListLoader = async ({ params }: LoaderFunctionArgs) => {
@@ -14,7 +14,7 @@ export const memberListLoader = async ({ params }: LoaderFunctionArgs) => {
 
 	const members = client.groups._groupId(groupId).members.$get();
 
-	return defer({ members });
+	return { members };
 };
 
 export type MemberListLoader = typeof memberListLoader;

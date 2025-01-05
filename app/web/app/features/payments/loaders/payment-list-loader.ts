@@ -1,4 +1,3 @@
-import { defer } from "@remix-run/cloudflare";
 import { createAPIClient } from "~/lib/apiClient";
 
 export const paymentListLoader = async () => {
@@ -6,7 +5,7 @@ export const paymentListLoader = async () => {
 
 	const payments = client.payments.history.$get();
 
-	return defer({ payments });
+	return { payments };
 };
 
 export type PaymentListLoader = typeof paymentListLoader;

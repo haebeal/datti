@@ -1,11 +1,5 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
-import {
-	Await,
-	NavLink,
-	Outlet,
-	useLoaderData,
-	useMatches,
-} from "@remix-run/react";
+import type { MetaFunction } from "react-router";
+import { Await, NavLink, Outlet, useLoaderData, useMatches } from "react-router";
 import { Suspense } from "react";
 
 import type { GroupLoader } from "~/features/groups/loaders";

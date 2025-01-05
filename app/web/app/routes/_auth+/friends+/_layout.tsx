@@ -1,10 +1,4 @@
-import {
-	Link,
-	NavLink,
-	Outlet,
-	useLocation,
-	useNavigate,
-} from "@remix-run/react";
+import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router";
 
 import { Button } from "~/components";
 

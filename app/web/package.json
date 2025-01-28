@@ -37,7 +37,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",
     "hono": "^4.6.19",
-    "hono-react-router-adapter": "^0.6.1",
+    "hono-react-router-adapter": "^0.6.2",
     "isbot": "^4.4.0",
     "lucide-react": "^0.376.0",
     "miniflare": "^3.20241106.2",

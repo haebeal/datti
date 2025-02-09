@@ -6,6 +6,7 @@ import { createSupabase } from "server/utils/supabase";
 export const authMiddleware = createMiddleware<Env>(async (c, next) => {
 	if (c.req.path !== "/signin") {
 		const supabase = createSupabase(c);
+		await supabase.auth.getUser();
 		const {
 			data: { session },
 			error,

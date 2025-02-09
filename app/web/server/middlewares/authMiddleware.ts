@@ -3,7 +3,9 @@ import type { Env } from "server";
 import { createSupabase } from "server/utils/supabase";
 
 export const authMiddleware = createMiddleware<Env>(async (c, next) => {
-	if (c.req.path !== "/signin") {
+	// 実行対象外のパス
+	const excludedPaths = ["/signin", "/auth"];
+	if (!excludedPaths.some((path) => c.req.path.startsWith(path))) {
 		const supabase = createSupabase(c);
 		const { error: getUserError } = await supabase.auth.getUser();
 		if (getUserError) {

@@ -1,6 +1,6 @@
 import fetchClient from "@aspida/fetch";
-import { redirect } from "react-router";
 import { getContext } from "hono/context-storage";
+import { redirect } from "react-router";
 import type { Env } from "server";
 import api from "~/api/$api";
 
@@ -17,6 +17,7 @@ export const createAPIClient = () => {
 			headers: {
 				Authorization: `Bearer ${accessToken}`,
 			},
+			throwHttpErrors: true,
 		}),
 	);
 };

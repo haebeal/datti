@@ -11,21 +11,10 @@ export const updateEventAction = async ({
 }: ActionFunctionArgs) => {
 	const client = createAPIClient();
 
-	const formData = await request.formData();
-	const submission = parseWithZod(formData, {
-		schema,
-	});
-	if (submission.status !== "success") {
-		return {
-			message: "バリデーションに失敗しました",
-			submission: submission.reply(),
-		};
-	}
-
-	if (request.method !== "PUT") {
+	if (request.method !== "PUT" && request.method !== "DELETE") {
 		return {
 			message: "許可されていないメソッドです",
-			submission: submission.reply(),
+			submission: undefined,
 		};
 	}
 
@@ -33,7 +22,7 @@ export const updateEventAction = async ({
 	if (groupId === undefined) {
 		return {
 			message: "グループIDの取得に失敗しました",
-			submission: submission.reply(),
+			submission: undefined,
 		};
 	}
 
@@ -41,24 +30,56 @@ export const updateEventAction = async ({
 	if (eventId === undefined) {
 		return {
 			message: "イベントIDの取得に失敗しました",
-			submission: submission.reply(),
+			submission: undefined,
 		};
 	}
 
-	try {
-		await client.groups._groupId(groupId).events._eventId(eventId).$put({
-			body: submission.value,
+	// イベント更新処理
+	if (request.method === "PUT") {
+		const formData = await request.formData();
+		const submission = parseWithZod(formData, {
+			schema,
 		});
-		return {
-			message: "イベントを更新しました",
-			submission: submission.reply(),
-		};
-	} catch (error) {
-		if (error instanceof HTTPError) {
-			throw new Response(error.message, {
-				status: error.response.status,
-				statusText: error.response.statusText,
+		if (submission.status !== "success") {
+			return {
+				message: "バリデーションに失敗しました",
+				submission: submission.reply(),
+			};
+		}
+
+		try {
+			await client.groups._groupId(groupId).events._eventId(eventId).$put({
+				body: submission.value,
 			});
+			return {
+				message: "イベントを更新しました",
+				submission: submission.reply(),
+			};
+		} catch (error) {
+			if (error instanceof HTTPError) {
+				throw new Response(error.message, {
+					status: error.response.status,
+					statusText: error.response.statusText,
+				});
+			}
+		}
+	}
+
+	// イベント削除処理
+	if (request.method === "DELETE") {
+		try {
+			await client.groups._groupId(groupId).events._eventId(eventId).$delete();
+			return {
+				message: "イベントを削除しました",
+				submission: undefined,
+			};
+		} catch (error) {
+			if (error instanceof HTTPError) {
+				throw new Response(error.message, {
+					status: error.response.status,
+					statusText: error.response.statusText,
+				});
+			}
 		}
 	}
 

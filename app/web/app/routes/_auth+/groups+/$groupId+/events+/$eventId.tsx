@@ -1,6 +1,12 @@
-import type { MetaFunction } from "react-router";
-import { Await, useActionData, useLoaderData } from "react-router";
 import { Suspense, useEffect } from "react";
+import type { MetaFunction } from "react-router";
+import {
+	Await,
+	useActionData,
+	useLoaderData,
+	useLocation,
+	useNavigate,
+} from "react-router";
 import { Spinner } from "~/components";
 import { useToast } from "~/components/ui/use-toast";
 
@@ -17,6 +23,8 @@ export const meta: MetaFunction = () => [
 
 export default function EventDetail() {
 	const { toast } = useToast();
+	const { pathname } = useLocation();
+	const navigate = useNavigate();
 
 	const { event, members } = useLoaderData<EventLoader>();
 	const actionData = useActionData<UpdateEventAction>();
@@ -25,8 +33,11 @@ export default function EventDetail() {
 			toast({
 				title: actionData.message,
 			});
+			if (actionData.message === "イベントを削除しました") {
+				navigate(pathname.slice(0, -37));
+			}
 		}
-	}, [actionData, toast]);
+	}, [actionData, toast, pathname, navigate]);
 
 	return (
 		<div className="flex flex-col gap-7">

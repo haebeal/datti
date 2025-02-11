@@ -1,3 +1,4 @@
+import { HTTPError } from "@aspida/fetch";
 import { Suspense, useEffect } from "react";
 import type { MetaFunction } from "react-router";
 import {
@@ -7,8 +8,11 @@ import {
 	useLocation,
 	useNavigate,
 } from "react-router";
+
 import { Spinner } from "~/components";
 import { useToast } from "~/components/ui/use-toast";
+
+import type { Route } from "./+types/$eventId";
 
 import type { UpdateEventAction } from "~/features/events/actions";
 import { UpdateEventForm } from "~/features/events/components";
@@ -55,6 +59,28 @@ export default function EventDetail() {
 					)}
 				</Await>
 			</Suspense>
+		</div>
+	);
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+	if (error instanceof HTTPError && error.response.status === 404) {
+		return (
+			<div className="flex flex-col gap-3 pt-32">
+				<h1 className="text-std-45B-140 text-center">404</h1>
+				<h3 className="text-std-22N-150 text-center">
+					イベントの取得に失敗しました
+				</h3>
+			</div>
+		);
+	}
+
+	return (
+		<div className="flex flex-col gap-3 pt-32">
+			<h1 className="text-std-45B-140 text-center">500</h1>
+			<h3 className="text-std-22N-150 text-center">
+				不明なエラーが発生しました
+			</h3>
 		</div>
 	);
 }

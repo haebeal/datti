@@ -1,9 +1,12 @@
+import { HTTPError } from "@aspida/fetch";
+import { Suspense, useEffect } from "react";
 import type { MetaFunction } from "react-router";
 import { Await, useActionData, useLoaderData } from "react-router";
-import { Suspense, useEffect } from "react";
 
 import { Spinner } from "~/components";
 import { useToast } from "~/components/ui/use-toast";
+
+import type { Route } from "./+types/settings";
 
 import type { UpdateGroupAction } from "~/features/groups/actions";
 import { UpdateGroupForm } from "~/features/groups/components";
@@ -36,6 +39,28 @@ export default function GroupSettings() {
 					{(group) => <UpdateGroupForm defaultValue={group} />}
 				</Await>
 			</Suspense>
+		</div>
+	);
+}
+
+export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
+	if (error instanceof HTTPError && error.response.status === 404) {
+		return (
+			<div className="flex flex-col gap-3 pt-32">
+				<h1 className="text-std-45B-140 text-center">404</h1>
+				<h3 className="text-std-22N-150 text-center">
+					グループ情報の取得に失敗しました
+				</h3>
+			</div>
+		);
+	}
+
+	return (
+		<div className="flex flex-col gap-3 pt-32">
+			<h1 className="text-std-45B-140 text-center">500</h1>
+			<h3 className="text-std-22N-150 text-center">
+				不明なエラーが発生しました
+			</h3>
 		</div>
 	);
 }

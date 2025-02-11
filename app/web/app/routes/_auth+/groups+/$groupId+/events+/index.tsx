@@ -4,7 +4,6 @@ import { useLocation, useNavigate } from "react-router";
 import { Button } from "~/components";
 
 import { EventList } from "~/features/events/components";
-export { deleteEventAction as action } from "~/features/events/actions";
 export { eventListLoader as loader } from "~/features/events/loaders";
 
 export const meta: MetaFunction = () => [

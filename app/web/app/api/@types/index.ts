@@ -10,7 +10,7 @@ export type EventEndpoints_EventPostRequest = {
   /** イベント名 */
   name: string
   /** イベントの日付 */
-  eventedAt: string
+  eventOn: string
   /** 立て替えたユーザー */
   paidBy: string
   /** 立て替えた金額 */
@@ -26,7 +26,7 @@ export type EventEndpoints_EventPutRequest = {
   /** イベント名 */
   name: string
   /** イベントの日付 */
-  eventedAt: string
+  eventOn: string
   /** 立て替えたユーザー */
   paidBy: string
   /** 立て替えた金額 */
@@ -42,7 +42,7 @@ export type EventEndpoints_EventPutRequest = {
 export type EventEndpoints_EventResponse = {
   eventId: string
   name: string
-  eventedAt: string
+  eventOn: string
   createdBy: string
   paidBy: string
   amount: number
@@ -58,7 +58,7 @@ export type EventEndpoints_EventsResponse = {
   events: {
     eventId: string
     name: string
-    eventedAt: string
+    eventOn: string
 
     paidBy: {
       userId: string

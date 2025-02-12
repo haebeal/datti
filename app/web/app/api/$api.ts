@@ -158,6 +158,18 @@ const api = <T>({ baseURL, fetch }: AspidaClient<T>) => {
            */
           $put: (option: { body: Methods_stou6r['put']['reqBody'], config?: T | undefined }) =>
             fetch<Methods_stou6r['put']['resBody'], BasicHeaders, Methods_stou6r['put']['status']>(prefix, prefix1, PUT, option).json().then(r => r.body),
+          /**
+           * グループの削除
+           * @returns 200レスポンス
+           */
+          delete: (option?: { config?: T | undefined } | undefined) =>
+            fetch<Methods_stou6r['delete']['resBody'], BasicHeaders, Methods_stou6r['delete']['status']>(prefix, prefix1, DELETE, option).json(),
+          /**
+           * グループの削除
+           * @returns 200レスポンス
+           */
+          $delete: (option?: { config?: T | undefined } | undefined) =>
+            fetch<Methods_stou6r['delete']['resBody'], BasicHeaders, Methods_stou6r['delete']['status']>(prefix, prefix1, DELETE, option).json().then(r => r.body),
           $path: () => `${prefix}${prefix1}`,
         };
       },

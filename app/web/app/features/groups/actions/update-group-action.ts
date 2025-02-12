@@ -1,6 +1,6 @@
 import { HTTPError } from "@aspida/fetch";
 import { parseWithZod } from "@conform-to/zod";
-import type { ActionFunctionArgs } from "react-router";
+import { type ActionFunctionArgs, redirect } from "react-router";
 import { createAPIClient } from "~/lib/apiClient";
 
 import { updateGroupSchema as schema } from "../schemas";
@@ -11,21 +11,10 @@ export const updateGroupAction = async ({
 }: ActionFunctionArgs) => {
 	const client = createAPIClient();
 
-	const formData = await request.formData();
-	const submission = parseWithZod(formData, {
-		schema,
-	});
-	if (submission.status !== "success") {
-		return {
-			message: "バリデーションに失敗しました",
-			submission: submission.reply(),
-		};
-	}
-
-	if (request.method !== "PUT") {
+	if (request.method !== "PUT" && request.method !== "DELETE") {
 		return {
 			message: "許可されていないメソッドです",
-			submission: submission.reply(),
+			submission: undefined,
 		};
 	}
 
@@ -33,24 +22,53 @@ export const updateGroupAction = async ({
 	if (groupId === undefined) {
 		return {
 			message: "グループIDの取得に失敗しました",
-			submission: submission.reply(),
+			submission: undefined,
 		};
 	}
 
-	try {
-		await client.groups._groupId(groupId).$put({
-			body: submission.value,
+	// グループ更新処理
+	if (request.method === "PUT") {
+		const formData = await request.formData();
+		const submission = parseWithZod(formData, {
+			schema,
 		});
-		return {
-			message: "グループを更新しました",
-			submission: submission.reply(),
-		};
-	} catch (error) {
-		if (error instanceof HTTPError) {
-			throw new Response(error.message, {
-				status: error.response.status,
-				statusText: error.response.statusText,
+		if (submission.status !== "success") {
+			return {
+				message: "バリデーションに失敗しました",
+				submission: submission.reply(),
+			};
+		}
+
+		try {
+			await client.groups._groupId(groupId).$put({
+				body: submission.value,
 			});
+			return {
+				message: "グループを更新しました",
+				submission: submission.reply(),
+			};
+		} catch (error) {
+			if (error instanceof HTTPError) {
+				throw new Response(error.message, {
+					status: error.response.status,
+					statusText: error.response.statusText,
+				});
+			}
+		}
+	}
+
+	// グループ削除処理
+	if (request.method === "DELETE") {
+		try {
+			await client.groups._groupId(groupId).$delete();
+			return redirect("/groups");
+		} catch (error) {
+			if (error instanceof HTTPError) {
+				throw new Response(error.message, {
+					status: error.response.status,
+					statusText: error.response.statusText,
+				});
+			}
 		}
 	}
 

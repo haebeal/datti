@@ -33,7 +33,7 @@ interface Props {
 
 export function UpdateEventForm({ defaultValue, members }: Props) {
 	const actionData = useActionData<UpdateEventAction>();
-	const [form, { name, eventedAt, amount, payments, paidBy }] = useForm({
+	const [form, { name, eventOn, amount, payments, paidBy }] = useForm({
 		defaultValue,
 		lastResult: actionData?.submission,
 		onValidate({ formData }) {
@@ -68,7 +68,7 @@ export function UpdateEventForm({ defaultValue, members }: Props) {
 	}, []);
 
 	const nameId = useId();
-	const eventedAtId = useId();
+	const eventOnId = useId();
 	const paidById = useId();
 	const amountId = useId();
 	const burdenId = useId();
@@ -98,19 +98,19 @@ export function UpdateEventForm({ defaultValue, members }: Props) {
 					</div>
 
 					<div className="w-full flex flex-col gap-2">
-						<Label htmlFor={eventedAtId}>
+						<Label htmlFor={eventOnId}>
 							イベント日
 							<RequirementBadge>※必須</RequirementBadge>
 						</Label>
 						<DatePicker
-							{...getInputProps(eventedAt, { type: "text" })}
+							{...getInputProps(eventOn, { type: "text" })}
 							data-1p-ignore
 							placeholder="イベント日を選択"
 							disabled={state !== "idle"}
 							isError={name.errors !== undefined}
-							id={eventedAtId}
+							id={eventOnId}
 						/>
-						<ErrorText>{eventedAt.errors?.toString()}</ErrorText>
+						<ErrorText>{eventOn.errors?.toString()}</ErrorText>
 					</div>
 					<div className="w-full flex flex-col gap-2">
 						<Label htmlFor={paidById}>

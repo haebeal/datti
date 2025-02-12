@@ -11,7 +11,7 @@ export const createEventSchema = z.object<
 	name: z.string({
 		required_error: "必須項目です",
 	}),
-	eventedAt: z
+	eventOn: z
 		.string({
 			required_error: "必須項目です",
 		})
@@ -40,7 +40,7 @@ export const updateEventSchema = z.object<
 	name: z.string({
 		required_error: "必須項目です",
 	}),
-	eventedAt: z
+	eventOn: z
 		.string({
 			required_error: "必須項目です",
 		})

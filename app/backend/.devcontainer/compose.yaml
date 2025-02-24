@@ -1,14 +1,14 @@
 services:
   app:
-    container_name: datti
-    image: "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm"
+    container_name: datti-api
+    image: mcr.microsoft.com/devcontainers/go:1.22-bookworm
     environment:
       - TZ=Asia/Tokyo
     tty: true
     volumes:
       - type: bind
-        source: ../
-        target: /workspace/datti
+        source: ../../../
+        target: /workspaces/datti
     depends_on:
       - db
   db:

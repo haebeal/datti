@@ -74,7 +74,7 @@ func (e *eventHandler) HandleCreate(c echo.Context) error {
 		res := &response.Event{
 			ID:        event.ID,
 			Name:      event.Name,
-			EventedAt: event.EventOn,
+			EventOn:   event.EventOn,
 			CreatedBy: event.CreatedBy,
 			PaidBy:    event.CreatedBy,
 			Amount:    event.Amount,
@@ -120,7 +120,7 @@ func (e *eventHandler) HandleGet(c echo.Context) error {
 		res := response.Event{
 			ID:        event.ID,
 			Name:      event.Name,
-			EventedAt: event.EventOn,
+			EventOn:   event.EventOn,
 			CreatedBy: event.CreatedBy,
 			PaidBy:    event.PaidBy,
 			Amount:    event.Amount,
@@ -141,10 +141,10 @@ func (e *eventHandler) HandleGetById(c echo.Context) error {
 
 	res := &response.Events{
 		Events: make([]struct {
-			ID        uuid.UUID `json:"eventId"`
-			Name      string    `json:"name"`
-			EventedAt time.Time `json:"eventedAt"`
-			PaidBy    struct {
+			ID      uuid.UUID `json:"eventId"`
+			Name    string    `json:"name"`
+			EventOn time.Time `json:"eventOn"`
+			PaidBy  struct {
 				ID   uuid.UUID `json:"userId"`
 				Name string    `json:"name"`
 			} `json:"paidBy"`
@@ -161,18 +161,18 @@ func (e *eventHandler) HandleGetById(c echo.Context) error {
 		} else {
 			for _, event := range events.Events {
 				res.Events = append(res.Events, struct {
-					ID        uuid.UUID `json:"eventId"`
-					Name      string    `json:"name"`
-					EventedAt time.Time `json:"eventedAt"`
-					PaidBy    struct {
+					ID      uuid.UUID `json:"eventId"`
+					Name    string    `json:"name"`
+					EventOn time.Time `json:"eventOn"`
+					PaidBy  struct {
 						ID   uuid.UUID `json:"userId"`
 						Name string    `json:"name"`
 					} `json:"paidBy"`
 					Amount int `json:"amount"`
 				}{
-					ID:        event.ID,
-					Name:      event.Name,
-					EventedAt: event.EventOn,
+					ID:      event.ID,
+					Name:    event.Name,
+					EventOn: event.EventOn,
 					PaidBy: struct {
 						ID   uuid.UUID `json:"userId"`
 						Name string    `json:"name"`
@@ -233,7 +233,7 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 
 	eventUpdateRequest := &dto.EventUpdate{
 		Name:      req.Name,
-		EventOn:   req.EventedAt,
+		EventOn:   req.EventOn,
 		CreatedBy: req.CreatedBy,
 		PaidBy:    req.PaidBy,
 		Amount:    req.Amount,
@@ -269,7 +269,7 @@ func (e *eventHandler) HandleUpdate(c echo.Context) error {
 		res := &response.Event{
 			ID:        event.ID,
 			Name:      event.Name,
-			EventedAt: event.EventOn,
+			EventOn:   event.EventOn,
 			CreatedBy: event.CreatedBy,
 			PaidBy:    event.CreatedBy,
 			Amount:    event.Amount,

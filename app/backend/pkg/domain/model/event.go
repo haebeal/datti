@@ -28,11 +28,11 @@ type Event struct {
 }
 
 type EventCreate struct {
-	Name      string
-	EventedAt time.Time
-	PaidBy    string
-	Amount    int
-	Payments  []PaymentUsers
+	Name     string
+	EventOn  time.Time
+	PaidBy   string
+	Amount   int
+	Payments []PaymentUsers
 }
 
 type PaymentUsers struct {

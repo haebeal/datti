@@ -9,7 +9,7 @@ import (
 
 type EventCreateRequest struct {
 	Name      string    `json:"name"`
-	EventedAt time.Time `json:"eventedAt"`
+	EventOn   time.Time `json:"eventOn"`
 	CreatedBy uuid.UUID `json:"createdBy"`
 	PaidBy    uuid.UUID `json:"paidBy"`
 	Amount    int       `json:"amount"`
@@ -38,7 +38,7 @@ func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
 
 	return &dto.EventCreate{
 		Name:      req.Name,
-		EventOn:   req.EventedAt,
+		EventOn:   req.EventOn,
 		CreatedBy: req.CreatedBy,
 		PaidBy:    req.PaidBy,
 		Amount:    req.Amount,
@@ -50,7 +50,7 @@ func ToEventCreate(req *EventCreateRequest) *dto.EventCreate {
 type EventUpdateRequest struct {
 	ID        uuid.UUID      `json:"eventId"`
 	Name      string         `json:"name"`
-	EventedAt time.Time      `json:"eventedAT"`
+	EventOn   time.Time      `json:"eventOn"`
 	CreatedBy uuid.UUID      `json:"createdBy"`
 	PaidBy    uuid.UUID      `json:"paidBy"`
 	Amount    int            `json:"amount"`

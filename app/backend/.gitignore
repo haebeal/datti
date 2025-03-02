@@ -3,6 +3,7 @@
 
 ### DevContainer ###
 .devcontainer/db/data/*
+.devcontainer/atlas_db/data/*
 
 ### Go ###
 # If you prefer the allow list template instead of the deny list, see community template:

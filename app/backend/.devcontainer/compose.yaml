@@ -15,10 +15,23 @@ services:
     container_name: postgres
     image: postgres:15
     environment:
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: atlas_db
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: datti
       TZ: Asia/Tokyo
     volumes:
       - type: bind
         source: ./db/data
+        target: /var/lib/postgresql/data
+  atlas_db:
+    container_name: atlas_db
+    image: postgres:15
+    environment:
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: atlas
+      TZ: Asia/Tokyo
+    volumes:
+      - type: bind
+        source: ./atlas_db/data
         target: /var/lib/postgresql/data

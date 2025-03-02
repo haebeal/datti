@@ -25,5 +25,8 @@
       ]
     }
   },
-  "postCreateCommand": "git config --global --add safe.directory /workspaces/datti"
+  "postCreateCommand": "git config --global --add safe.directory /workspaces/datti",
+  "features": {
+    "ghcr.io/audacioustux/devcontainers/taskfile:1": {}
+  }
 }

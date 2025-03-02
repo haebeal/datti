@@ -3,6 +3,3 @@
 
 # Secrets for act
 .secrets
-
-# DevContainer
-.devcontainer/db/data/*

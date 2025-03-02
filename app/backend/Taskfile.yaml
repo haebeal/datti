@@ -15,4 +15,4 @@ tasks:
           --url $DSN
           --to "file://migrations/schema.sql" 
           --schema public 
-          --dev-url "postgres://postgres:root@localhost:5433/atlas_db?sslmode=disable&timezone=Asia/Tokyo"
+          --dev-url $ATLAS_DSN

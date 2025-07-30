@@ -8,8 +8,8 @@ import (
 
 	"github.com/haebeal/datti/pkg/application"
 	"github.com/haebeal/datti/pkg/gateway"
-	postgres_repository "github.com/haebeal/datti/pkg/infrastructure/postgres"
-	api "github.com/haebeal/datti/pkg/presentation"
+	"github.com/haebeal/datti/pkg/infrastructure/postgres"
+	"github.com/haebeal/datti/pkg/presentation/api"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 )
@@ -35,7 +35,7 @@ func main() {
 
 	queries := gateway.New(conn)
 
-	er := postgres_repository.NewEventPostgresRepository(ctx, queries)
+	er := postgres.NewEventPostgresRepository(ctx, queries)
 
 	eu := application.NewEventUseCase(er)
 

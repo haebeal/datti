@@ -8,19 +8,19 @@ import (
 )
 
 type EventPostgresRepository struct {
+	ctx     context.Context
 	queries *gateway.Queries
 }
 
-func NewEventPostgresRepository(queries *gateway.Queries) *EventPostgresRepository {
+func NewEventPostgresRepository(ctx context.Context, queries *gateway.Queries) *EventPostgresRepository {
 	return &EventPostgresRepository{
+		ctx:     ctx,
 		queries: queries,
 	}
 }
 
 func (er *EventPostgresRepository) Create(e *core.Event) error {
-	ctx := context.Background()
-
-	err := er.queries.CreateEvent(ctx, gateway.CreateEventParams{
+	err := er.queries.CreateEvent(er.ctx, gateway.CreateEventParams{
 		ID:        e.ID().String(),
 		Name:      e.Name(),
 		EventAt:   e.EventDate(),

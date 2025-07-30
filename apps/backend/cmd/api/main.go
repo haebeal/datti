@@ -35,7 +35,7 @@ func main() {
 
 	queries := gateway.New(conn)
 
-	er := postgres_repository.NewEventPostgresRepository(queries)
+	er := postgres_repository.NewEventPostgresRepository(ctx, queries)
 
 	eu := application.NewEventUseCase(er)
 

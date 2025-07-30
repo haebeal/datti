@@ -10,7 +10,7 @@ import {
 } from "react-router";
 
 import { cn } from "~/lib/utils";
-import type { Route } from "./+types/_layout.tsx";
+import type { Route } from "./+types/_layout.js";
 
 import type { GroupLoader } from "~/features/groups/loaders";
 

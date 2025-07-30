@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { useRef } from "react";
-import { Button } from "../";
+import { Button } from "..";
 import { Dialog, DialogBody } from "./Dialog";
 
 const meta = {

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React from "react";
-import { ErrorText, Label, RequirementBadge, SupportText } from "../";
+import { ErrorText, Label, RequirementBadge, SupportText } from "..";
 import { Select } from "./Select";
 
 const meta = {

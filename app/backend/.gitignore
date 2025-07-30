@@ -1,10 +1,6 @@
 # Created by https://www.toptal.com/developers/gitignore/api/go,windows,linux,macos,visualstudiocode,jetbrains
 # Edit at https://www.toptal.com/developers/gitignore?templates=go,windows,linux,macos,visualstudiocode,jetbrains
 
-### DevContainer ###
-.devcontainer/db/data/*
-.devcontainer/atlas_db/data/*
-
 ### Database ###
 migrations/*
 

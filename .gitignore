@@ -1,3 +1,6 @@
+### DevContainer ###
+.devcontainer/data
+
 # Cache
 **/*/.DS_Store
 

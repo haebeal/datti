@@ -4,5 +4,8 @@
 # Cache
 **/*/.DS_Store
 
+# pnpm
+.pnpm-store/
+
 # Secrets for act
 .secrets

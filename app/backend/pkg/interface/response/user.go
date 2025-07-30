@@ -1,8 +1,8 @@
 package response
 
 import (
-	"github.com/datti-api/pkg/domain/model"
 	"github.com/google/uuid"
+	"github.com/haebeal/datti/pkg/domain/model"
 )
 
 type User struct {

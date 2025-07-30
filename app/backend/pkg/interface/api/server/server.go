@@ -8,11 +8,11 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/datti-api/pkg/infrastructure/database"
-	"github.com/datti-api/pkg/infrastructure/repositoryimpl"
-	"github.com/datti-api/pkg/interface/api/handler"
-	auth "github.com/datti-api/pkg/interface/api/middleware"
-	"github.com/datti-api/pkg/usecase"
+	"github.com/haebeal/datti/pkg/infrastructure/database"
+	"github.com/haebeal/datti/pkg/infrastructure/repositoryimpl"
+	"github.com/haebeal/datti/pkg/interface/api/handler"
+	auth "github.com/haebeal/datti/pkg/interface/api/middleware"
+	"github.com/haebeal/datti/pkg/usecase"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )

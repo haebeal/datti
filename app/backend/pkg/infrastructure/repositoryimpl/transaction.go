@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/datti-api/pkg/domain/repository"
+	"github.com/haebeal/datti/pkg/domain/repository"
 	"github.com/uptrace/bun"
 )
 

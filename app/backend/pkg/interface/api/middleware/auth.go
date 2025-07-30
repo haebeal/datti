@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/datti-api/pkg/interface/response"
+	"github.com/haebeal/datti/pkg/interface/response"
 	"github.com/labstack/echo/v4"
 	"github.com/supabase-community/gotrue-go"
 )

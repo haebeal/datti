@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/datti-api/pkg/interface/request"
-	"github.com/datti-api/pkg/interface/response"
-	"github.com/datti-api/pkg/usecase"
-	"github.com/datti-api/pkg/usecase/dto"
 	"github.com/google/uuid"
+	"github.com/haebeal/datti/pkg/interface/request"
+	"github.com/haebeal/datti/pkg/interface/response"
+	"github.com/haebeal/datti/pkg/usecase"
+	"github.com/haebeal/datti/pkg/usecase/dto"
 	"github.com/labstack/echo/v4"
 )
 

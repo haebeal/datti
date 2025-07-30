@@ -1,4 +1,4 @@
-module github.com/datti-api
+module github.com/haebeal/datti
 
 go 1.22
 

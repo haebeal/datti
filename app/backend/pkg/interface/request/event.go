@@ -3,8 +3,8 @@ package request
 import (
 	"time"
 
-	"github.com/datti-api/pkg/usecase/dto"
 	"github.com/google/uuid"
+	"github.com/haebeal/datti/pkg/usecase/dto"
 )
 
 type EventCreateRequest struct {

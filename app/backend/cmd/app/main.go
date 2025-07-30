@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/datti-api/pkg/interface/api/server"
+	"github.com/haebeal/datti/pkg/interface/api/server"
 	"github.com/joho/godotenv"
 )
 

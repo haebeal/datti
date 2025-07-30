@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/datti-api/pkg/domain/model"
-	"github.com/datti-api/pkg/domain/repository"
-	"github.com/datti-api/pkg/usecase/dto"
 	"github.com/google/uuid"
+	"github.com/haebeal/datti/pkg/domain/model"
+	"github.com/haebeal/datti/pkg/domain/repository"
+	"github.com/haebeal/datti/pkg/usecase/dto"
 )
 
 type PaymentUseCase interface {

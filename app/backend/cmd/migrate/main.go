@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/datti-api/pkg/domain/model"
-	"github.com/datti-api/pkg/infrastructure/database"
+	"github.com/haebeal/datti/pkg/domain/model"
+	"github.com/haebeal/datti/pkg/infrastructure/database"
 	"github.com/joho/godotenv"
 	"github.com/uptrace/bun"
 )

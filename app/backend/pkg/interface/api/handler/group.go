@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/datti-api/pkg/domain/model"
-	"github.com/datti-api/pkg/interface/request"
-	"github.com/datti-api/pkg/interface/response"
-	"github.com/datti-api/pkg/usecase"
 	"github.com/google/uuid"
+	"github.com/haebeal/datti/pkg/domain/model"
+	"github.com/haebeal/datti/pkg/interface/request"
+	"github.com/haebeal/datti/pkg/interface/response"
+	"github.com/haebeal/datti/pkg/usecase"
 	"github.com/labstack/echo/v4"
 )
 

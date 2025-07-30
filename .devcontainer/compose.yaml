@@ -1,0 +1,24 @@
+services:
+  app:
+    container_name: datti
+    build:
+      context: .
+      dockerfile: Dockerfile
+      no_cache: true
+    environment:
+      - TZ=Asia/Tokyo
+    tty: true
+    depends_on:
+      - db
+  db:
+    container_name: postgres
+    image: postgres:16
+    environment:
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: datti
+      TZ: Asia/Tokyo
+    volumes:
+      - type: bind
+        source: ./data
+        target: /var/lib/postgresql/data

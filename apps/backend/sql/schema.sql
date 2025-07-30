@@ -1,0 +1,7 @@
+CREATE TABLE events (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  event_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp
+);

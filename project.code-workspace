@@ -8,9 +8,5 @@
       "path": "apps/backend",
       "name": "backend"
     },
-    {
-      "path": "apps/web",
-      "name": "web"
-    },
   ]
 }

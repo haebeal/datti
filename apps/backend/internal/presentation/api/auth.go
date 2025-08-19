@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/haebeal/datti/pkg/interface/response"
+	// "github.com/haebeal/datti/pkg/interface/response"
 	"github.com/labstack/echo/v4"
 	"github.com/supabase-community/gotrue-go"
 )
@@ -14,6 +14,7 @@ import (
 func AuthMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			// TODO: openAPIのスキーマからエラーの方を解決する
 			errRes := new(response.Error)
 			log.Print("Auth middleware start")
 			accessToken := ""

@@ -2,6 +2,9 @@ version: '3'
 dotenv:
   - '.env'
 tasks:
+  gen-sqlc:
+    cmds:
+      - sqlc generate
   gen-type:
     cmds:
       - oapi-codegen -generate "types" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/types.gen.go

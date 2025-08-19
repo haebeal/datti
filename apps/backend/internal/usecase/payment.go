@@ -3,14 +3,24 @@ package usecase
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 )
 
+type Debtor struct {
+	ID     uuid.UUID
+	Amount int64
+}
+
+type CreateCommand struct {
+	Name      string
+	PayerID   uuid.UUID
+	Amount    int64
+	Debtors   []Debtor
+	EventDate time.Time
+}
 type PaymentUseCase interface {
-	Create(name string, amount int64, paidBy string, eventDate time.Time, payments []*struct {
-		userID string
-		amount int64
-	}) (*domain.PaymentEvent, error)
+	Create(CreateCommand) (*domain.PaymentEvent, error)
 }
 type paymentUseCase struct {
 	pr domain.PaymentEventRepository
@@ -24,16 +34,13 @@ func NewPaymentUseCase(pr domain.PaymentEventRepository, ur domain.UserRepositor
 	}
 }
 
-func (pu *paymentUseCase) Create(name string, amount int64, paidBy string, eventDate time.Time, payments []struct {
-	userID string
-	amount int64
-}) (*domain.PaymentEvent, error) {
-	user, err := pu.ur.FindByID(paidBy)
+func (pu *paymentUseCase) Create(cc CreateCommand) (*domain.PaymentEvent, error) {
+	user, err := pu.ur.FindByID(cc.PayerID)
 	if err != nil {
 		return nil, err
 	}
 
-	a, err := domain.NewAmount(amount)
+	a, err := domain.NewAmount(cc.Amount)
 	if err != nil {
 		return nil, err
 	}
@@ -43,12 +50,12 @@ func (pu *paymentUseCase) Create(name string, amount int64, paidBy string, event
 	}
 
 	var debtors []*domain.Debtor
-	for _, p := range payments {
-		user, err := pu.ur.FindByID(p.userID)
+	for _, d := range cc.Debtors {
+		user, err := pu.ur.FindByID(d.ID)
 		if err != nil {
 			return nil, err
 		}
-		a, err := domain.NewAmount(p.amount)
+		a, err := domain.NewAmount(d.Amount)
 		if err != nil {
 			return nil, err
 		}
@@ -60,7 +67,7 @@ func (pu *paymentUseCase) Create(name string, amount int64, paidBy string, event
 		debtors = append(debtors, debtor)
 	}
 
-	event, err := domain.CreatePaymentEvent(name, payer, debtors, eventDate)
+	event, err := domain.CreatePaymentEvent(cc.Name, payer, debtors, cc.EventDate)
 	if err != nil {
 		return nil, err
 	}

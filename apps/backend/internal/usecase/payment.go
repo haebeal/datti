@@ -6,20 +6,26 @@ import (
 	"github.com/haebeal/datti/internal/domain"
 )
 
-type PaymentUseCase struct {
+type PaymentUseCase interface {
+	Create(name string, amount int64, paidBy string, eventDate time.Time, payments []*struct {
+		userID string
+		amount int64
+	}) (*domain.PaymentEvent, error)
+}
+type paymentUseCase struct {
 	pr domain.PaymentEventRepository
 	ur domain.UserRepository
 }
 
-func NewPaymentUseCase(pr domain.PaymentEventRepository, ur domain.UserRepository) *PaymentUseCase {
-	return &PaymentUseCase{
+func NewPaymentUseCase(pr domain.PaymentEventRepository, ur domain.UserRepository) *paymentUseCase {
+	return &paymentUseCase{
 		pr: pr,
 		ur: ur,
 	}
 }
 
-func (pu *PaymentUseCase) Create(name string, amount int64, paidBy string, eventDate time.Time, payments []struct {
-	userId string
+func (pu *paymentUseCase) Create(name string, amount int64, paidBy string, eventDate time.Time, payments []struct {
+	userID string
 	amount int64
 }) (*domain.PaymentEvent, error) {
 	user, err := pu.ur.FindByID(paidBy)
@@ -38,7 +44,7 @@ func (pu *PaymentUseCase) Create(name string, amount int64, paidBy string, event
 
 	var debtors []*domain.Debtor
 	for _, p := range payments {
-		user, err := pu.ur.FindByID(p.userId)
+		user, err := pu.ur.FindByID(p.userID)
 		if err != nil {
 			return nil, err
 		}

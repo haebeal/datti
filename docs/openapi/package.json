@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "compile": "tsp compile .",
-    "compile:watch": "tsp compile . --watch"
+    "compile:watch": "tsp compile . --watch",
+    "format": "tsp format \"**/*.tsp\""
   },
   "devDependencies": {
     "@typespec/compiler": "^1.3.0",

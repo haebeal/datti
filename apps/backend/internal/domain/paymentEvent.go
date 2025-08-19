@@ -102,3 +102,11 @@ func (e *PaymentEvent) CreatedAt() time.Time {
 func (e *PaymentEvent) UpdatedAt() time.Time {
 	return e.updatedAt
 }
+
+type PaymentEventRepository interface {
+	Create(*PaymentEvent) error
+	FindAll() ([]*PaymentEvent, error)
+	FindById(string) (*PaymentEvent, error)
+	Update(*PaymentEvent) error
+	Delete(*PaymentEvent) error
+}

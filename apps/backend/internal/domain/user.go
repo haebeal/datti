@@ -60,3 +60,9 @@ func (u *User) Avatar() string {
 func (u *User) Email() string {
 	return u.email
 }
+
+type UserRepository interface {
+	FindByID(string) (*User, error)
+	FindAll() ([]*User, error)
+	Update(*User) error
+}

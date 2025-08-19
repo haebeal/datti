@@ -1,18 +1,16 @@
 version: '3'
-
-dotenv: 
+dotenv:
   - '.env'
-
 tasks:
-  schema-gen:
-    desc: "schema.sqlの生成"
+  gen-type:
     cmds:
-      - go run ./cmd/migrate/main.go
-  schema-apply:
-    desc: "マイグレーションの適用"
+      - oapi-codegen -generate "types" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/types.gen.go
+  gen-server:
     cmds:
-      - atlas schema apply 
-          --url $DSN
-          --to "file://migrations/schema.sql" 
-          --schema public 
-          --dev-url $ATLAS_DSN
+      - oapi-codegen -generate "server" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/server.gen.go
+  gen-client:
+    cmds:
+      - oapi-codegen -generate "client" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/client.gen.go
+  tsp-compile:
+    cmds:
+      - tsp tsp-compile docs/openapi/

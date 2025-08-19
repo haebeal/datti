@@ -51,6 +51,8 @@ func NewPaymentEvent(id string, name string, payer *Payer, debtors []*Debtor, ev
 	return &PaymentEvent{
 		id:        ulid,
 		name:      name,
+		payer:     payer,
+		debtors:   debtors,
 		eventDate: eventDate,
 		createdAt: createdAt,
 		updatedAt: updatedAt,

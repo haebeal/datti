@@ -25,20 +25,20 @@ func (ph *PaymentHandler) Create(c echo.Context) error {
 	err := c.Bind(req)
 	if err != nil {
 		res := &api.ErrorResponse{
-			Message: "bad request",
+			Message: "binding nimo",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
-	var debtors = []usecase.Debtor{}
+	var debtorsCommand = []usecase.Debtor{}
 	for _, d := range req.Debtors {
 		id, err := uuid.Parse(d.Id)
 		if err != nil {
 			res := &api.ErrorResponse{
-				Message: "bad request",
+				Message: "d id",
 			}
 			return c.JSON(http.StatusBadRequest, res)
 		}
-		debtors = append(debtors, usecase.Debtor{
+		debtorsCommand = append(debtorsCommand, usecase.Debtor{
 			ID:     id,
 			Amount: int64(d.Amount),
 		})
@@ -47,14 +47,15 @@ func (ph *PaymentHandler) Create(c echo.Context) error {
 	id, err := uuid.Parse(req.Payer.Id)
 	if err != nil {
 		res := &api.ErrorResponse{
-			Message: "bad request",
+			Message: "p id",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 	command := usecase.CreateCommand{
 		Name:      req.Name,
 		PayerID:   id,
-		Debtors:   debtors,
+		Amount:    int64(req.Payer.Amount),
+		Debtors:   debtorsCommand,
 		EventDate: req.EventDate,
 	}
 	payment, err := ph.pu.Create(command)
@@ -64,12 +65,37 @@ func (ph *PaymentHandler) Create(c echo.Context) error {
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
+
+	var debtors []struct {
+		Amount uint64 `json:"amount"`
+		Avatar string `json:"avatar"`
+		Email  string `json:"email"`
+		Id     string `json:"id"`
+		Name   string `json:"name"`
+	}
+	for _, d := range payment.Debtors() {
+		debtor := struct {
+			Amount uint64 `json:"amount"`
+			Avatar string `json:"avatar"`
+			Email  string `json:"email"`
+			Id     string `json:"id"`
+			Name   string `json:"name"`
+		}{
+			Id:     d.ID().String(),
+			Name:   d.Name(),
+			Email:  d.Email(),
+			Avatar: d.Avatar(),
+		}
+		debtors = append(debtors, debtor)
+	}
+
 	res := &api.PaymentCreateEventResponse{
 		CreatedAt: payment.CreatedAt(),
 		// Debtors:
 		EventDate: payment.EventDate(),
 		Id:        payment.ID().String(),
 		Name:      payment.Name(),
+		Debtors:   debtors,
 		Payer: struct {
 			Amount uint64 "json:\"amount\""
 			Avatar string "json:\"avatar\""

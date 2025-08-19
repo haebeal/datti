@@ -12,6 +12,15 @@ model ErrorBody<T extends string = string> {
 }
 
 /**
+ * 400エラー
+ */
+@error
+model BadRequestError {
+  @statusCode statusCode: 400;
+  @body body: ErrorBody;
+}
+
+/**
  * 401エラー
  */
 @error

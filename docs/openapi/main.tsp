@@ -9,10 +9,9 @@ using TypeSpec.Http;
 /**
  * 誰にいくら払ったっけ？を記録するサービス
  */
-@service({
+@service(#{
   title: "Datti API",
 })
 @server("https://datti-api.haebeal.net", "本番環境")
-@server("https://datti-api-dev.fly.dev", "開発環境")
 @useAuth(BearerAuth)
-namespace DattiAPI;
+namespace DattiApi;

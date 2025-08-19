@@ -21,12 +21,12 @@ func NewUserRepository(ctx context.Context, queries *postgres.Queries) *UserRepo
 }
 
 func (ur *UserRepositoryImpl) FindByID(id uuid.UUID) (*domain.User, error) {
-	result, err := ur.queries.FindUserByID(ur.ctx, id)
+	row, err := ur.queries.FindUserByID(ur.ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := domain.NewUser(result.ID.String(), result.Name, result.Avatar, result.Email)
+	user, err := domain.NewUser(row.ID.String(), row.Name, row.Avatar, row.Email)
 	if err != nil {
 		return nil, err
 	}
@@ -35,14 +35,14 @@ func (ur *UserRepositoryImpl) FindByID(id uuid.UUID) (*domain.User, error) {
 }
 
 func (ur *UserRepositoryImpl) FindAll() ([]*domain.User, error) {
-	result, err := ur.queries.FindAllUsers(ur.ctx)
+	rows, err := ur.queries.FindAllUsers(ur.ctx)
 	if err != nil {
 		return nil, err
 	}
 
 	var users []*domain.User
-	for _, u := range result {
-		user, err := domain.NewUser(u.ID.String(), u.Name, u.Avatar, u.Email)
+	for _, row := range rows {
+		user, err := domain.NewUser(row.ID.String(), row.Name, row.Avatar, row.Email)
 		if err != nil {
 			return nil, err
 		}

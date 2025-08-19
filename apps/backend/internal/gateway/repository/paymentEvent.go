@@ -65,6 +65,7 @@ func (per *PaymentEventRepositoryImpl) FindAll() ([]*domain.PaymentEvent, error)
 	}
 
 	var paymentEvents []*domain.PaymentEvent
+	// TODO: ここからの処理をGoroutineにする
 	for _, eventRow := range eventRows {
 		paymentRows, err := per.queries.FindPaymentsByEventId(per.ctx, eventRow.ID)
 		if err != nil {

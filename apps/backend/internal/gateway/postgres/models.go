@@ -10,6 +10,22 @@ import (
 	uuid "github.com/google/uuid"
 )
 
+type Event struct {
+	ID        string
+	Name      string
+	PayerID   uuid.UUID
+	Amount    int32
+	EventDate time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type Payment struct {
+	EventID  string
+	DebtorID uuid.UUID
+	Amount   int32
+}
+
 type User struct {
 	ID        uuid.UUID
 	Name      string

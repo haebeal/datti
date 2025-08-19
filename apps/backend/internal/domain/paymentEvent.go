@@ -106,7 +106,7 @@ func (e *PaymentEvent) UpdatedAt() time.Time {
 type PaymentEventRepository interface {
 	Create(*PaymentEvent) error
 	FindAll() ([]*PaymentEvent, error)
-	FindById(string) (*PaymentEvent, error)
+	FindByID(string) (*PaymentEvent, error)
 	Update(*PaymentEvent) error
 	Delete(*PaymentEvent) error
 }

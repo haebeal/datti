@@ -26,11 +26,13 @@
         "redhat.vscode-yaml",
         "tamasfe.even-better-toml",
         "golang.go",
-        "Gruntfuggly.todo-tree"
+        "Gruntfuggly.todo-tree",
+        "typespec.typespec-vscode"
       ]
     }
   },
-  "postCreateCommand": "git config --global --add safe.directory ${localWorkspaceFolder}",
+  // TODO: npmインストールをこのセクションで行って良いのか検討する？
+  "postCreateCommand": "git config --global --add safe.directory ${localWorkspaceFolder} && npm install -g @typespec/compiler@latest",
   "features": {
     "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},

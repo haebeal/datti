@@ -6,12 +6,15 @@ package postgres
 
 import (
 	"time"
+
+	uuid "github.com/google/uuid"
 )
 
-type Event struct {
-	ID        string
+type User struct {
+	ID        uuid.UUID
 	Name      string
-	EventAt   time.Time
+	Avatar    string
+	Email     string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

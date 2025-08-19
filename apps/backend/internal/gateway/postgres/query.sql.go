@@ -7,32 +7,76 @@ package postgres
 
 import (
 	"context"
-	"time"
+
+	uuid "github.com/google/uuid"
 )
 
-const createEvent = `-- name: CreateEvent :exec
-INSERT INTO events (
-  id, name, event_at, created_at, updated_at
-) VALUES (
-  $1, $2, $3, $4, $5
-)
+const findAllUsers = `-- name: FindAllUsers :many
+SELECT id, name, avatar, email, created_at, updated_at FROM users
 `
 
-type CreateEventParams struct {
-	ID        string
-	Name      string
-	EventAt   time.Time
-	CreatedAt time.Time
-	UpdatedAt time.Time
+func (q *Queries) FindAllUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, findAllUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Avatar,
+			&i.Email,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
-func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error {
-	_, err := q.db.Exec(ctx, createEvent,
+const findUserByID = `-- name: FindUserByID :one
+SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, findUserByID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Avatar,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users SET name = $2, avatar = $3, email = $4 WHERE id = $1
+`
+
+type UpdateUserParams struct {
+	ID     uuid.UUID
+	Name   string
+	Avatar string
+	Email  string
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser,
 		arg.ID,
 		arg.Name,
-		arg.EventAt,
-		arg.CreatedAt,
-		arg.UpdatedAt,
+		arg.Avatar,
+		arg.Email,
 	)
 	return err
 }

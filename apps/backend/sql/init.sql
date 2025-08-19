@@ -1,15 +1,13 @@
-INSERT INTO events (
-  id, name, event_at, payer_id, amount
+INSERT INTO Users (
+  id, name, avatar, email
 ) VALUES (
-  '01K0RKQNCM6ZQYNTABCVR5J4VB',
-  '東京ドーム',
-  '2025-07-13 00:00:00+09:00',
-  '2025-07-15 00:00:00+09:00',
-  '2025-07-15 00:00:00+09:00',
+  '3e58dbdb-d445-1d13-56e7-4cadb7c85a24',
+  '森 健一',
+  'https://mockmind-api.uifaces.co/content/human/80.jpg',
+  'forest@example.com',
 ), (
-  '01K0RKWAGPQ6N12YWB5S9JZ5P9',
-  '草津ホテル',
-  '2025-05-10 00:00:00+09:00',
-  '2025-05-10 00:00:00+09:00',
-  '2025-07-10 00:00:00+09:00',
+  'b858599c-a328-0b10-3b6a-ceec09b9d7dc',
+  '岡田 健太郎',
+  'https://mockmind-api.uifaces.co/content/human/92.jpg',
+  'okada@example.com',
 );

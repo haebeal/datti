@@ -8,10 +8,10 @@ import (
 
 type PaymentUseCase struct {
 	pr domain.PaymentEventRepository
-	ur domain.UserRepository
+	ur domain.IUserRepository
 }
 
-func NewPaymentUseCase(pr domain.PaymentEventRepository, ur domain.UserRepository) *PaymentUseCase {
+func NewPaymentUseCase(pr domain.PaymentEventRepository, ur domain.IUserRepository) *PaymentUseCase {
 	return &PaymentUseCase{
 		pr: pr,
 		ur: ur,

@@ -5,6 +5,13 @@ tasks:
   gen-sqlc:
     cmds:
       - sqlc generate
+  migrate-db:
+    cmds:
+      - |
+        atlas schema apply \
+          --url "postgres://postgres:password@postgres:5432/datti?sslmode=disable" \
+          --dev-url "docker://postgres" \
+          --to "file://sql/schema.sql"
   gen-type:
     cmds:
       - oapi-codegen -generate "types" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/types.gen.go

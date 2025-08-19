@@ -10,8 +10,8 @@ import (
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 
-	// (POST /payments)
-	CreatePaymentEventCreatePaymentEvent(ctx echo.Context) error
+	// (POST /payments/events)
+	PaymentEventCreate(ctx echo.Context) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -19,14 +19,14 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// CreatePaymentEventCreatePaymentEvent converts echo context to params.
-func (w *ServerInterfaceWrapper) CreatePaymentEventCreatePaymentEvent(ctx echo.Context) error {
+// PaymentEventCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) PaymentEventCreate(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CreatePaymentEventCreatePaymentEvent(ctx)
+	err = w.Handler.PaymentEventCreate(ctx)
 	return err
 }
 
@@ -58,6 +58,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.POST(baseURL+"/payments", wrapper.CreatePaymentEventCreatePaymentEvent)
+	router.POST(baseURL+"/payments/events", wrapper.PaymentEventCreate)
 
 }

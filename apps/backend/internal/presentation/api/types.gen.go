@@ -11,42 +11,47 @@ const (
 	BearerAuthScopes = "BearerAuth.Scopes"
 )
 
-// Debtor 債務者
-type Debtor struct {
-	Amount uint64 `json:"amount"`
-
-	// User ユーザー
-	User User `json:"user"`
+// ErrorResponse defines model for ErrorResponse.
+type ErrorResponse struct {
+	Message string `json:"message"`
 }
 
-// Payer 債権者
-type Payer struct {
-	Amount uint64 `json:"amount"`
-
-	// User ユーザー
-	User User `json:"user"`
+// PaymentCreateEventRequest defines model for Payment.CreateEventRequest.
+type PaymentCreateEventRequest struct {
+	Debtors []struct {
+		Amount uint64 `json:"amount"`
+		Id     string `json:"id"`
+	} `json:"debtors"`
+	EventDate time.Time `json:"eventDate"`
+	Name      string    `json:"name"`
+	Payer     struct {
+		Amount uint64 `json:"amount"`
+		Id     string `json:"id"`
+	} `json:"payer"`
 }
 
-// PaymentEvent defines model for PaymentEvent.
-type PaymentEvent struct {
+// PaymentCreateEventResponse defines model for Payment.CreateEventResponse.
+type PaymentCreateEventResponse struct {
 	CreatedAt time.Time `json:"createdAt"`
-	Debtors   []Debtor  `json:"debtors"`
+	Debtors   []struct {
+		Amount uint64 `json:"amount"`
+		Avatar string `json:"avatar"`
+		Email  string `json:"email"`
+		Id     string `json:"id"`
+		Name   string `json:"name"`
+	} `json:"debtors"`
 	EventDate time.Time `json:"eventDate"`
 	Id        string    `json:"id"`
 	Name      string    `json:"name"`
-
-	// Payer 債権者
-	Payer     Payer     `json:"payer"`
+	Payer     struct {
+		Amount uint64 `json:"amount"`
+		Avatar string `json:"avatar"`
+		Email  string `json:"email"`
+		Id     string `json:"id"`
+		Name   string `json:"name"`
+	} `json:"payer"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
-// User ユーザー
-type User struct {
-	Avater string `json:"avater"`
-	Email  string `json:"email"`
-	Id     string `json:"id"`
-	Name   string `json:"name"`
-}
-
-// CreatePaymentEventCreatePaymentEventJSONRequestBody defines body for CreatePaymentEventCreatePaymentEvent for application/json ContentType.
-type CreatePaymentEventCreatePaymentEventJSONRequestBody = PaymentEvent
+// PaymentEventCreateJSONRequestBody defines body for PaymentEventCreate for application/json ContentType.
+type PaymentEventCreateJSONRequestBody = PaymentCreateEventRequest

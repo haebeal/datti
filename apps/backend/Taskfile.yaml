@@ -11,6 +11,4 @@ tasks:
   gen-client:
     cmds:
       - oapi-codegen -generate "client" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/client.gen.go
-  tsp-compile:
-    cmds:
-      - tsp tsp-compile docs/openapi/
+  

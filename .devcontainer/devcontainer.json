@@ -31,8 +31,7 @@
       ]
     }
   },
-  // TODO: npmインストールをこのセクションで行って良いのか検討する？
-  "postCreateCommand": "git config --global --add safe.directory ${localWorkspaceFolder} && npm install -g @typespec/compiler@latest",
+  "postCreateCommand": "git config --global --add safe.directory ${localWorkspaceFolder}",
   "features": {
     "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},

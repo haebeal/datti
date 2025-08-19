@@ -8,5 +8,9 @@
       "path": "apps/backend",
       "name": "backend"
     },
+    {
+      "path": "docs",
+      "name": "docs"
+    }
   ]
 }

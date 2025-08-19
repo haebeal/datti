@@ -62,7 +62,7 @@ func (u *User) Email() string {
 }
 
 type UserRepository interface {
-	FindByID(string) (*User, error)
+	FindByID(uuid.UUID) (*User, error)
 	FindAll() ([]*User, error)
 	Update(*User) error
 }

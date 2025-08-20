@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	// "github.com/haebeal/datti/pkg/interface/response"
+	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
 	"github.com/supabase-community/gotrue-go"
 )
@@ -15,7 +16,7 @@ func AuthMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// TODO: openAPIのスキーマからエラーの方を解決する
-			errRes := new(response.Error)
+			res := new(api.ErrorResponse)
 			log.Print("Auth middleware start")
 			accessToken := ""
 
@@ -28,8 +29,8 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			if len(arr) != 2 {
 				// 不正なトークンの形式であるためセッションを中断する
 				log.Printf("AccessToenの形式が不正: %+v", arr)
-				errRes.Error = "invalid token format"
-				return c.JSON(http.StatusUnauthorized, errRes)
+				res.Message = "invalid token format"
+				return c.JSON(http.StatusUnauthorized, res)
 			}
 			accessToken = arr[1]
 
@@ -43,8 +44,8 @@ func AuthMiddleware() echo.MiddlewareFunc {
 			authedClient := client.WithToken(accessToken)
 			user, err := authedClient.GetUser()
 			if err != nil {
-				errRes.Error = "invalid token"
-				return c.JSON(http.StatusUnauthorized, errRes)
+				res.Message = "invalid token"
+				return c.JSON(http.StatusUnauthorized, res)
 			}
 
 			// AccessトークンとユーザーIDをコンテキストに登録

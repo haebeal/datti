@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -24,17 +25,19 @@ func (ph *PaymentHandler) Create(c echo.Context) error {
 	req := new(api.PaymentCreateEventRequest)
 	err := c.Bind(req)
 	if err != nil {
+		message := fmt.Sprintf("RequestBody Bindig Error body: %v", req)
 		res := &api.ErrorResponse{
-			Message: "binding nimo",
+			Message: message,
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 	var debtorParms = []usecase.DebtorParam{}
-	for _, d := range req.Debtors {
+	for i, d := range req.Debtors {
 		id, err := uuid.Parse(d.Id)
 		if err != nil {
+			message := fmt.Sprintf("Debtors UUID Parse Error ID: %v index: %v", d.Id, i)
 			res := &api.ErrorResponse{
-				Message: "d id",
+				Message: message,
 			}
 			return c.JSON(http.StatusBadRequest, res)
 		}
@@ -46,8 +49,9 @@ func (ph *PaymentHandler) Create(c echo.Context) error {
 
 	id, err := uuid.Parse(req.Payer.Id)
 	if err != nil {
+		message := fmt.Sprintf("Payer UUID Parse Error ID:%v", id)
 		res := &api.ErrorResponse{
-			Message: "p id",
+			Message: message,
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}

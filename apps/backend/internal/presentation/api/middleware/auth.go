@@ -15,7 +15,6 @@ import (
 func AuthMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			// TODO: openAPIのスキーマからエラーの方を解決する
 			res := new(api.ErrorResponse)
 			log.Print("Auth middleware start")
 			accessToken := ""

@@ -29,7 +29,7 @@ func (ph *PaymentHandler) Create(c echo.Context) error {
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
-	var debtorsCommand = []usecase.Debtor{}
+	var debtorParms = []usecase.DebtorParam{}
 	for _, d := range req.Debtors {
 		id, err := uuid.Parse(d.Id)
 		if err != nil {
@@ -38,7 +38,7 @@ func (ph *PaymentHandler) Create(c echo.Context) error {
 			}
 			return c.JSON(http.StatusBadRequest, res)
 		}
-		debtorsCommand = append(debtorsCommand, usecase.Debtor{
+		debtorParms = append(debtorParms, usecase.DebtorParam{
 			ID:     id,
 			Amount: int64(d.Amount),
 		})
@@ -51,14 +51,14 @@ func (ph *PaymentHandler) Create(c echo.Context) error {
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
-	command := usecase.CreateCommand{
+	input := usecase.CreatePaymentInput{
 		Name:      req.Name,
 		PayerID:   id,
 		Amount:    int64(req.Payer.Amount),
-		Debtors:   debtorsCommand,
+		Debtors:   debtorParms,
 		EventDate: req.EventDate,
 	}
-	payment, err := ph.pu.Create(command)
+	payment, err := ph.pu.Create(input)
 	if err != nil {
 		res := &api.ErrorResponse{
 			Message: "internal error",

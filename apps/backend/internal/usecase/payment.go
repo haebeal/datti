@@ -7,20 +7,20 @@ import (
 	"github.com/haebeal/datti/internal/domain"
 )
 
-type Debtor struct {
+type DebtorParam struct {
 	ID     uuid.UUID
 	Amount int64
 }
 
-type CreateCommand struct {
+type CreatePaymentInput struct {
 	Name      string
 	PayerID   uuid.UUID
 	Amount    int64
-	Debtors   []Debtor
+	Debtors   []DebtorParam
 	EventDate time.Time
 }
 type PaymentUseCase interface {
-	Create(CreateCommand) (*domain.PaymentEvent, error)
+	Create(CreatePaymentInput) (*domain.PaymentEvent, error)
 }
 type paymentUseCase struct {
 	pr domain.PaymentEventRepository
@@ -34,7 +34,7 @@ func NewPaymentUseCase(pr domain.PaymentEventRepository, ur domain.UserRepositor
 	}
 }
 
-func (pu *paymentUseCase) Create(cc CreateCommand) (*domain.PaymentEvent, error) {
+func (pu *paymentUseCase) Create(cc CreatePaymentInput) (*domain.PaymentEvent, error) {
 	user, err := pu.ur.FindByID(cc.PayerID)
 	if err != nil {
 		return nil, err

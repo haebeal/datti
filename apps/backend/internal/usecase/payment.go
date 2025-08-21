@@ -27,7 +27,7 @@ type paymentUseCase struct {
 	ur domain.UserRepository
 }
 
-func NewPaymentUseCase(pr domain.PaymentEventRepository, ur domain.UserRepository) *paymentUseCase {
+func NewPaymentUseCase(pr domain.PaymentEventRepository, ur domain.UserRepository) PaymentUseCase {
 	return &paymentUseCase{
 		pr: pr,
 		ur: ur,

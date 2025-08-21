@@ -10,17 +10,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type PaymentHandler struct {
+type PaymentHandler interface {
+	Create(c echo.Context) error
+}
+type paymentHandler struct {
 	pu usecase.PaymentUseCase
 }
 
-func NewPaymentHandler(pu usecase.PaymentUseCase) *PaymentHandler {
-	return &PaymentHandler{
+func NewPaymentHandler(pu usecase.PaymentUseCase) PaymentHandler {
+	return &paymentHandler{
 		pu: pu,
 	}
 }
 
-func (ph *PaymentHandler) Create(c echo.Context) error {
+func (ph *paymentHandler) Create(c echo.Context) error {
 
 	req := new(api.PaymentCreateEventRequest)
 	err := c.Bind(req)

@@ -50,7 +50,6 @@ func main() {
 	e := echo.New()
 
 	api.RegisterHandlers(e, server)
-	// e.POST("/events", ph.Create)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", port)))
 }

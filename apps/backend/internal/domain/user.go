@@ -24,13 +24,16 @@ func NewUser(id string, name string, avatar string, email string) (*User, error)
 	}
 
 	nl := utf8.RuneCountInString(name)
-	if nl < 0 {
+	if nl <= 0 {
 		return nil, fmt.Errorf("name length must be greater than 0")
 	}
 
-	_, err = url.Parse(avatar)
+	parsedURL, err := url.Parse(avatar)
 	if err != nil {
 		return nil, err
+	}
+	if parsedURL.Scheme == "" || parsedURL.Host == "" {
+		return nil, fmt.Errorf("invalid avatar URL: scheme and host are required")
 	}
 
 	_, err = mail.ParseAddress(email)

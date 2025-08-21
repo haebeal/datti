@@ -45,7 +45,8 @@ func main() {
 	pu := usecase.NewPaymentUseCase(pr, ur)
 
 	ph := handler.NewPaymentHandler(pu)
-	server := server.NewServer(ph)
+	hh := handler.NewHealthHandler()
+	server := server.NewServer(ph, hh)
 
 	e := echo.New()
 

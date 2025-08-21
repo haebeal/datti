@@ -3,6 +3,7 @@ import "@typespec/rest";
 import "@typespec/openapi3";
 
 import "./payments.tsp";
+import "./health.tsp";
 
 using TypeSpec.Http;
 

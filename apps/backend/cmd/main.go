@@ -8,6 +8,8 @@ import (
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/haebeal/datti/internal/gateway/repository"
 	"github.com/haebeal/datti/internal/presentation/api"
+	"github.com/haebeal/datti/internal/presentation/api/handler"
+	"github.com/haebeal/datti/internal/presentation/api/server"
 	"github.com/haebeal/datti/internal/usecase"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
@@ -42,8 +44,8 @@ func main() {
 
 	pu := usecase.NewPaymentUseCase(pr, ur)
 
-	ph := api.NewPaymentHandler(pu)
-	server := api.NewServer(ph)
+	ph := handler.NewPaymentHandler(pu)
+	server := server.NewServer(ph)
 
 	e := echo.New()
 

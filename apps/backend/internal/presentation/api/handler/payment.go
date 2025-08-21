@@ -1,10 +1,11 @@
-package api
+package handler
 
 import (
 	"fmt"
 	"net/http"
 
 	"github.com/google/uuid"
+	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/haebeal/datti/internal/usecase"
 	"github.com/labstack/echo/v4"
 )
@@ -31,11 +32,11 @@ func (ph *paymentHandler) Get(c echo.Context, id string) error {
 
 func (ph *paymentHandler) Create(c echo.Context) error {
 
-	req := new(PaymentCreateEventRequest)
+	req := new(api.PaymentCreateEventRequest)
 	err := c.Bind(req)
 	if err != nil {
 		message := fmt.Sprintf("RequestBody Bindig Error body: %v", req)
-		res := &ErrorResponse{
+		res := &api.ErrorResponse{
 			Message: message,
 		}
 		return c.JSON(http.StatusBadRequest, res)
@@ -45,7 +46,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 		id, err := uuid.Parse(d.Id)
 		if err != nil {
 			message := fmt.Sprintf("Debtors UUID Parse Error ID: %v index: %v", d.Id, i)
-			res := &ErrorResponse{
+			res := &api.ErrorResponse{
 				Message: message,
 			}
 			return c.JSON(http.StatusBadRequest, res)
@@ -59,7 +60,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 	id, err := uuid.Parse(req.Payer.Id)
 	if err != nil {
 		message := fmt.Sprintf("Payer UUID Parse Error ID:%v", id)
-		res := &ErrorResponse{
+		res := &api.ErrorResponse{
 			Message: message,
 		}
 		return c.JSON(http.StatusBadRequest, res)
@@ -73,7 +74,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 	}
 	payment, err := ph.pu.Create(input)
 	if err != nil {
-		res := &ErrorResponse{
+		res := &api.ErrorResponse{
 			Message: "internal error",
 		}
 		return c.JSON(http.StatusBadRequest, res)
@@ -102,7 +103,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 		debtors = append(debtors, debtor)
 	}
 
-	res := &PaymentCreateEventResponse{
+	res := &api.PaymentCreateEventResponse{
 		CreatedAt: payment.CreatedAt(),
 		// Debtors:
 		EventDate: payment.EventDate(),

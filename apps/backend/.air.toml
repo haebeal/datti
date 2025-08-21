@@ -5,7 +5,7 @@ tmp_dir = "./tmp"
 [build]
   args_bin = []
   bin = "./tmp/bin"
-  cmd = "go build -o ./tmp/bin ./cmd/api"
+  cmd = "go build -o ./tmp/bin ./cmd"
   full_bin = "godotenv -f .env dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec --continue tmp/bin"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]

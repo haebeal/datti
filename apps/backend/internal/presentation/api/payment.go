@@ -5,13 +5,13 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/haebeal/datti/internal/usecase"
 	"github.com/labstack/echo/v4"
 )
 
 type PaymentHandler interface {
 	Create(c echo.Context) error
+	Get(c echo.Context, id string) error
 }
 type paymentHandler struct {
 	pu usecase.PaymentUseCase
@@ -23,13 +23,19 @@ func NewPaymentHandler(pu usecase.PaymentUseCase) PaymentHandler {
 	}
 }
 
+// Get implements PaymentHandler.
+func (ph *paymentHandler) Get(c echo.Context, id string) error {
+	fmt.Print(id)
+	return c.JSON(200, "ok")
+}
+
 func (ph *paymentHandler) Create(c echo.Context) error {
 
-	req := new(api.PaymentCreateEventRequest)
+	req := new(PaymentCreateEventRequest)
 	err := c.Bind(req)
 	if err != nil {
 		message := fmt.Sprintf("RequestBody Bindig Error body: %v", req)
-		res := &api.ErrorResponse{
+		res := &ErrorResponse{
 			Message: message,
 		}
 		return c.JSON(http.StatusBadRequest, res)
@@ -39,7 +45,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 		id, err := uuid.Parse(d.Id)
 		if err != nil {
 			message := fmt.Sprintf("Debtors UUID Parse Error ID: %v index: %v", d.Id, i)
-			res := &api.ErrorResponse{
+			res := &ErrorResponse{
 				Message: message,
 			}
 			return c.JSON(http.StatusBadRequest, res)
@@ -53,7 +59,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 	id, err := uuid.Parse(req.Payer.Id)
 	if err != nil {
 		message := fmt.Sprintf("Payer UUID Parse Error ID:%v", id)
-		res := &api.ErrorResponse{
+		res := &ErrorResponse{
 			Message: message,
 		}
 		return c.JSON(http.StatusBadRequest, res)
@@ -67,7 +73,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 	}
 	payment, err := ph.pu.Create(input)
 	if err != nil {
-		res := &api.ErrorResponse{
+		res := &ErrorResponse{
 			Message: "internal error",
 		}
 		return c.JSON(http.StatusBadRequest, res)
@@ -96,7 +102,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 		debtors = append(debtors, debtor)
 	}
 
-	res := &api.PaymentCreateEventResponse{
+	res := &PaymentCreateEventResponse{
 		CreatedAt: payment.CreatedAt(),
 		// Debtors:
 		EventDate: payment.EventDate(),

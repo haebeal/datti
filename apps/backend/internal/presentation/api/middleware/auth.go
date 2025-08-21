@@ -1,4 +1,4 @@
-package api
+package middleware
 
 import (
 	"log"
@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	// "github.com/haebeal/datti/pkg/interface/response"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
 	"github.com/supabase-community/gotrue-go"

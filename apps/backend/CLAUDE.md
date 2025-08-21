@@ -85,6 +85,75 @@ Goの標準テストフレームワークを使用。ドメインモデルには
 - サーバーはポート7070で動作
 - 環境変数DSNとPORTは開発用にハードコードされた値を優先してコメントアウト
 
+## 新しいエンドポイント実装手順
+
+新しいAPIエンドポイントを追加する際は、以下の手順で実装してください：
+
+### 1. TypeSpec定義の作成
+```bash
+# 親ディレクトリのTypeSpecディレクトリに移動
+cd ../../docs/openapi/
+
+# 新しいエンドポイント用の.tspファイルを作成（例：health.tsp）
+# または既存の.tspファイルに追加
+
+# main.tspファイルに新しい.tspファイルをインポート追加
+```
+
+### 2. OpenAPI仕様の生成
+```bash
+# TypeSpecからOpenAPI仕様を生成
+cd ../../docs/openapi/
+npm run compile
+```
+
+### 3. Go型とサーバーコードの生成
+```bash
+# バックエンドディレクトリに戻る
+cd ../../apps/backend/
+
+# OpenAPI型を生成
+task gen-type
+
+# サーバーコードを生成
+task gen-server
+```
+
+### 4. ハンドラーの実装
+```bash
+# internal/presentation/api/handler/に新しいハンドラーファイルを作成
+# 生成された型を使用してハンドラーを実装
+```
+
+### 5. サーバーへの統合
+```bash
+# internal/presentation/api/server/server.goを更新：
+# - 新しいハンドラーをServerStruct\に追加
+# - NewServer関数のパラメータに追加
+# - 生成されたServerInterfaceのメソッドを実装
+```
+
+### 6. main.goの更新
+```bash
+# cmd/main.goで新しいハンドラーをインスタンス化
+# NewServerに新しいハンドラーを渡す
+```
+
+### 7. 動作確認
+```bash
+# アプリケーションをビルドして確認
+go build ./cmd/main.go
+
+# 実行してエンドポイントをテスト
+go run cmd/main.go
+```
+
+### 注意点
+- TypeSpec定義では適切な@tag、@route、@summaryを設定
+- レスポンス型とエラーハンドリングを含む完全な定義を作成
+- 生成された型名は`Namespace\Model\Name`の形式になるため、ハンドラーで正確な型名を使用
+- 必ずビルドして型エラーがないことを確認
+
 ## 共通パターン
 
 - すべてのドメインエンティティはコンストラクタ関数を持つ不変バリューオブジェクト

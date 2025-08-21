@@ -26,8 +26,12 @@ func NewPaymentEvent(id string, name string, payer *Payer, debtors []*Debtor, ev
 	}
 
 	nl := utf8.RuneCountInString(name)
-	if nl < 0 {
+	if nl <= 0 {
 		return nil, fmt.Errorf("name length must be greater than 0")
+	}
+
+	if len(debtors) == 0 {
+		return nil, fmt.Errorf("debtors length must be greater than 0")
 	}
 
 	// debtorsでユーザーが重複していないかチェック

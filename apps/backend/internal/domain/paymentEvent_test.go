@@ -1,12 +1,13 @@
 package domain
 
 import (
-	"strings"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewPaymentEvent(t *testing.T) {
@@ -138,37 +139,18 @@ func TestNewPaymentEvent(t *testing.T) {
 			got, err := NewPaymentEvent(tt.id, tt.eventName, tt.payer, tt.debtors, tt.eventDate, tt.createdAt, tt.updatedAt)
 			
 			if tt.wantErr {
-				if err == nil {
-					t.Errorf("NewPaymentEvent() error = nil, wantErr %v", tt.wantErr)
-					return
-				}
-				if tt.errContains != "" && !strings.Contains(err.Error(), tt.errContains) {
-					t.Errorf("NewPaymentEvent() error = %v, want error containing %v", err, tt.errContains)
+				assert.Error(t, err)
+				if tt.errContains != "" {
+					assert.Contains(t, err.Error(), tt.errContains)
 				}
 				return
 			}
 			
-			if err != nil {
-				t.Errorf("NewPaymentEvent() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-
-			if got == nil {
-				t.Errorf("NewPaymentEvent() got = nil, want non-nil")
-				return
-			}
-
-			if got.Name() != tt.eventName {
-				t.Errorf("NewPaymentEvent() name = %v, want %v", got.Name(), tt.eventName)
-			}
-
-			if !got.Payer().Equal(tt.payer.User) {
-				t.Errorf("NewPaymentEvent() payer = %v, want %v", got.Payer(), tt.payer)
-			}
-
-			if len(got.Debtors()) != len(tt.debtors) {
-				t.Errorf("NewPaymentEvent() debtors length = %v, want %v", len(got.Debtors()), len(tt.debtors))
-			}
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tt.eventName, got.Name())
+			assert.True(t, got.Payer().Equal(tt.payer.User))
+			assert.Len(t, got.Debtors(), len(tt.debtors))
 		})
 	}
 }
@@ -237,33 +219,17 @@ func TestCreatePaymentEvent(t *testing.T) {
 			got, err := CreatePaymentEvent(tt.eventName, tt.payer, tt.debtors, tt.eventDate)
 			
 			if tt.wantErr {
-				if err == nil {
-					t.Errorf("CreatePaymentEvent() error = nil, wantErr %v", tt.wantErr)
-					return
-				}
-				if tt.errContains != "" && !strings.Contains(err.Error(), tt.errContains) {
-					t.Errorf("CreatePaymentEvent() error = %v, want error containing %v", err, tt.errContains)
+				assert.Error(t, err)
+				if tt.errContains != "" {
+					assert.Contains(t, err.Error(), tt.errContains)
 				}
 				return
 			}
 			
-			if err != nil {
-				t.Errorf("CreatePaymentEvent() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-
-			if got == nil {
-				t.Errorf("CreatePaymentEvent() got = nil, want non-nil")
-				return
-			}
-
-			if got.Name() != tt.eventName {
-				t.Errorf("CreatePaymentEvent() name = %v, want %v", got.Name(), tt.eventName)
-			}
-
-			if got.ID().String() == "" {
-				t.Errorf("CreatePaymentEvent() ID should not be empty")
-			}
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tt.eventName, got.Name())
+			assert.NotEmpty(t, got.ID().String())
 		})
 	}
 }
@@ -342,41 +308,19 @@ func TestPaymentEvent_Update(t *testing.T) {
 			got, err := originalEvent.Update(tt.eventName, tt.payer, tt.debtors, tt.eventDate)
 			
 			if tt.wantErr {
-				if err == nil {
-					t.Errorf("Update() error = nil, wantErr %v", tt.wantErr)
-					return
-				}
-				if tt.errContains != "" && !strings.Contains(err.Error(), tt.errContains) {
-					t.Errorf("Update() error = %v, want error containing %v", err, tt.errContains)
+				assert.Error(t, err)
+				if tt.errContains != "" {
+					assert.Contains(t, err.Error(), tt.errContains)
 				}
 				return
 			}
 			
-			if err != nil {
-				t.Errorf("Update() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-
-			if got == nil {
-				t.Errorf("Update() got = nil, want non-nil")
-				return
-			}
-
-			if got.Name() != tt.eventName {
-				t.Errorf("Update() name = %v, want %v", got.Name(), tt.eventName)
-			}
-
-			if got.ID() != originalEvent.ID() {
-				t.Errorf("Update() ID should not change")
-			}
-
-			if !got.CreatedAt().Equal(originalEvent.CreatedAt()) {
-				t.Errorf("Update() CreatedAt should not change")
-			}
-
-			if !got.UpdatedAt().After(originalEvent.UpdatedAt()) {
-				t.Errorf("Update() UpdatedAt should be after original")
-			}
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tt.eventName, got.Name())
+			assert.Equal(t, originalEvent.ID(), got.ID())
+			assert.True(t, got.CreatedAt().Equal(originalEvent.CreatedAt()))
+			assert.True(t, got.UpdatedAt().After(originalEvent.UpdatedAt()))
 		})
 	}
 }
@@ -398,63 +342,47 @@ func TestPaymentEvent_Getters(t *testing.T) {
 	// Getterテスト用のPaymentEventを作成
 	eventDate := time.Now()
 	event, err := CreatePaymentEvent("test event", payer, debtors, eventDate)
-	if err != nil {
-		t.Fatalf("Failed to create test event: %v", err)
-	}
+	require.NoError(t, err, "Failed to create test event")
 
 	// ID()メソッドのテスト：生成されたIDが空でないことを確認
 	t.Run("ID getter", func(t *testing.T) {
 		id := event.ID()
-		if id.String() == "" {
-			t.Errorf("ID() should not be empty")
-		}
+		assert.NotEmpty(t, id.String())
 	})
 
 	// Name()メソッドのテスト：設定されたイベント名が正しく取得できることを確認
 	t.Run("Name getter", func(t *testing.T) {
 		name := event.Name()
-		if name != "test event" {
-			t.Errorf("Name() = %v, want %v", name, "test event")
-		}
+		assert.Equal(t, "test event", name)
 	})
 
 	// Payer()メソッドのテスト：設定された支払い者が正しく取得できることを確認
 	t.Run("Payer getter", func(t *testing.T) {
 		gotPayer := event.Payer()
-		if !gotPayer.Equal(payer.User) {
-			t.Errorf("Payer() = %v, want %v", gotPayer, payer)
-		}
+		assert.True(t, gotPayer.Equal(payer.User))
 	})
 
 	// Debtors()メソッドのテスト：設定された債務者リストが正しく取得できることを確認
 	t.Run("Debtors getter", func(t *testing.T) {
 		gotDebtors := event.Debtors()
-		if len(gotDebtors) != len(debtors) {
-			t.Errorf("Debtors() length = %v, want %v", len(gotDebtors), len(debtors))
-		}
+		assert.Len(t, gotDebtors, len(debtors))
 	})
 
 	// EventDate()メソッドのテスト：設定されたイベント日時が正しく取得できることを確認
 	t.Run("EventDate getter", func(t *testing.T) {
 		gotEventDate := event.EventDate()
-		if !gotEventDate.Equal(eventDate) {
-			t.Errorf("EventDate() = %v, want %v", gotEventDate, eventDate)
-		}
+		assert.True(t, gotEventDate.Equal(eventDate))
 	})
 
 	// CreatedAt()メソッドのテスト：作成日時が設定されていることを確認
 	t.Run("CreatedAt getter", func(t *testing.T) {
 		createdAt := event.CreatedAt()
-		if createdAt.IsZero() {
-			t.Errorf("CreatedAt() should not be zero")
-		}
+		assert.False(t, createdAt.IsZero())
 	})
 
 	// UpdatedAt()メソッドのテスト：更新日時が設定されていることを確認
 	t.Run("UpdatedAt getter", func(t *testing.T) {
 		updatedAt := event.UpdatedAt()
-		if updatedAt.IsZero() {
-			t.Errorf("UpdatedAt() should not be zero")
-		}
+		assert.False(t, updatedAt.IsZero())
 	})
 }

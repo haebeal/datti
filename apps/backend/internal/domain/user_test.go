@@ -1,10 +1,11 @@
 package domain
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewUser(t *testing.T) {
@@ -105,42 +106,22 @@ func TestNewUser(t *testing.T) {
 			got, err := NewUser(tt.id, tt.userName, tt.avatar, tt.email)
 
 			if tt.wantErr {
-				if err == nil {
-					t.Errorf("NewUser() error = nil, wantErr %v", tt.wantErr)
-					return
-				}
-				if tt.errContains != "" && !strings.Contains(err.Error(), tt.errContains) {
-					t.Errorf("NewUser() error = %v, want error containing %v", err, tt.errContains)
+				assert.Error(t, err)
+				if tt.errContains != "" {
+					assert.Contains(t, err.Error(), tt.errContains)
 				}
 				return
 			}
 
-			if err != nil {
-				t.Errorf("NewUser() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
+			require.NoError(t, err)
+			require.NotNil(t, got)
 
-			if got == nil {
-				t.Errorf("NewUser() got = nil, want non-nil")
-				return
-			}
-
-			if got.Name() != tt.userName {
-				t.Errorf("NewUser() name = %v, want %v", got.Name(), tt.userName)
-			}
-
-			if got.Avatar() != tt.avatar {
-				t.Errorf("NewUser() avatar = %v, want %v", got.Avatar(), tt.avatar)
-			}
-
-			if got.Email() != tt.email {
-				t.Errorf("NewUser() email = %v, want %v", got.Email(), tt.email)
-			}
+			assert.Equal(t, tt.userName, got.Name())
+			assert.Equal(t, tt.avatar, got.Avatar())
+			assert.Equal(t, tt.email, got.Email())
 
 			expectedUUID, _ := uuid.Parse(tt.id)
-			if got.ID() != expectedUUID {
-				t.Errorf("NewUser() id = %v, want %v", got.ID(), expectedUUID)
-			}
+			assert.Equal(t, expectedUUID, got.ID())
 		})
 	}
 }
@@ -183,9 +164,7 @@ func TestUser_Equal(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.user1.Equal(tt.user2)
-			if got != tt.want {
-				t.Errorf("User.Equal() = %v, want %v", got, tt.want)
-			}
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }
@@ -198,40 +177,30 @@ func TestUser_Getters(t *testing.T) {
 	testEmail := "test@example.com"
 
 	user, err := NewUser(testID, testName, testAvatar, testEmail)
-	if err != nil {
-		t.Fatalf("Failed to create test user: %v", err)
-	}
+	require.NoError(t, err, "Failed to create test user")
 
 	// ID()メソッドのテスト
 	t.Run("ID getter", func(t *testing.T) {
 		expectedUUID, _ := uuid.Parse(testID)
 		id := user.ID()
-		if id != expectedUUID {
-			t.Errorf("ID() = %v, want %v", id, expectedUUID)
-		}
+		assert.Equal(t, expectedUUID, id)
 	})
 
 	// Name()メソッドのテスト
 	t.Run("Name getter", func(t *testing.T) {
 		name := user.Name()
-		if name != testName {
-			t.Errorf("Name() = %v, want %v", name, testName)
-		}
+		assert.Equal(t, testName, name)
 	})
 
 	// Avatar()メソッドのテスト
 	t.Run("Avatar getter", func(t *testing.T) {
 		avatar := user.Avatar()
-		if avatar != testAvatar {
-			t.Errorf("Avatar() = %v, want %v", avatar, testAvatar)
-		}
+		assert.Equal(t, testAvatar, avatar)
 	})
 
 	// Email()メソッドのテスト
 	t.Run("Email getter", func(t *testing.T) {
 		email := user.Email()
-		if email != testEmail {
-			t.Errorf("Email() = %v, want %v", email, testEmail)
-		}
+		assert.Equal(t, testEmail, email)
 	})
 }

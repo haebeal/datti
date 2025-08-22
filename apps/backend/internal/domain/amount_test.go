@@ -2,6 +2,9 @@ package domain
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewAmount(t *testing.T) {
@@ -35,19 +38,9 @@ func TestNewAmount(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewAmount(tt.value)
 
-			if err != nil {
-				t.Errorf("NewAmount() error = %v, wantErr false", err)
-				return
-			}
-
-			if got == nil {
-				t.Errorf("NewAmount() got = nil, want non-nil")
-				return
-			}
-
-			if got.Value() != tt.value {
-				t.Errorf("NewAmount() value = %v, want %v", got.Value(), tt.value)
-			}
+			require.NoError(t, err)
+			require.NotNil(t, got)
+			assert.Equal(t, tt.value, got.Value())
 		})
 	}
 }
@@ -78,9 +71,7 @@ func TestAmount_Value(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.amount.Value()
-			if got != tt.expected {
-				t.Errorf("Amount.Value() = %v, want %v", got, tt.expected)
-			}
+			assert.Equal(t, tt.expected, got)
 		})
 	}
 }
@@ -112,19 +103,11 @@ func TestAmount_Negative(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.amount.Negative()
 
-			if got == nil {
-				t.Errorf("Amount.Negative() got = nil, want non-nil")
-				return
-			}
-
-			if got.Value() != tt.expected {
-				t.Errorf("Amount.Negative() value = %v, want %v", got.Value(), tt.expected)
-			}
+			require.NotNil(t, got)
+			assert.Equal(t, tt.expected, got.Value())
 
 			// 元のAmountが変更されていないことを確認
-			if tt.amount.Value() != (tt.expected * -1) {
-				t.Errorf("Original amount should not be modified")
-			}
+			assert.Equal(t, tt.expected*-1, tt.amount.Value())
 		})
 	}
 }
@@ -172,21 +155,13 @@ func TestAmount_Add(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.amount1.Add(tt.amount2)
 
-			if got == nil {
-				t.Errorf("Amount.Add() got = nil, want non-nil")
-				return
-			}
-
-			if got.Value() != tt.expected {
-				t.Errorf("Amount.Add() value = %v, want %v", got.Value(), tt.expected)
-			}
+			require.NotNil(t, got)
+			assert.Equal(t, tt.expected, got.Value())
 
 			// 元のAmountが変更されていないことを確認
 			originalValue1 := tt.amount1.Value()
 			originalValue2 := tt.amount2.Value()
-			if originalValue1+originalValue2 != tt.expected {
-				t.Errorf("Original amounts should not be modified")
-			}
+			assert.Equal(t, tt.expected, originalValue1+originalValue2)
 		})
 	}
 }
@@ -246,21 +221,13 @@ func TestAmount_Minus(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.amount1.Minus(tt.amount2)
 
-			if got == nil {
-				t.Errorf("Amount.Minus() got = nil, want non-nil")
-				return
-			}
-
-			if got.Value() != tt.expected {
-				t.Errorf("Amount.Minus() value = %v, want %v", got.Value(), tt.expected)
-			}
+			require.NotNil(t, got)
+			assert.Equal(t, tt.expected, got.Value())
 
 			// 元のAmountが変更されていないことを確認
 			originalValue1 := tt.amount1.Value()
 			originalValue2 := tt.amount2.Value()
-			if originalValue1-originalValue2 != tt.expected {
-				t.Errorf("Original amounts should not be modified")
-			}
+			assert.Equal(t, tt.expected, originalValue1-originalValue2)
 		})
 	}
 }

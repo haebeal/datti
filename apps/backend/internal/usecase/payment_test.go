@@ -7,6 +7,8 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // モックリポジトリ実装
@@ -86,14 +88,10 @@ func TestPaymentUseCase_Create_Success(t *testing.T) {
 	debtorID := uuid.New()
 
 	payer, err := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
-	if err != nil {
-		t.Fatalf("Failed to create payer: %v", err)
-	}
+	require.NoError(t, err, "Failed to create payer")
 
 	debtor, err := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
-	if err != nil {
-		t.Fatalf("Failed to create debtor: %v", err)
-	}
+	require.NoError(t, err, "Failed to create debtor")
 
 	// モックリポジトリセットアップ
 	userRepo := &mockUserRepository{
@@ -121,27 +119,17 @@ func TestPaymentUseCase_Create_Success(t *testing.T) {
 	result, err := uc.Create(input)
 
 	// 検証
-	if err != nil {
-		t.Errorf("Expected no error, got: %v", err)
-	}
-	if result == nil {
-		t.Error("Expected result to not be nil")
-	}
-	if result.Name() != "Test Payment" {
-		t.Errorf("Expected event name 'Test Payment', got: %s", result.Name())
-	}
-	if len(paymentRepo.events) != 1 {
-		t.Errorf("Expected 1 event to be saved, got: %d", len(paymentRepo.events))
-	}
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, "Test Payment", result.Name())
+	assert.Len(t, paymentRepo.events, 1)
 }
 
 func TestPaymentUseCase_Create_PayerNotFound(t *testing.T) {
 	// テスト用ユーザー作成
 	debtorID := uuid.New()
 	debtor, err := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
-	if err != nil {
-		t.Fatalf("Failed to create debtor: %v", err)
-	}
+	require.NoError(t, err, "Failed to create debtor")
 
 	// モックリポジトリセットアップ（payerは存在しない）
 	userRepo := &mockUserRepository{
@@ -169,21 +157,15 @@ func TestPaymentUseCase_Create_PayerNotFound(t *testing.T) {
 	result, err := uc.Create(input)
 
 	// 検証
-	if err == nil {
-		t.Error("Expected error for non-existent payer, got nil")
-	}
-	if result != nil {
-		t.Error("Expected result to be nil when payer not found")
-	}
+	assert.Error(t, err)
+	assert.Nil(t, result)
 }
 
 func TestPaymentUseCase_Create_InvalidAmount(t *testing.T) {
 	// テスト用ユーザー作成
 	payerID := uuid.New()
 	payer, err := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
-	if err != nil {
-		t.Fatalf("Failed to create payer: %v", err)
-	}
+	require.NoError(t, err, "Failed to create payer")
 
 	// モックリポジトリセットアップ
 	userRepo := &mockUserRepository{
@@ -208,12 +190,8 @@ func TestPaymentUseCase_Create_InvalidAmount(t *testing.T) {
 	result, err := uc.Create(input)
 
 	// 検証
-	if err == nil {
-		t.Error("Expected error for invalid amount, got nil")
-	}
-	if result != nil {
-		t.Error("Expected result to be nil when amount is invalid")
-	}
+	assert.Error(t, err)
+	assert.Nil(t, result)
 }
 
 func TestPaymentUseCase_Create_RepositoryError(t *testing.T) {
@@ -222,14 +200,10 @@ func TestPaymentUseCase_Create_RepositoryError(t *testing.T) {
 	debtorID := uuid.New()
 
 	payer, err := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
-	if err != nil {
-		t.Fatalf("Failed to create payer: %v", err)
-	}
+	require.NoError(t, err, "Failed to create payer")
 
 	debtor, err := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
-	if err != nil {
-		t.Fatalf("Failed to create debtor: %v", err)
-	}
+	require.NoError(t, err, "Failed to create debtor")
 
 	// モックリポジトリセットアップ（保存エラーを発生させる）
 	userRepo := &mockUserRepository{
@@ -259,10 +233,6 @@ func TestPaymentUseCase_Create_RepositoryError(t *testing.T) {
 	result, err := uc.Create(input)
 
 	// 検証
-	if err == nil {
-		t.Error("Expected error from repository, got nil")
-	}
-	if result != nil {
-		t.Error("Expected result to be nil when repository error occurs")
-	}
+	assert.Error(t, err)
+	assert.Nil(t, result)
 }

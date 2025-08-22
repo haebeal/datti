@@ -76,7 +76,58 @@ OpenAPI仕様は親ディレクトリの `../../docs/openapi/` のTypeSpecで定
 
 ## テスト
 
-Goの標準テストフレームワークを使用。ドメインモデルには包括的なテストがあります（例：`paymentEvent_test.go`、`user_test.go`）。
+### テストフレームワーク
+
+プロジェクト全体でtestifyライブラリを使用した統一されたテストスタイルを採用しています。
+
+### テストスタイル
+
+- **testifyライブラリの使用**: `github.com/stretchr/testify`を全テストファイルで統一
+- **assertパッケージ**: 一般的なアサーション（`assert.Equal`, `assert.NotNil`, `assert.Error`など）
+- **requireパッケージ**: テスト継続が不可能な場合の早期終了（`require.NoError`, `require.NotNil`など）
+- **読みやすさ重視**: 従来の`t.Errorf`より簡潔で分かりやすい記述
+
+### テスト実装例
+
+```go
+func TestExample(t *testing.T) {
+    // require: 失敗時にテストを即座に停止
+    user, err := domain.NewUser("valid-id", "name", "avatar", "email")
+    require.NoError(t, err, "Failed to create user")
+    require.NotNil(t, user)
+
+    // assert: 失敗してもテストを継続
+    assert.Equal(t, "name", user.Name())
+    assert.NotEmpty(t, user.ID())
+}
+```
+
+### 各層のテストカバレッジ
+
+- **ドメイン層**: エンティティの作成、バリデーション、メソッドの動作確認
+  - `amount_test.go`, `paymentEvent_test.go`, `user_test.go`
+- **ユースケース層**: ビジネスロジック、リポジトリとの連携、エラーハンドリング
+  - `payment_test.go`（モックリポジトリ使用）
+- **プレゼンテーション層**: HTTPハンドラー、リクエスト/レスポンス処理、エラーハンドリング
+  - `handler/payment_test.go`, `server/server_test.go`（モックハンドラー使用）
+
+### モックの活用
+
+- **ユースケース層**: カスタムモックリポジトリでデータベース依存を排除
+- **プレゼンテーション層**: モックハンドラーで各層の責務を分離したテスト
+- **テストの独立性**: 各層が他の層の実装に依存しないテスト設計
+
+### テスト実行
+
+```bash
+# 全テスト実行
+go test ./...
+
+# 特定の層のテスト実行
+go test ./internal/domain/... -v
+go test ./internal/usecase/... -v
+go test ./internal/presentation/... -v
+```
 
 ## 開発環境
 

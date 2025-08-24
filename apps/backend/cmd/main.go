@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/haebeal/datti/internal/gateway/repository"
@@ -18,18 +19,15 @@ import (
 func main() {
 	ctx := context.Background()
 
-	// dsn, ok := os.LookupEnv("DSN")
-	// if !ok {
-	// 	log.Fatal("環境変数DSNが設定してありません")
-	// }
+	dsn, ok := os.LookupEnv("DSN")
+	if !ok {
+		log.Fatal("環境変数DSNが設定してありません")
+	}
 
-	// port, ok := os.LookupEnv("PORT")
-	// if !ok {
-	// 	log.Fatal("環境変数PORTが設定してありません")
-	// }
-
-	dsn := "postgres://postgres:password@postgres:5432/datti?sslmode=disable"
-	port := "7070"
+	port, ok := os.LookupEnv("PORT")
+	if !ok {
+		log.Fatal("環境変数PORTが設定してありません")
+	}
 
 	conn, err := pgx.Connect(ctx, dsn)
 	if err != nil {

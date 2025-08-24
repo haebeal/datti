@@ -132,6 +132,19 @@ func TestNewPaymentEvent(t *testing.T) {
 			wantErr:     true,
 			errContains: "duplicate debtor",
 		},
+		{
+			// 異常系：更新日が作成日より前の場合
+			name:        "updated_at before created_at",
+			id:          validID,
+			eventName:   validName,
+			payer:       validPayer,
+			debtors:     validDebtors,
+			eventDate:   validEventDate,
+			createdAt:   validCreatedAt,
+			updatedAt:   validCreatedAt.Add(-time.Hour),
+			wantErr:     true,
+			errContains: "updatedAt must not be before createdAt",
+		},
 	}
 
 	for _, tt := range tests {

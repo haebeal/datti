@@ -52,6 +52,11 @@ func NewPaymentEvent(id string, name string, payer *Payer, debtors []*Debtor, ev
 		}
 	}
 
+	// 更新日が作成日よりも前でないかチェック
+	if updatedAt.Before(createdAt) {
+		return nil, fmt.Errorf("updatedAt must not be before createdAt: updatedAt %v, createdAt %v", updatedAt, createdAt)
+	}
+
 	return &PaymentEvent{
 		id:        ulid,
 		name:      name,

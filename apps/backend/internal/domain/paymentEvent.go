@@ -8,7 +8,7 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-// 返済イベント
+// 支払いイベント
 type PaymentEvent struct {
 	id        ulid.ULID
 	name      string

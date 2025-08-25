@@ -70,15 +70,15 @@ func TestNewPaymentEvent(t *testing.T) {
 		},
 		{
 			// 異常系：無効なULID形式のIDを渡した場合
-			name:        "invalid id",
-			id:          "invalid-ulid",
-			eventName:   validName,
-			payer:       validPayer,
-			debtors:     validDebtors,
-			eventDate:   validEventDate,
-			createdAt:   validCreatedAt,
-			updatedAt:   validUpdatedAt,
-			wantErr:     true,
+			name:      "invalid id",
+			id:        "invalid-ulid",
+			eventName: validName,
+			payer:     validPayer,
+			debtors:   validDebtors,
+			eventDate: validEventDate,
+			createdAt: validCreatedAt,
+			updatedAt: validUpdatedAt,
+			wantErr:   true,
 		},
 		{
 			// 異常系：イベント名が空文字列の場合
@@ -150,7 +150,7 @@ func TestNewPaymentEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewPaymentEvent(tt.id, tt.eventName, tt.payer, tt.debtors, tt.eventDate, tt.createdAt, tt.updatedAt)
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				if tt.errContains != "" {
@@ -158,7 +158,7 @@ func TestNewPaymentEvent(t *testing.T) {
 				}
 				return
 			}
-			
+
 			require.NoError(t, err)
 			require.NotNil(t, got)
 			assert.Equal(t, tt.eventName, got.Name())
@@ -230,7 +230,7 @@ func TestCreatePaymentEvent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := CreatePaymentEvent(tt.eventName, tt.payer, tt.debtors, tt.eventDate)
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				if tt.errContains != "" {
@@ -238,7 +238,7 @@ func TestCreatePaymentEvent(t *testing.T) {
 				}
 				return
 			}
-			
+
 			require.NoError(t, err)
 			require.NotNil(t, got)
 			assert.Equal(t, tt.eventName, got.Name())
@@ -305,6 +305,16 @@ func TestPaymentEvent_Update(t *testing.T) {
 			errContains: "name length must be greater than 0",
 		},
 		{
+			// 異常系：債務者配列が空の場合
+			name:        "empty debtors",
+			eventName:   "updated event",
+			payer:       newPayer,
+			debtors:     []*Debtor{},
+			eventDate:   time.Now(),
+			wantErr:     true,
+			errContains: "debtors length must be greater than 0",
+		},
+		{
 			// 異常系：支払い者が債務者リストに含まれている場合
 			name:        "payer in debtors",
 			eventName:   "updated event",
@@ -319,7 +329,7 @@ func TestPaymentEvent_Update(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := originalEvent.Update(tt.eventName, tt.payer, tt.debtors, tt.eventDate)
-			
+
 			if tt.wantErr {
 				assert.Error(t, err)
 				if tt.errContains != "" {
@@ -327,7 +337,7 @@ func TestPaymentEvent_Update(t *testing.T) {
 				}
 				return
 			}
-			
+
 			require.NoError(t, err)
 			require.NotNil(t, got)
 			assert.Equal(t, tt.eventName, got.Name())

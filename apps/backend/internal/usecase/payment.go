@@ -40,11 +40,11 @@ func (pu *paymentUseCase) Create(cc CreatePaymentInput) (*domain.PaymentEvent, e
 		return nil, err
 	}
 
-	a, err := domain.NewAmount(cc.Amount)
+	amount, err := domain.NewAmount(cc.Amount)
 	if err != nil {
 		return nil, err
 	}
-	payer, err := domain.NewPayer(user, a)
+	payer, err := domain.NewPayer(user, amount)
 	if err != nil {
 		return nil, err
 	}

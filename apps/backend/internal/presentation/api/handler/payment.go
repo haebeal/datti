@@ -76,7 +76,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 		res := &api.ErrorResponse{
 			Message: "internal error",
 		}
-		return c.JSON(http.StatusBadRequest, res)
+		return c.JSON(http.StatusInternalServerError, res)
 	}
 
 	var debtors []struct {

@@ -73,8 +73,9 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 	}
 	payment, err := ph.pu.Create(input)
 	if err != nil {
+		message := fmt.Sprintf("internal error: %s", err.Error())
 		res := &api.ErrorResponse{
-			Message: "internal error",
+			Message: message,
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}

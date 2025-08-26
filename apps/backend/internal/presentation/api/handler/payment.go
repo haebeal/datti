@@ -12,7 +12,6 @@ import (
 
 type PaymentHandler interface {
 	Create(c echo.Context) error
-	Get(c echo.Context, id string) error
 }
 type paymentHandler struct {
 	pu usecase.PaymentUseCase

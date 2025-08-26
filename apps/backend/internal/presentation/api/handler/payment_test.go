@@ -150,23 +150,3 @@ func TestPaymentHandler_Create_InvalidPayerUUID(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Contains(t, response.Message, "Payer UUID Parse Error")
 }
-
-func TestPaymentHandler_Get(t *testing.T) {
-	// Setup
-	mockUseCase := &MockPaymentUseCase{}
-	handler := NewPaymentHandler(mockUseCase)
-
-	// リクエストの作成
-	req := httptest.NewRequest(http.MethodGet, "/payments/test-id", nil)
-	rec := httptest.NewRecorder()
-	c := echo.New().NewContext(req, rec)
-
-	// テスト実行
-	err := handler.Get(c, "test-id")
-
-	// アサーション
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "ok")
-}
-

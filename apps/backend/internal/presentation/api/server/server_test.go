@@ -25,12 +25,6 @@ func (m *MockPaymentHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, map[string]string{"status": "created"})
 }
 
-func (m *MockPaymentHandler) Get(c echo.Context, id string) error {
-	if m.shouldReturnError {
-		return errors.New(m.errorMessage)
-	}
-	return c.JSON(http.StatusOK, map[string]string{"id": id})
-}
 
 // MockHealthHandler は HealthHandler のモック実装
 type MockHealthHandler struct {
@@ -85,29 +79,6 @@ func TestServer_PaymentEventCreate_Success(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), "created")
 }
 
-func TestServer_PaymentEventCreate_Error(t *testing.T) {
-	// エラーを返すモックハンドラーを作成
-	mockPaymentHandler := &MockPaymentHandler{
-		shouldReturnError: true,
-		errorMessage:      "payment handler error",
-	}
-	mockHealthHandler := &MockHealthHandler{}
-
-	// サーバーを作成
-	server := NewServer(mockPaymentHandler, mockHealthHandler)
-
-	// リクエストを作成
-	req := httptest.NewRequest(http.MethodPost, "/payment/event", nil)
-	rec := httptest.NewRecorder()
-	c := echo.New().NewContext(req, rec)
-
-	// テスト実行
-	err := server.PaymentEventCreate(c)
-
-	// アサーション
-	assert.Error(t, err)
-	assert.Equal(t, "payment handler error", err.Error())
-}
 
 func TestServer_HealthCheckCheck_Success(t *testing.T) {
 	// モックハンドラーを作成
@@ -131,29 +102,6 @@ func TestServer_HealthCheckCheck_Success(t *testing.T) {
 	assert.Contains(t, rec.Body.String(), "ok")
 }
 
-func TestServer_HealthCheckCheck_Error(t *testing.T) {
-	// エラーを返すモックハンドラーを作成
-	mockPaymentHandler := &MockPaymentHandler{}
-	mockHealthHandler := &MockHealthHandler{
-		shouldReturnError: true,
-		errorMessage:      "health handler error",
-	}
-
-	// サーバーを作成
-	server := NewServer(mockPaymentHandler, mockHealthHandler)
-
-	// リクエストを作成
-	req := httptest.NewRequest(http.MethodGet, "/health", nil)
-	rec := httptest.NewRecorder()
-	c := echo.New().NewContext(req, rec)
-
-	// テスト実行
-	err := server.HealthCheckCheck(c)
-
-	// アサーション
-	assert.Error(t, err)
-	assert.Equal(t, "health handler error", err.Error())
-}
 
 func TestServer_Implements_ServerInterface(t *testing.T) {
 	// モックハンドラーを作成

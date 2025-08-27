@@ -8,6 +8,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+
+
 func TestNewUser(t *testing.T) {
 	// テスト用の基本データを準備
 	validID := uuid.New().String()
@@ -45,21 +47,21 @@ func TestNewUser(t *testing.T) {
 		},
 		{
 			// 異常系：ユーザー名が空文字列の場合
-			name:        "empty name",
-			id:          validID,
-			userName:    "",
-			avatar:      validAvatar,
-			email:       validEmail,
+			name:     "empty name",
+			id:       validID,
+			userName: "",
+			avatar:   validAvatar,
+			email:    validEmail,
 			wantErr:     true,
 			errContains: "name length must be greater than 0",
 		},
 		{
 			// 異常系：無効なURL形式のアバターを渡した場合
-			name:        "invalid avatar url",
-			id:          validID,
-			userName:    validName,
-			avatar:      "invalid-url",
-			email:       validEmail,
+			name:     "invalid avatar url",
+			id:       validID,
+			userName: validName,
+			avatar:   "invalid-url",
+			email:    validEmail,
 			wantErr:     true,
 			errContains: "invalid avatar URL: scheme and host are required",
 		},
@@ -136,10 +138,10 @@ func TestUser_Equal(t *testing.T) {
 	user3, _ := NewUser(uuid.New().String(), "user3", "https://example.com/avatar3.jpg", "user3@example.com")
 
 	tests := []struct {
-		name   string
-		user1  *User
-		user2  *User
-		want   bool
+		name  string
+		user1 *User
+		user2 *User
+		want  bool
 	}{
 		{
 			name:  "same id users are equal",

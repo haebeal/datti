@@ -13,157 +13,187 @@ import (
 )
 
 
-func TestPaymentUseCase_Create_Success(t *testing.T) {
-	// テスト用ユーザー作成
+// テストケース構造体
+type paymentCreateTestCase struct {
+	name       string
+	setupMocks func() (*testutil.MockUserRepository, *testutil.MockPaymentEventRepository)
+	input      CreatePaymentInput
+	wantErr    bool
+	assertions func(t *testing.T, result *domain.PaymentEvent, mockRepo *testutil.MockPaymentEventRepository)
+}
+
+// 正常系テストケース
+func successTestCase() paymentCreateTestCase {
 	payerID := uuid.New()
 	debtorID := uuid.New()
 
-	payer, err := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
-	require.NoError(t, err, "Failed to create payer")
+	return paymentCreateTestCase{
+		name: "success case",
+		setupMocks: func() (*testutil.MockUserRepository, *testutil.MockPaymentEventRepository) {
+			payer, _ := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
+			debtor, _ := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
 
-	debtor, err := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
-	require.NoError(t, err, "Failed to create debtor")
-
-	// モックリポジトリセットアップ
-	userRepo := &testutil.MockUserRepository{
-		Users: map[uuid.UUID]*domain.User{
-			payerID:  payer,
-			debtorID: debtor,
+			userRepo := &testutil.MockUserRepository{
+				Users: map[uuid.UUID]*domain.User{
+					payerID:  payer,
+					debtorID: debtor,
+				},
+			}
+			paymentRepo := &testutil.MockPaymentEventRepository{}
+			return userRepo, paymentRepo
+		},
+		input: CreatePaymentInput{
+			Name:    "Test Payment",
+			PayerID: payerID,
+			Amount:  1000,
+			Debtors: []DebtorParam{
+				{ID: debtorID, Amount: 500},
+			},
+			EventDate: time.Now(),
+		},
+		wantErr: false,
+		assertions: func(t *testing.T, result *domain.PaymentEvent, mockRepo *testutil.MockPaymentEventRepository) {
+			assert.NotNil(t, result)
+			assert.Equal(t, "Test Payment", result.Name())
+			assert.Len(t, mockRepo.Events, 1)
 		},
 	}
-	paymentRepo := &testutil.MockPaymentEventRepository{}
-
-	// ユースケース作成
-	uc := NewPaymentUseCase(paymentRepo, userRepo)
-
-	// テスト実行
-	input := CreatePaymentInput{
-		Name:    "Test Payment",
-		PayerID: payerID,
-		Amount:  1000,
-		Debtors: []DebtorParam{
-			{ID: debtorID, Amount: 500},
-		},
-		EventDate: time.Now(),
-	}
-
-	result, err := uc.Create(input)
-
-	// 検証
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.Equal(t, "Test Payment", result.Name())
-	assert.Len(t, paymentRepo.Events, 1)
 }
 
-func TestPaymentUseCase_Create_PayerNotFound(t *testing.T) {
-	// テスト用ユーザー作成
+// Payerが見つからないテストケース
+func payerNotFoundTestCase() paymentCreateTestCase {
 	debtorID := uuid.New()
-	debtor, err := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
-	require.NoError(t, err, "Failed to create debtor")
-
-	// モックリポジトリセットアップ（payerは存在しない）
-	userRepo := &testutil.MockUserRepository{
-		Users: map[uuid.UUID]*domain.User{
-			debtorID: debtor,
-		},
-	}
-	paymentRepo := &testutil.MockPaymentEventRepository{}
-
-	// ユースケース作成
-	uc := NewPaymentUseCase(paymentRepo, userRepo)
-
-	// テスト実行
 	nonExistentPayerID := uuid.New()
-	input := CreatePaymentInput{
-		Name:    "Test Payment",
-		PayerID: nonExistentPayerID,
-		Amount:  1000,
-		Debtors: []DebtorParam{
-			{ID: debtorID, Amount: 500},
+
+	return paymentCreateTestCase{
+		name: "payer not found",
+		setupMocks: func() (*testutil.MockUserRepository, *testutil.MockPaymentEventRepository) {
+			debtor, _ := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
+
+			userRepo := &testutil.MockUserRepository{
+				Users: map[uuid.UUID]*domain.User{
+					debtorID: debtor,
+				},
+			}
+			paymentRepo := &testutil.MockPaymentEventRepository{}
+			return userRepo, paymentRepo
 		},
-		EventDate: time.Now(),
+		input: CreatePaymentInput{
+			Name:    "Test Payment",
+			PayerID: nonExistentPayerID,
+			Amount:  1000,
+			Debtors: []DebtorParam{
+				{ID: debtorID, Amount: 500},
+			},
+			EventDate: time.Now(),
+		},
+		wantErr: true,
+		assertions: func(t *testing.T, result *domain.PaymentEvent, mockRepo *testutil.MockPaymentEventRepository) {
+			assert.Nil(t, result)
+		},
 	}
-
-	result, err := uc.Create(input)
-
-	// 検証
-	assert.Error(t, err)
-	assert.Nil(t, result)
 }
 
-func TestPaymentUseCase_Create_InvalidAmount(t *testing.T) {
-	// テスト用ユーザー作成
+// 無効な金額テストケース
+func invalidAmountTestCase() paymentCreateTestCase {
 	payerID := uuid.New()
-	payer, err := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
-	require.NoError(t, err, "Failed to create payer")
 
-	// モックリポジトリセットアップ
-	userRepo := &testutil.MockUserRepository{
-		Users: map[uuid.UUID]*domain.User{
-			payerID: payer,
+	return paymentCreateTestCase{
+		name: "invalid amount",
+		setupMocks: func() (*testutil.MockUserRepository, *testutil.MockPaymentEventRepository) {
+			payer, _ := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
+
+			userRepo := &testutil.MockUserRepository{
+				Users: map[uuid.UUID]*domain.User{
+					payerID: payer,
+				},
+			}
+			paymentRepo := &testutil.MockPaymentEventRepository{}
+			return userRepo, paymentRepo
+		},
+		input: CreatePaymentInput{
+			Name:      "Test Payment",
+			PayerID:   payerID,
+			Amount:    -100, // 負の金額
+			Debtors:   []DebtorParam{},
+			EventDate: time.Now(),
+		},
+		wantErr: true,
+		assertions: func(t *testing.T, result *domain.PaymentEvent, mockRepo *testutil.MockPaymentEventRepository) {
+			assert.Nil(t, result)
 		},
 	}
-	paymentRepo := &testutil.MockPaymentEventRepository{}
-
-	// ユースケース作成
-	uc := NewPaymentUseCase(paymentRepo, userRepo)
-
-	// テスト実行（無効な金額）
-	input := CreatePaymentInput{
-		Name:      "Test Payment",
-		PayerID:   payerID,
-		Amount:    -100, // 負の金額
-		Debtors:   []DebtorParam{},
-		EventDate: time.Now(),
-	}
-
-	result, err := uc.Create(input)
-
-	// 検証
-	assert.Error(t, err)
-	assert.Nil(t, result)
 }
 
-func TestPaymentUseCase_Create_RepositoryError(t *testing.T) {
-	// テスト用ユーザー作成
+// リポジトリエラーテストケース
+func repositoryErrorTestCase() paymentCreateTestCase {
 	payerID := uuid.New()
 	debtorID := uuid.New()
 
-	payer, err := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
-	require.NoError(t, err, "Failed to create payer")
+	return paymentCreateTestCase{
+		name: "repository error",
+		setupMocks: func() (*testutil.MockUserRepository, *testutil.MockPaymentEventRepository) {
+			payer, _ := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
+			debtor, _ := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
 
-	debtor, err := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
-	require.NoError(t, err, "Failed to create debtor")
-
-	// モックリポジトリセットアップ（保存エラーを発生させる）
-	userRepo := &testutil.MockUserRepository{
-		Users: map[uuid.UUID]*domain.User{
-			payerID:  payer,
-			debtorID: debtor,
+			userRepo := &testutil.MockUserRepository{
+				Users: map[uuid.UUID]*domain.User{
+					payerID:  payer,
+					debtorID: debtor,
+				},
+			}
+			paymentRepo := &testutil.MockPaymentEventRepository{
+				Err: errors.New("database error"),
+			}
+			return userRepo, paymentRepo
+		},
+		input: CreatePaymentInput{
+			Name:    "Test Payment",
+			PayerID: payerID,
+			Amount:  1000,
+			Debtors: []DebtorParam{
+				{ID: debtorID, Amount: 500},
+			},
+			EventDate: time.Now(),
+		},
+		wantErr: true,
+		assertions: func(t *testing.T, result *domain.PaymentEvent, mockRepo *testutil.MockPaymentEventRepository) {
+			assert.Nil(t, result)
 		},
 	}
-	paymentRepo := &testutil.MockPaymentEventRepository{
-		Err: errors.New("database error"),
+}
+
+// 支払いイベント登録のテスト関数
+func TestPaymentUseCase_Create(t *testing.T) {
+	testCases := []paymentCreateTestCase{
+		successTestCase(),
+		payerNotFoundTestCase(),
+		invalidAmountTestCase(),
+		repositoryErrorTestCase(),
 	}
 
-	// ユースケース作成
-	uc := NewPaymentUseCase(paymentRepo, userRepo)
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			// モックセットアップ
+			userRepo, paymentRepo := tt.setupMocks()
 
-	// テスト実行
-	input := CreatePaymentInput{
-		Name:    "Test Payment",
-		PayerID: payerID,
-		Amount:  1000,
-		Debtors: []DebtorParam{
-			{ID: debtorID, Amount: 500},
-		},
-		EventDate: time.Now(),
+			// ユースケース作成
+			uc := NewPaymentUseCase(paymentRepo, userRepo)
+
+			// テスト実行
+			result, err := uc.Create(tt.input)
+
+			// エラー検証
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				require.NoError(t, err)
+			}
+
+			// カスタムアサーション実行
+			if tt.assertions != nil {
+				tt.assertions(t, result, paymentRepo)
+			}
+		})
 	}
-
-	result, err := uc.Create(input)
-
-	// 検証
-	assert.Error(t, err)
-	assert.Nil(t, result)
 }

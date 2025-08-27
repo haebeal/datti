@@ -23,12 +23,6 @@ func NewPaymentHandler(pu usecase.PaymentUseCase) PaymentHandler {
 	}
 }
 
-// Get implements PaymentHandler.
-func (ph *paymentHandler) Get(c echo.Context, id string) error {
-	fmt.Print(id)
-	return c.JSON(200, "ok")
-}
-
 func (ph *paymentHandler) Create(c echo.Context) error {
 
 	req := new(api.PaymentCreateEventRequest)

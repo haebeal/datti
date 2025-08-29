@@ -5,6 +5,7 @@ go 1.23.0
 toolchain go1.24.5
 
 require (
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/labstack/echo/v4 v4.11.4

@@ -40,6 +40,9 @@ task gen-server
 
 # OpenAPIクライアントコードを生成（必要に応じて）
 task gen-client
+
+# モック生成
+task gen-mocks
 ```
 
 ### データベース管理
@@ -111,11 +114,70 @@ func TestExample(t *testing.T) {
 - **プレゼンテーション層**: HTTPハンドラー、リクエスト/レスポンス処理、エラーハンドリング
   - `handler/payment_test.go`, `server/server_test.go`（モックハンドラー使用）
 
-### モックの活用
+### モックテストの実装
 
-- **ユースケース層**: カスタムモックリポジトリでデータベース依存を排除
-- **プレゼンテーション層**: モックハンドラーで各層の責務を分離したテスト
-- **テストの独立性**: 各層が他の層の実装に依存しないテスト設計
+プロジェクトでは[gomock](https://github.com/golang/mock)を使用してモックを自動生成し、テストでの依存関係を分離しています。
+
+#### モック生成手順
+
+1. **モック生成コマンドの実行**
+   ```bash
+   # 全てのモックを再生成
+   task gen-mocks
+   
+   # 個別にモックを生成する場合
+   mockgen -source=internal/domain/user.go -destination=internal/usecase/testutil/mock_user_repository_generated.go -package=testutil
+   mockgen -source=internal/domain/paymentEvent.go -destination=internal/usecase/testutil/mock_payment_event_repository_generated.go -package=testutil
+   ```
+
+2. **新しいリポジトリインターフェースの追加時**
+   - ドメイン層に新しいリポジトリインターフェースを追加した場合
+   - `Taskfile.yaml`の`gen-mocks`タスクに新しいmockgenコマンドを追加
+   - `task gen-mocks`を実行してモックを生成
+
+#### gomockを使用したテスト実装例
+
+```go
+func TestPaymentUseCase_Create_Success(t *testing.T) {
+    // gomockコントローラー作成
+    ctrl := gomock.NewController(t)
+    defer ctrl.Finish()
+
+    // モック作成
+    userRepo := testutil.NewMockUserRepository(ctrl)
+    paymentRepo := testutil.NewMockPaymentEventRepository(ctrl)
+
+    // モックの期待値設定
+    payer := &domain.User{...}
+    debtor := &domain.User{...}
+    
+    userRepo.EXPECT().FindByID(payerID).Return(payer, nil)
+    userRepo.EXPECT().FindByID(debtorID).Return(debtor, nil)
+    paymentRepo.EXPECT().Create(gomock.Any()).Return(nil)
+
+    // テスト対象の実行
+    uc := NewPaymentUseCase(paymentRepo, userRepo)
+    result, err := uc.Create(input)
+
+    // アサーション
+    require.NoError(t, err)
+    assert.NotNil(t, result)
+}
+```
+
+#### モックテストのベストプラクティス
+
+- **EXPECT()の適切な設定**: モックメソッドの呼び出し回数と引数を正確に定義
+- **gomock.Any()の活用**: 引数の内容が重要でない場合に使用
+- **エラーケースのテスト**: モックでエラーを返すケースも含めてテスト
+- **ctrl.Finish()の確実な実行**: deferを使用してモックの期待値チェックを保証
+
+#### 生成されるモックファイル
+
+- `internal/usecase/testutil/mock_user_repository_generated.go`
+- `internal/usecase/testutil/mock_payment_event_repository_generated.go`
+
+これらのファイルは自動生成されるため、直接編集しないでください。リポジトリインターフェースの変更後は必ず`task gen-mocks`でモックを再生成してください。
 
 ### テスト実行
 

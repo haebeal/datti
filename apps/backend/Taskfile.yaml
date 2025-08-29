@@ -21,4 +21,9 @@ tasks:
   gen-client:
     cmds:
       - oapi-codegen -generate "client" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/client.gen.go
+  gen-mocks:
+    desc: "Generate mocks using mockgen"
+    cmds:
+      - mockgen -source=internal/domain/user.go -destination=internal/usecase/testutil/mock_user_repository_generated.go -package=testutil
+      - mockgen -source=internal/domain/paymentEvent.go -destination=internal/usecase/testutil/mock_payment_event_repository_generated.go -package=testutil
   

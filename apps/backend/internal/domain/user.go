@@ -20,7 +20,7 @@ type User struct {
 func NewUser(id string, name string, avatar string, email string) (*User, error) {
 	uuid, err := uuid.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid uuid format")
 	}
 
 	nl := utf8.RuneCountInString(name)
@@ -30,7 +30,7 @@ func NewUser(id string, name string, avatar string, email string) (*User, error)
 
 	parsedURL, err := url.Parse(avatar)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid avatar URL: parse error")
 	}
 	if parsedURL.Scheme == "" || parsedURL.Host == "" {
 		return nil, fmt.Errorf("invalid avatar URL: scheme and host are required")
@@ -38,7 +38,7 @@ func NewUser(id string, name string, avatar string, email string) (*User, error)
 
 	_, err = mail.ParseAddress(email)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid email format")
 	}
 
 	return &User{uuid, name, avatar, email}, nil

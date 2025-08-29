@@ -1,14 +1,13 @@
 package domain
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-
 
 func TestNewUser(t *testing.T) {
 	// テスト用の基本データを準備
@@ -19,13 +18,12 @@ func TestNewUser(t *testing.T) {
 
 	// テーブル駆動テストのテストケース定義
 	tests := []struct {
-		name        string
-		id          string
-		userName    string
-		avatar      string
-		email       string
-		wantErr     bool
-		errContains string
+		name     string
+		id       string
+		userName string
+		avatar   string
+		email    string
+		wantErr  error
 	}{
 		{
 			// 正常系：全てのパラメータが有効な場合
@@ -34,7 +32,7 @@ func TestNewUser(t *testing.T) {
 			userName: validName,
 			avatar:   validAvatar,
 			email:    validEmail,
-			wantErr:  false,
+			wantErr:  nil,
 		},
 		{
 			// 異常系：無効なUUID形式のIDを渡した場合
@@ -43,7 +41,7 @@ func TestNewUser(t *testing.T) {
 			userName: validName,
 			avatar:   validAvatar,
 			email:    validEmail,
-			wantErr:  true,
+			wantErr:  fmt.Errorf("invalid uuid format"),
 		},
 		{
 			// 異常系：ユーザー名が空文字列の場合
@@ -52,18 +50,25 @@ func TestNewUser(t *testing.T) {
 			userName: "",
 			avatar:   validAvatar,
 			email:    validEmail,
-			wantErr:     true,
-			errContains: "name length must be greater than 0",
+			wantErr:  fmt.Errorf("name length must be greater than 0"),
 		},
 		{
 			// 異常系：無効なURL形式のアバターを渡した場合
 			name:     "invalid avatar url",
 			id:       validID,
 			userName: validName,
-			avatar:   "invalid-url",
+			avatar:   "ht tp://invalid url with spaces",
 			email:    validEmail,
-			wantErr:     true,
-			errContains: "invalid avatar URL: scheme and host are required",
+			wantErr:  fmt.Errorf("invalid avatar URL: parse error"),
+		},
+		{
+			// 異常系：空のアバターURLを渡した場合(相対パスとして扱われる)
+			name:     "empty avatar url",
+			id:       validID,
+			userName: validName,
+			avatar:   "",
+			email:    validEmail,
+			wantErr:  fmt.Errorf("invalid avatar URL: scheme and host are required"),
 		},
 		{
 			// 異常系：無効なメールアドレス形式を渡した場合
@@ -72,7 +77,7 @@ func TestNewUser(t *testing.T) {
 			userName: validName,
 			avatar:   validAvatar,
 			email:    "invalid-email",
-			wantErr:  true,
+			wantErr:  fmt.Errorf("invalid email format"),
 		},
 		{
 			// 正常系：日本語の名前
@@ -81,7 +86,7 @@ func TestNewUser(t *testing.T) {
 			userName: "テストユーザー",
 			avatar:   validAvatar,
 			email:    validEmail,
-			wantErr:  false,
+			wantErr:  nil,
 		},
 		{
 			// 正常系：長い名前
@@ -90,7 +95,7 @@ func TestNewUser(t *testing.T) {
 			userName: "very long user name with many characters",
 			avatar:   validAvatar,
 			email:    validEmail,
-			wantErr:  false,
+			wantErr:  nil,
 		},
 		{
 			// 正常系：HTTPSではないアバターURL
@@ -99,7 +104,7 @@ func TestNewUser(t *testing.T) {
 			userName: validName,
 			avatar:   "http://example.com/avatar.jpg",
 			email:    validEmail,
-			wantErr:  false,
+			wantErr:  nil,
 		},
 	}
 
@@ -107,10 +112,10 @@ func TestNewUser(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewUser(tt.id, tt.userName, tt.avatar, tt.email)
 
-			if tt.wantErr {
+			if tt.wantErr != nil {
 				assert.Error(t, err)
-				if tt.errContains != "" {
-					assert.Contains(t, err.Error(), tt.errContains)
+				if tt.wantErr.Error() != "" {
+					assert.Contains(t, err.Error(), tt.wantErr.Error())
 				}
 				return
 			}

@@ -22,7 +22,7 @@ type PaymentEvent struct {
 func NewPaymentEvent(id string, name string, payer *Payer, debtors []*Debtor, eventDate time.Time, createdAt time.Time, updatedAt time.Time) (*PaymentEvent, error) {
 	ulid, err := ulid.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid ulid format")
 	}
 
 	nl := utf8.RuneCountInString(name)

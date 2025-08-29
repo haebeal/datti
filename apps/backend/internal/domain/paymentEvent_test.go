@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -53,8 +54,7 @@ func TestNewPaymentEvent(t *testing.T) {
 		eventDate   time.Time
 		createdAt   time.Time
 		updatedAt   time.Time
-		wantErr     bool
-		errContains string
+		wantErr     error
 	}{
 		{
 			// 正常系：全てのパラメータが有効な場合
@@ -66,7 +66,7 @@ func TestNewPaymentEvent(t *testing.T) {
 			eventDate: validEventDate,
 			createdAt: validCreatedAt,
 			updatedAt: validUpdatedAt,
-			wantErr:   false,
+			wantErr:   nil,
 		},
 		{
 			// 異常系：無効なULID形式のIDを渡した場合
@@ -78,7 +78,7 @@ func TestNewPaymentEvent(t *testing.T) {
 			eventDate: validEventDate,
 			createdAt: validCreatedAt,
 			updatedAt: validUpdatedAt,
-			wantErr:   true,
+			wantErr:   fmt.Errorf("invalid ulid format"),
 		},
 		{
 			// 異常系：イベント名が空文字列の場合
@@ -90,8 +90,7 @@ func TestNewPaymentEvent(t *testing.T) {
 			eventDate:   validEventDate,
 			createdAt:   validCreatedAt,
 			updatedAt:   validUpdatedAt,
-			wantErr:     true,
-			errContains: "name length must be greater than 0",
+			wantErr:     fmt.Errorf("name length must be greater than 0"),
 		},
 		{
 			// 異常系：債務者リストが空の場合
@@ -103,8 +102,7 @@ func TestNewPaymentEvent(t *testing.T) {
 			eventDate:   validEventDate,
 			createdAt:   validCreatedAt,
 			updatedAt:   validUpdatedAt,
-			wantErr:     true,
-			errContains: "debtors length must be greater than 0",
+			wantErr:     fmt.Errorf("debtors length must be greater than 0"),
 		},
 		{
 			// 異常系：支払い者が債務者リストに含まれている場合
@@ -116,8 +114,7 @@ func TestNewPaymentEvent(t *testing.T) {
 			eventDate:   validEventDate,
 			createdAt:   validCreatedAt,
 			updatedAt:   validUpdatedAt,
-			wantErr:     true,
-			errContains: "payer must not be a debtor",
+			wantErr:     fmt.Errorf("payer must not be a debtor"),
 		},
 		{
 			// 異常系：債務者リストに重複するユーザーが含まれている場合
@@ -129,8 +126,7 @@ func TestNewPaymentEvent(t *testing.T) {
 			eventDate:   validEventDate,
 			createdAt:   validCreatedAt,
 			updatedAt:   validUpdatedAt,
-			wantErr:     true,
-			errContains: "duplicate debtor",
+			wantErr:     fmt.Errorf("duplicate debtor"),
 		},
 		{
 			// 異常系：更新日が作成日より前の場合
@@ -142,8 +138,7 @@ func TestNewPaymentEvent(t *testing.T) {
 			eventDate:   validEventDate,
 			createdAt:   validCreatedAt,
 			updatedAt:   validCreatedAt.Add(-time.Hour),
-			wantErr:     true,
-			errContains: "updatedAt must not be before createdAt",
+			wantErr:     fmt.Errorf("updatedAt must not be before createdAt"),
 		},
 	}
 
@@ -151,10 +146,10 @@ func TestNewPaymentEvent(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := NewPaymentEvent(tt.id, tt.eventName, tt.payer, tt.debtors, tt.eventDate, tt.createdAt, tt.updatedAt)
 
-			if tt.wantErr {
+			if tt.wantErr != nil {
 				assert.Error(t, err)
-				if tt.errContains != "" {
-					assert.Contains(t, err.Error(), tt.errContains)
+				if tt.wantErr.Error() != "" {
+					assert.Contains(t, err.Error(), tt.wantErr.Error())
 				}
 				return
 			}
@@ -193,8 +188,7 @@ func TestCreatePaymentEvent(t *testing.T) {
 		payer       *Payer
 		debtors     []*Debtor
 		eventDate   time.Time
-		wantErr     bool
-		errContains string
+		wantErr     error
 	}{
 		{
 			// 正常系：有効なパラメータでPaymentEventを作成
@@ -203,7 +197,7 @@ func TestCreatePaymentEvent(t *testing.T) {
 			payer:     validPayer,
 			debtors:   validDebtors,
 			eventDate: validEventDate,
-			wantErr:   false,
+			wantErr:   nil,
 		},
 		{
 			// 異常系：イベント名が空文字列の場合
@@ -212,8 +206,7 @@ func TestCreatePaymentEvent(t *testing.T) {
 			payer:       validPayer,
 			debtors:     validDebtors,
 			eventDate:   validEventDate,
-			wantErr:     true,
-			errContains: "name length must be greater than 0",
+			wantErr:     fmt.Errorf("name length must be greater than 0"),
 		},
 		{
 			// 異常系：債務者リストが空の場合
@@ -222,8 +215,7 @@ func TestCreatePaymentEvent(t *testing.T) {
 			payer:       validPayer,
 			debtors:     []*Debtor{},
 			eventDate:   validEventDate,
-			wantErr:     true,
-			errContains: "debtors length must be greater than 0",
+			wantErr:     fmt.Errorf("debtors length must be greater than 0"),
 		},
 	}
 
@@ -231,10 +223,10 @@ func TestCreatePaymentEvent(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := CreatePaymentEvent(tt.eventName, tt.payer, tt.debtors, tt.eventDate)
 
-			if tt.wantErr {
+			if tt.wantErr != nil {
 				assert.Error(t, err)
-				if tt.errContains != "" {
-					assert.Contains(t, err.Error(), tt.errContains)
+				if tt.wantErr.Error() != "" {
+					assert.Contains(t, err.Error(), tt.wantErr.Error())
 				}
 				return
 			}
@@ -282,8 +274,7 @@ func TestPaymentEvent_Update(t *testing.T) {
 		payer       *Payer
 		debtors     []*Debtor
 		eventDate   time.Time
-		wantErr     bool
-		errContains string
+		wantErr     error
 	}{
 		{
 			// 正常系：有効なパラメータでPaymentEventを更新
@@ -292,7 +283,7 @@ func TestPaymentEvent_Update(t *testing.T) {
 			payer:     newPayer,
 			debtors:   newDebtors,
 			eventDate: time.Now(),
-			wantErr:   false,
+			wantErr:   nil,
 		},
 		{
 			// 異常系：イベント名が空文字列の場合
@@ -301,8 +292,7 @@ func TestPaymentEvent_Update(t *testing.T) {
 			payer:       newPayer,
 			debtors:     newDebtors,
 			eventDate:   time.Now(),
-			wantErr:     true,
-			errContains: "name length must be greater than 0",
+			wantErr:     fmt.Errorf("name length must be greater than 0"),
 		},
 		{
 			// 異常系：債務者配列が空の場合
@@ -311,8 +301,7 @@ func TestPaymentEvent_Update(t *testing.T) {
 			payer:       newPayer,
 			debtors:     []*Debtor{},
 			eventDate:   time.Now(),
-			wantErr:     true,
-			errContains: "debtors length must be greater than 0",
+			wantErr:     fmt.Errorf("debtors length must be greater than 0"),
 		},
 		{
 			// 異常系：支払い者が債務者リストに含まれている場合
@@ -321,8 +310,7 @@ func TestPaymentEvent_Update(t *testing.T) {
 			payer:       newPayer,
 			debtors:     debtorsWithPayer,
 			eventDate:   time.Now(),
-			wantErr:     true,
-			errContains: "payer must not be a debtor",
+			wantErr:     fmt.Errorf("payer must not be a debtor"),
 		},
 	}
 
@@ -330,10 +318,10 @@ func TestPaymentEvent_Update(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := originalEvent.Update(tt.eventName, tt.payer, tt.debtors, tt.eventDate)
 
-			if tt.wantErr {
+			if tt.wantErr != nil {
 				assert.Error(t, err)
-				if tt.errContains != "" {
-					assert.Contains(t, err.Error(), tt.errContains)
+				if tt.wantErr.Error() != "" {
+					assert.Contains(t, err.Error(), tt.wantErr.Error())
 				}
 				return
 			}

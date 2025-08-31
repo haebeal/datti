@@ -12,7 +12,6 @@ import (
 
 type PaymentHandler interface {
 	Create(c echo.Context) error
-	Get(c echo.Context, id string) error
 }
 type paymentHandler struct {
 	pu usecase.PaymentUseCase
@@ -22,12 +21,6 @@ func NewPaymentHandler(pu usecase.PaymentUseCase) PaymentHandler {
 	return &paymentHandler{
 		pu: pu,
 	}
-}
-
-// Get implements PaymentHandler.
-func (ph *paymentHandler) Get(c echo.Context, id string) error {
-	fmt.Print(id)
-	return c.JSON(200, "ok")
 }
 
 func (ph *paymentHandler) Create(c echo.Context) error {
@@ -74,10 +67,11 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 	}
 	payment, err := ph.pu.Create(input)
 	if err != nil {
+		message := fmt.Sprintf("internal error: %s", err.Error())
 		res := &api.ErrorResponse{
-			Message: "internal error",
+			Message: message,
 		}
-		return c.JSON(http.StatusBadRequest, res)
+		return c.JSON(http.StatusInternalServerError, res)
 	}
 
 	var debtors []struct {

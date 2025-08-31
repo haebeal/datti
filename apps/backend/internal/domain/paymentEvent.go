@@ -8,7 +8,7 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-// 返済イベント
+// 支払いイベント
 type PaymentEvent struct {
 	id        ulid.ULID
 	name      string
@@ -22,12 +22,16 @@ type PaymentEvent struct {
 func NewPaymentEvent(id string, name string, payer *Payer, debtors []*Debtor, eventDate time.Time, createdAt time.Time, updatedAt time.Time) (*PaymentEvent, error) {
 	ulid, err := ulid.Parse(id)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("invalid ulid format")
 	}
 
 	nl := utf8.RuneCountInString(name)
-	if nl < 0 {
+	if nl <= 0 {
 		return nil, fmt.Errorf("name length must be greater than 0")
+	}
+
+	if len(debtors) == 0 {
+		return nil, fmt.Errorf("debtors length must be greater than 0")
 	}
 
 	// debtorsでユーザーが重複していないかチェック
@@ -46,6 +50,11 @@ func NewPaymentEvent(id string, name string, payer *Payer, debtors []*Debtor, ev
 		if payer.Equal(d.User) {
 			return nil, fmt.Errorf("payer must not be a debtor: id %s, name %s", d.ID(), d.Name())
 		}
+	}
+
+	// 更新日が作成日よりも前でないかチェック
+	if updatedAt.Before(createdAt) {
+		return nil, fmt.Errorf("updatedAt must not be before createdAt: updatedAt %v, createdAt %v", updatedAt, createdAt)
 	}
 
 	return &PaymentEvent{

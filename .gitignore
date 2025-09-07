@@ -9,3 +9,5 @@
 
 # Secrets for act
 .secrets
+
+tmp/

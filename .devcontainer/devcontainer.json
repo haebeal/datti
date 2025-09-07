@@ -25,15 +25,18 @@
         "42Crunch.vscode-openapi",
         "redhat.vscode-yaml",
         "tamasfe.even-better-toml",
-        "golang.go"
+        "golang.go",
+        "Gruntfuggly.todo-tree",
+        "typespec.typespec-vscode"
       ]
     }
   },
   "postCreateCommand": "git config --global --add safe.directory ${localWorkspaceFolder}",
   "features": {
-    "ghcr.io/audacioustux/devcontainers/taskfile:1": {},
     "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/node:1": {}
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/marcozac/devcontainer-features/atlas:1": {}
   }
 }

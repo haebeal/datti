@@ -1,18 +1,29 @@
 version: '3'
-
-dotenv: 
+dotenv:
   - '.env'
-
 tasks:
-  schema-gen:
-    desc: "schema.sqlの生成"
+  gen-sqlc:
     cmds:
-      - go run ./cmd/migrate/main.go
-  schema-apply:
-    desc: "マイグレーションの適用"
+      - sqlc generate
+  migrate-db:
     cmds:
-      - atlas schema apply 
-          --url $DSN
-          --to "file://migrations/schema.sql" 
-          --schema public 
-          --dev-url $ATLAS_DSN
+      - |
+        atlas schema apply \
+          --url "postgres://postgres:password@postgres:5432/datti?sslmode=disable" \
+          --dev-url "docker://postgres" \
+          --to "file://sql/schema.sql"
+  gen-type:
+    cmds:
+      - oapi-codegen -generate "types" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/types.gen.go
+  gen-server:
+    cmds:
+      - oapi-codegen -generate "server" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/server.gen.go
+  gen-client:
+    cmds:
+      - oapi-codegen -generate "client" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/client.gen.go
+  gen-mocks:
+    desc: "Generate mocks using mockgen"
+    cmds:
+      - mockgen -source=internal/domain/user.go -destination=internal/usecase/testutil/mock_user_repository_generated.go -package=testutil
+      - mockgen -source=internal/domain/paymentEvent.go -destination=internal/usecase/testutil/mock_payment_event_repository_generated.go -package=testutil
+  

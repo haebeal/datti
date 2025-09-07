@@ -6,13 +6,13 @@ tmp_dir = "./tmp"
   args_bin = []
   bin = "./tmp/bin"
   cmd = "go build -o ./tmp/bin ./cmd"
+  full_bin = "godotenv -f .env dlv --listen=:2345 --headless=true --api-version=2 --accept-multiclient exec --continue tmp/bin"
   delay = 1000
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []
   exclude_regex = ["_test.go"]
   exclude_unchanged = false
   follow_symlink = false
-  full_bin = ""
   include_dir = []
   include_ext = ["go", "tpl", "tmpl", "html"]
   include_file = []

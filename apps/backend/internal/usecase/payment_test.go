@@ -174,3 +174,45 @@ func TestPaymentUseCase_Create_RepositoryError(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, result)
 }
+
+func TestPaymentUseCase_Get_Success(t *testing.T) {
+	// gomockコントローラー作成
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	// モックデーターの作成
+	payerID := uuid.New()
+	payerUser, err := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
+	require.NoError(t, err, "Failed to create payer user")
+	payerAmount, err := domain.NewAmount(1000)
+	require.NoError(t, err, "Failed to create payer amount")
+	payer, err := domain.NewPayer(payerUser, payerAmount)
+	require.NoError(t, err, "Failed to create payer")
+
+	debtorID := uuid.New()
+	debtorUser, err := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
+	require.NoError(t, err, "Failed to create debtor user")
+	debtorAmount, err := domain.NewAmount(500)
+	require.NoError(t, err, "Failed to create debtor amount")
+	debtor, err := domain.NewDebtor(debtorUser, debtorAmount)
+	require.NoError(t, err, "Failed to create debtor")
+
+	eventDate := time.Now()
+	event, err := domain.CreatePaymentEvent("Test Event", payer, []*domain.Debtor{debtor}, eventDate)
+	require.NoError(t, err, "Failed to create event")
+
+	userRepo := testutil.NewMockUserRepository(ctrl)
+	paymentRepo := testutil.NewMockPaymentEventRepository(ctrl)
+	paymentRepo.EXPECT().FindByID(event.ID().String()).Return(event, nil)
+
+	uc := NewPaymentUseCase(paymentRepo, userRepo)
+
+	input := GetPaymentInput{
+		ID: event.ID().String(),
+	}
+	result, err := uc.Get(input)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, event, result)
+}

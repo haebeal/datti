@@ -13,8 +13,8 @@ namespace Payment {
   /**
    * 支払いのイベントの作成
    */
-  @summary("支払いイベントの作成")
   interface PaymentEvent {
+    @summary("支払いイベントの作成")
     @post
     create(@body event: CreateEventRequest):
       | {

@@ -13,8 +13,8 @@ namespace Health {
   /**
    * アプリケーションの稼働状況を確認
    */
-  @summary("ヘルスチェック")
   interface HealthCheck {
+    @summary("ヘルスチェック")
     @get
     check(): {
       /**

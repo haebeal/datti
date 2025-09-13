@@ -65,6 +65,14 @@ namespace Payment {
 
   }
 
+  model UserWithAmount {
+      id: string;
+      name: string;
+      email: string;
+      avatar: url;
+      amount: uint64;
+  }
+
   model CreateEventRequest {
     name: string;
     eventDate: utcDateTime;
@@ -82,20 +90,8 @@ namespace Payment {
     id: string;
     name: string;
     eventDate: utcDateTime;
-    payer: {
-      id: string;
-      name: string;
-      email: string;
-      avatar: url;
-      amount: uint64;
-    };
-    debtors: {
-      id: string;
-      name: string;
-      email: string;
-      avatar: url;
-      amount: uint64;
-    }[];
+    payer: UserWithAmount;
+    debtors: UserWithAmount[];
     createdAt: utcDateTime;
     updatedAt: utcDateTime;
   }
@@ -104,20 +100,8 @@ namespace Payment {
     id: string;
     name: string;
     eventDate: utcDateTime;
-    payer: {
-      id: string;
-      name: string;
-      email: string;
-      avatar: url;
-      amount: uint64;
-    };
-    debtors: {
-      id: string;
-      name: string;
-      email: string;
-      avatar: url;
-      amount: uint64;
-    }[];
+    payer: UserWithAmount;
+    debtors: UserWithAmount[];
     createdAt: utcDateTime;
     updatedAt: utcDateTime;
   }

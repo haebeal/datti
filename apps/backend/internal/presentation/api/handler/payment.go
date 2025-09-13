@@ -75,21 +75,9 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	var debtors []struct {
-		Amount uint64 `json:"amount"`
-		Avatar string `json:"avatar"`
-		Email  string `json:"email"`
-		Id     string `json:"id"`
-		Name   string `json:"name"`
-	}
+	var debtors []api.PaymentUserWithAmount
 	for _, d := range payment.Debtors() {
-		debtor := struct {
-			Amount uint64 `json:"amount"`
-			Avatar string `json:"avatar"`
-			Email  string `json:"email"`
-			Id     string `json:"id"`
-			Name   string `json:"name"`
-		}{
+		debtor := api.PaymentUserWithAmount{
 			Amount: uint64(d.Amount().Value()),
 			Id:     d.ID().String(),
 			Name:   d.Name(),
@@ -105,13 +93,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 		Id:        payment.ID().String(),
 		Name:      payment.Name(),
 		Debtors:   debtors,
-		Payer: struct {
-			Amount uint64 "json:\"amount\""
-			Avatar string "json:\"avatar\""
-			Email  string "json:\"email\""
-			Id     string "json:\"id\""
-			Name   string "json:\"name\""
-		}{
+		Payer: api.PaymentUserWithAmount{
 			Amount: uint64(payment.Payer().Amount().Value()),
 			Avatar: payment.Payer().Avatar(),
 			Email:  payment.Payer().Email(),
@@ -137,21 +119,9 @@ func (ph *paymentHandler) Get(c echo.Context, id string) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	var debtors []struct {
-		Amount uint64 `json:"amount"`
-		Avatar string `json:"avatar"`
-		Email  string `json:"email"`
-		Id     string `json:"id"`
-		Name   string `json:"name"`
-	}
+	var debtors []api.PaymentUserWithAmount
 	for _, d := range event.Debtors() {
-		debtor := struct {
-			Amount uint64 `json:"amount"`
-			Avatar string `json:"avatar"`
-			Email  string `json:"email"`
-			Id     string `json:"id"`
-			Name   string `json:"name"`
-		}{
+		debtor := api.PaymentUserWithAmount{
 			Id:     d.ID().String(),
 			Name:   d.Name(),
 			Email:  d.Email(),
@@ -166,13 +136,7 @@ func (ph *paymentHandler) Get(c echo.Context, id string) error {
 		Id:        event.ID().String(),
 		Name:      event.Name(),
 		Debtors:   debtors,
-		Payer: struct {
-			Amount uint64 "json:\"amount\""
-			Avatar string "json:\"avatar\""
-			Email  string "json:\"email\""
-			Id     string "json:\"id\""
-			Name   string "json:\"name\""
-		}{
+		Payer: api.PaymentUserWithAmount{
 			Amount: uint64(event.Payer().Amount().Value()),
 			Avatar: event.Payer().Avatar(),
 			Email:  event.Payer().Email(),

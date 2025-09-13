@@ -1,0 +1,18 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+      - feature/**
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+      url: https://datti.rom6621.workers.dev
+    steps:
+      - uses: actions/checkout@v5
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

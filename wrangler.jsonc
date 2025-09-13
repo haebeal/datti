@@ -1,0 +1,35 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "datti",
+	"main": "index.ts",
+	"compatibility_date": "2025-05-23",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"observability": {
+		"enabled": true
+	},
+	"containers": [
+		{
+			"class_name": "BackendContainer",
+			"image": "./apps/backend/Dockerfile",
+			"max_instances": 10
+		}
+	],
+	"durable_objects": {
+		"bindings": [
+			{
+				"class_name": "BackendContainer",
+				"name": "BACKEND_CONTAINER"
+			}
+		]
+	},
+	"migrations": [
+		{
+			"new_sqlite_classes": [
+				"BackendContainer"
+			],
+			"tag": "v1"
+		}
+	]
+}

@@ -9,7 +9,7 @@ tasks:
     cmds:
       - |
         atlas schema apply \
-          --url "postgres://postgres:password@postgres:5432/datti?sslmode=disable" \
+          --url $DSN \
           --dev-url "docker://postgres" \
           --to "file://sql/schema.sql"
   gen-type:

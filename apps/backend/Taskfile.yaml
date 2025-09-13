@@ -12,6 +12,9 @@ tasks:
           --url "postgres://postgres:password@postgres:5432/datti?sslmode=disable" \
           --dev-url "docker://postgres" \
           --to "file://sql/schema.sql"
+  test:
+    cmds:
+      - go test -race ./...
   gen-type:
     cmds:
       - oapi-codegen -generate "types" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/types.gen.go

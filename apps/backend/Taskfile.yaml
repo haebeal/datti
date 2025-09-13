@@ -33,3 +33,11 @@ tasks:
         mockgen -source=internal/usecase/payment.go \
           -destination=internal/presentation/api/handler/testutil/mock_payment_usecase_generated.go \
           -package=testutil
+      - |
+        mockgen -source=internal/presentation/api/handler/health.go \
+          -destination=internal/presentation/api/server/testutil/mock_health_handler_generated.go \
+          -package=testutil
+      - |
+        mockgen -source=internal/presentation/api/handler/payment.go \
+          -destination=internal/presentation/api/server/testutil/mock_payment_handler_generated.go \
+          -package=testutil

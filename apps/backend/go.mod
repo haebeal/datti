@@ -9,12 +9,14 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/labstack/echo/v4 v4.11.4
+	github.com/oapi-codegen/runtime v1.1.2
 	github.com/oklog/ulid/v2 v2.1.1
 	github.com/stretchr/testify v1.10.0
 	github.com/supabase-community/gotrue-go v1.2.1
 )
 
 require (
+	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect

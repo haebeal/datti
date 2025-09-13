@@ -21,6 +21,15 @@ tasks:
   gen-mocks:
     desc: "Generate mocks using mockgen"
     cmds:
-      - mockgen -source=internal/domain/user.go -destination=internal/usecase/testutil/mock_user_repository_generated.go -package=testutil
-      - mockgen -source=internal/domain/paymentEvent.go -destination=internal/usecase/testutil/mock_payment_event_repository_generated.go -package=testutil
-  
+      - |
+        mockgen -source=internal/domain/user.go \
+          -destination=internal/usecase/testutil/mock_user_repository_generated.go \
+          -package=testutil
+      - |
+        mockgen -source=internal/domain/paymentEvent.go \
+          -destination=internal/usecase/testutil/mock_payment_event_repository_generated.go \
+          -package=testutil
+      - |
+        mockgen -source=internal/usecase/payment.go \
+          -destination=internal/presentation/testutil/mock_payment_usecase_generated.go \
+          -package=testutil

@@ -31,5 +31,5 @@ tasks:
           -package=testutil
       - |
         mockgen -source=internal/usecase/payment.go \
-          -destination=internal/presentation/testutil/mock_payment_usecase_generated.go \
+          -destination=internal/presentation/api/handler/testutil/mock_payment_usecase_generated.go \
           -package=testutil

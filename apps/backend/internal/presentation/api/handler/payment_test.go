@@ -13,7 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
-	"github.com/haebeal/datti/internal/presentation/testutil"
+	"github.com/haebeal/datti/internal/presentation/api/handler/testutil"
 	"github.com/haebeal/datti/internal/usecase"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"

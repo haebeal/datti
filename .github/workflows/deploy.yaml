@@ -13,7 +13,14 @@ jobs:
       url: https://datti.rom6621.workers.dev
     steps:
       - uses: actions/checkout@v5
-      - uses: cloudflare/wrangler-action@v3
+      - uses: actions/setup-node@v5
+      - uses: actions/cache@v4
+        id: cache-node-modules
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          command: deploy
+          path: node_modules
+          key: ${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - name: install node_modules
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: deploy
+        run: npm run deploy

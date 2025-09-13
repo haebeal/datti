@@ -1,13 +1,9 @@
 name: Merge to Develop
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main
-      - feature/**
 
 jobs:
   apply-schema:

@@ -6,10 +6,11 @@ on:
       - main
   push:
     branches:
+      - main
       - feature/**
 
 jobs:
-  migrate-db:
+  apply-schema:
     runs-on: ubuntu-latest
     environment:
       name: dev

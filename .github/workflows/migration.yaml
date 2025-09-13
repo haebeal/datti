@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - main
-
+    paths:
+      - 'apps/backend/sql/schema.sql'
 jobs:
   apply-schema:
     runs-on: ubuntu-latest

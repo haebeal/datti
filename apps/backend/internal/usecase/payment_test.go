@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-
 func TestPaymentUseCase_Create_Success(t *testing.T) {
 	// gomockコントローラー作成
 	ctrl := gomock.NewController(t)
@@ -95,7 +94,7 @@ func TestPaymentUseCase_Create_PayerNotFound(t *testing.T) {
 	assert.Nil(t, result)
 }
 
-func TestPaymentUseCase_Create_InvalidAmount(t *testing.T) {
+func TestPaymentUseCase_Create_NoDebtors(t *testing.T) {
 	// gomockコントローラー作成
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -107,8 +106,7 @@ func TestPaymentUseCase_Create_InvalidAmount(t *testing.T) {
 	// PayerIDを生成（実際にはユーザー検索前にAmount検証でエラーになる）
 	payerID := uuid.New()
 
-	// モックの期待値設定（無効な金額のため、FindByIDは呼ばれない）
-	// 実際にはpayerIDの検索が行われるため、期待値を設定
+	// モックの期待値設定（debtorは空のためpayerのみ用意）
 	payer, err := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
 	require.NoError(t, err, "Failed to create payer")
 	userRepo.EXPECT().FindByID(payerID).Return(payer, nil)
@@ -116,11 +114,11 @@ func TestPaymentUseCase_Create_InvalidAmount(t *testing.T) {
 	// ユースケース作成
 	uc := NewPaymentUseCase(paymentRepo, userRepo)
 
-	// テスト実行（無効な金額）
+	// テスト実行（debtorsが空）
 	input := CreatePaymentInput{
 		Name:      "Test Payment",
 		PayerID:   payerID,
-		Amount:    -100, // 負の金額
+		Amount:    1000,
 		Debtors:   []DebtorParam{},
 		EventDate: time.Now(),
 	}

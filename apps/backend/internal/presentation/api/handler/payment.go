@@ -99,7 +99,6 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 
 	res := &api.PaymentCreateEventResponse{
 		CreatedAt: payment.CreatedAt(),
-		// Debtors:
 		EventDate: payment.EventDate(),
 		Id:        payment.ID().String(),
 		Name:      payment.Name(),

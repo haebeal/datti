@@ -37,7 +37,34 @@ namespace Payment {
           @statusCode statusCode: 500;
           @body body: ErrorResponse;
         };
+
+    @summary("支払いイベントの取得")
+    @get
+    @route("/{id}")
+    get(id: string):
+      | {
+        /**
+         * 正常レスポンス
+         */
+        @statusCode statusCode: 200;
+
+        @body event: GetEventResponse
+      }
+      | {
+          @statusCode statusCode: 400;
+          @body body: ErrorResponse;
+        }
+      | {
+          @statusCode statusCode: 401;
+          @body body: ErrorResponse;
+        }
+      | {
+          @statusCode statusCode: 500;
+          @body body: ErrorResponse;
+        };
+
   }
+
   model CreateEventRequest {
     name: string;
     eventDate: utcDateTime;
@@ -52,6 +79,28 @@ namespace Payment {
   }
 
   model CreateEventResponse {
+    id: string;
+    name: string;
+    eventDate: utcDateTime;
+    payer: {
+      id: string;
+      name: string;
+      email: string;
+      avatar: url;
+      amount: uint64;
+    };
+    debtors: {
+      id: string;
+      name: string;
+      email: string;
+      avatar: url;
+      amount: uint64;
+    }[];
+    createdAt: utcDateTime;
+    updatedAt: utcDateTime;
+  }
+
+  model GetEventResponse {
     id: string;
     name: string;
     eventDate: utcDateTime;

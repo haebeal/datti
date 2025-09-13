@@ -67,5 +67,28 @@ type PaymentCreateEventResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// PaymentGetEventResponse defines model for Payment.GetEventResponse.
+type PaymentGetEventResponse struct {
+	CreatedAt time.Time `json:"createdAt"`
+	Debtors   []struct {
+		Amount uint64 `json:"amount"`
+		Avatar string `json:"avatar"`
+		Email  string `json:"email"`
+		Id     string `json:"id"`
+		Name   string `json:"name"`
+	} `json:"debtors"`
+	EventDate time.Time `json:"eventDate"`
+	Id        string    `json:"id"`
+	Name      string    `json:"name"`
+	Payer     struct {
+		Amount uint64 `json:"amount"`
+		Avatar string `json:"avatar"`
+		Email  string `json:"email"`
+		Id     string `json:"id"`
+		Name   string `json:"name"`
+	} `json:"payer"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 // PaymentEventCreateJSONRequestBody defines body for PaymentEventCreate for application/json ContentType.
 type PaymentEventCreateJSONRequestBody = PaymentCreateEventRequest

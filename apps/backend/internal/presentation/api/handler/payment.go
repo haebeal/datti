@@ -12,6 +12,7 @@ import (
 
 type PaymentHandler interface {
 	Create(c echo.Context) error
+	Get(c echo.Context, id string) error
 }
 type paymentHandler struct {
 	pu usecase.PaymentUseCase
@@ -120,4 +121,64 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 	}
 
 	return c.JSON(201, res)
+}
+
+func (ph *paymentHandler) Get(c echo.Context, id string) error {
+	input := usecase.GetPaymentInput{
+		ID: id,
+	}
+	event, err := ph.pu.Get(input)
+	if err != nil {
+		message := fmt.Sprintf("internal err: %s", err.Error())
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	var debtors []struct {
+		Amount uint64 `json:"amount"`
+		Avatar string `json:"avatar"`
+		Email  string `json:"email"`
+		Id     string `json:"id"`
+		Name   string `json:"name"`
+	}
+	for _, d := range event.Debtors() {
+		debtor := struct {
+			Amount uint64 `json:"amount"`
+			Avatar string `json:"avatar"`
+			Email  string `json:"email"`
+			Id     string `json:"id"`
+			Name   string `json:"name"`
+		}{
+			Id:     d.ID().String(),
+			Name:   d.Name(),
+			Email:  d.Email(),
+			Avatar: d.Avatar(),
+		}
+		debtors = append(debtors, debtor)
+	}
+
+	res := &api.PaymentGetEventResponse{
+		CreatedAt: event.CreatedAt(),
+		EventDate: event.EventDate(),
+		Id:        event.ID().String(),
+		Name:      event.Name(),
+		Debtors:   debtors,
+		Payer: struct {
+			Amount uint64 "json:\"amount\""
+			Avatar string "json:\"avatar\""
+			Email  string "json:\"email\""
+			Id     string "json:\"id\""
+			Name   string "json:\"name\""
+		}{
+			Amount: uint64(event.Payer().Amount().Value()),
+			Avatar: event.Payer().Avatar(),
+			Email:  event.Payer().Email(),
+			Id:     event.Payer().ID().String(),
+			Name:   event.Payer().Name(),
+		},
+	}
+
+	return c.JSON(http.StatusOK, res)
 }

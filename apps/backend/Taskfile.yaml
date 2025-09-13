@@ -18,9 +18,6 @@ tasks:
   gen-server:
     cmds:
       - oapi-codegen -generate "server" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/server.gen.go
-  gen-client:
-    cmds:
-      - oapi-codegen -generate "client" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/client.gen.go
   gen-mocks:
     desc: "Generate mocks using mockgen"
     cmds:

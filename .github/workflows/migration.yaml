@@ -1,0 +1,24 @@
+name: Merge to Develop
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - feature/**
+
+jobs:
+  migrate-db:
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ariga/setup-atlas@v0
+      - uses: ariga/atlas-action/schema/apply@v1
+        with:
+          url: ${{ secrets.DSN }}
+          to: 'file://sql/schema.sql'
+          dev-url: 'docker://postgres'
+          auto-approve: true

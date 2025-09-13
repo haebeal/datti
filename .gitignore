@@ -6,8 +6,10 @@
 
 # pnpm
 .pnpm-store/
+/node_modules
 
-# Secrets for act
+# Secrets
+.env
 .secrets
 
 tmp/

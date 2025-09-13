@@ -90,6 +90,7 @@ func (ph *paymentHandler) Create(c echo.Context) error {
 			Id     string `json:"id"`
 			Name   string `json:"name"`
 		}{
+			Amount: uint64(d.Amount().Value()),
 			Id:     d.ID().String(),
 			Name:   d.Name(),
 			Email:  d.Email(),

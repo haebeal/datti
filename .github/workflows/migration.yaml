@@ -1,0 +1,22 @@
+name: Migrate DB
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/backend/sql/schema.sql'
+jobs:
+  apply-schema:
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ariga/setup-atlas@v0
+      - uses: ariga/atlas-action/schema/apply@v1
+        with:
+          url: ${{ secrets.DSN }}
+          to: 'file://apps/backend/sql/schema.sql'
+          dev-url: 'docker://postgres'
+          auto-approve: true

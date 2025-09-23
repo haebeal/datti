@@ -125,6 +125,7 @@ func (ph *paymentHandler) Get(c echo.Context, id string) error {
 			Id:     d.ID().String(),
 			Name:   d.Name(),
 			Email:  d.Email(),
+			Amount: uint64(d.Amount().Value()),
 			Avatar: d.Avatar(),
 		}
 		debtors = append(debtors, debtor)

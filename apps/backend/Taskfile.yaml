@@ -17,10 +17,15 @@ tasks:
       - go test -race ./...
   gen-type:
     cmds:
-      - oapi-codegen -generate "types" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/types.gen.go
+      - oapi-codegen -generate "types" \
+        -package api \
+        ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml \
+        > ./internal/presentation/api/types.gen.go
   gen-server:
     cmds:
-      - oapi-codegen -generate "server" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/server.gen.go
+      - oapi-codegen -generate "server" \
+        -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml \
+        > ./internal/presentation/api/server.gen.go
   gen-mocks:
     desc: "Generate mocks using mockgen"
     cmds:

@@ -13,7 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-
 func TestPaymentUseCase_Create_Success(t *testing.T) {
 	// gomockコントローラー作成
 	ctrl := gomock.NewController(t)
@@ -95,7 +94,7 @@ func TestPaymentUseCase_Create_PayerNotFound(t *testing.T) {
 	assert.Nil(t, result)
 }
 
-func TestPaymentUseCase_Create_InvalidAmount(t *testing.T) {
+func TestPaymentUseCase_Create_NoDebtors(t *testing.T) {
 	// gomockコントローラー作成
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -107,8 +106,7 @@ func TestPaymentUseCase_Create_InvalidAmount(t *testing.T) {
 	// PayerIDを生成（実際にはユーザー検索前にAmount検証でエラーになる）
 	payerID := uuid.New()
 
-	// モックの期待値設定（無効な金額のため、FindByIDは呼ばれない）
-	// 実際にはpayerIDの検索が行われるため、期待値を設定
+	// モックの期待値設定（debtorは空のためpayerのみ用意）
 	payer, err := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
 	require.NoError(t, err, "Failed to create payer")
 	userRepo.EXPECT().FindByID(payerID).Return(payer, nil)
@@ -116,11 +114,11 @@ func TestPaymentUseCase_Create_InvalidAmount(t *testing.T) {
 	// ユースケース作成
 	uc := NewPaymentUseCase(paymentRepo, userRepo)
 
-	// テスト実行（無効な金額）
+	// テスト実行（debtorsが空）
 	input := CreatePaymentInput{
 		Name:      "Test Payment",
 		PayerID:   payerID,
-		Amount:    -100, // 負の金額
+		Amount:    1000,
 		Debtors:   []DebtorParam{},
 		EventDate: time.Now(),
 	}
@@ -175,4 +173,46 @@ func TestPaymentUseCase_Create_RepositoryError(t *testing.T) {
 	// 検証
 	assert.Error(t, err)
 	assert.Nil(t, result)
+}
+
+func TestPaymentUseCase_Get_Success(t *testing.T) {
+	// gomockコントローラー作成
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	// モックデーターの作成
+	payerID := uuid.New()
+	payerUser, err := domain.NewUser(payerID.String(), "Payer User", "https://example.com/avatar1.jpg", "payer@example.com")
+	require.NoError(t, err, "Failed to create payer user")
+	payerAmount, err := domain.NewAmount(1000)
+	require.NoError(t, err, "Failed to create payer amount")
+	payer, err := domain.NewPayer(payerUser, payerAmount)
+	require.NoError(t, err, "Failed to create payer")
+
+	debtorID := uuid.New()
+	debtorUser, err := domain.NewUser(debtorID.String(), "Debtor User", "https://example.com/avatar2.jpg", "debtor@example.com")
+	require.NoError(t, err, "Failed to create debtor user")
+	debtorAmount, err := domain.NewAmount(500)
+	require.NoError(t, err, "Failed to create debtor amount")
+	debtor, err := domain.NewDebtor(debtorUser, debtorAmount)
+	require.NoError(t, err, "Failed to create debtor")
+
+	eventDate := time.Now()
+	event, err := domain.CreatePaymentEvent("Test Event", payer, []*domain.Debtor{debtor}, eventDate)
+	require.NoError(t, err, "Failed to create event")
+
+	userRepo := testutil.NewMockUserRepository(ctrl)
+	paymentRepo := testutil.NewMockPaymentEventRepository(ctrl)
+	paymentRepo.EXPECT().FindByID(event.ID().String()).Return(event, nil)
+
+	uc := NewPaymentUseCase(paymentRepo, userRepo)
+
+	input := GetPaymentInput{
+		ID: event.ID().String(),
+	}
+	result, err := uc.Get(input)
+
+	assert.NoError(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, event, result)
 }

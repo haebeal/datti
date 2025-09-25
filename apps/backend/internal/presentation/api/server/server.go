@@ -23,6 +23,10 @@ func (s *Server) PaymentEventCreate(ctx echo.Context) error {
 	return s.ph.Create(ctx)
 }
 
+func (s *Server) PaymentEventGet(ctx echo.Context, id string) error {
+	return s.ph.Get(ctx, id)
+}
+
 func (s *Server) HealthCheckCheck(ctx echo.Context) error {
 	return s.hh.Check(ctx)
 }

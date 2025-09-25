@@ -19,8 +19,12 @@ type CreatePaymentInput struct {
 	Debtors   []DebtorParam
 	EventDate time.Time
 }
+type GetPaymentInput struct {
+	ID string
+}
 type PaymentUseCase interface {
 	Create(CreatePaymentInput) (*domain.PaymentEvent, error)
+	Get(GetPaymentInput) (*domain.PaymentEvent, error)
 }
 type paymentUseCase struct {
 	pr domain.PaymentEventRepository
@@ -73,6 +77,15 @@ func (pu *paymentUseCase) Create(cc CreatePaymentInput) (*domain.PaymentEvent, e
 	}
 
 	err = pu.pr.Create(event)
+	if err != nil {
+		return nil, err
+	}
+
+	return event, nil
+}
+
+func (pu *paymentUseCase) Get(i GetPaymentInput) (*domain.PaymentEvent, error) {
+	event, err := pu.pr.FindByID(i.ID)
 	if err != nil {
 		return nil, err
 	}

@@ -12,18 +12,35 @@ tasks:
           --url $DSN \
           --dev-url "docker://postgres" \
           --to "file://sql/schema.sql"
+  test:
+    cmds:
+      - go test -race ./...
   gen-type:
     cmds:
       - oapi-codegen -generate "types" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/types.gen.go
   gen-server:
     cmds:
       - oapi-codegen -generate "server" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/server.gen.go
-  gen-client:
-    cmds:
-      - oapi-codegen -generate "client" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/client.gen.go
   gen-mocks:
     desc: "Generate mocks using mockgen"
     cmds:
-      - mockgen -source=internal/domain/user.go -destination=internal/usecase/testutil/mock_user_repository_generated.go -package=testutil
-      - mockgen -source=internal/domain/paymentEvent.go -destination=internal/usecase/testutil/mock_payment_event_repository_generated.go -package=testutil
-  
+      - |
+        mockgen -source=internal/domain/user.go \
+          -destination=internal/usecase/testutil/mock_user_repository_generated.go \
+          -package=testutil
+      - |
+        mockgen -source=internal/domain/paymentEvent.go \
+          -destination=internal/usecase/testutil/mock_payment_event_repository_generated.go \
+          -package=testutil
+      - |
+        mockgen -source=internal/usecase/payment.go \
+          -destination=internal/presentation/api/handler/testutil/mock_payment_usecase_generated.go \
+          -package=testutil
+      - |
+        mockgen -source=internal/presentation/api/handler/health.go \
+          -destination=internal/presentation/api/server/testutil/mock_health_handler_generated.go \
+          -package=testutil
+      - |
+        mockgen -source=internal/presentation/api/handler/payment.go \
+          -destination=internal/presentation/api/server/testutil/mock_payment_handler_generated.go \
+          -package=testutil

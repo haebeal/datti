@@ -1,48 +1,26 @@
 package server
 
 import (
-	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
+	"github.com/haebeal/datti/internal/presentation/api/server/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-// MockPaymentHandler は PaymentHandler のモック実装
-type MockPaymentHandler struct {
-	shouldReturnError bool
-	errorMessage      string
-}
-
-func (m *MockPaymentHandler) Create(c echo.Context) error {
-	if m.shouldReturnError {
-		return errors.New(m.errorMessage)
-	}
-	return c.JSON(http.StatusCreated, map[string]string{"status": "created"})
-}
-
-
 // MockHealthHandler は HealthHandler のモック実装
-type MockHealthHandler struct {
-	shouldReturnError bool
-	errorMessage      string
-}
-
-func (m *MockHealthHandler) Check(c echo.Context) error {
-	if m.shouldReturnError {
-		return errors.New(m.errorMessage)
-	}
-	return c.JSON(http.StatusOK, map[string]string{"status": "ok"})
-}
-
 func TestNewServer(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	// モックハンドラーを作成
-	mockPaymentHandler := &MockPaymentHandler{}
-	mockHealthHandler := &MockHealthHandler{}
+	mockHealthHandler := testutil.NewMockHealthHandler(ctrl)
+	mockPaymentHandler := testutil.NewMockPaymentHandler(ctrl)
 
 	// NewServer関数をテスト
 	server := NewServer(mockPaymentHandler, mockHealthHandler)
@@ -58,15 +36,19 @@ func TestNewServer(t *testing.T) {
 }
 
 func TestServer_PaymentEventCreate_Success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	// モックハンドラーを作成
-	mockPaymentHandler := &MockPaymentHandler{shouldReturnError: false}
-	mockHealthHandler := &MockHealthHandler{}
+	mockHealthHandler := testutil.NewMockHealthHandler(ctrl)
+	mockPaymentHandler := testutil.NewMockPaymentHandler(ctrl)
+	mockPaymentHandler.EXPECT().Create(gomock.Any()).Return(nil)
 
 	// サーバーを作成
 	server := NewServer(mockPaymentHandler, mockHealthHandler)
 
 	// リクエストを作成
-	req := httptest.NewRequest(http.MethodPost, "/payment/event", nil)
+	req := httptest.NewRequest(http.MethodPost, "/payments/events", nil)
 	rec := httptest.NewRecorder()
 	c := echo.New().NewContext(req, rec)
 
@@ -75,15 +57,40 @@ func TestServer_PaymentEventCreate_Success(t *testing.T) {
 
 	// アサーション
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusCreated, rec.Code)
-	assert.Contains(t, rec.Body.String(), "created")
 }
 
+func TestServer_PaymentEventGet_Success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	// モックハンドラーを作成
+	mockHealthHandler := testutil.NewMockHealthHandler(ctrl)
+	mockPaymentHandler := testutil.NewMockPaymentHandler(ctrl)
+	mockPaymentHandler.EXPECT().Get(gomock.Any(), gomock.Any()).Return(nil)
+
+	// サーバーを作成
+	server := NewServer(mockPaymentHandler, mockHealthHandler)
+
+	// リクエストを作成
+	req := httptest.NewRequest(http.MethodGet, "/payments/events/hoge", nil)
+	rec := httptest.NewRecorder()
+	c := echo.New().NewContext(req, rec)
+
+	// テスト実行
+	err := server.PaymentEventGet(c, "hoge")
+
+	// アサーション
+	assert.NoError(t, err)
+}
 
 func TestServer_HealthCheckCheck_Success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	// モックハンドラーを作成
-	mockPaymentHandler := &MockPaymentHandler{}
-	mockHealthHandler := &MockHealthHandler{shouldReturnError: false}
+	mockHealthHandler := testutil.NewMockHealthHandler(ctrl)
+	mockHealthHandler.EXPECT().Check(gomock.Any()).Return(nil)
+	mockPaymentHandler := testutil.NewMockPaymentHandler(ctrl)
 
 	// サーバーを作成
 	server := NewServer(mockPaymentHandler, mockHealthHandler)
@@ -98,15 +105,15 @@ func TestServer_HealthCheckCheck_Success(t *testing.T) {
 
 	// アサーション
 	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, rec.Code)
-	assert.Contains(t, rec.Body.String(), "ok")
 }
 
-
 func TestServer_Implements_ServerInterface(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	// モックハンドラーを作成
-	mockPaymentHandler := &MockPaymentHandler{}
-	mockHealthHandler := &MockHealthHandler{}
+	mockHealthHandler := testutil.NewMockHealthHandler(ctrl)
+	mockPaymentHandler := testutil.NewMockPaymentHandler(ctrl)
 
 	// サーバーを作成
 	server := NewServer(mockPaymentHandler, mockHealthHandler)

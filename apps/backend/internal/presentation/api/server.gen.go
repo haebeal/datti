@@ -4,17 +4,24 @@
 package api
 
 import (
+	"fmt"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
+	"github.com/oapi-codegen/runtime"
 )
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-
+	// ヘルスチェック
 	// (GET /health)
 	HealthCheckCheck(ctx echo.Context) error
-
+	// 支払いイベントの作成
 	// (POST /payments/events)
 	PaymentEventCreate(ctx echo.Context) error
+	// 支払いイベントの取得
+	// (GET /payments/events/{id})
+	PaymentEventGet(ctx echo.Context, id string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -41,6 +48,24 @@ func (w *ServerInterfaceWrapper) PaymentEventCreate(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.PaymentEventCreate(ctx)
+	return err
+}
+
+// PaymentEventGet converts echo context to params.
+func (w *ServerInterfaceWrapper) PaymentEventGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.PaymentEventGet(ctx, id)
 	return err
 }
 
@@ -74,5 +99,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/health", wrapper.HealthCheckCheck)
 	router.POST(baseURL+"/payments/events", wrapper.PaymentEventCreate)
+	router.GET(baseURL+"/payments/events/:id", wrapper.PaymentEventGet)
 
 }

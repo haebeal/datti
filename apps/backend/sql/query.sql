@@ -25,6 +25,9 @@ DELETE FROM events WHERE id = $1;
 -- name: CreatePayment :exec
 INSERT INTO payments (event_id, debtor_id, amount) VALUES ($1, $2, $3);
 
+-- name: FindPaymentByDebtorId :one
+SELECT * FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1;
+
 -- name: FindPaymentsByEventId :many
 SELECT * FROM payments WHERE event_id = $1;
 

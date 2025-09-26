@@ -51,7 +51,3 @@ func (be *BorrowingEvent) CreatedAt() time.Time {
 func (be *BorrowingEvent) UpdatedAt() time.Time {
 	return be.updatedAt
 }
-
-type BorrowingEventRepository interface {
-	Create(*BorrowingEvent) error
-}

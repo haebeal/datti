@@ -53,5 +53,5 @@ func (le *LendingEvent) UpdatedAt() time.Time {
 }
 
 type LendingEventRepository interface {
-	Create(*LendingEvent) error
+	Create(e *LendingEvent, p *Payer) error
 }

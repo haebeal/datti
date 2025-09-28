@@ -3,7 +3,7 @@ import "@typespec/rest";
 import "@typespec/openapi3";
 
 import "./lendings.tsp";
-import "./health.tsp";
+import "./healthz.tsp";
 
 using TypeSpec.Http;
 
@@ -14,4 +14,3 @@ using TypeSpec.Http;
 @server("https://datti-api.haebeal.net", "本番環境")
 @useAuth(BearerAuth)
 namespace DattiApi;
-

@@ -45,7 +45,7 @@ func main() {
 
 	lu := usecase.NewLendingUseCase(ur, pr, dr, lr)
 
-	hh := handler.NewHealthHandler()
+	hh := handler.NewHealthzHandler()
 	lh := handler.NewLendingHandler(lu)
 	server := server.NewServer(lh, hh)
 

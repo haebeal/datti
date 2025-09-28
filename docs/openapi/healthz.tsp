@@ -7,13 +7,13 @@ namespace DattiApi;
 /**
  * ヘルスチェック
  */
-@tag("Health")
-@route("/health")
+@tag("Healthz")
+@route("/healthz")
 namespace Health {
   /**
    * アプリケーションの稼働状況を確認
    */
-  interface HealthCheck {
+  interface Healthz {
     @summary("ヘルスチェック")
     @get
     check(): {
@@ -21,11 +21,12 @@ namespace Health {
        * 正常レスポンス
        */
       @statusCode statusCode: 200;
-      @body body: HealthResponse;
+
+      @body body: CheckResponse;
     };
   }
 
-  model HealthResponse {
+  model CheckResponse {
     status: "ok";
     timestamp: utcDateTime;
   }

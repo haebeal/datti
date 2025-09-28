@@ -11,9 +11,9 @@ const (
 	BearerAuthScopes = "BearerAuth.Scopes"
 )
 
-// Defines values for HealthHealthResponseStatus.
+// Defines values for HealthCheckResponseStatus.
 const (
-	Ok HealthHealthResponseStatus = "ok"
+	Ok HealthCheckResponseStatus = "ok"
 )
 
 // ErrorResponse defines model for ErrorResponse.
@@ -21,14 +21,14 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-// HealthHealthResponse defines model for Health.HealthResponse.
-type HealthHealthResponse struct {
-	Status    HealthHealthResponseStatus `json:"status"`
-	Timestamp time.Time                  `json:"timestamp"`
+// HealthCheckResponse defines model for Health.CheckResponse.
+type HealthCheckResponse struct {
+	Status    HealthCheckResponseStatus `json:"status"`
+	Timestamp time.Time                 `json:"timestamp"`
 }
 
-// HealthHealthResponseStatus defines model for HealthHealthResponse.Status.
-type HealthHealthResponseStatus string
+// HealthCheckResponseStatus defines model for HealthCheckResponse.Status.
+type HealthCheckResponseStatus string
 
 // LendingCreateRequest defines model for Lending.CreateRequest.
 type LendingCreateRequest struct {

@@ -2,7 +2,6 @@ package server
 
 import (
 	"github.com/haebeal/datti/internal/presentation/api"
-	"github.com/haebeal/datti/internal/presentation/api/handler"
 	"github.com/labstack/echo/v4"
 )
 
@@ -11,12 +10,16 @@ type LendingHandler interface {
 	Get(c echo.Context, id string) error
 }
 
-type Server struct {
-	lh LendingHandler
-	hh handler.HealthHandler
+type HealthzHandler interface {
+	Check(c echo.Context) error
 }
 
-func NewServer(lh LendingHandler, hh handler.HealthHandler) api.ServerInterface {
+type Server struct {
+	lh LendingHandler
+	hh HealthzHandler
+}
+
+func NewServer(lh LendingHandler, hh HealthzHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		hh: hh,
@@ -32,6 +35,6 @@ func (s *Server) LendingGet(ctx echo.Context, id string) error {
 	return s.lh.Get(ctx, id)
 }
 
-func (s *Server) HealthCheckCheck(ctx echo.Context) error {
+func (s *Server) HealthzCheck(ctx echo.Context) error {
 	return s.hh.Check(ctx)
 }

@@ -13,7 +13,7 @@ import (
 )
 
 type LendingEventUseCase interface {
-	Create(CreateInput) (CreateOutput, error)
+	Create(CreateInput) (*CreateOutput, error)
 	Get(GetInput) (*GetOutput, error)
 }
 

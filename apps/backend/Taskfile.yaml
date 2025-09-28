@@ -2,25 +2,22 @@ version: '3'
 dotenv:
   - '.env'
 tasks:
-  gen-sqlc:
-    cmds:
-      - sqlc generate
-  migrate-db:
+  db-migrate:
     cmds:
       - |
         atlas schema apply \
           --url $DSN \
           --dev-url "docker://postgres" \
           --to "file://sql/schema.sql"
-  seed:
+  db-seed:
     cmds:
       - |
         psql $DSN \
           -f sql/init.sql
-  test:
+  gen-sqlc:
     cmds:
-      - go test -race ./...
-  gen-type:
+      - sqlc generate
+  gen-types:
     cmds:
       - |
         oapi-codegen -generate "types" \
@@ -33,6 +30,9 @@ tasks:
         oapi-codegen -generate "server" \
           -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml \
           > ./internal/presentation/api/server.gen.go
+  test:
+    cmds:
+      - go test -race ./...
   gen-mocks:
     desc: "Generate mocks using mockgen"
     cmds:

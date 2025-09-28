@@ -23,6 +23,7 @@ func NewLendingEventRepository(ctx context.Context, queries *postgres.Queries) *
 func (lr *LendingEventRepositoryImpl) Create(e *domain.LendingEvent) error {
 	err := lr.queries.CreateEvent(lr.ctx, postgres.CreateEventParams{
 		ID:        e.ID().String(),
+		Amount:    int32(e.Amount().Value()),
 		Name:      e.Name(),
 		EventDate: e.EventDate(),
 		CreatedAt: e.CreatedAt(),

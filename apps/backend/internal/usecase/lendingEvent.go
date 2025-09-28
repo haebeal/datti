@@ -14,9 +14,10 @@ type LendingEventUseCaseImpl struct {
 	lr domain.LendingEventRepository
 }
 
-func NewLendingEventUseCase(ur domain.UserRepository, dr domain.DebtorRepository, lr domain.LendingEventRepository) LendingEventUseCaseImpl {
+func NewLendingEventUseCase(ur domain.UserRepository, pr domain.PayerRepository, dr domain.DebtorRepository, lr domain.LendingEventRepository) LendingEventUseCaseImpl {
 	return LendingEventUseCaseImpl{
 		ur: ur,
+		pr: pr,
 		dr: dr,
 		lr: lr,
 	}
@@ -59,7 +60,7 @@ func (u *LendingEventUseCaseImpl) Create(i handler.CreateInput) (*handler.Create
 		if err != nil {
 			return nil, err
 		}
-		err = u.dr.Create(payer, debtor)
+		err = u.dr.Create(event, payer, debtor)
 		if err != nil {
 			return nil, err
 		}

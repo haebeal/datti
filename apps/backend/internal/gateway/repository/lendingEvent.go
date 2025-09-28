@@ -5,6 +5,7 @@ import (
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
+	"github.com/oklog/ulid/v2"
 )
 
 type LendingEventRepositoryImpl struct {
@@ -33,4 +34,28 @@ func (lr *LendingEventRepositoryImpl) Create(e *domain.LendingEvent) error {
 	}
 
 	return nil
+}
+
+func (lr *LendingEventRepositoryImpl) FindByID(id ulid.ULID) (*domain.LendingEvent, error) {
+	event, err := lr.queries.FindEventById(lr.ctx, id.String())
+	if err != nil {
+		return nil, err
+	}
+
+	eventID, err := ulid.Parse(event.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	amount, err := domain.NewAmount(int64(event.Amount))
+	if err != nil {
+		return nil, err
+	}
+
+	lendingEvent, err := domain.NewLendingEvent(eventID, event.Name, amount, event.EventDate, event.CreatedAt, event.UpdatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	return lendingEvent, nil
 }

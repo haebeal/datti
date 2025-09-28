@@ -43,5 +43,5 @@ func (p *Payer) Email() string {
 }
 
 type PayerRepository interface {
-	FindByEventID(userID uuid.UUID, eventID ulid.ULID) (*Payer, error)
+	FindByEventID(eventID ulid.ULID) (*Payer, error)
 }

@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/oklog/ulid/v2"
@@ -21,7 +20,7 @@ func NewPayerRepository(ctx context.Context, queries *postgres.Queries) *PayerRe
 	}
 }
 
-func (pr *PayerRepositoryImpl) FindByEventID(userID uuid.UUID, eventID ulid.ULID) (*domain.Payer, error) {
+func (pr *PayerRepositoryImpl) FindByEventID(eventID ulid.ULID) (*domain.Payer, error) {
 	payments, err := pr.queries.FindPaymentsByEventId(pr.ctx, eventID.String())
 	if err != nil {
 		return nil, err

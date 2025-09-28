@@ -55,7 +55,7 @@ func (h lendingEventHandler) Create(c echo.Context) error {
 
 	uid, ok := c.Get("uid").(string)
 	if !ok {
-		message := fmt.Sprintf("Failed to get authorized userID")
+		message := "Failed to get authorized userID"
 		res := &api.ErrorResponse{
 			Message: message,
 		}

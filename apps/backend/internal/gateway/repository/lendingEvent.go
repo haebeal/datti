@@ -19,12 +19,10 @@ func NewLendingEventRepository(ctx context.Context, queries *postgres.Queries) *
 	}
 }
 
-func (lr *LendingEventRepositoryImpl) Create(e *domain.LendingEvent, p *domain.Payer) error {
+func (lr *LendingEventRepositoryImpl) Create(e *domain.LendingEvent) error {
 	err := lr.queries.CreateEvent(lr.ctx, postgres.CreateEventParams{
 		ID:        e.ID().String(),
 		Name:      e.Name(),
-		PayerID:   p.ID(),
-		Amount:    int32(p.Amount().Value()),
 		EventDate: e.EventDate(),
 		CreatedAt: e.CreatedAt(),
 		UpdatedAt: e.UpdatedAt(),

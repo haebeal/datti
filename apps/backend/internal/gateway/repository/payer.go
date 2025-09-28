@@ -22,30 +22,17 @@ func NewPayerRepository(ctx context.Context, queries *postgres.Queries) *PayerRe
 }
 
 func (pr *PayerRepositoryImpl) FindByEventID(userID uuid.UUID, eventID ulid.ULID) (*domain.Payer, error) {
-	event, err := pr.queries.FindEventById(pr.ctx, eventID.String())
+	payments, err := pr.queries.FindPaymentsByEventId(pr.ctx, eventID.String())
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := pr.queries.FindUserByID(pr.ctx, event.PayerID)
+	user, err := pr.queries.FindUserByID(pr.ctx, payments[0].PayerID)
 	if err != nil {
 		return nil, err
 	}
 
-	payment, err := pr.queries.FindPaymentByDebtorId(pr.ctx, postgres.FindPaymentByDebtorIdParams{
-		EventID:  event.ID,
-		DebtorID: userID,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	amount, err := domain.NewAmount(int64(payment.Amount))
-	if err != nil {
-		return nil, err
-	}
-
-	payer, err := domain.NewPayer(user.ID, user.Name, user.Avatar, user.Email, amount)
+	payer, err := domain.NewPayer(user.ID, user.Name, user.Avatar, user.Email)
 	if err != nil {
 		return nil, err
 	}

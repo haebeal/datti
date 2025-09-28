@@ -46,5 +46,6 @@ func (d *Debtor) Amount() *Amount {
 }
 
 type DebtorRepository interface {
+	Create(*Payer, *Debtor) error
 	FindByEventID(uuid.UUID) ([]*Debtor, error)
 }

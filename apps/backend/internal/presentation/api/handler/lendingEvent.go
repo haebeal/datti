@@ -30,7 +30,7 @@ func NewLendingEventHandler(u LendingEventUseCase) lendingEventHandler {
 func (h lendingEventHandler) Create(c echo.Context) error {
 	var req api.LendingCreateLendingEventRequest
 
-	err := c.Bind(req)
+	err := c.Bind(&req)
 	if err != nil {
 		message := fmt.Sprintf("RequestBody Bindig Error body: %v", req)
 		res := &api.ErrorResponse{
@@ -55,17 +55,9 @@ func (h lendingEventHandler) Create(c echo.Context) error {
 		})
 	}
 
-	uid, ok := c.Get("uid").(string)
+	userID, ok := c.Get("uid").(uuid.UUID)
 	if !ok {
 		message := "Failed to get authorized userID"
-		res := &api.ErrorResponse{
-			Message: message,
-		}
-		return c.JSON(http.StatusUnauthorized, res)
-	}
-	userID, err := uuid.Parse(uid)
-	if err != nil {
-		message := fmt.Sprintf("Failed to get authorized userID: %v", err)
 		res := &api.ErrorResponse{
 			Message: message,
 		}
@@ -120,17 +112,9 @@ func (h lendingEventHandler) Get(c echo.Context, id string) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	uid, ok := c.Get("uid").(string)
+	userID, ok := c.Get("uid").(uuid.UUID)
 	if !ok {
 		message := "Failed to get authorized userID"
-		res := &api.ErrorResponse{
-			Message: message,
-		}
-		return c.JSON(http.StatusUnauthorized, res)
-	}
-	userID, err := uuid.Parse(uid)
-	if err != nil {
-		message := fmt.Sprintf("Failed to get authorized userID: %v", err)
 		res := &api.ErrorResponse{
 			Message: message,
 		}

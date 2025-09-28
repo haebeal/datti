@@ -110,6 +110,68 @@ func (h lendingEventHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
+func (h lendingEventHandler) Get(c echo.Context, id string) error {
+	eventID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	uid, ok := c.Get("uid").(string)
+	if !ok {
+		message := "Failed to get authorized userID"
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+	userID, err := uuid.Parse(uid)
+	if err != nil {
+		message := fmt.Sprintf("Failed to get authorized userID: %v", err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := GetInput{
+		UserID:  userID,
+		EventID: eventID,
+	}
+
+	output, err := h.u.Get(input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to get lending event: %v", err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	var debts []api.LendingDebtParmam
+	for _, d := range output.Debtors {
+		debts = append(debts, api.LendingDebtParmam{
+			UserId: d.ID().String(),
+			Amount: uint64(d.Amount().Value()),
+		})
+	}
+
+	res := &api.LendingGetLendingEventResponse{
+		Id:        output.Event.ID().String(),
+		Name:      output.Event.Name(),
+		Amount:    uint64(output.Event.Amount().Value()),
+		EventDate: output.Event.EventDate(),
+		Debts:     debts,
+		CreatedAt: output.Event.CreatedAt(),
+		UpdatedAt: output.Event.UpdatedAt(),
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
 type CreateInput struct {
 	UserID    uuid.UUID
 	Name      string

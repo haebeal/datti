@@ -16,12 +16,12 @@ type ServerInterface interface {
 	// ヘルスチェック
 	// (GET /health)
 	HealthCheckCheck(ctx echo.Context) error
-	// 支払いイベントの作成
-	// (POST /payments/events)
-	PaymentEventCreate(ctx echo.Context) error
-	// 支払いイベントの取得
-	// (GET /payments/events/{id})
-	PaymentEventGet(ctx echo.Context, id string) error
+	// 立て替えイベントの作成
+	// (POST /lendings)
+	LendingEventCreate(ctx echo.Context) error
+	// 立て替えたイベントの取得
+	// (GET /lendings/{id})
+	LendingEventGet(ctx echo.Context, id string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -40,19 +40,19 @@ func (w *ServerInterfaceWrapper) HealthCheckCheck(ctx echo.Context) error {
 	return err
 }
 
-// PaymentEventCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) PaymentEventCreate(ctx echo.Context) error {
+// LendingEventCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) LendingEventCreate(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PaymentEventCreate(ctx)
+	err = w.Handler.LendingEventCreate(ctx)
 	return err
 }
 
-// PaymentEventGet converts echo context to params.
-func (w *ServerInterfaceWrapper) PaymentEventGet(ctx echo.Context) error {
+// LendingEventGet converts echo context to params.
+func (w *ServerInterfaceWrapper) LendingEventGet(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -65,7 +65,7 @@ func (w *ServerInterfaceWrapper) PaymentEventGet(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PaymentEventGet(ctx, id)
+	err = w.Handler.LendingEventGet(ctx, id)
 	return err
 }
 
@@ -98,7 +98,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	}
 
 	router.GET(baseURL+"/health", wrapper.HealthCheckCheck)
-	router.POST(baseURL+"/payments/events", wrapper.PaymentEventCreate)
-	router.GET(baseURL+"/payments/events/:id", wrapper.PaymentEventGet)
+	router.POST(baseURL+"/lendings", wrapper.LendingEventCreate)
+	router.GET(baseURL+"/lendings/:id", wrapper.LendingEventGet)
 
 }

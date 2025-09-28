@@ -30,50 +30,40 @@ type HealthHealthResponse struct {
 // HealthHealthResponseStatus defines model for HealthHealthResponse.Status.
 type HealthHealthResponseStatus string
 
-// PaymentCreateEventRequest defines model for Payment.CreateEventRequest.
-type PaymentCreateEventRequest struct {
-	Debtors []struct {
-		Amount uint64 `json:"amount"`
-		Id     string `json:"id"`
-	} `json:"debtors"`
-	EventDate time.Time `json:"eventDate"`
-	Name      string    `json:"name"`
-	Payer     struct {
-		Amount uint64 `json:"amount"`
-		Id     string `json:"id"`
-	} `json:"payer"`
+// LendingCreateLendingEventRequest defines model for Lending.CreateLendingEventRequest.
+type LendingCreateLendingEventRequest struct {
+	Amount    uint64              `json:"amount"`
+	Debts     []LendingDebtParmam `json:"debts"`
+	EventDate time.Time           `json:"eventDate"`
+	Name      string              `json:"name"`
 }
 
-// PaymentCreateEventResponse defines model for Payment.CreateEventResponse.
-type PaymentCreateEventResponse struct {
-	CreatedAt time.Time               `json:"createdAt"`
-	Debtors   []PaymentUserWithAmount `json:"debtors"`
-	EventDate time.Time               `json:"eventDate"`
-	Id        string                  `json:"id"`
-	Name      string                  `json:"name"`
-	Payer     PaymentUserWithAmount   `json:"payer"`
-	UpdatedAt time.Time               `json:"updatedAt"`
+// LendingCreateLendingEventResponse defines model for Lending.CreateLendingEventResponse.
+type LendingCreateLendingEventResponse struct {
+	Amount    uint64              `json:"amount"`
+	CreatedAt time.Time           `json:"createdAt"`
+	Debts     []LendingDebtParmam `json:"debts"`
+	EventDate time.Time           `json:"eventDate"`
+	Id        string              `json:"id"`
+	Name      string              `json:"name"`
+	UpdatedAt time.Time           `json:"updatedAt"`
 }
 
-// PaymentGetEventResponse defines model for Payment.GetEventResponse.
-type PaymentGetEventResponse struct {
-	CreatedAt time.Time               `json:"createdAt"`
-	Debtors   []PaymentUserWithAmount `json:"debtors"`
-	EventDate time.Time               `json:"eventDate"`
-	Id        string                  `json:"id"`
-	Name      string                  `json:"name"`
-	Payer     PaymentUserWithAmount   `json:"payer"`
-	UpdatedAt time.Time               `json:"updatedAt"`
-}
-
-// PaymentUserWithAmount defines model for Payment.UserWithAmount.
-type PaymentUserWithAmount struct {
+// LendingDebtParmam defines model for Lending.DebtParmam.
+type LendingDebtParmam struct {
 	Amount uint64 `json:"amount"`
-	Avatar string `json:"avatar"`
-	Email  string `json:"email"`
-	Id     string `json:"id"`
-	Name   string `json:"name"`
+	UserId string `json:"userId"`
 }
 
-// PaymentEventCreateJSONRequestBody defines body for PaymentEventCreate for application/json ContentType.
-type PaymentEventCreateJSONRequestBody = PaymentCreateEventRequest
+// LendingGetLendingEventResponse defines model for Lending.GetLendingEventResponse.
+type LendingGetLendingEventResponse struct {
+	CreatedAt time.Time           `json:"createdAt"`
+	Debts     []LendingDebtParmam `json:"debts"`
+	EventDate time.Time           `json:"eventDate"`
+	Id        string              `json:"id"`
+	Name      string              `json:"name"`
+	UpdatedAt time.Time           `json:"updatedAt"`
+}
+
+// LendingEventCreateJSONRequestBody defines body for LendingEventCreate for application/json ContentType.
+type LendingEventCreateJSONRequestBody = LendingCreateLendingEventRequest

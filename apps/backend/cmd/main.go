@@ -10,6 +10,7 @@ import (
 	"github.com/haebeal/datti/internal/gateway/repository"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
+	"github.com/haebeal/datti/internal/presentation/api/middleware"
 	"github.com/haebeal/datti/internal/presentation/api/server"
 	"github.com/haebeal/datti/internal/usecase"
 	"github.com/jackc/pgx/v5"
@@ -50,6 +51,7 @@ func main() {
 
 	e := echo.New()
 
+	e.Use(middleware.AuthMiddleware())
 	api.RegisterHandlers(e, server)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", port)))

@@ -10,7 +10,6 @@ require (
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/oapi-codegen/runtime v1.1.2
 	github.com/oklog/ulid/v2 v2.1.1
-	github.com/supabase-community/gotrue-go v1.2.1
 	go.uber.org/mock v0.6.0
 )
 
@@ -22,7 +21,6 @@ require (
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
-	github.com/tomnomnom/linkheader v0.0.0-20180905144013-02ca5825eb80 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.2 // indirect
 	golang.org/x/crypto v0.37.0 // indirect

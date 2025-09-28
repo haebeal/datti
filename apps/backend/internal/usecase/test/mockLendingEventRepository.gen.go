@@ -13,6 +13,7 @@ import (
 	reflect "reflect"
 
 	domain "github.com/haebeal/datti/internal/domain"
+	ulid "github.com/oklog/ulid/v2"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -52,4 +53,19 @@ func (m *MockLendingEventRepository) Create(e *domain.LendingEvent) error {
 func (mr *MockLendingEventRepositoryMockRecorder) Create(e any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockLendingEventRepository)(nil).Create), e)
+}
+
+// FindByID mocks base method.
+func (m *MockLendingEventRepository) FindByID(arg0 ulid.ULID) (*domain.LendingEvent, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindByID", arg0)
+	ret0, _ := ret[0].(*domain.LendingEvent)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindByID indicates an expected call of FindByID.
+func (mr *MockLendingEventRepositoryMockRecorder) FindByID(arg0 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockLendingEventRepository)(nil).FindByID), arg0)
 }

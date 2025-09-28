@@ -12,16 +12,16 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-type LendingEventUseCase interface {
+type LendingUseCase interface {
 	Create(CreateInput) (*CreateOutput, error)
 	Get(GetInput) (*GetOutput, error)
 }
 
 type lendingEventHandler struct {
-	u LendingEventUseCase
+	u LendingUseCase
 }
 
-func NewLendingEventHandler(u LendingEventUseCase) lendingEventHandler {
+func NewLendingEventHandler(u LendingUseCase) lendingEventHandler {
 	return lendingEventHandler{
 		u: u,
 	}

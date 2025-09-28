@@ -50,5 +50,5 @@ tasks:
           -package=usecase_test
       - |
         mockgen -source=internal/presentation/api/handler/lendingEvent.go \
-          -destination=internal/presentation/api/handler/test/mockLendingEventUseCase.gen.go \
+          -destination=internal/presentation/api/handler/test/mockLendingUseCase.gen.go \
           -package=handler_test

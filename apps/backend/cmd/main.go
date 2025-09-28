@@ -43,7 +43,7 @@ func main() {
 	dr := repository.NewDebtorRepository(ctx, queries)
 	lr := repository.NewLendingEventRepository(ctx, queries)
 
-	lu := usecase.NewLendingEventUseCase(ur, pr, dr, lr)
+	lu := usecase.NewLendingUseCase(ur, pr, dr, lr)
 
 	hh := handler.NewHealthHandler()
 	lh := handler.NewLendingEventHandler(lu)

@@ -12,9 +12,8 @@ package usecase_test
 import (
 	reflect "reflect"
 
-	uuid "github.com/google/uuid"
 	domain "github.com/haebeal/datti/internal/domain"
-	v2 "github.com/oklog/ulid/v2"
+	ulid "github.com/oklog/ulid/v2"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -43,16 +42,16 @@ func (m *MockPayerRepository) EXPECT() *MockPayerRepositoryMockRecorder {
 }
 
 // FindByEventID mocks base method.
-func (m *MockPayerRepository) FindByEventID(userID uuid.UUID, eventID v2.ULID) (*domain.Payer, error) {
+func (m *MockPayerRepository) FindByEventID(eventID ulid.ULID) (*domain.Payer, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByEventID", userID, eventID)
+	ret := m.ctrl.Call(m, "FindByEventID", eventID)
 	ret0, _ := ret[0].(*domain.Payer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindByEventID indicates an expected call of FindByEventID.
-func (mr *MockPayerRepositoryMockRecorder) FindByEventID(userID, eventID any) *gomock.Call {
+func (mr *MockPayerRepositoryMockRecorder) FindByEventID(eventID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByEventID", reflect.TypeOf((*MockPayerRepository)(nil).FindByEventID), userID, eventID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByEventID", reflect.TypeOf((*MockPayerRepository)(nil).FindByEventID), eventID)
 }

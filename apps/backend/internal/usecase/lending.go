@@ -7,15 +7,15 @@ import (
 	"github.com/haebeal/datti/internal/presentation/api/handler"
 )
 
-type LendingEventUseCaseImpl struct {
+type LendingUseCaseImpl struct {
 	ur domain.UserRepository
 	pr domain.PayerRepository
 	dr domain.DebtorRepository
 	lr domain.LendingEventRepository
 }
 
-func NewLendingEventUseCase(ur domain.UserRepository, pr domain.PayerRepository, dr domain.DebtorRepository, lr domain.LendingEventRepository) LendingEventUseCaseImpl {
-	return LendingEventUseCaseImpl{
+func NewLendingUseCase(ur domain.UserRepository, pr domain.PayerRepository, dr domain.DebtorRepository, lr domain.LendingEventRepository) LendingUseCaseImpl {
+	return LendingUseCaseImpl{
 		ur: ur,
 		pr: pr,
 		dr: dr,
@@ -23,7 +23,7 @@ func NewLendingEventUseCase(ur domain.UserRepository, pr domain.PayerRepository,
 	}
 }
 
-func (u LendingEventUseCaseImpl) Create(i handler.CreateInput) (*handler.CreateOutput, error) {
+func (u LendingUseCaseImpl) Create(i handler.CreateInput) (*handler.CreateOutput, error) {
 	eventAmount, err := domain.NewAmount(i.Amount)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (u LendingEventUseCaseImpl) Create(i handler.CreateInput) (*handler.CreateO
 	}, nil
 }
 
-func (u LendingEventUseCaseImpl) Get(i handler.GetInput) (*handler.GetOutput, error) {
+func (u LendingUseCaseImpl) Get(i handler.GetInput) (*handler.GetOutput, error) {
 	payer, err := u.pr.FindByEventID(i.EventID)
 	if err != nil {
 		return nil, err

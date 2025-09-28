@@ -23,7 +23,7 @@ func NewLendingEventUseCase(ur domain.UserRepository, pr domain.PayerRepository,
 	}
 }
 
-func (u *LendingEventUseCaseImpl) Create(i handler.CreateInput) (*handler.CreateOutput, error) {
+func (u LendingEventUseCaseImpl) Create(i handler.CreateInput) (*handler.CreateOutput, error) {
 	eventAmount, err := domain.NewAmount(i.Amount)
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (u *LendingEventUseCaseImpl) Create(i handler.CreateInput) (*handler.Create
 	}, nil
 }
 
-func (u *LendingEventUseCaseImpl) Get(i handler.GetInput) (*handler.GetOutput, error) {
+func (u LendingEventUseCaseImpl) Get(i handler.GetInput) (*handler.GetOutput, error) {
 	payer, err := u.pr.FindByEventID(i.EventID)
 	if err != nil {
 		return nil, err

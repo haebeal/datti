@@ -33,21 +33,17 @@ tasks:
     cmds:
       - |
         mockgen -source=internal/domain/user.go \
-          -destination=internal/usecase/testutil/mock_user_repository_generated.go \
-          -package=testutil
+          -destination=internal/usecase/test/mockUserRepository.gen.go \
+          -package=usecase_test
       - |
-        mockgen -source=internal/domain/paymentEvent.go \
-          -destination=internal/usecase/testutil/mock_payment_event_repository_generated.go \
-          -package=testutil
+        mockgen -source=internal/domain/lendingEvent.go \
+          -destination=internal/usecase/test/mockLendingEventRepository.gen.go \
+          -package=usecase_test
       - |
-        mockgen -source=internal/usecase/payment.go \
-          -destination=internal/presentation/api/handler/testutil/mock_payment_usecase_generated.go \
-          -package=testutil
+        mockgen -source=internal/domain/payer.go \
+          -destination=internal/usecase/test/mockPayerRepository.gen.go \
+          -package=usecase_test
       - |
-        mockgen -source=internal/presentation/api/handler/health.go \
-          -destination=internal/presentation/api/server/testutil/mock_health_handler_generated.go \
-          -package=testutil
-      - |
-        mockgen -source=internal/presentation/api/handler/payment.go \
-          -destination=internal/presentation/api/server/testutil/mock_payment_handler_generated.go \
-          -package=testutil
+        mockgen -source=internal/presentation/api/handler/lendingEvent.go \
+          -destination=internal/presentation/api/handler/test/mockLendingEventUseCase.gen.go \
+          -package=handler_test

@@ -20,6 +20,20 @@ func NewDebtorRepository(ctx context.Context, queries *postgres.Queries) *Debtor
 	}
 }
 
+func (dr *DebtorRepositoryImpl) Create(event *domain.LendingEvent, payer *domain.Payer, debtor *domain.Debtor) error {
+	err := dr.queries.CreatePayment(dr.ctx, postgres.CreatePaymentParams{
+		EventID:  event.ID().String(),
+		PayerID:  payer.ID(),
+		DebtorID: debtor.ID(),
+		Amount:   int32(debtor.Amount().Value()),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (dr *DebtorRepositoryImpl) FindByEventID(eventID ulid.ULID) ([]*domain.Debtor, error) {
 	payments, err := dr.queries.FindPaymentsByEventId(dr.ctx, eventID.String())
 	if err != nil {

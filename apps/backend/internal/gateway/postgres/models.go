@@ -13,7 +13,6 @@ import (
 type Event struct {
 	ID        string
 	Name      string
-	PayerID   uuid.UUID
 	Amount    int32
 	EventDate time.Time
 	CreatedAt time.Time
@@ -22,6 +21,7 @@ type Event struct {
 
 type Payment struct {
 	EventID  string
+	PayerID  uuid.UUID
 	DebtorID uuid.UUID
 	Amount   int32
 }

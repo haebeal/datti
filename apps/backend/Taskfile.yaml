@@ -49,6 +49,6 @@ tasks:
           -destination=internal/usecase/test/mockPayerRepository.gen.go \
           -package=usecase_test
       - |
-        mockgen -source=internal/presentation/api/handler/lendingEvent.go \
+        mockgen -source=internal/presentation/api/handler/lending.go \
           -destination=internal/presentation/api/handler/test/mockLendingUseCase.gen.go \
           -package=handler_test

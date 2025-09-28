@@ -30,16 +30,16 @@ type HealthHealthResponse struct {
 // HealthHealthResponseStatus defines model for HealthHealthResponse.Status.
 type HealthHealthResponseStatus string
 
-// LendingCreateLendingEventRequest defines model for Lending.CreateLendingEventRequest.
-type LendingCreateLendingEventRequest struct {
+// LendingCreateRequest defines model for Lending.CreateRequest.
+type LendingCreateRequest struct {
 	Amount    uint64              `json:"amount"`
 	Debts     []LendingDebtParmam `json:"debts"`
 	EventDate time.Time           `json:"eventDate"`
 	Name      string              `json:"name"`
 }
 
-// LendingCreateLendingEventResponse defines model for Lending.CreateLendingEventResponse.
-type LendingCreateLendingEventResponse struct {
+// LendingCreateResponse defines model for Lending.CreateResponse.
+type LendingCreateResponse struct {
 	Amount    uint64              `json:"amount"`
 	CreatedAt time.Time           `json:"createdAt"`
 	Debts     []LendingDebtParmam `json:"debts"`
@@ -55,8 +55,8 @@ type LendingDebtParmam struct {
 	UserId string `json:"userId"`
 }
 
-// LendingGetLendingEventResponse defines model for Lending.GetLendingEventResponse.
-type LendingGetLendingEventResponse struct {
+// LendingGetResponse defines model for Lending.GetResponse.
+type LendingGetResponse struct {
 	Amount    uint64              `json:"amount"`
 	CreatedAt time.Time           `json:"createdAt"`
 	Debts     []LendingDebtParmam `json:"debts"`
@@ -66,5 +66,5 @@ type LendingGetLendingEventResponse struct {
 	UpdatedAt time.Time           `json:"updatedAt"`
 }
 
-// LendingEventCreateJSONRequestBody defines body for LendingEventCreate for application/json ContentType.
-type LendingEventCreateJSONRequestBody = LendingCreateLendingEventRequest
+// LendingCreateJSONRequestBody defines body for LendingCreate for application/json ContentType.
+type LendingCreateJSONRequestBody = LendingCreateRequest

@@ -6,17 +6,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type LendingEventHandler interface {
+type LendingHandler interface {
 	Create(c echo.Context) error
 	Get(c echo.Context, id string) error
 }
 
 type Server struct {
-	lh LendingEventHandler
+	lh LendingHandler
 	hh handler.HealthHandler
 }
 
-func NewServer(lh LendingEventHandler, hh handler.HealthHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, hh handler.HealthHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		hh: hh,
@@ -24,11 +24,11 @@ func NewServer(lh LendingEventHandler, hh handler.HealthHandler) api.ServerInter
 }
 
 // ServerInterfaceの実装
-func (s *Server) LendingEventCreate(ctx echo.Context) error {
+func (s *Server) LendingCreate(ctx echo.Context) error {
 	return s.lh.Create(ctx)
 }
 
-func (s *Server) LendingEventGet(ctx echo.Context, id string) error {
+func (s *Server) LendingGet(ctx echo.Context, id string) error {
 	return s.lh.Get(ctx, id)
 }
 

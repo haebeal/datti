@@ -16,12 +16,12 @@ type ServerInterface interface {
 	// ヘルスチェック
 	// (GET /health)
 	HealthCheckCheck(ctx echo.Context) error
-	// 立て替えイベントの作成
+	// 立て替えの作成
 	// (POST /lendings)
-	LendingEventCreate(ctx echo.Context) error
-	// 立て替えたイベントの取得
+	LendingCreate(ctx echo.Context) error
+	// 立て替えの取得
 	// (GET /lendings/{id})
-	LendingEventGet(ctx echo.Context, id string) error
+	LendingGet(ctx echo.Context, id string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -40,19 +40,19 @@ func (w *ServerInterfaceWrapper) HealthCheckCheck(ctx echo.Context) error {
 	return err
 }
 
-// LendingEventCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) LendingEventCreate(ctx echo.Context) error {
+// LendingCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) LendingCreate(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.LendingEventCreate(ctx)
+	err = w.Handler.LendingCreate(ctx)
 	return err
 }
 
-// LendingEventGet converts echo context to params.
-func (w *ServerInterfaceWrapper) LendingEventGet(ctx echo.Context) error {
+// LendingGet converts echo context to params.
+func (w *ServerInterfaceWrapper) LendingGet(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -65,7 +65,7 @@ func (w *ServerInterfaceWrapper) LendingEventGet(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.LendingEventGet(ctx, id)
+	err = w.Handler.LendingGet(ctx, id)
 	return err
 }
 
@@ -98,7 +98,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	}
 
 	router.GET(baseURL+"/health", wrapper.HealthCheckCheck)
-	router.POST(baseURL+"/lendings", wrapper.LendingEventCreate)
-	router.GET(baseURL+"/lendings/:id", wrapper.LendingEventGet)
+	router.POST(baseURL+"/lendings", wrapper.LendingCreate)
+	router.GET(baseURL+"/lendings/:id", wrapper.LendingGet)
 
 }

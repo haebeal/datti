@@ -5,25 +5,25 @@ using TypeSpec.Http;
 namespace DattiApi;
 
 /**
- * 立て替えイベント
+ * 立て替え
  */
 @tag("Lendings")
 @route("/lendings")
 namespace Lending {
   /**
-   * 立て替えたイベントの作成
+   * 立て替えの作成
    */
-  interface LendingEvent {
-    @summary("立て替えイベントの作成")
+  interface Lending {
+    @summary("立て替えの作成")
     @post
-    create(@body event: CreateLendingEventRequest):
+    create(@body event: CreateRequest):
       | {
           /**
            * 正常レスポンス
            */
           @statusCode statusCode: 201;
 
-          @body newEvent: CreateLendingEventResponse;
+          @body newEvent: CreateResponse;
         }
       | {
           @statusCode statusCode: 400;
@@ -38,7 +38,7 @@ namespace Lending {
           @body body: ErrorResponse;
         };
 
-    @summary("立て替えたイベントの取得")
+    @summary("立て替えの取得")
     @get
     @route("/{id}")
     get(id: string):
@@ -48,7 +48,7 @@ namespace Lending {
            */
           @statusCode statusCode: 200;
 
-          @body event: GetLendingEventResponse;
+          @body event: GetResponse;
         }
       | {
           @statusCode statusCode: 400;
@@ -69,14 +69,14 @@ namespace Lending {
     amount: uint64;
   }
 
-  model CreateLendingEventRequest {
+  model CreateRequest {
     name: string;
     amount: uint64;
     eventDate: utcDateTime;
     debts: DebtParmam[];
   }
 
-  model CreateLendingEventResponse {
+  model CreateResponse {
     id: string;
     name: string;
     amount: uint64;
@@ -86,7 +86,7 @@ namespace Lending {
     updatedAt: utcDateTime;
   }
 
-  model GetLendingEventResponse {
+  model GetResponse {
     id: string;
     name: string;
     amount: uint64;
@@ -100,3 +100,4 @@ namespace Lending {
 model ErrorResponse {
   message: string;
 }
+

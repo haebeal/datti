@@ -17,18 +17,18 @@ type LendingUseCase interface {
 	Get(GetInput) (*GetOutput, error)
 }
 
-type lendingEventHandler struct {
+type lendingHandler struct {
 	u LendingUseCase
 }
 
-func NewLendingEventHandler(u LendingUseCase) lendingEventHandler {
-	return lendingEventHandler{
+func NewLendingHandler(u LendingUseCase) lendingHandler {
+	return lendingHandler{
 		u: u,
 	}
 }
 
-func (h lendingEventHandler) Create(c echo.Context) error {
-	var req api.LendingCreateLendingEventRequest
+func (h lendingHandler) Create(c echo.Context) error {
+	var req api.LendingCreateRequest
 
 	err := c.Bind(&req)
 	if err != nil {
@@ -89,7 +89,7 @@ func (h lendingEventHandler) Create(c echo.Context) error {
 		})
 	}
 
-	res := &api.LendingCreateLendingEventResponse{
+	res := &api.LendingCreateResponse{
 		Id:        output.Event.ID().String(),
 		Name:      output.Event.Name(),
 		Amount:    uint64(output.Event.Amount().Value()),
@@ -102,7 +102,7 @@ func (h lendingEventHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
-func (h lendingEventHandler) Get(c echo.Context, id string) error {
+func (h lendingHandler) Get(c echo.Context, id string) error {
 	eventID, err := ulid.Parse(id)
 	if err != nil {
 		message := fmt.Sprintf("Failed to parse ulid: %v", id)
@@ -143,7 +143,7 @@ func (h lendingEventHandler) Get(c echo.Context, id string) error {
 		})
 	}
 
-	res := &api.LendingGetLendingEventResponse{
+	res := &api.LendingGetResponse{
 		Id:        output.Event.ID().String(),
 		Name:      output.Event.Name(),
 		Amount:    uint64(output.Event.Amount().Value()),

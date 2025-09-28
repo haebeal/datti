@@ -9,10 +9,12 @@ import (
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
+	"github.com/oklog/ulid/v2"
 )
 
 type LendingEventUseCase interface {
 	Create(CreateInput) (CreateOutput, error)
+	Get(GetInput) (*GetOutput, error)
 }
 
 type lendingEventHandler struct {
@@ -109,11 +111,11 @@ func (h lendingEventHandler) Create(c echo.Context) error {
 }
 
 type CreateInput struct {
-	UserID    uuid.UUID   // リクエストユーザーのID
-	Name      string      // イベント名
-	Amount    int64       // イベントで発生した金額
-	Debts     []DebtParam // イベントの返済
-	EventDate time.Time   // イベント発生日
+	UserID    uuid.UUID
+	Name      string
+	Amount    int64
+	Debts     []DebtParam
+	EventDate time.Time
 }
 type DebtParam struct {
 	UserID uuid.UUID
@@ -121,6 +123,16 @@ type DebtParam struct {
 }
 
 type CreateOutput struct {
+	Event   *domain.LendingEvent
+	Debtors []*domain.Debtor
+}
+
+type GetInput struct {
+	UserID  uuid.UUID
+	EventID ulid.ULID
+}
+
+type GetOutput struct {
 	Event   *domain.LendingEvent
 	Debtors []*domain.Debtor
 }

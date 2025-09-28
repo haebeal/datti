@@ -1,6 +1,9 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"github.com/oklog/ulid/v2"
+)
 
 // 債務者
 type Debtor struct {
@@ -47,5 +50,5 @@ func (d *Debtor) Amount() *Amount {
 
 type DebtorRepository interface {
 	Create(*Payer, *Debtor) error
-	FindByEventID(uuid.UUID) ([]*Debtor, error)
+	FindByEventID(ulid.ULID) ([]*Debtor, error)
 }

@@ -74,4 +74,5 @@ func (le *LendingEvent) UpdatedAt() time.Time {
 
 type LendingEventRepository interface {
 	Create(e *LendingEvent) error
+	FindByID(ulid.ULID) (*LendingEvent, error)
 }

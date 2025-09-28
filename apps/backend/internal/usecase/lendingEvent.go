@@ -1,12 +1,15 @@
 package usecase
 
 import (
+	"fmt"
+
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
 )
 
 type LendingEventUseCaseImpl struct {
 	ur domain.UserRepository
+	pr domain.PayerRepository
 	dr domain.DebtorRepository
 	lr domain.LendingEventRepository
 }
@@ -67,4 +70,32 @@ func (u *LendingEventUseCaseImpl) Create(i handler.CreateInput) (*handler.Create
 		Event:   event,
 		Debtors: debtors,
 	}, nil
+}
+
+func (u *LendingEventUseCaseImpl) Get(i handler.GetInput) (*handler.GetOutput, error) {
+	payer, err := u.pr.FindByEventID(i.EventID)
+	if err != nil {
+		return nil, err
+	}
+
+	if payer.ID() != i.UserID {
+		return nil, fmt.Errorf("lendingEventが存在しません")
+	}
+
+	event, err := u.lr.FindByID(i.EventID)
+	if err != nil {
+		return nil, err
+	}
+
+	debtors, err := u.dr.FindByEventID(i.EventID)
+	if err != nil {
+		return nil, err
+	}
+
+	output := &handler.GetOutput{
+		Event:   event,
+		Debtors: debtors,
+	}
+
+	return output, nil
 }

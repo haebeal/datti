@@ -13,6 +13,7 @@ require (
 	github.com/oklog/ulid/v2 v2.1.1
 	github.com/stretchr/testify v1.10.0
 	github.com/supabase-community/gotrue-go v1.2.1
+	go.uber.org/mock v0.6.0
 )
 
 require (

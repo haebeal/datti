@@ -89,6 +89,7 @@ namespace Lending {
   model GetLendingEventResponse {
     id: string;
     name: string;
+    amount: uint64;
     eventDate: utcDateTime;
     debts: DebtParmam[];
     createdAt: utcDateTime;
@@ -99,4 +100,3 @@ namespace Lending {
 model ErrorResponse {
   message: string;
 }
-

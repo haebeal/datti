@@ -57,6 +57,7 @@ type LendingDebtParmam struct {
 
 // LendingGetLendingEventResponse defines model for Lending.GetLendingEventResponse.
 type LendingGetLendingEventResponse struct {
+	Amount    uint64              `json:"amount"`
 	CreatedAt time.Time           `json:"createdAt"`
 	Debts     []LendingDebtParmam `json:"debts"`
 	EventDate time.Time           `json:"eventDate"`

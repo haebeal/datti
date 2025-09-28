@@ -11,16 +11,14 @@ type Payer struct {
 	name   string
 	avatar string
 	email  string
-	amount *Amount
 }
 
-func NewPayer(id uuid.UUID, name string, avatar string, email string, amount *Amount) (*Payer, error) {
+func NewPayer(id uuid.UUID, name string, avatar string, email string) (*Payer, error) {
 	return &Payer{
 		id:     id,
 		name:   name,
 		avatar: avatar,
 		email:  email,
-		amount: amount,
 	}, nil
 }
 
@@ -42,10 +40,6 @@ func (p *Payer) Avatar() string {
 
 func (p *Payer) Email() string {
 	return p.email
-}
-
-func (p *Payer) Amount() *Amount {
-	return p.amount
 }
 
 type PayerRepository interface {

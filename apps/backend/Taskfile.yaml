@@ -12,6 +12,11 @@ tasks:
           --url $DSN \
           --dev-url "docker://postgres" \
           --to "file://sql/schema.sql"
+  seed:
+    cmds:
+      - |
+        psql $DSN \
+          -f sql/init.sql
   test:
     cmds:
       - go test -race ./...

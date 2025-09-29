@@ -11,9 +11,9 @@ const (
 	BearerAuthScopes = "BearerAuth.Scopes"
 )
 
-// Defines values for HealthHealthResponseStatus.
+// Defines values for HealthCheckResponseStatus.
 const (
-	Ok HealthHealthResponseStatus = "ok"
+	Ok HealthCheckResponseStatus = "ok"
 )
 
 // ErrorResponse defines model for ErrorResponse.
@@ -21,59 +21,50 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-// HealthHealthResponse defines model for Health.HealthResponse.
-type HealthHealthResponse struct {
-	Status    HealthHealthResponseStatus `json:"status"`
-	Timestamp time.Time                  `json:"timestamp"`
+// HealthCheckResponse defines model for Health.CheckResponse.
+type HealthCheckResponse struct {
+	Status    HealthCheckResponseStatus `json:"status"`
+	Timestamp time.Time                 `json:"timestamp"`
 }
 
-// HealthHealthResponseStatus defines model for HealthHealthResponse.Status.
-type HealthHealthResponseStatus string
+// HealthCheckResponseStatus defines model for HealthCheckResponse.Status.
+type HealthCheckResponseStatus string
 
-// PaymentCreateEventRequest defines model for Payment.CreateEventRequest.
-type PaymentCreateEventRequest struct {
-	Debtors []struct {
-		Amount uint64 `json:"amount"`
-		Id     string `json:"id"`
-	} `json:"debtors"`
-	EventDate time.Time `json:"eventDate"`
-	Name      string    `json:"name"`
-	Payer     struct {
-		Amount uint64 `json:"amount"`
-		Id     string `json:"id"`
-	} `json:"payer"`
+// LendingCreateRequest defines model for Lending.CreateRequest.
+type LendingCreateRequest struct {
+	Amount    uint64              `json:"amount"`
+	Debts     []LendingDebtParmam `json:"debts"`
+	EventDate time.Time           `json:"eventDate"`
+	Name      string              `json:"name"`
 }
 
-// PaymentCreateEventResponse defines model for Payment.CreateEventResponse.
-type PaymentCreateEventResponse struct {
-	CreatedAt time.Time               `json:"createdAt"`
-	Debtors   []PaymentUserWithAmount `json:"debtors"`
-	EventDate time.Time               `json:"eventDate"`
-	Id        string                  `json:"id"`
-	Name      string                  `json:"name"`
-	Payer     PaymentUserWithAmount   `json:"payer"`
-	UpdatedAt time.Time               `json:"updatedAt"`
+// LendingCreateResponse defines model for Lending.CreateResponse.
+type LendingCreateResponse struct {
+	Amount    uint64              `json:"amount"`
+	CreatedAt time.Time           `json:"createdAt"`
+	Debts     []LendingDebtParmam `json:"debts"`
+	EventDate time.Time           `json:"eventDate"`
+	Id        string              `json:"id"`
+	Name      string              `json:"name"`
+	UpdatedAt time.Time           `json:"updatedAt"`
 }
 
-// PaymentGetEventResponse defines model for Payment.GetEventResponse.
-type PaymentGetEventResponse struct {
-	CreatedAt time.Time               `json:"createdAt"`
-	Debtors   []PaymentUserWithAmount `json:"debtors"`
-	EventDate time.Time               `json:"eventDate"`
-	Id        string                  `json:"id"`
-	Name      string                  `json:"name"`
-	Payer     PaymentUserWithAmount   `json:"payer"`
-	UpdatedAt time.Time               `json:"updatedAt"`
-}
-
-// PaymentUserWithAmount defines model for Payment.UserWithAmount.
-type PaymentUserWithAmount struct {
+// LendingDebtParmam defines model for Lending.DebtParmam.
+type LendingDebtParmam struct {
 	Amount uint64 `json:"amount"`
-	Avatar string `json:"avatar"`
-	Email  string `json:"email"`
-	Id     string `json:"id"`
-	Name   string `json:"name"`
+	UserId string `json:"userId"`
 }
 
-// PaymentEventCreateJSONRequestBody defines body for PaymentEventCreate for application/json ContentType.
-type PaymentEventCreateJSONRequestBody = PaymentCreateEventRequest
+// LendingGetResponse defines model for Lending.GetResponse.
+type LendingGetResponse struct {
+	Amount    uint64              `json:"amount"`
+	CreatedAt time.Time           `json:"createdAt"`
+	Debts     []LendingDebtParmam `json:"debts"`
+	EventDate time.Time           `json:"eventDate"`
+	Id        string              `json:"id"`
+	Name      string              `json:"name"`
+	UpdatedAt time.Time           `json:"updatedAt"`
+}
+
+// LendingCreateJSONRequestBody defines body for LendingCreate for application/json ContentType.
+type LendingCreateJSONRequestBody = LendingCreateRequest

@@ -44,10 +44,6 @@ func NewUser(id string, name string, avatar string, email string) (*User, error)
 	return &User{uuid, name, avatar, email}, nil
 }
 
-func (u *User) Equal(c *User) bool {
-	return u.id.String() == c.id.String()
-}
-
 func (u *User) ID() uuid.UUID {
 	return u.id
 }
@@ -66,6 +62,4 @@ func (u *User) Email() string {
 
 type UserRepository interface {
 	FindByID(uuid.UUID) (*User, error)
-	FindAll() ([]*User, error)
-	Update(*User) error
 }

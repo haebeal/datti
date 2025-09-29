@@ -2,8 +2,8 @@ import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi3";
 
-import "./payments.tsp";
-import "./health.tsp";
+import "./lendings.tsp";
+import "./healthz.tsp";
 
 using TypeSpec.Http;
 

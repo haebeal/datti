@@ -2,45 +2,53 @@ version: '3'
 dotenv:
   - '.env'
 tasks:
-  gen-sqlc:
-    cmds:
-      - sqlc generate
-  migrate-db:
+  db-migrate:
     cmds:
       - |
         atlas schema apply \
           --url $DSN \
           --dev-url "docker://postgres" \
           --to "file://sql/schema.sql"
+  db-seed:
+    cmds:
+      - |
+        psql $DSN \
+          -f sql/init.sql
+  gen-sqlc:
+    cmds:
+      - sqlc generate
+  gen-types:
+    cmds:
+      - |
+        oapi-codegen -generate "types" \
+          -package api \
+          ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml \
+          > ./internal/presentation/api/types.gen.go
+  gen-server:
+    cmds:
+      - |
+        oapi-codegen -generate "server" \
+          -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml \
+          > ./internal/presentation/api/server.gen.go
   test:
     cmds:
       - go test -race ./...
-  gen-type:
-    cmds:
-      - oapi-codegen -generate "types" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/types.gen.go
-  gen-server:
-    cmds:
-      - oapi-codegen -generate "server" -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml > ./internal/presentation/api/server.gen.go
   gen-mocks:
     desc: "Generate mocks using mockgen"
     cmds:
       - |
         mockgen -source=internal/domain/user.go \
-          -destination=internal/usecase/testutil/mock_user_repository_generated.go \
-          -package=testutil
+          -destination=internal/usecase/test/mockUserRepository.gen.go \
+          -package=usecase_test
       - |
-        mockgen -source=internal/domain/paymentEvent.go \
-          -destination=internal/usecase/testutil/mock_payment_event_repository_generated.go \
-          -package=testutil
+        mockgen -source=internal/domain/lendingEvent.go \
+          -destination=internal/usecase/test/mockLendingEventRepository.gen.go \
+          -package=usecase_test
       - |
-        mockgen -source=internal/usecase/payment.go \
-          -destination=internal/presentation/api/handler/testutil/mock_payment_usecase_generated.go \
-          -package=testutil
+        mockgen -source=internal/domain/payer.go \
+          -destination=internal/usecase/test/mockPayerRepository.gen.go \
+          -package=usecase_test
       - |
-        mockgen -source=internal/presentation/api/handler/health.go \
-          -destination=internal/presentation/api/server/testutil/mock_health_handler_generated.go \
-          -package=testutil
-      - |
-        mockgen -source=internal/presentation/api/handler/payment.go \
-          -destination=internal/presentation/api/server/testutil/mock_payment_handler_generated.go \
-          -package=testutil
+        mockgen -source=internal/presentation/api/handler/lending.go \
+          -destination=internal/presentation/api/handler/test/mockLendingUseCase.gen.go \
+          -package=handler_test

@@ -5,25 +5,25 @@ using TypeSpec.Http;
 namespace DattiApi;
 
 /**
- * 支払い
+ * 立て替え
  */
-@tag("Payment")
-@route("/payments/events")
-namespace Payment {
+@tag("Lendings")
+@route("/lendings")
+namespace Lending {
   /**
-   * 支払いのイベントの作成
+   * 立て替えの作成
    */
-  interface PaymentEvent {
-    @summary("支払いイベントの作成")
+  interface Lending {
+    @summary("立て替えの作成")
     @post
-    create(@body event: CreateEventRequest):
+    create(@body event: CreateRequest):
       | {
           /**
            * 正常レスポンス
            */
           @statusCode statusCode: 201;
 
-          @body newEvent: CreateEventResponse;
+          @body newEvent: CreateResponse;
         }
       | {
           @statusCode statusCode: 400;
@@ -38,18 +38,18 @@ namespace Payment {
           @body body: ErrorResponse;
         };
 
-    @summary("支払いイベントの取得")
+    @summary("立て替えの取得")
     @get
     @route("/{id}")
     get(id: string):
       | {
-        /**
-         * 正常レスポンス
-         */
-        @statusCode statusCode: 200;
+          /**
+           * 正常レスポンス
+           */
+          @statusCode statusCode: 200;
 
-        @body event: GetEventResponse
-      }
+          @body event: GetResponse;
+        }
       | {
           @statusCode statusCode: 400;
           @body body: ErrorResponse;
@@ -62,46 +62,36 @@ namespace Payment {
           @statusCode statusCode: 500;
           @body body: ErrorResponse;
         };
-
   }
 
-  model UserWithAmount {
-      id: string;
-      name: string;
-      email: string;
-      avatar: url;
-      amount: uint64;
+  model DebtParmam {
+    userId: string;
+    amount: uint64;
   }
 
-  model CreateEventRequest {
+  model CreateRequest {
     name: string;
+    amount: uint64;
     eventDate: utcDateTime;
-    payer: {
-      id: string;
-      amount: uint64;
-    };
-    debtors: {
-      id: string;
-      amount: uint64;
-    }[];
+    debts: DebtParmam[];
   }
 
-  model CreateEventResponse {
+  model CreateResponse {
     id: string;
     name: string;
+    amount: uint64;
     eventDate: utcDateTime;
-    payer: UserWithAmount;
-    debtors: UserWithAmount[];
+    debts: DebtParmam[];
     createdAt: utcDateTime;
     updatedAt: utcDateTime;
   }
 
-  model GetEventResponse {
+  model GetResponse {
     id: string;
     name: string;
+    amount: uint64;
     eventDate: utcDateTime;
-    payer: UserWithAmount;
-    debtors: UserWithAmount[];
+    debts: DebtParmam[];
     createdAt: utcDateTime;
     updatedAt: utcDateTime;
   }
@@ -110,3 +100,4 @@ namespace Payment {
 model ErrorResponse {
   message: string;
 }
+

@@ -10,6 +10,7 @@ import (
 	"github.com/haebeal/datti/internal/gateway/repository"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
+	"github.com/haebeal/datti/internal/presentation/api/middleware"
 	"github.com/haebeal/datti/internal/presentation/api/server"
 	"github.com/haebeal/datti/internal/usecase"
 	"github.com/jackc/pgx/v5"
@@ -38,16 +39,19 @@ func main() {
 	queries := postgres.New(conn)
 
 	ur := repository.NewUserRepository(ctx, queries)
-	pr := repository.NewPaymentEvent(ctx, conn, queries)
+	pr := repository.NewPayerRepository(ctx, queries)
+	dr := repository.NewDebtorRepository(ctx, queries)
+	lr := repository.NewLendingEventRepository(ctx, queries)
 
-	pu := usecase.NewPaymentUseCase(pr, ur)
+	lu := usecase.NewLendingUseCase(ur, pr, dr, lr)
 
-	ph := handler.NewPaymentHandler(pu)
-	hh := handler.NewHealthHandler()
-	server := server.NewServer(ph, hh)
+	hh := handler.NewHealthzHandler()
+	lh := handler.NewLendingHandler(lu)
+	server := server.NewServer(lh, hh)
 
 	e := echo.New()
 
+	e.Use(middleware.AuthMiddleware())
 	api.RegisterHandlers(e, server)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", port)))

@@ -14,14 +14,14 @@ import (
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// ヘルスチェック
-	// (GET /health)
-	HealthCheckCheck(ctx echo.Context) error
-	// 支払いイベントの作成
-	// (POST /payments/events)
-	PaymentEventCreate(ctx echo.Context) error
-	// 支払いイベントの取得
-	// (GET /payments/events/{id})
-	PaymentEventGet(ctx echo.Context, id string) error
+	// (GET /healthz)
+	HealthzCheck(ctx echo.Context) error
+	// 立て替えの作成
+	// (POST /lendings)
+	LendingCreate(ctx echo.Context) error
+	// 立て替えの取得
+	// (GET /lendings/{id})
+	LendingGet(ctx echo.Context, id string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -29,30 +29,30 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// HealthCheckCheck converts echo context to params.
-func (w *ServerInterfaceWrapper) HealthCheckCheck(ctx echo.Context) error {
+// HealthzCheck converts echo context to params.
+func (w *ServerInterfaceWrapper) HealthzCheck(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.HealthCheckCheck(ctx)
+	err = w.Handler.HealthzCheck(ctx)
 	return err
 }
 
-// PaymentEventCreate converts echo context to params.
-func (w *ServerInterfaceWrapper) PaymentEventCreate(ctx echo.Context) error {
+// LendingCreate converts echo context to params.
+func (w *ServerInterfaceWrapper) LendingCreate(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PaymentEventCreate(ctx)
+	err = w.Handler.LendingCreate(ctx)
 	return err
 }
 
-// PaymentEventGet converts echo context to params.
-func (w *ServerInterfaceWrapper) PaymentEventGet(ctx echo.Context) error {
+// LendingGet converts echo context to params.
+func (w *ServerInterfaceWrapper) LendingGet(ctx echo.Context) error {
 	var err error
 	// ------------- Path parameter "id" -------------
 	var id string
@@ -65,7 +65,7 @@ func (w *ServerInterfaceWrapper) PaymentEventGet(ctx echo.Context) error {
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PaymentEventGet(ctx, id)
+	err = w.Handler.LendingGet(ctx, id)
 	return err
 }
 
@@ -97,8 +97,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/health", wrapper.HealthCheckCheck)
-	router.POST(baseURL+"/payments/events", wrapper.PaymentEventCreate)
-	router.GET(baseURL+"/payments/events/:id", wrapper.PaymentEventGet)
+	router.GET(baseURL+"/healthz", wrapper.HealthzCheck)
+	router.POST(baseURL+"/lendings", wrapper.LendingCreate)
+	router.GET(baseURL+"/lendings/:id", wrapper.LendingGet)
 
 }

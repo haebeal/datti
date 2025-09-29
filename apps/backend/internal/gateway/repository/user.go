@@ -33,36 +33,3 @@ func (ur *UserRepositoryImpl) FindByID(id uuid.UUID) (*domain.User, error) {
 
 	return user, nil
 }
-
-func (ur *UserRepositoryImpl) FindAll() ([]*domain.User, error) {
-	rows, err := ur.queries.FindAllUsers(ur.ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var users []*domain.User
-	for _, row := range rows {
-		user, err := domain.NewUser(row.ID.String(), row.Name, row.Avatar, row.Email)
-		if err != nil {
-			return nil, err
-		}
-
-		users = append(users, user)
-	}
-
-	return users, nil
-}
-
-func (ur *UserRepositoryImpl) Update(u *domain.User) error {
-	err := ur.queries.UpdateUser(ur.ctx, postgres.UpdateUserParams{
-		ID:     u.ID(),
-		Name:   u.Name(),
-		Avatar: u.Avatar(),
-		Email:  u.Email(),
-	})
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

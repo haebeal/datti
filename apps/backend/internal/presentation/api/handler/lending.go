@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -13,8 +14,8 @@ import (
 )
 
 type LendingUseCase interface {
-	Create(CreateInput) (*CreateOutput, error)
-	Get(GetInput) (*GetOutput, error)
+	Create(context.Context, CreateInput) (*CreateOutput, error)
+	Get(context.Context, GetInput) (*GetOutput, error)
 }
 
 type lendingHandler struct {
@@ -28,6 +29,9 @@ func NewLendingHandler(u LendingUseCase) lendingHandler {
 }
 
 func (h lendingHandler) Create(c echo.Context) error {
+	ctx, span := tracer.Start(c.Request().Context(), "lending.Create")
+	defer span.End()
+
 	var req api.LendingCreateRequest
 
 	err := c.Bind(&req)
@@ -72,7 +76,7 @@ func (h lendingHandler) Create(c echo.Context) error {
 		EventDate: req.EventDate,
 	}
 
-	output, err := h.u.Create(input)
+	output, err := h.u.Create(ctx, input)
 	if err != nil {
 		message := fmt.Sprintf("Failed to create lending event: %v", err)
 		res := &api.ErrorResponse{
@@ -103,6 +107,9 @@ func (h lendingHandler) Create(c echo.Context) error {
 }
 
 func (h lendingHandler) Get(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "lending.Create")
+	defer span.End()
+
 	eventID, err := ulid.Parse(id)
 	if err != nil {
 		message := fmt.Sprintf("Failed to parse ulid: %v", id)
@@ -126,7 +133,7 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 		EventID: eventID,
 	}
 
-	output, err := h.u.Get(input)
+	output, err := h.u.Get(ctx, input)
 	if err != nil {
 		message := fmt.Sprintf("Failed to get lending event: %v", err)
 		res := &api.ErrorResponse{

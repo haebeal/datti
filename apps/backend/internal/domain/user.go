@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"fmt"
 	"net/mail"
 	"net/url"
@@ -61,5 +62,5 @@ func (u *User) Email() string {
 }
 
 type UserRepository interface {
-	FindByID(uuid.UUID) (*User, error)
+	FindByID(context.Context, uuid.UUID) (*User, error)
 }

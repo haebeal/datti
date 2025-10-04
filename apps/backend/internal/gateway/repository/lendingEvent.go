@@ -20,7 +20,10 @@ func NewLendingEventRepository(ctx context.Context, queries *postgres.Queries) *
 	}
 }
 
-func (lr *LendingEventRepositoryImpl) Create(e *domain.LendingEvent) error {
+func (lr *LendingEventRepositoryImpl) Create(ctx context.Context, e *domain.LendingEvent) error {
+	_, span := tracer.Start(ctx, "lendingEvent.Create")
+	defer span.End()
+
 	err := lr.queries.CreateEvent(lr.ctx, postgres.CreateEventParams{
 		ID:        e.ID().String(),
 		Amount:    int32(e.Amount().Value()),
@@ -31,30 +34,41 @@ func (lr *LendingEventRepositoryImpl) Create(e *domain.LendingEvent) error {
 	})
 
 	if err != nil {
+		span.RecordError(err)
 		return err
 	}
 
 	return nil
 }
 
-func (lr *LendingEventRepositoryImpl) FindByID(id ulid.ULID) (*domain.LendingEvent, error) {
+func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID) (*domain.LendingEvent, error) {
+	ctx, span := tracer.Start(ctx, "lendingEvent.FindByID")
+	defer span.End()
+
+	_, querySpan := tracer.Start(ctx, "SELECT * FROM events WHERE id = $1 LIMIT 1")
 	event, err := lr.queries.FindEventById(lr.ctx, id.String())
 	if err != nil {
+		querySpan.RecordError(err)
+		querySpan.End()
 		return nil, err
 	}
+	querySpan.End()
 
 	eventID, err := ulid.Parse(event.ID)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 
 	amount, err := domain.NewAmount(int64(event.Amount))
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 
 	lendingEvent, err := domain.NewLendingEvent(eventID, event.Name, amount, event.EventDate, event.CreatedAt, event.UpdatedAt)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 

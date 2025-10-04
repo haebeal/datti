@@ -15,10 +15,55 @@ import (
 	"github.com/haebeal/datti/internal/usecase"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
+
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 )
+
+func newExporter(ctx context.Context) *otlptrace.Exporter {
+	exp, err := otlptracehttp.New(ctx,
+		otlptracehttp.WithEndpoint("localhost:4318"),
+		otlptracehttp.WithURLPath("/v1/traces"),
+		otlptracehttp.WithInsecure(),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return exp
+}
+
+func newTracerProvider(exp sdktrace.SpanExporter) *sdktrace.TracerProvider {
+	r, err := resource.Merge(
+		resource.Default(),
+		resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceName("Datti"),
+		),
+	)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(r),
+	)
+}
 
 func main() {
 	ctx := context.Background()
+
+	exp := newExporter(ctx)
+	tp := newTracerProvider(exp)
+	otel.SetTracerProvider(tp)
 
 	dsn, ok := os.LookupEnv("DSN")
 	if !ok {
@@ -51,6 +96,7 @@ func main() {
 
 	e := echo.New()
 
+	e.Use(otelecho.Middleware("github.com/haebeal/datti"))
 	e.Use(middleware.AuthMiddleware())
 	api.RegisterHandlers(e, server)
 

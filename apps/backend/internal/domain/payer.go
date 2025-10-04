@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 )
@@ -43,5 +45,5 @@ func (p *Payer) Email() string {
 }
 
 type PayerRepository interface {
-	FindByEventID(eventID ulid.ULID) (*Payer, error)
+	FindByEventID(context.Context, ulid.ULID) (*Payer, error)
 }

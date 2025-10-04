@@ -20,3 +20,11 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: datti
       TZ: Asia/Tokyo
+  jaeger:
+    image: jaegertracing/all-in-one
+    ports:
+      - "16686:16686"
+      - "4318:4318"
+    environment:
+      - LOG_LEVEL=debug
+

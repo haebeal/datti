@@ -25,17 +25,13 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 )
 
-func newExporter(ctx context.Context) *otlptrace.Exporter {
+func newExporter(ctx context.Context) (*otlptrace.Exporter, error) {
 	exp, err := otlptracehttp.New(ctx)
 
-	if err != nil {
-		panic(err)
-	}
-
-	return exp
+	return exp, err
 }
 
-func newTracerProvider(exp sdktrace.SpanExporter) *sdktrace.TracerProvider {
+func newTracerProvider(exp sdktrace.SpanExporter) (*sdktrace.TracerProvider, error) {
 	r, err := resource.Merge(
 		resource.Default(),
 		resource.NewWithAttributes(
@@ -43,21 +39,25 @@ func newTracerProvider(exp sdktrace.SpanExporter) *sdktrace.TracerProvider {
 		),
 	)
 
-	if err != nil {
-		panic(err)
-	}
-
 	return sdktrace.NewTracerProvider(
 		sdktrace.WithBatcher(exp),
 		sdktrace.WithResource(r),
-	)
+	), err
 }
 
 func main() {
 	ctx := context.Background()
 
-	exp := newExporter(ctx)
-	tp := newTracerProvider(exp)
+	exp, err := newExporter(ctx)
+	if err != nil {
+		log.Fatalf("failed to initialize OTLP exporter: %v", err)
+	}
+
+	tp, err := newTracerProvider(exp)
+	if err != nil {
+		log.Fatalf("failed to initialize OTLP tracer: %v", err)
+	}
+
 	otel.SetTracerProvider(tp)
 
 	dsn, ok := os.LookupEnv("DSN")

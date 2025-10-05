@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"context"
+
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 )
@@ -49,6 +51,6 @@ func (d *Debtor) Amount() *Amount {
 }
 
 type DebtorRepository interface {
-	Create(*LendingEvent, *Payer, *Debtor) error
-	FindByEventID(ulid.ULID) ([]*Debtor, error)
+	Create(context.Context, *LendingEvent, *Payer, *Debtor) error
+	FindByEventID(context.Context, ulid.ULID) ([]*Debtor, error)
 }

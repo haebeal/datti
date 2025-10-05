@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/haebeal/datti/internal/domain"
@@ -23,45 +24,57 @@ func NewLendingUseCase(ur domain.UserRepository, pr domain.PayerRepository, dr d
 	}
 }
 
-func (u LendingUseCaseImpl) Create(i handler.CreateInput) (*handler.CreateOutput, error) {
+func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (*handler.CreateOutput, error) {
+	ctx, span := tracer.Start(ctx, "lending.Create")
+	defer span.End()
+
 	eventAmount, err := domain.NewAmount(i.Amount)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 	event, err := domain.CreateLendingEvent(i.Name, eventAmount, i.EventDate)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
-	err = u.lr.Create(event)
+	err = u.lr.Create(ctx, event)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 
-	paidUser, err := u.ur.FindByID(i.UserID)
+	paidUser, err := u.ur.FindByID(ctx, i.UserID)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 	payer, err := domain.NewPayer(paidUser.ID(), paidUser.Name(), paidUser.Avatar(), paidUser.Email())
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 
 	var debtors []*domain.Debtor
 	for _, d := range i.Debts {
-		user, err := u.ur.FindByID(d.UserID)
+		user, err := u.ur.FindByID(ctx, d.UserID)
 		if err != nil {
+			span.RecordError(err)
 			return nil, err
 		}
 		amount, err := domain.NewAmount(d.Amount)
 		if err != nil {
+			span.RecordError(err)
 			return nil, err
 		}
 		debtor, err := domain.NewDebtor(user.ID(), user.Name(), user.Avatar(), user.Email(), amount)
 		if err != nil {
+			span.RecordError(err)
 			return nil, err
 		}
-		err = u.dr.Create(event, payer, debtor)
+		err = u.dr.Create(ctx, event, payer, debtor)
 		if err != nil {
+			span.RecordError(err)
 			return nil, err
 		}
 		debtors = append(debtors, debtor)
@@ -73,9 +86,13 @@ func (u LendingUseCaseImpl) Create(i handler.CreateInput) (*handler.CreateOutput
 	}, nil
 }
 
-func (u LendingUseCaseImpl) Get(i handler.GetInput) (*handler.GetOutput, error) {
-	payer, err := u.pr.FindByEventID(i.EventID)
+func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handler.GetOutput, error) {
+	ctx, span := tracer.Start(ctx, "lending.Get")
+	defer span.End()
+
+	payer, err := u.pr.FindByEventID(ctx, i.EventID)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 
@@ -83,13 +100,15 @@ func (u LendingUseCaseImpl) Get(i handler.GetInput) (*handler.GetOutput, error) 
 		return nil, fmt.Errorf("lendingEventが存在しません")
 	}
 
-	event, err := u.lr.FindByID(i.EventID)
+	event, err := u.lr.FindByID(ctx, i.EventID)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 
-	debtors, err := u.dr.FindByEventID(i.EventID)
+	debtors, err := u.dr.FindByEventID(ctx, i.EventID)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 

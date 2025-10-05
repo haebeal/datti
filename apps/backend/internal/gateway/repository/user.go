@@ -9,25 +9,31 @@ import (
 )
 
 type UserRepositoryImpl struct {
-	ctx     context.Context
 	queries *postgres.Queries
 }
 
-func NewUserRepository(ctx context.Context, queries *postgres.Queries) *UserRepositoryImpl {
+func NewUserRepository(queries *postgres.Queries) *UserRepositoryImpl {
 	return &UserRepositoryImpl{
-		ctx:     ctx,
 		queries: queries,
 	}
 }
 
-func (ur *UserRepositoryImpl) FindByID(id uuid.UUID) (*domain.User, error) {
-	row, err := ur.queries.FindUserByID(ur.ctx, id)
+func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+	ctx, span := tracer.Start(ctx, "user.FindByID")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM users WHERE id = $1 LIMIT 1")
+	row, err := ur.queries.FindUserByID(ctx, id)
 	if err != nil {
+		querySpan.RecordError(err)
+		querySpan.End()
 		return nil, err
 	}
+	querySpan.End()
 
 	user, err := domain.NewUser(row.ID.String(), row.Name, row.Avatar, row.Email)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 

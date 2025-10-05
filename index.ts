@@ -1,5 +1,5 @@
 import { Container, getRandom } from "@cloudflare/containers";
-import {env} from "cloudflare:workers"
+import { env } from "cloudflare:workers"
 
 export class BackendContainer extends Container<Env> {
   // Port the container listens on (default: 8080)
@@ -9,7 +9,14 @@ export class BackendContainer extends Container<Env> {
   // Environment variables passed to the container
   envVars = {
     DSN: env.DSN,
-    PORT: "8080"
+    PORT: "8080",
+    OTEL_SERVICE_NAME: "Datti API",
+    OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: "delta",
+    OTEL_EXPORTER_OTLP_HEADERS: env.OTEL_EXPORTER_OTLP_HEADERS,
+    OTEL_EXPORTER_OTLP_ENDPOINT: "https://otlp.nr-data.net",
+    OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT: "4095",
+    OTEL_EXPORTER_OTLP_COMPRESSION: "gzip",
+    OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf",
   };
 
   // Optional lifecycle hooks

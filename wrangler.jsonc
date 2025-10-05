@@ -1,14 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "datti",
-  "vars": {
-    "OTEL_SERVICE_NAME": "Datti API",
-    "OTEL_EXPORTER_OTLP_ENDPOINT": "https://otlp.nr-data.net",
-    "OTEL_ATTRIBUTE_VALUE_LENGTH_LIMIT": 4095,
-    "OTEL_EXPORTER_OTLP_COMPRESSION": "gzip",
-    "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
-    "OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE": "delta"
-  },
   "main": "index.ts",
   "compatibility_date": "2025-05-23",
   "compatibility_flags": [

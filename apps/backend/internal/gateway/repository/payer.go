@@ -9,30 +9,40 @@ import (
 )
 
 type PayerRepositoryImpl struct {
-	ctx     context.Context
 	queries *postgres.Queries
 }
 
-func NewPayerRepository(ctx context.Context, queries *postgres.Queries) *PayerRepositoryImpl {
+func NewPayerRepository(queries *postgres.Queries) *PayerRepositoryImpl {
 	return &PayerRepositoryImpl{
-		ctx:     ctx,
 		queries: queries,
 	}
 }
 
-func (pr *PayerRepositoryImpl) FindByEventID(eventID ulid.ULID) (*domain.Payer, error) {
-	payments, err := pr.queries.FindPaymentsByEventId(pr.ctx, eventID.String())
-	if err != nil {
-		return nil, err
-	}
+func (pr *PayerRepositoryImpl) FindByEventID(ctx context.Context, eventID ulid.ULID) (*domain.Payer, error) {
+	ctx, span := tracer.Start(ctx, "payer.FindByEventID")
+	defer span.End()
 
-	user, err := pr.queries.FindUserByID(pr.ctx, payments[0].PayerID)
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM payments WHERE event_id = $1")
+	payments, err := pr.queries.FindPaymentsByEventId(ctx, eventID.String())
 	if err != nil {
+		querySpan.RecordError(err)
+		querySpan.End()
 		return nil, err
 	}
+	querySpan.End()
+
+	ctx, querySpan = tracer.Start(ctx, "SELECT * FROM users WHERE id = $1 LIMIT 1")
+	user, err := pr.queries.FindUserByID(ctx, payments[0].PayerID)
+	if err != nil {
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
 
 	payer, err := domain.NewPayer(user.ID, user.Name, user.Avatar, user.Email)
 	if err != nil {
+		span.RecordError(err)
 		return nil, err
 	}
 

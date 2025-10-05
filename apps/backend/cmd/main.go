@@ -15,10 +15,50 @@ import (
 	"github.com/haebeal/datti/internal/usecase"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
+
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/sdk/resource"
+	sdktrace "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 )
+
+func newExporter(ctx context.Context) (*otlptrace.Exporter, error) {
+	exp, err := otlptracehttp.New(ctx)
+
+	return exp, err
+}
+
+func newTracerProvider(exp sdktrace.SpanExporter) (*sdktrace.TracerProvider, error) {
+	r, err := resource.Merge(
+		resource.Default(),
+		resource.NewWithAttributes(
+			semconv.SchemaURL,
+		),
+	)
+
+	return sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(exp),
+		sdktrace.WithResource(r),
+	), err
+}
 
 func main() {
 	ctx := context.Background()
+
+	exp, err := newExporter(ctx)
+	if err != nil {
+		log.Fatalf("failed to initialize OTLP exporter: %v", err)
+	}
+
+	tp, err := newTracerProvider(exp)
+	if err != nil {
+		log.Fatalf("failed to initialize OTLP tracer: %v", err)
+	}
+
+	otel.SetTracerProvider(tp)
 
 	dsn, ok := os.LookupEnv("DSN")
 	if !ok {
@@ -38,10 +78,10 @@ func main() {
 
 	queries := postgres.New(conn)
 
-	ur := repository.NewUserRepository(ctx, queries)
-	pr := repository.NewPayerRepository(ctx, queries)
-	dr := repository.NewDebtorRepository(ctx, queries)
-	lr := repository.NewLendingEventRepository(ctx, queries)
+	ur := repository.NewUserRepository(queries)
+	pr := repository.NewPayerRepository(queries)
+	dr := repository.NewDebtorRepository(queries)
+	lr := repository.NewLendingEventRepository(queries)
 
 	lu := usecase.NewLendingUseCase(ur, pr, dr, lr)
 
@@ -51,6 +91,7 @@ func main() {
 
 	e := echo.New()
 
+	e.Use(otelecho.Middleware("github.com/haebeal/datti"))
 	e.Use(middleware.AuthMiddleware())
 	api.RegisterHandlers(e, server)
 

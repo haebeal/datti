@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -73,6 +74,6 @@ func (le *LendingEvent) UpdatedAt() time.Time {
 }
 
 type LendingEventRepository interface {
-	Create(e *LendingEvent) error
-	FindByID(ulid.ULID) (*LendingEvent, error)
+	Create(context.Context, *LendingEvent) error
+	FindByID(context.Context, ulid.ULID) (*LendingEvent, error)
 }

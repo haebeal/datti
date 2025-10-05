@@ -26,11 +26,7 @@ import (
 )
 
 func newExporter(ctx context.Context) *otlptrace.Exporter {
-	exp, err := otlptracehttp.New(ctx,
-		otlptracehttp.WithEndpoint("localhost:4318"),
-		otlptracehttp.WithURLPath("/v1/traces"),
-		otlptracehttp.WithInsecure(),
-	)
+	exp, err := otlptracehttp.New(ctx)
 
 	if err != nil {
 		panic(err)
@@ -44,7 +40,6 @@ func newTracerProvider(exp sdktrace.SpanExporter) *sdktrace.TracerProvider {
 		resource.Default(),
 		resource.NewWithAttributes(
 			semconv.SchemaURL,
-			semconv.ServiceName("Datti"),
 		),
 	)
 

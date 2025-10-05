@@ -10,7 +10,7 @@
 | Go | 1.24.x | `brew install go` |
 | [Task](https://taskfile.dev) | 最新 | `brew install go-task/tap/go-task` |
 | [sqlc](https://docs.sqlc.dev) | 最新 | `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest` |
-| [air](https://docs.sqlc.dev) | 最新 | `go install github.com/air-verse/air@latest` |
+| [air](https://github.com/air-verse/air) | 最新 | `go install github.com/air-verse/air@latest` |
 | psql | 15 以上 | `brew install postgresql` |
 | [Atlas](https://atlasgo.io/docs) | 最新 | `brew install ariga/tap/atlas` |
 | [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) | 最新 | `go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest` |

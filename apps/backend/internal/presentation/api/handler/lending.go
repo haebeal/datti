@@ -107,7 +107,7 @@ func (h lendingHandler) Create(c echo.Context) error {
 }
 
 func (h lendingHandler) Get(c echo.Context, id string) error {
-	ctx, span := tracer.Start(c.Request().Context(), "lending.Create")
+	ctx, span := tracer.Start(c.Request().Context(), "lending.Get")
 	defer span.End()
 
 	eventID, err := ulid.Parse(id)

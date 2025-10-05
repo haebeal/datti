@@ -9,23 +9,21 @@ import (
 )
 
 type UserRepositoryImpl struct {
-	ctx     context.Context
 	queries *postgres.Queries
 }
 
-func NewUserRepository(ctx context.Context, queries *postgres.Queries) *UserRepositoryImpl {
+func NewUserRepository(queries *postgres.Queries) *UserRepositoryImpl {
 	return &UserRepositoryImpl{
-		ctx:     ctx,
 		queries: queries,
 	}
 }
 
 func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	_, span := tracer.Start(ctx, "user.FindByID")
+	ctx, span := tracer.Start(ctx, "user.FindByID")
 	defer span.End()
 
-	_, querySpan := tracer.Start(ctx, "SELECT * FROM users WHERE id = $1 LIMIT 1")
-	row, err := ur.queries.FindUserByID(ur.ctx, id)
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM users WHERE id = $1 LIMIT 1")
+	row, err := ur.queries.FindUserByID(ctx, id)
 	if err != nil {
 		querySpan.RecordError(err)
 		querySpan.End()

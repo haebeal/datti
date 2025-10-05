@@ -9,13 +9,11 @@ import (
 )
 
 type DebtorRepositoryImpl struct {
-	ctx     context.Context
 	queries *postgres.Queries
 }
 
-func NewDebtorRepository(ctx context.Context, queries *postgres.Queries) *DebtorRepositoryImpl {
+func NewDebtorRepository(queries *postgres.Queries) *DebtorRepositoryImpl {
 	return &DebtorRepositoryImpl{
-		ctx:     ctx,
 		queries: queries,
 	}
 }
@@ -25,7 +23,7 @@ func (dr *DebtorRepositoryImpl) Create(ctx context.Context, event *domain.Lendin
 	defer span.End()
 
 	_, querySpan := tracer.Start(ctx, "INSERT INTO payments (event_id, payer_id, debtor_id, amount) VALUES ($1, $2, $3, $4)")
-	err := dr.queries.CreatePayment(dr.ctx, postgres.CreatePaymentParams{
+	err := dr.queries.CreatePayment(ctx, postgres.CreatePaymentParams{
 		EventID:  event.ID().String(),
 		PayerID:  payer.ID(),
 		DebtorID: debtor.ID(),
@@ -45,8 +43,8 @@ func (dr *DebtorRepositoryImpl) FindByEventID(ctx context.Context, eventID ulid.
 	ctx, span := tracer.Start(ctx, "debtor.FindByEventID")
 	defer span.End()
 
-	_, querySpan := tracer.Start(ctx, "SELECT * FROM payments WHERE event_id = $1")
-	payments, err := dr.queries.FindPaymentsByEventId(dr.ctx, eventID.String())
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM payments WHERE event_id = $1")
+	payments, err := dr.queries.FindPaymentsByEventId(ctx, eventID.String())
 	if err != nil {
 		querySpan.RecordError(err)
 		querySpan.End()
@@ -57,8 +55,8 @@ func (dr *DebtorRepositoryImpl) FindByEventID(ctx context.Context, eventID ulid.
 	var debtors []*domain.Debtor
 
 	for _, p := range payments {
-		_, querySpan = tracer.Start(ctx, "SELECT * FROM users WHERE id = $1 LIMIT 1")
-		user, err := dr.queries.FindUserByID(dr.ctx, p.DebtorID)
+		ctx, querySpan = tracer.Start(ctx, "SELECT * FROM users WHERE id = $1 LIMIT 1")
+		user, err := dr.queries.FindUserByID(ctx, p.DebtorID)
 		if err != nil {
 			querySpan.RecordError(err)
 			querySpan.End()

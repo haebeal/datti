@@ -9,23 +9,21 @@ import (
 )
 
 type PayerRepositoryImpl struct {
-	ctx     context.Context
 	queries *postgres.Queries
 }
 
-func NewPayerRepository(ctx context.Context, queries *postgres.Queries) *PayerRepositoryImpl {
+func NewPayerRepository(queries *postgres.Queries) *PayerRepositoryImpl {
 	return &PayerRepositoryImpl{
-		ctx:     ctx,
 		queries: queries,
 	}
 }
 
 func (pr *PayerRepositoryImpl) FindByEventID(ctx context.Context, eventID ulid.ULID) (*domain.Payer, error) {
-	_, span := tracer.Start(ctx, "payer.FindByEventID")
+	ctx, span := tracer.Start(ctx, "payer.FindByEventID")
 	defer span.End()
 
-	_, querySpan := tracer.Start(ctx, "SELECT * FROM payments WHERE event_id = $1")
-	payments, err := pr.queries.FindPaymentsByEventId(pr.ctx, eventID.String())
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM payments WHERE event_id = $1")
+	payments, err := pr.queries.FindPaymentsByEventId(ctx, eventID.String())
 	if err != nil {
 		querySpan.RecordError(err)
 		querySpan.End()
@@ -33,8 +31,8 @@ func (pr *PayerRepositoryImpl) FindByEventID(ctx context.Context, eventID ulid.U
 	}
 	querySpan.End()
 
-	_, querySpan = tracer.Start(ctx, "SELECT * FROM users WHERE id = $1 LIMIT 1")
-	user, err := pr.queries.FindUserByID(pr.ctx, payments[0].PayerID)
+	ctx, querySpan = tracer.Start(ctx, "SELECT * FROM users WHERE id = $1 LIMIT 1")
+	user, err := pr.queries.FindUserByID(ctx, payments[0].PayerID)
 	if err != nil {
 		querySpan.RecordError(err)
 		querySpan.End()

@@ -9,13 +9,11 @@ import (
 )
 
 type LendingEventRepositoryImpl struct {
-	ctx     context.Context
 	queries *postgres.Queries
 }
 
-func NewLendingEventRepository(ctx context.Context, queries *postgres.Queries) *LendingEventRepositoryImpl {
+func NewLendingEventRepository(queries *postgres.Queries) *LendingEventRepositoryImpl {
 	return &LendingEventRepositoryImpl{
-		ctx:     ctx,
 		queries: queries,
 	}
 }
@@ -24,7 +22,7 @@ func (lr *LendingEventRepositoryImpl) Create(ctx context.Context, e *domain.Lend
 	_, span := tracer.Start(ctx, "lendingEvent.Create")
 	defer span.End()
 
-	err := lr.queries.CreateEvent(lr.ctx, postgres.CreateEventParams{
+	err := lr.queries.CreateEvent(ctx, postgres.CreateEventParams{
 		ID:        e.ID().String(),
 		Amount:    int32(e.Amount().Value()),
 		Name:      e.Name(),
@@ -46,7 +44,7 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 	defer span.End()
 
 	_, querySpan := tracer.Start(ctx, "SELECT * FROM events WHERE id = $1 LIMIT 1")
-	event, err := lr.queries.FindEventById(lr.ctx, id.String())
+	event, err := lr.queries.FindEventById(ctx, id.String())
 	if err != nil {
 		querySpan.RecordError(err)
 		querySpan.End()

@@ -78,10 +78,10 @@ func main() {
 
 	queries := postgres.New(conn)
 
-	ur := repository.NewUserRepository(ctx, queries)
-	pr := repository.NewPayerRepository(ctx, queries)
-	dr := repository.NewDebtorRepository(ctx, queries)
-	lr := repository.NewLendingEventRepository(ctx, queries)
+	ur := repository.NewUserRepository(queries)
+	pr := repository.NewPayerRepository(queries)
+	dr := repository.NewDebtorRepository(queries)
+	lr := repository.NewLendingEventRepository(queries)
 
 	lu := usecase.NewLendingUseCase(ur, pr, dr, lr)
 

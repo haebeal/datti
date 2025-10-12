@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -16,22 +17,32 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 
+	"go.opentelemetry.io/contrib/exporters/autoexport"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
+	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 )
 
-func newExporter(ctx context.Context) (*otlptrace.Exporter, error) {
-	exp, err := otlptracehttp.New(ctx)
+func setupOpenTelemetry(ctx context.Context) (shutdown func(context.Context) error, err error) {
+	var shutdownFuncs []func(context.Context) error
 
-	return exp, err
-}
+	shutdown = func(ctx context.Context) error {
+		var err error
+		for _, fn := range shutdownFuncs {
+			err = errors.Join(err, fn(ctx))
+		}
+		shutdownFuncs = nil
+		return err
+	}
 
-func newTracerProvider(exp sdktrace.SpanExporter) (*sdktrace.TracerProvider, error) {
+	texporter, err := autoexport.NewSpanExporter(ctx)
+	if err != nil {
+		err = errors.Join(err, shutdown(ctx))
+		return
+	}
 	r, err := resource.Merge(
 		resource.Default(),
 		resource.NewWithAttributes(
@@ -39,35 +50,39 @@ func newTracerProvider(exp sdktrace.SpanExporter) (*sdktrace.TracerProvider, err
 		),
 	)
 
-	return sdktrace.NewTracerProvider(
-		sdktrace.WithBatcher(exp),
+	tp := sdktrace.NewTracerProvider(
+		sdktrace.WithBatcher(texporter),
 		sdktrace.WithResource(r),
-	), err
+	)
+
+	otel.SetTracerProvider(tp)
+
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
+		propagation.TraceContext{}, propagation.Baggage{}),
+	)
+
+	return shutdown, nil
 }
 
 func main() {
 	ctx := context.Background()
 
-	exp, err := newExporter(ctx)
-	if err != nil {
-		log.Fatalf("failed to initialize OTLP exporter: %v", err)
+	port, ok := os.LookupEnv("PORT")
+	if !ok {
+		log.Fatal("環境変数PORTが設定してありません")
+		os.Exit(1)
 	}
-
-	tp, err := newTracerProvider(exp)
-	if err != nil {
-		log.Fatalf("failed to initialize OTLP tracer: %v", err)
-	}
-
-	otel.SetTracerProvider(tp)
 
 	dsn, ok := os.LookupEnv("DSN")
 	if !ok {
 		log.Fatal("環境変数DSNが設定してありません")
+		os.Exit(1)
 	}
 
-	port, ok := os.LookupEnv("PORT")
-	if !ok {
-		log.Fatal("環境変数PORTが設定してありません")
+	shutdown, err := setupOpenTelemetry(ctx)
+	if err != nil {
+		log.Fatal("OpenTelemetryのセットアップでエラーが発生しました")
+		os.Exit(1)
 	}
 
 	conn, err := pgx.Connect(ctx, dsn)
@@ -95,5 +110,8 @@ func main() {
 	e.Use(middleware.AuthMiddleware())
 	api.RegisterHandlers(e, server)
 
-	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", port)))
+	if err = errors.Join(e.Start(fmt.Sprintf(":%s", port)), shutdown(ctx)); err != nil {
+		e.Logger.Fatal(err)
+		os.Exit(1)
+	}
 }

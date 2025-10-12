@@ -33,3 +33,7 @@ jobs:
           context: apps/backend
           push: true
           tags: asia-northeast1-docker.pkg.dev/${{ vars.GOOGLE_PROJECT_ID }}/datti/backend:latest
+      - uses: google-github-actions/deploy-cloudrun@v3
+        with:
+          service: 'backend'
+          image: asia-northeast1-docker.pkg.dev/${{ vars.GOOGLE_PROJECT_ID }}/datti/backend:latest

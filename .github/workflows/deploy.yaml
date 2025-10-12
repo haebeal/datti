@@ -30,4 +30,4 @@ jobs:
         with:
           context: apps/backend
           push: true
-          tags: asia-northeast1-docker.pkg.dev/${{ vars.GOOGLE_PROJECT_ID }}/${{ vars.GOOGLE_ARTIFACT_REPO }}/datti:latest
+          tags: asia-northeast1-docker.pkg.dev/${{ vars.GOOGLE_PROJECT_ID }}/datti/backend:latest

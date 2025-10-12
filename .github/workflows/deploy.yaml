@@ -36,4 +36,5 @@ jobs:
       - uses: google-github-actions/deploy-cloudrun@v3
         with:
           service: 'backend'
+          region: asia-northeast1
           image: asia-northeast1-docker.pkg.dev/${{ vars.GOOGLE_PROJECT_ID }}/datti/backend:latest

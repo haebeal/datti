@@ -9,14 +9,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type HealthzHandler struct{}
+type HealthHandler struct{}
 
-func NewHealthzHandler() server.HealthzHandler {
-	return &HealthzHandler{}
+func NewHealthHandler() server.HealthHandler {
+	return &HealthHandler{}
 }
 
-func (h *HealthzHandler) Check(c echo.Context) error {
-	_, span := tracer.Start(c.Request().Context(), "healthz.Check")
+func (h *HealthHandler) Check(c echo.Context) error {
+	_, span := tracer.Start(c.Request().Context(), "health.Check")
 	defer span.End()
 
 	res := &api.HealthCheckResponse{

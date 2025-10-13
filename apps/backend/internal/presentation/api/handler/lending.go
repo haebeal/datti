@@ -50,7 +50,7 @@ func (h lendingHandler) Create(c echo.Context) error {
 	for _, d := range req.Debts {
 		id, err := uuid.Parse(d.UserId)
 		if err != nil {
-			message := fmt.Sprintf("Debs UUID Parse Error ID: %v", d.UserId)
+			message := fmt.Sprintf("Debts UUID Parse Error ID: %v", d.UserId)
 			span.SetStatus(codes.Error, message)
 			span.RecordError(err)
 			res := &api.ErrorResponse{

@@ -23,6 +23,7 @@ jobs:
           workload_identity_provider: '${{ secrets.GOOGLE_WIF_PROVIDER }}'
           service_account: '${{ secrets.GOOGLE_WIF_SERVICE_ACCOUNT }}'
       - uses: hashicorp/setup-terraform@v3
+        terraform_version: "1.1.7"
       - name: Terraform Init
         run: terraform init -chdir=infra -input=false
       - name: Terraform Apply

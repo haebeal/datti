@@ -56,3 +56,7 @@ tasks:
         go tool mockgen -source=internal/presentation/api/handler/lending.go \
           -destination=internal/presentation/api/handler/test/mockLendingUseCase.gen.go \
           -package=handler_test
+      - |
+        go tool mockgen -source=internal/presentation/api/handler/credit.go \
+          -destination=internal/presentation/api/handler/test/mockCreditUseCase.gen.go \
+          -package=handler_test

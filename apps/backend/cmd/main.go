@@ -115,12 +115,15 @@ func main() {
 	pr := repository.NewPayerRepository(queries)
 	dr := repository.NewDebtorRepository(queries)
 	lr := repository.NewLendingEventRepository(queries)
+	cr := repository.NewCreditRepository(queries)
 
 	lu := usecase.NewLendingUseCase(ur, pr, dr, lr)
+	cu := usecase.NewCreditUseCase(cr)
 
 	hh := handler.NewHealthHandler()
 	lh := handler.NewLendingHandler(lu)
-	server := server.NewServer(lh, hh)
+	ch := handler.NewCreditHandler(cu)
+	server := server.NewServer(lh, ch, hh)
 
 	e := echo.New()
 

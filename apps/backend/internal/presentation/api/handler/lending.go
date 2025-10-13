@@ -37,7 +37,7 @@ func (h lendingHandler) Create(c echo.Context) error {
 
 	err := c.Bind(&req)
 	if err != nil {
-		message := fmt.Sprintf("RequestBody Bindig Error body: %v", req)
+		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
 		span.SetStatus(codes.Error, message)
 		span.RecordError(err)
 		res := &api.ErrorResponse{

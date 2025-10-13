@@ -7,24 +7,27 @@ import (
 	"github.com/google/uuid"
 )
 
-// Credit represents the net balance between the authenticated user and another user.
-// Positive amount means the other user owes the authenticated user, negative means the reverse.
+// Credit represents an amount associated with another user.
+// Whether it is lending or borrowing is determined by the caller (use case layer).
 type Credit struct {
-	userID  uuid.UUID
-	amount int64
+	userID uuid.UUID
+	amount *Amount
 }
 
-func NewCredit(userID uuid.UUID, amount int64) (*Credit, error) {
+func NewCredit(userID uuid.UUID, amount *Amount) (*Credit, error) {
 	if userID == uuid.Nil {
 		return nil, fmt.Errorf("userID must not be nil")
 	}
-	if amount == 0 {
+	if amount == nil {
+		return nil, fmt.Errorf("amount must not be nil")
+	}
+	if amount.Value() == 0 {
 		return nil, fmt.Errorf("amount must not be zero")
 	}
 
 	return &Credit{
-		userID:  userID,
-		amount:  amount,
+		userID: userID,
+		amount: amount,
 	}, nil
 }
 
@@ -32,18 +35,11 @@ func (c *Credit) UserID() uuid.UUID {
 	return c.userID
 }
 
-func (c *Credit) Amount() int64 {
+func (c *Credit) Amount() *Amount {
 	return c.amount
 }
 
-func (c *Credit) IsCreditor() bool {
-	return c.amount > 0
-}
-
-func (c *Credit) IsDebtor() bool {
-	return c.amount < 0
-}
-
 type CreditRepository interface {
-	ListByUserID(context.Context, uuid.UUID) ([]*Credit, error)
+	ListLendingCreditsByUserID(context.Context, uuid.UUID) ([]*Credit, error)
+	ListBorrowingCreditsByUserID(context.Context, uuid.UUID) ([]*Credit, error)
 }

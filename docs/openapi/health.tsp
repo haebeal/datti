@@ -7,13 +7,13 @@ namespace DattiApi;
 /**
  * ヘルスチェック
  */
-@tag("Healthz")
-@route("/healthz")
+@tag("Health")
+@route("/health")
 namespace Health {
   /**
    * アプリケーションの稼働状況を確認
    */
-  interface Healthz {
+  interface Health {
     @summary("ヘルスチェック")
     @get
     check(): {

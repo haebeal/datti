@@ -10,16 +10,16 @@ type LendingHandler interface {
 	Get(c echo.Context, id string) error
 }
 
-type HealthzHandler interface {
+type HealthHandler interface {
 	Check(c echo.Context) error
 }
 
 type Server struct {
 	lh LendingHandler
-	hh HealthzHandler
+	hh HealthHandler
 }
 
-func NewServer(lh LendingHandler, hh HealthzHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, hh HealthHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		hh: hh,
@@ -35,6 +35,6 @@ func (s *Server) LendingGet(ctx echo.Context, id string) error {
 	return s.lh.Get(ctx, id)
 }
 
-func (s *Server) HealthzCheck(ctx echo.Context) error {
+func (s *Server) HealthCheck(ctx echo.Context) error {
 	return s.hh.Check(ctx)
 }

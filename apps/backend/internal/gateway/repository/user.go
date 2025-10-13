@@ -6,6 +6,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
+	"go.opentelemetry.io/otel/codes"
 )
 
 type UserRepositoryImpl struct {
@@ -25,6 +26,7 @@ func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*doma
 	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM users WHERE id = $1 LIMIT 1")
 	row, err := ur.queries.FindUserByID(ctx, id)
 	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
 		querySpan.RecordError(err)
 		querySpan.End()
 		return nil, err
@@ -33,6 +35,7 @@ func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*doma
 
 	user, err := domain.NewUser(row.ID.String(), row.Name, row.Avatar, row.Email)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}

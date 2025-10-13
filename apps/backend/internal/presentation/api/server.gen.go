@@ -14,8 +14,8 @@ import (
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
 	// ヘルスチェック
-	// (GET /healthz)
-	HealthzCheck(ctx echo.Context) error
+	// (GET /health)
+	HealthCheck(ctx echo.Context) error
 	// 立て替えの作成
 	// (POST /lendings)
 	LendingCreate(ctx echo.Context) error
@@ -29,14 +29,14 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// HealthzCheck converts echo context to params.
-func (w *ServerInterfaceWrapper) HealthzCheck(ctx echo.Context) error {
+// HealthCheck converts echo context to params.
+func (w *ServerInterfaceWrapper) HealthCheck(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.HealthzCheck(ctx)
+	err = w.Handler.HealthCheck(ctx)
 	return err
 }
 
@@ -97,7 +97,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/healthz", wrapper.HealthzCheck)
+	router.GET(baseURL+"/health", wrapper.HealthCheck)
 	router.POST(baseURL+"/lendings", wrapper.LendingCreate)
 	router.GET(baseURL+"/lendings/:id", wrapper.LendingGet)
 

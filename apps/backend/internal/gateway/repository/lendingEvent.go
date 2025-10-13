@@ -6,6 +6,7 @@ import (
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/oklog/ulid/v2"
+	"go.opentelemetry.io/otel/codes"
 )
 
 type LendingEventRepositoryImpl struct {
@@ -32,6 +33,7 @@ func (lr *LendingEventRepositoryImpl) Create(ctx context.Context, e *domain.Lend
 	})
 
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return err
 	}
@@ -46,6 +48,7 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 	_, querySpan := tracer.Start(ctx, "SELECT * FROM events WHERE id = $1 LIMIT 1")
 	event, err := lr.queries.FindEventById(ctx, id.String())
 	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
 		querySpan.RecordError(err)
 		querySpan.End()
 		return nil, err
@@ -54,18 +57,21 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 
 	eventID, err := ulid.Parse(event.ID)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
 
 	amount, err := domain.NewAmount(int64(event.Amount))
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
 
 	lendingEvent, err := domain.NewLendingEvent(eventID, event.Name, amount, event.EventDate, event.CreatedAt, event.UpdatedAt)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}

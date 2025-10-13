@@ -6,6 +6,7 @@ import (
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
+	"go.opentelemetry.io/otel/codes"
 )
 
 type LendingUseCaseImpl struct {
@@ -30,27 +31,32 @@ func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (
 
 	eventAmount, err := domain.NewAmount(i.Amount)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
 	event, err := domain.CreateLendingEvent(i.Name, eventAmount, i.EventDate)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
 	err = u.lr.Create(ctx, event)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
 
 	paidUser, err := u.ur.FindByID(ctx, i.UserID)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
 	payer, err := domain.NewPayer(paidUser.ID(), paidUser.Name(), paidUser.Avatar(), paidUser.Email())
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
@@ -59,21 +65,25 @@ func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (
 	for _, d := range i.Debts {
 		user, err := u.ur.FindByID(ctx, d.UserID)
 		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
 			return nil, err
 		}
 		amount, err := domain.NewAmount(d.Amount)
 		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
 			return nil, err
 		}
 		debtor, err := domain.NewDebtor(user.ID(), user.Name(), user.Avatar(), user.Email(), amount)
 		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
 			return nil, err
 		}
 		err = u.dr.Create(ctx, event, payer, debtor)
 		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
 			return nil, err
 		}
@@ -92,6 +102,7 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 
 	payer, err := u.pr.FindByEventID(ctx, i.EventID)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
@@ -102,12 +113,14 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 
 	event, err := u.lr.FindByID(ctx, i.EventID)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
 
 	debtors, err := u.dr.FindByEventID(ctx, i.EventID)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}

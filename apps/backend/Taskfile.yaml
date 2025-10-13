@@ -16,18 +16,18 @@ tasks:
           -f sql/init.sql
   gen-sqlc:
     cmds:
-      - sqlc generate
+      - go tool sqlc generate
   gen-types:
     cmds:
       - |
-        oapi-codegen -generate "types" \
+        go tool oapi-codegen -generate "types" \
           -package api \
           ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml \
           > ./internal/presentation/api/types.gen.go
   gen-server:
     cmds:
       - |
-        oapi-codegen -generate "server" \
+        go tool oapi-codegen -generate "server" \
           -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml \
           > ./internal/presentation/api/server.gen.go
   test:
@@ -37,18 +37,18 @@ tasks:
     desc: "Generate mocks using mockgen"
     cmds:
       - |
-        mockgen -source=internal/domain/user.go \
+        go tool mockgen -source=internal/domain/user.go \
           -destination=internal/usecase/test/mockUserRepository.gen.go \
           -package=usecase_test
       - |
-        mockgen -source=internal/domain/lendingEvent.go \
+        go tool mockgen -source=internal/domain/lendingEvent.go \
           -destination=internal/usecase/test/mockLendingEventRepository.gen.go \
           -package=usecase_test
       - |
-        mockgen -source=internal/domain/payer.go \
+        go tool mockgen -source=internal/domain/payer.go \
           -destination=internal/usecase/test/mockPayerRepository.gen.go \
           -package=usecase_test
       - |
-        mockgen -source=internal/presentation/api/handler/lending.go \
+        go tool mockgen -source=internal/presentation/api/handler/lending.go \
           -destination=internal/presentation/api/handler/test/mockLendingUseCase.gen.go \
           -package=handler_test

@@ -22,6 +22,7 @@ jobs:
           token_format: access_token
           workload_identity_provider: '${{ secrets.GOOGLE_WIF_PROVIDER }}'
           service_account: '${{ secrets.GOOGLE_WIF_SERVICE_ACCOUNT }}'
+      - uses: hashicorp/setup-terraform@v3
       - name: Terraform Init
         run: terraform -chdir=infra init -input=false
       - name: Terraform Apply

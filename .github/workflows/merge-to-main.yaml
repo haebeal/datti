@@ -24,9 +24,9 @@ jobs:
           service_account: '${{ secrets.GOOGLE_WIF_SERVICE_ACCOUNT }}'
       - uses: hashicorp/setup-terraform@v3
       - name: Terraform Init
-        run: terraform init -input=false
+        run: terraform init -chdir=infra -input=false
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -chdir=infra -auto-approve
         env:
           TF_VAR_project_id: ${{ vars.GOOGLE_PROJECT_ID }}
           TF_VAR_bucket_name: ${{ vars.GOOGLE_BUCKET_NAME }}

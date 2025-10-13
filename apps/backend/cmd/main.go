@@ -49,6 +49,10 @@ func setupOpenTelemetry(ctx context.Context) (shutdown func(context.Context) err
 			semconv.SchemaURL,
 		),
 	)
+	if err != nil {
+		err = errors.Join(err, shutdown(ctx))
+		return
+	}
 
 	tp := sdktrace.NewTracerProvider(
 		sdktrace.WithBatcher(texporter),

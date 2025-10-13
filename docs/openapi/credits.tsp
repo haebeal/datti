@@ -5,16 +5,16 @@ using TypeSpec.Http;
 namespace DattiApi;
 
 /**
- * ユーザー間クレジット
+ * ユーザー間債権
  */
 @tag("Credits")
 @route("/credits")
 namespace Credits {
   /**
-   * ユーザー横断のクレジット一覧を取得
+   * ユーザー横断の債権一覧を取得
    */
   interface Credits {
-    @summary("クレジット一覧の取得")
+    @summary("債権一覧の取得")
     @get
     list():
       | {

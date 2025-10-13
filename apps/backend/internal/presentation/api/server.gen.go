@@ -13,7 +13,7 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// クレジット一覧の取得
+	// 債権一覧の取得
 	// (GET /credits)
 	CreditsList(ctx echo.Context) error
 	// ヘルスチェック

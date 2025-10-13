@@ -60,6 +60,7 @@ func setupOpenTelemetry(ctx context.Context) (shutdown func(context.Context) err
 	)
 
 	otel.SetTracerProvider(tp)
+	shutdownFuncs = append(shutdownFuncs, tp.Shutdown)
 
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
 		propagation.TraceContext{}, propagation.Baggage{}),

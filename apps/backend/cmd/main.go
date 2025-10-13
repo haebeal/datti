@@ -17,9 +17,10 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 
-	"go.opentelemetry.io/contrib/exporters/autoexport"
+	gtexporter "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
@@ -38,11 +39,24 @@ func setupOpenTelemetry(ctx context.Context) (shutdown func(context.Context) err
 		return err
 	}
 
-	texporter, err := autoexport.NewSpanExporter(ctx)
+	var texporter sdktrace.SpanExporter
+	appEnv, ok := os.LookupEnv("APP_ENV")
+	if !ok {
+		log.Fatal("環境変数APP_ENVが設定してありません")
+		os.Exit(1)
+	}
+
+	switch appEnv {
+	case "production":
+		texporter, err = otlptracehttp.New(ctx)
+	default:
+		texporter, err = gtexporter.New()
+	}
 	if err != nil {
 		err = errors.Join(err, shutdown(ctx))
 		return
 	}
+
 	r, err := resource.Merge(
 		resource.Default(),
 		resource.NewWithAttributes(

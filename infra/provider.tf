@@ -1,7 +1,5 @@
 terraform {
-  backend "gcs" {
-    bucket = var.bucket_name
-  }
+  backend "gcs" {}
 
   required_providers {
     google = {
@@ -18,9 +16,5 @@ provider "google" {
 
 variable "project_id" {
   description = "Google Cloud Project ID"
-}
-
-variable "bucket_name" {
-  description = "Google Cloud Storage Bucket"
 }
 

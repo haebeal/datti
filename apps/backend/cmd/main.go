@@ -43,7 +43,6 @@ func setupOpenTelemetry(ctx context.Context) (shutdown func(context.Context) err
 	appEnv, ok := os.LookupEnv("APP_ENV")
 	if !ok {
 		log.Fatal("環境変数APP_ENVが設定してありません")
-		os.Exit(1)
 	}
 
 	switch appEnv {

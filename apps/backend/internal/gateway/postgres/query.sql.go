@@ -205,3 +205,69 @@ func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (User, error) 
 	)
 	return i, err
 }
+
+const listBorrowingCreditAmountsByUserID = `-- name: ListBorrowingCreditAmountsByUserID :many
+SELECT payer_id AS user_id, SUM(amount)::bigint AS amount
+FROM payments
+WHERE debtor_id = $1
+GROUP BY payer_id
+ORDER BY payer_id
+`
+
+type ListBorrowingCreditAmountsByUserIDRow struct {
+	UserID uuid.UUID
+	Amount int64
+}
+
+func (q *Queries) ListBorrowingCreditAmountsByUserID(ctx context.Context, debtorID uuid.UUID) ([]ListBorrowingCreditAmountsByUserIDRow, error) {
+	rows, err := q.db.Query(ctx, listBorrowingCreditAmountsByUserID, debtorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListBorrowingCreditAmountsByUserIDRow
+	for rows.Next() {
+		var i ListBorrowingCreditAmountsByUserIDRow
+		if err := rows.Scan(&i.UserID, &i.Amount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listLendingCreditAmountsByUserID = `-- name: ListLendingCreditAmountsByUserID :many
+SELECT debtor_id AS user_id, SUM(amount)::bigint AS amount
+FROM payments
+WHERE payer_id = $1
+GROUP BY debtor_id
+ORDER BY debtor_id
+`
+
+type ListLendingCreditAmountsByUserIDRow struct {
+	UserID uuid.UUID
+	Amount int64
+}
+
+func (q *Queries) ListLendingCreditAmountsByUserID(ctx context.Context, payerID uuid.UUID) ([]ListLendingCreditAmountsByUserIDRow, error) {
+	rows, err := q.db.Query(ctx, listLendingCreditAmountsByUserID, payerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListLendingCreditAmountsByUserIDRow
+	for rows.Next() {
+		var i ListLendingCreditAmountsByUserIDRow
+		if err := rows.Scan(&i.UserID, &i.Amount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

@@ -16,6 +16,12 @@ const (
 	Ok HealthCheckResponseStatus = "ok"
 )
 
+// Credit defines model for Credit.
+type Credit struct {
+	Amount int64  `json:"amount"`
+	UserId string `json:"userId"`
+}
+
 // ErrorResponse defines model for ErrorResponse.
 type ErrorResponse struct {
 	Message string `json:"message"`

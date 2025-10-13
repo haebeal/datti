@@ -22,3 +22,16 @@ SELECT * FROM payments WHERE event_id = $1;
 -- name: FindPaymentByDebtorId :one
 SELECT * FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1;
 
+-- name: ListLendingCreditAmountsByUserID :many
+SELECT debtor_id AS user_id, SUM(amount)::bigint AS amount
+FROM payments
+WHERE payer_id = $1
+GROUP BY debtor_id
+ORDER BY debtor_id;
+
+-- name: ListBorrowingCreditAmountsByUserID :many
+SELECT payer_id AS user_id, SUM(amount)::bigint AS amount
+FROM payments
+WHERE debtor_id = $1
+GROUP BY payer_id
+ORDER BY payer_id;

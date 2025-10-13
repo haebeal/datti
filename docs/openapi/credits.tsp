@@ -9,17 +9,17 @@ namespace DattiApi;
  */
 @tag("Credits")
 @route("/credits")
-namespace Credit {
+namespace Credits {
   /**
    * ユーザー横断のクレジット一覧を取得
    */
-  interface Credit {
+  interface Credits {
     @summary("クレジット一覧の取得")
     @get
     list():
       | {
           @statusCode statusCode: 200;
-          @body body: CreditSummary[];
+          @body body: Credit[];
         }
       | {
           @statusCode statusCode: 401;
@@ -32,7 +32,7 @@ namespace Credit {
   }
 }
 
-model CreditSummary {
+model Credit {
   userId: string;
   amount: int64;
 }

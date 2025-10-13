@@ -70,12 +70,12 @@ func (h creditHandler) List(c echo.Context) error {
 		balances[userID] -= credit.Amount().Value()
 	}
 
-	summaries := make([]api.CreditSummary, 0, len(balances))
+	summaries := make([]api.Credit, 0, len(balances))
 	for userID, amount := range balances {
 		if amount == 0 {
 			continue
 		}
-		summaries = append(summaries, api.CreditSummary{
+		summaries = append(summaries, api.Credit{
 			UserId: userID,
 			Amount: amount,
 		})

@@ -16,8 +16,8 @@ const (
 	Ok HealthCheckResponseStatus = "ok"
 )
 
-// CreditSummary defines model for CreditSummary.
-type CreditSummary struct {
+// Credit defines model for Credit.
+type Credit struct {
 	Amount int64  `json:"amount"`
 	UserId string `json:"userId"`
 }

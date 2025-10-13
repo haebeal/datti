@@ -15,7 +15,7 @@ import (
 type ServerInterface interface {
 	// クレジット一覧の取得
 	// (GET /credits)
-	CreditList(ctx echo.Context) error
+	CreditsList(ctx echo.Context) error
 	// ヘルスチェック
 	// (GET /health)
 	HealthCheck(ctx echo.Context) error
@@ -32,14 +32,14 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// CreditList converts echo context to params.
-func (w *ServerInterfaceWrapper) CreditList(ctx echo.Context) error {
+// CreditsList converts echo context to params.
+func (w *ServerInterfaceWrapper) CreditsList(ctx echo.Context) error {
 	var err error
 
 	ctx.Set(BearerAuthScopes, []string{})
 
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CreditList(ctx)
+	err = w.Handler.CreditsList(ctx)
 	return err
 }
 
@@ -111,7 +111,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.GET(baseURL+"/credits", wrapper.CreditList)
+	router.GET(baseURL+"/credits", wrapper.CreditsList)
 	router.GET(baseURL+"/health", wrapper.HealthCheck)
 	router.POST(baseURL+"/lendings", wrapper.LendingCreate)
 	router.GET(baseURL+"/lendings/:id", wrapper.LendingGet)

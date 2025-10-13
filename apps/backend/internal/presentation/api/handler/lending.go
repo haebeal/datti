@@ -11,6 +11,7 @@ import (
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
 	"github.com/oklog/ulid/v2"
+	"go.opentelemetry.io/otel/codes"
 )
 
 type LendingUseCase interface {
@@ -37,6 +38,8 @@ func (h lendingHandler) Create(c echo.Context) error {
 	err := c.Bind(&req)
 	if err != nil {
 		message := fmt.Sprintf("RequestBody Bindig Error body: %v", req)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
 		res := &api.ErrorResponse{
 			Message: message,
 		}
@@ -48,6 +51,8 @@ func (h lendingHandler) Create(c echo.Context) error {
 		id, err := uuid.Parse(d.UserId)
 		if err != nil {
 			message := fmt.Sprintf("Debs UUID Parse Error ID: %v", d.UserId)
+			span.SetStatus(codes.Error, message)
+			span.RecordError(err)
 			res := &api.ErrorResponse{
 				Message: message,
 			}
@@ -62,6 +67,7 @@ func (h lendingHandler) Create(c echo.Context) error {
 	userID, ok := c.Get("uid").(uuid.UUID)
 	if !ok {
 		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
 			Message: message,
 		}
@@ -79,6 +85,8 @@ func (h lendingHandler) Create(c echo.Context) error {
 	output, err := h.u.Create(ctx, input)
 	if err != nil {
 		message := fmt.Sprintf("Failed to create lending event: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
 		res := &api.ErrorResponse{
 			Message: message,
 		}
@@ -113,6 +121,8 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 	eventID, err := ulid.Parse(id)
 	if err != nil {
 		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
 		res := &api.ErrorResponse{
 			Message: message,
 		}
@@ -122,6 +132,7 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 	userID, ok := c.Get("uid").(uuid.UUID)
 	if !ok {
 		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
 			Message: message,
 		}
@@ -136,6 +147,8 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 	output, err := h.u.Get(ctx, input)
 	if err != nil {
 		message := fmt.Sprintf("Failed to get lending event: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
 		res := &api.ErrorResponse{
 			Message: message,
 		}

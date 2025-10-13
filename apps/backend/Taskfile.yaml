@@ -49,6 +49,10 @@ tasks:
           -destination=internal/usecase/test/mockPayerRepository.gen.go \
           -package=usecase_test
       - |
+        go tool mockgen -source=internal/domain/credit.go \
+          -destination=internal/usecase/test/mockCreditRepository.gen.go \
+          -package=usecase_test
+      - |
         go tool mockgen -source=internal/presentation/api/handler/lending.go \
           -destination=internal/presentation/api/handler/test/mockLendingUseCase.gen.go \
           -package=handler_test

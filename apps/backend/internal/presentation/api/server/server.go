@@ -41,7 +41,7 @@ func (s *Server) LendingGet(ctx echo.Context, id string) error {
 	return s.lh.Get(ctx, id)
 }
 
-func (s *Server) CreditList(ctx echo.Context) error {
+func (s *Server) CreditsList(ctx echo.Context) error {
 	return s.ch.List(ctx)
 }
 

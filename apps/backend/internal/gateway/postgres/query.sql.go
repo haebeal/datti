@@ -205,3 +205,51 @@ func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (User, error) 
 	)
 	return i, err
 }
+
+const listCreditAggregatesByUserID = `-- name: ListCreditAggregatesByUserID :many
+WITH credits AS (
+  SELECT p.debtor_id AS counterparty_id, SUM(p.amount)::bigint AS credit_amount
+  FROM payments AS p
+  WHERE p.payer_id = $1
+  GROUP BY p.debtor_id
+),
+debts AS (
+  SELECT p.payer_id AS counterparty_id, SUM(p.amount)::bigint AS debt_amount
+  FROM payments AS p
+  WHERE p.debtor_id = $1
+  GROUP BY p.payer_id
+)
+SELECT
+  COALESCE(credits.counterparty_id, debts.counterparty_id) AS counterparty_id,
+  COALESCE(credits.credit_amount, 0)::bigint AS credit_amount,
+  COALESCE(debts.debt_amount, 0)::bigint AS debt_amount
+FROM credits
+FULL OUTER JOIN debts USING (counterparty_id)
+ORDER BY 1
+`
+
+type ListCreditAggregatesByUserIDRow struct {
+	CounterpartyID uuid.UUID
+	CreditAmount   int64
+	DebtAmount     int64
+}
+
+func (q *Queries) ListCreditAggregatesByUserID(ctx context.Context, payerID uuid.UUID) ([]ListCreditAggregatesByUserIDRow, error) {
+	rows, err := q.db.Query(ctx, listCreditAggregatesByUserID, payerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListCreditAggregatesByUserIDRow
+	for rows.Next() {
+		var i ListCreditAggregatesByUserIDRow
+		if err := rows.Scan(&i.CounterpartyID, &i.CreditAmount, &i.DebtAmount); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

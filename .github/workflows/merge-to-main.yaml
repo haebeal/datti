@@ -22,13 +22,10 @@ jobs:
           token_format: access_token
           workload_identity_provider: '${{ secrets.GOOGLE_WIF_PROVIDER }}'
           service_account: '${{ secrets.GOOGLE_WIF_SERVICE_ACCOUNT }}'
-      - uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.1.7"
       - name: Terraform Init
-        run: terraform init -chdir=infra -input=false
+        run: terraform -chdir=infra init -input=false
       - name: Terraform Apply
-        run: terraform apply -chdir=infra -auto-approve
+        run: terraform -chdir=infra apply -auto-approve
         env:
           TF_VAR_project_id: ${{ vars.GOOGLE_PROJECT_ID }}
           TF_VAR_bucket_name: ${{ vars.GOOGLE_BUCKET_NAME }}

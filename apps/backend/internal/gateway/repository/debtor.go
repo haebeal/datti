@@ -19,7 +19,7 @@ func NewDebtorRepository(queries *postgres.Queries) *DebtorRepositoryImpl {
 	}
 }
 
-func (dr *DebtorRepositoryImpl) Create(ctx context.Context, event *domain.LendingEvent, payer *domain.Payer, debtor *domain.Debtor) error {
+func (dr *DebtorRepositoryImpl) Create(ctx context.Context, event *domain.Lending, payer *domain.Payer, debtor *domain.Debtor) error {
 	_, span := tracer.Start(ctx, "debtor.Create")
 	defer span.End()
 

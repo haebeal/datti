@@ -42,7 +42,7 @@ func (m *MockLendingEventRepository) EXPECT() *MockLendingEventRepositoryMockRec
 }
 
 // Create mocks base method.
-func (m *MockLendingEventRepository) Create(e *domain.LendingEvent) error {
+func (m *MockLendingEventRepository) Create(e *domain.Lending) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Create", e)
 	ret0, _ := ret[0].(error)
@@ -56,10 +56,10 @@ func (mr *MockLendingEventRepositoryMockRecorder) Create(e any) *gomock.Call {
 }
 
 // FindByID mocks base method.
-func (m *MockLendingEventRepository) FindByID(arg0 ulid.ULID) (*domain.LendingEvent, error) {
+func (m *MockLendingEventRepository) FindByID(arg0 ulid.ULID) (*domain.Lending, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByID", arg0)
-	ret0, _ := ret[0].(*domain.LendingEvent)
+	ret0, _ := ret[0].(*domain.Lending)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

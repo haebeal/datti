@@ -81,7 +81,7 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 }
 
 func (lr *LendingEventRepositoryImpl) FindByUserID(ctx context.Context, id uuid.UUID) (*[]domain.Lending, error) {
-	lendingEvents, err := lr.queries.FindLendingEventsByUserId(ctx, id)
+	lendingEvents, err := lr.queries.FindLendingsByUserId(ctx, id)
 	if err != nil {
 		return nil, err
 	}

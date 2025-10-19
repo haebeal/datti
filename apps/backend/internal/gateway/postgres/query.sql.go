@@ -138,12 +138,12 @@ func (q *Queries) FindEventById(ctx context.Context, id string) (Event, error) {
 	return i, err
 }
 
-const findLendingEventsByUserId = `-- name: FindLendingEventsByUserId :many
+const findLendingsByUserId = `-- name: FindLendingsByUserId :many
 SELECT e.id, e.name, e.amount, e.event_date, e.created_at, e.updated_at FROM events e, payments p WHERE e.id = p.event_id AND p.payer_id = $1
 `
 
-func (q *Queries) FindLendingEventsByUserId(ctx context.Context, payerID uuid.UUID) ([]Event, error) {
-	rows, err := q.db.Query(ctx, findLendingEventsByUserId, payerID)
+func (q *Queries) FindLendingsByUserId(ctx context.Context, payerID uuid.UUID) ([]Event, error) {
+	rows, err := q.db.Query(ctx, findLendingsByUserId, payerID)
 	if err != nil {
 		return nil, err
 	}

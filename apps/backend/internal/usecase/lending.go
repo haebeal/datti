@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
@@ -35,7 +36,7 @@ func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (
 		span.RecordError(err)
 		return nil, err
 	}
-	event, err := domain.CreateLendingEvent(i.Name, eventAmount, i.EventDate)
+	event, err := domain.CreateLending(i.Name, eventAmount, i.EventDate)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -131,4 +132,25 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 	}
 
 	return output, nil
+}
+
+func (u LendingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllInput) (*[]handler.GetAllOutput, error) {
+	lendings, err := u.lr.FindByUserID(ctx, i.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("lendingEventが存在しません")
+	}
+
+	output := []handler.GetAllOutput{}
+	for _, l := range *lendings {
+		output = append(output, struct {
+			Name      string
+			Amount    int64
+			EventDate time.Time
+		}{
+			Name:      l.Name(),
+			Amount:    l.Amount().Value(),
+			EventDate: l.EventDate(),
+		})
+	}
+	return &output, nil
 }

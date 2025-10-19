@@ -13,6 +13,9 @@ SELECT * FROM events;
 -- name: FindEventById :one
 SELECT * FROM events WHERE id = $1 LIMIT 1;
 
+-- name: FindLendingEventsByUserId :many
+SELECT e.id, e.name, e.amount, e.event_date, e.created_at, e.updated_at FROM events e, payments p WHERE e.id = p.event_id AND p.payer_id = $1;
+
 -- name: CreatePayment :exec
 INSERT INTO payments (event_id, payer_id, debtor_id, amount) VALUES ($1, $2, $3, $4);
 

@@ -17,6 +17,7 @@ import (
 type LendingUseCase interface {
 	Create(context.Context, CreateInput) (*CreateOutput, error)
 	Get(context.Context, GetInput) (*GetOutput, error)
+	GetAll(context.Context, GetAllInput) (*[]GetAllOutput, error)
 }
 
 type lendingHandler struct {
@@ -176,6 +177,33 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h lendingHandler) GetAll(c echo.Context, id string) error {
+	userID, ok := c.Get("uid").(uuid.UUID)
+	if !ok {
+		message := "Failed get authorized userID"
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	input := GetAllInput{
+		UserID: userID,
+	}
+
+	ctx := c.Request().Context()
+	output, err := h.u.GetAll(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to get lending events: %v", err)
+		res := api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusOK, res)
+	}
+
+	return c.JSON(http.StatusOK, output)
+}
+
 type CreateInput struct {
 	UserID    uuid.UUID
 	Name      string
@@ -189,7 +217,7 @@ type DebtParam struct {
 }
 
 type CreateOutput struct {
-	Event   *domain.LendingEvent
+	Event   *domain.Lending
 	Debtors []*domain.Debtor
 }
 
@@ -199,6 +227,16 @@ type GetInput struct {
 }
 
 type GetOutput struct {
-	Event   *domain.LendingEvent
+	Event   *domain.Lending
 	Debtors []*domain.Debtor
+}
+
+type GetAllInput struct {
+	UserID uuid.UUID
+}
+
+type GetAllOutput struct {
+	Name      string
+	Amount    int64
+	EventDate time.Time
 }

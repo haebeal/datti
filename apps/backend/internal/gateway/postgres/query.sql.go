@@ -138,6 +138,37 @@ func (q *Queries) FindEventById(ctx context.Context, id string) (Event, error) {
 	return i, err
 }
 
+const findLendingEventsByUserId = `-- name: FindLendingEventsByUserId :many
+SELECT e.id, e.name, e.amount, e.event_date, e.created_at, e.updated_at FROM events e, payments p WHERE e.id = p.event_id AND p.payer_id = $1
+`
+
+func (q *Queries) FindLendingEventsByUserId(ctx context.Context, payerID uuid.UUID) ([]Event, error) {
+	rows, err := q.db.Query(ctx, findLendingEventsByUserId, payerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Event
+	for rows.Next() {
+		var i Event
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Amount,
+			&i.EventDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findPaymentByDebtorId = `-- name: FindPaymentByDebtorId :one
 SELECT event_id, payer_id, debtor_id, amount FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1
 `

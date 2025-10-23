@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
@@ -135,18 +134,20 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 }
 
 func (u LendingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllInput) (*[]handler.GetAllOutput, error) {
+	ctx, span := tracer.Start(ctx, "lending.GetAll")
+	defer span.End()
+
 	lendings, err := u.lr.FindByUserID(ctx, i.UserID)
 	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
 		return nil, fmt.Errorf("lendingEventが存在しません")
 	}
 
 	output := []handler.GetAllOutput{}
 	for _, l := range *lendings {
-		output = append(output, struct {
-			Name      string
-			Amount    int64
-			EventDate time.Time
-		}{
+		output = append(output, handler.GetAllOutput{
+			ID:        l.ID().String(),
 			Name:      l.Name(),
 			Amount:    l.Amount().Value(),
 			EventDate: l.EventDate(),

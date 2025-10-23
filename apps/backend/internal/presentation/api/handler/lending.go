@@ -177,31 +177,43 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (h lendingHandler) GetAll(c echo.Context, id string) error {
+func (h lendingHandler) GetAll(c echo.Context) error {
+	ctx, span := tracer.Start(c.Request().Context(), "lending.GetAll")
+	defer span.End()
+
 	userID, ok := c.Get("uid").(uuid.UUID)
 	if !ok {
-		message := "Failed get authorized userID"
+		message := "Failed to get authorized userID"
 		res := &api.ErrorResponse{
 			Message: message,
 		}
-		return c.JSON(http.StatusBadRequest, res)
+		return c.JSON(http.StatusUnauthorized, res)
 	}
 
 	input := GetAllInput{
 		UserID: userID,
 	}
 
-	ctx := c.Request().Context()
 	output, err := h.u.GetAll(ctx, input)
 	if err != nil {
 		message := fmt.Sprintf("Failed to get lending events: %v", err)
-		res := api.ErrorResponse{
+		res := &api.ErrorResponse{
 			Message: message,
 		}
-		return c.JSON(http.StatusOK, res)
+		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	return c.JSON(http.StatusOK, output)
+	var responseItems []api.LendingGetAllResponse
+	for _, item := range *output {
+		responseItems = append(responseItems, api.LendingGetAllResponse{
+			Id:        item.ID,
+			Name:      item.Name,
+			Amount:    uint64(item.Amount),
+			EventDate: item.EventDate,
+		})
+	}
+
+	return c.JSON(http.StatusOK, responseItems)
 }
 
 type CreateInput struct {
@@ -236,6 +248,7 @@ type GetAllInput struct {
 }
 
 type GetAllOutput struct {
+	ID        string
 	Name      string
 	Amount    int64
 	EventDate time.Time

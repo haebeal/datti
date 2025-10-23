@@ -10,6 +10,7 @@
 package usecase_test
 
 import (
+	context "context"
 	reflect "reflect"
 
 	uuid "github.com/google/uuid"
@@ -42,16 +43,16 @@ func (m *MockUserRepository) EXPECT() *MockUserRepositoryMockRecorder {
 }
 
 // FindByID mocks base method.
-func (m *MockUserRepository) FindByID(arg0 uuid.UUID) (*domain.User, error) {
+func (m *MockUserRepository) FindByID(arg0 context.Context, arg1 uuid.UUID) (*domain.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByID", arg0)
+	ret := m.ctrl.Call(m, "FindByID", arg0, arg1)
 	ret0, _ := ret[0].(*domain.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindByID indicates an expected call of FindByID.
-func (mr *MockUserRepositoryMockRecorder) FindByID(arg0 any) *gomock.Call {
+func (mr *MockUserRepositoryMockRecorder) FindByID(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockUserRepository)(nil).FindByID), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockUserRepository)(nil).FindByID), arg0, arg1)
 }

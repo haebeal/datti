@@ -17,6 +17,7 @@ import (
 type LendingUseCase interface {
 	Create(context.Context, CreateInput) (*CreateOutput, error)
 	Get(context.Context, GetInput) (*GetOutput, error)
+	Update(context.Context, UpdateInput) (*UpdateOutput, error)
 }
 
 type lendingHandler struct {
@@ -200,5 +201,19 @@ type GetInput struct {
 
 type GetOutput struct {
 	Event   *domain.LendingEvent
+	Debtors []*domain.Debtor
+}
+
+type UpdateInput struct {
+	UserID    uuid.UUID
+	EventID   ulid.ULID
+	Name      string
+	Amount    int64
+	Debts     []DebtParam
+	EventDate time.Time
+}
+
+type UpdateOutput struct {
+	Lending *domain.LendingEvent
 	Debtors []*domain.Debtor
 }

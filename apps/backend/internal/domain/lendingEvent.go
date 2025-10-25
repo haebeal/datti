@@ -44,6 +44,12 @@ func CreateLendingEvent(name string, amount *Amount, eventDate time.Time) (*Lend
 	return NewLendingEvent(id, name, amount, eventDate, now, now)
 }
 
+func (le *LendingEvent) Update(name string, amount *Amount, eventDate time.Time) (*LendingEvent, error) {
+	now := time.Now()
+
+	return NewLendingEvent(le.id, name, amount, eventDate, le.createdAt, now)
+}
+
 // ID returns the ID of the lending event
 func (le *LendingEvent) ID() ulid.ULID {
 	return le.id
@@ -76,4 +82,5 @@ func (le *LendingEvent) UpdatedAt() time.Time {
 type LendingEventRepository interface {
 	Create(context.Context, *LendingEvent) error
 	FindByID(context.Context, ulid.ULID) (*LendingEvent, error)
+	Update(context.Context, *LendingEvent) error
 }

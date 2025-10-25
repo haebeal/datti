@@ -10,6 +10,7 @@
 package handler_test
 
 import (
+	context "context"
 	reflect "reflect"
 
 	handler "github.com/haebeal/datti/internal/presentation/api/handler"
@@ -41,31 +42,46 @@ func (m *MockLendingUseCase) EXPECT() *MockLendingUseCaseMockRecorder {
 }
 
 // Create mocks base method.
-func (m *MockLendingUseCase) Create(arg0 handler.CreateInput) (*handler.CreateOutput, error) {
+func (m *MockLendingUseCase) Create(arg0 context.Context, arg1 handler.CreateInput) (*handler.CreateOutput, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", arg0)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(*handler.CreateOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockLendingUseCaseMockRecorder) Create(arg0 any) *gomock.Call {
+func (mr *MockLendingUseCaseMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockLendingUseCase)(nil).Create), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockLendingUseCase)(nil).Create), arg0, arg1)
 }
 
 // Get mocks base method.
-func (m *MockLendingUseCase) Get(arg0 handler.GetInput) (*handler.GetOutput, error) {
+func (m *MockLendingUseCase) Get(arg0 context.Context, arg1 handler.GetInput) (*handler.GetOutput, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", arg0)
+	ret := m.ctrl.Call(m, "Get", arg0, arg1)
 	ret0, _ := ret[0].(*handler.GetOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockLendingUseCaseMockRecorder) Get(arg0 any) *gomock.Call {
+func (mr *MockLendingUseCaseMockRecorder) Get(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockLendingUseCase)(nil).Get), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockLendingUseCase)(nil).Get), arg0, arg1)
+}
+
+// Update mocks base method.
+func (m *MockLendingUseCase) Update(arg0 context.Context, arg1 handler.UpdateInput) (*handler.UpdateOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret0, _ := ret[0].(*handler.UpdateOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockLendingUseCaseMockRecorder) Update(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockLendingUseCase)(nil).Update), arg0, arg1)
 }

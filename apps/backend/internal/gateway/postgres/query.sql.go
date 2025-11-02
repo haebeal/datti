@@ -139,7 +139,10 @@ func (q *Queries) FindEventById(ctx context.Context, id string) (Event, error) {
 }
 
 const findLendingsByUserId = `-- name: FindLendingsByUserId :many
-SELECT e.id, e.name, e.amount, e.event_date, e.created_at, e.updated_at FROM events e, payments p WHERE e.id = p.event_id AND p.payer_id = $1
+SELECT e.id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
+FROM events e
+INNER JOIN payments p ON e.id = p.event_id
+WHERE p.payer_id = $1
 `
 
 func (q *Queries) FindLendingsByUserId(ctx context.Context, payerID uuid.UUID) ([]Event, error) {

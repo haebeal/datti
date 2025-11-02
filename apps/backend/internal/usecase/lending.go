@@ -126,7 +126,7 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 	}
 
 	output := &handler.GetOutput{
-		Event:   event,
+		Lending: event,
 		Debtors: debtors,
 	}
 

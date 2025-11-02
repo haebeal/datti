@@ -205,6 +205,11 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 			return nil, err
 		}
 		updatedDebtor, err := d.Update(amount)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
 		err = u.dr.Update(ctx, lending, updatedDebtor)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())

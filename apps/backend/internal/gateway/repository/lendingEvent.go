@@ -83,7 +83,7 @@ func (lr *LendingEventRepositoryImpl) Update(ctx context.Context, e *domain.Lend
 	ctx, span := tracer.Start(ctx, "lendingEvent.Update")
 	defer span.End()
 
-	ctx, querySpan := tracer.Start(ctx, "UPDATE events SET name = $1, amount = $2, event_date = $3, updated_at = $4 WHERE id = $5")
+	ctx, querySpan := tracer.Start(ctx, "UPDATE events SET name = $2, amount = $3, event_date = $4, updated_at = $5 WHERE id = $1")
 	err := lr.queries.UpdateEvent(ctx, postgres.UpdateEventParams{
 		ID:        e.ID().String(),
 		Name:      e.Name(),

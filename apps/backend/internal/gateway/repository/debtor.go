@@ -92,7 +92,7 @@ func (dr *DebtorRepositoryImpl) Update(ctx context.Context, event *domain.Lendin
 	ctx, span := tracer.Start(ctx, "debtor.Update")
 	defer span.End()
 
-	ctx, querySpan := tracer.Start(ctx, "UPDATE payments SET amount = $1 WHERE event_id = $2 AND debtor_id = $3")
+	ctx, querySpan := tracer.Start(ctx, "UPDATE payments SET amount = $3 WHERE event_id = $1 AND debtor_id = $2")
 	err := dr.queries.UpdatePaymentAmount(ctx, postgres.UpdatePaymentAmountParams{
 		EventID:  event.ID().String(),
 		DebtorID: debtor.ID(),

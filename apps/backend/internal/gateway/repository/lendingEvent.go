@@ -78,3 +78,26 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 
 	return lendingEvent, nil
 }
+
+func (lr *LendingEventRepositoryImpl) Update(ctx context.Context, e *domain.LendingEvent) error {
+	ctx, span := tracer.Start(ctx, "lendingEvent.Update")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "UPDATE events SET name = $1, amount = $2, event_date = $3, updated_at = $4 WHERE id = $5")
+	err := lr.queries.UpdateEvent(ctx, postgres.UpdateEventParams{
+		ID:        e.ID().String(),
+		Name:      e.Name(),
+		Amount:    int32(e.Amount().Value()),
+		EventDate: e.EventDate(),
+		UpdatedAt: e.UpdatedAt(),
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}

@@ -63,6 +63,6 @@ func (d *Debtor) Amount() *Amount {
 type DebtorRepository interface {
 	Create(context.Context, *LendingEvent, *Payer, *Debtor) error
 	FindByEventID(context.Context, ulid.ULID) ([]*Debtor, error)
-	Update(context.Context, *LendingEvent, *Payer, *Debtor) error
-	Delete(context.Context, *LendingEvent, *Payer, *Debtor) error
+	Update(context.Context, *LendingEvent, *Debtor) error
+	Delete(context.Context, *LendingEvent, *Debtor) error
 }

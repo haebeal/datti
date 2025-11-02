@@ -175,7 +175,7 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 
 		// debtorの削除
 		if idx == -1 {
-			err = u.dr.Delete(ctx, lending, payer, d)
+			err = u.dr.Delete(ctx, lending, d)
 			if err != nil {
 				span.SetStatus(codes.Error, err.Error())
 				span.RecordError(err)
@@ -192,7 +192,7 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 			return nil, err
 		}
 		updatedDebtor, err := d.Update(amount)
-		err = u.dr.Update(ctx, lending, payer, updatedDebtor)
+		err = u.dr.Update(ctx, lending, updatedDebtor)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
@@ -256,7 +256,7 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 	}
 
 	return &handler.UpdateOutput{
-		Lending: lending,
-		Debtors: debtors,
+		Lending: updatedLending,
+		Debtors: updatedDebtors,
 	}, nil
 }

@@ -22,6 +22,23 @@ SELECT * FROM payments WHERE event_id = $1;
 -- name: FindPaymentByDebtorId :one
 SELECT * FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1;
 
+-- name: UpdatePaymentAmount :exec
+UPDATE payments
+SET amount = $3
+WHERE event_id = $1 AND debtor_id = $2;
+
+-- name: DeletePayment :exec
+DELETE FROM payments
+WHERE event_id = $1 AND debtor_id = $2;
+
+-- name: UpdateEvent :exec
+UPDATE events
+SET name = $2,
+    amount = $3,
+    event_date = $4,
+    updated_at = $5
+WHERE id = $1;
+
 -- name: ListLendingCreditAmountsByUserID :many
 SELECT debtor_id AS user_id, SUM(amount)::bigint AS amount
 FROM payments

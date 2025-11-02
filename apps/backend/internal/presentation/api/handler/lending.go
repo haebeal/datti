@@ -177,6 +177,102 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h lendingHandler) Update(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "lending.Update")
+	defer span.End()
+
+	var req api.LendingUpdateRequest
+
+	if err := c.Bind(&req); err != nil {
+		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	eventID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	var debtParams []DebtParam
+	for _, d := range req.Debts {
+		debtorID, err := uuid.Parse(d.UserId)
+		if err != nil {
+			message := fmt.Sprintf("Debts UUID Parse Error ID: %v", d.UserId)
+			span.SetStatus(codes.Error, message)
+			span.RecordError(err)
+			res := &api.ErrorResponse{
+				Message: message,
+			}
+			return c.JSON(http.StatusBadRequest, res)
+		}
+		debtParams = append(debtParams, DebtParam{
+			UserID: debtorID,
+			Amount: int64(d.Amount),
+		})
+	}
+
+	userID, ok := c.Get("uid").(uuid.UUID)
+	if !ok {
+		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := UpdateInput{
+		UserID:    userID,
+		EventID:   eventID,
+		Name:      req.Name,
+		Amount:    int64(req.Amount),
+		Debts:     debtParams,
+		EventDate: req.EventDate,
+	}
+
+	output, err := h.u.Update(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to update lending event: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	var debts []api.LendingDebtParmam
+	for _, d := range output.Debtors {
+		debts = append(debts, api.LendingDebtParmam{
+			UserId: d.ID().String(),
+			Amount: uint64(d.Amount().Value()),
+		})
+	}
+
+	res := &api.LendingUpdateResponse{
+		Id:        output.Lending.ID().String(),
+		Name:      output.Lending.Name(),
+		Amount:    uint64(output.Lending.Amount().Value()),
+		EventDate: output.Lending.EventDate(),
+		Debts:     debts,
+		CreatedAt: output.Lending.CreatedAt(),
+		UpdatedAt: output.Lending.UpdatedAt(),
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
 type CreateInput struct {
 	UserID    uuid.UUID
 	Name      string

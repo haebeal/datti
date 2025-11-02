@@ -62,7 +62,13 @@ func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (
 		return nil, err
 	}
 
-	var debtors []*domain.Debtor
+	// 取引がないように更新しようとした時
+	if len(i.Debts) == 0 {
+		// TODO: カスタムエラー構造体が必要?
+		err = fmt.Errorf("BadRequest Error")
+		return nil, err
+	}
+	debtors := make([]*domain.Debtor, 0)
 	for _, d := range i.Debts {
 		user, err := u.ur.FindByID(ctx, d.UserID)
 		if err != nil {
@@ -149,6 +155,13 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 		// TODO: カスタムエラー構造体が必要?
 		err = fmt.Errorf("Forbidden Error")
 		// NOTE: 正常系のためスパンステータスをエラーに設定しない
+		return nil, err
+	}
+
+	// 取引がないように更新しようとした時
+	if len(i.Debts) == 0 {
+		// TODO: カスタムエラー構造体が必要?
+		err = fmt.Errorf("BadRequest Error")
 		return nil, err
 	}
 

@@ -17,7 +17,7 @@ import (
 type LendingUseCase interface {
 	Create(context.Context, CreateInput) (*CreateOutput, error)
 	Get(context.Context, GetInput) (*GetOutput, error)
-	GetAll(context.Context, GetAllInput) (*[]GetAllOutput, error)
+	GetAll(context.Context, GetAllInput) (*GetAllOutput, error)
 }
 
 type lendingHandler struct {
@@ -165,13 +165,13 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 	}
 
 	res := &api.LendingGetResponse{
-		Id:        output.Event.ID().String(),
-		Name:      output.Event.Name(),
-		Amount:    uint64(output.Event.Amount().Value()),
-		EventDate: output.Event.EventDate(),
+		Id:        output.Lending.ID().String(),
+		Name:      output.Lending.Name(),
+		Amount:    uint64(output.Lending.Amount().Value()),
+		EventDate: output.Lending.EventDate(),
 		Debts:     debts,
-		CreatedAt: output.Event.CreatedAt(),
-		UpdatedAt: output.Event.UpdatedAt(),
+		CreatedAt: output.Lending.CreatedAt(),
+		UpdatedAt: output.Lending.UpdatedAt(),
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -204,12 +204,13 @@ func (h lendingHandler) GetAll(c echo.Context) error {
 	}
 
 	var responseItems []api.LendingGetAllResponse
-	for _, item := range *output {
+	for _, item := range output.Lendings {
 		responseItems = append(responseItems, api.LendingGetAllResponse{
-			Id:        item.ID,
-			Name:      item.Name,
-			Amount:    uint64(item.Amount),
-			EventDate: item.EventDate,
+			Id:        item.ID().String(),
+			Name:      item.Name(),
+			Amount:    uint64(item.Amount().Value()),
+			EventDate: item.EventDate(),
+			CreatedAt: item.CreatedAt(),
 		})
 	}
 
@@ -239,7 +240,7 @@ type GetInput struct {
 }
 
 type GetOutput struct {
-	Event   *domain.Lending
+	Lending *domain.Lending
 	Debtors []*domain.Debtor
 }
 
@@ -248,8 +249,5 @@ type GetAllInput struct {
 }
 
 type GetAllOutput struct {
-	ID        string
-	Name      string
-	Amount    int64
-	EventDate time.Time
+	Lendings []*domain.Lending
 }

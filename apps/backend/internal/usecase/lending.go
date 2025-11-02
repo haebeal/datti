@@ -133,7 +133,7 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 	return output, nil
 }
 
-func (u LendingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllInput) (*[]handler.GetAllOutput, error) {
+func (u LendingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllInput) (*handler.GetAllOutput, error) {
 	ctx, span := tracer.Start(ctx, "lending.GetAll")
 	defer span.End()
 
@@ -144,14 +144,9 @@ func (u LendingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllInput) (
 		return nil, fmt.Errorf("lendingEventが存在しません")
 	}
 
-	output := []handler.GetAllOutput{}
+	output := handler.GetAllOutput{}
 	for _, l := range *lendings {
-		output = append(output, handler.GetAllOutput{
-			ID:        l.ID().String(),
-			Name:      l.Name(),
-			Amount:    l.Amount().Value(),
-			EventDate: l.EventDate(),
-		})
+		output.Lendings = append(output.Lendings, &l)
 	}
 	return &output, nil
 }

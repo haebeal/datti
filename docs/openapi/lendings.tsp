@@ -121,6 +121,8 @@ namespace Lending {
     name: string;
     amount: uint64;
     eventDate: utcDateTime;
+    createdAt: utcDateTime;
+    updatedAt: utcDateTime;
   }
 }
 

@@ -205,13 +205,23 @@ func (h lendingHandler) GetAll(c echo.Context) error {
 	}
 
 	var responseItems []api.LendingGetAllResponse
-	for _, item := range output.Lendings {
+	for _, l := range output.Lendings {
+		var debts []api.LendingDebtParmam
+		for _, d := range l.Debtors {
+			debts = append(debts, api.LendingDebtParmam{
+				UserId: d.ID().String(),
+				Amount: uint64(d.Amount().Value()),
+			})
+		}
+
 		responseItems = append(responseItems, api.LendingGetAllResponse{
-			Id:        item.ID().String(),
-			Name:      item.Name(),
-			Amount:    uint64(item.Amount().Value()),
-			EventDate: item.EventDate(),
-			CreatedAt: item.CreatedAt(),
+			Id:        l.Lending.ID().String(),
+			CreatedAt: l.Lending.CreatedAt(),
+			Debts:     debts,
+			Amount:    uint64(l.Lending.Amount().Value()),
+			Name:      l.Lending.Name(),
+			EventDate: l.Lending.EventDate(),
+			UpdatedAt: l.Lending.UpdatedAt(),
 		})
 	}
 
@@ -346,7 +356,10 @@ type GetAllInput struct {
 }
 
 type GetAllOutput struct {
-	Lendings []*domain.Lending
+	Lendings []struct {
+		Lending *domain.Lending
+		Debtors []*domain.Debtor
+	}
 }
 
 type UpdateInput struct {

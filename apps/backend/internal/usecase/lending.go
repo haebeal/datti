@@ -152,7 +152,24 @@ func (u LendingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllInput) (
 	}
 
 	output := handler.GetAllOutput{}
-	output.Lendings = append(output.Lendings, lendings...)
+	for _, l := range lendings {
+		debtors, err := u.dr.FindByEventID(ctx, l.ID())
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		lending := struct {
+			Lending *domain.Lending
+			Debtors []*domain.Debtor
+		}{
+			Lending: l,
+			Debtors: debtors,
+		}
+		output.Lendings = append(output.Lendings, lending)
+	}
+
 	return &output, nil
 }
 

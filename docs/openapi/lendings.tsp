@@ -154,6 +154,7 @@ namespace Lending {
     name: string;
     amount: uint64;
     eventDate: utcDateTime;
+    debts: DebtParmam[];
     createdAt: utcDateTime;
     updatedAt: utcDateTime;
   }

@@ -59,5 +59,5 @@ func (b *Borrowing) Updated() time.Time {
 }
 
 type BorrwingRepository interface {
-	FindByUserID(context.Context, uuid.UUID) ([]*Debtor, error)
+	FindByUserID(context.Context, uuid.UUID) ([]*Borrowing, error)
 }

@@ -1,0 +1,3 @@
+model ErrorResponse {
+  message: string;
+}

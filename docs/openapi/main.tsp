@@ -2,7 +2,9 @@ import "@typespec/http";
 import "@typespec/rest";
 import "@typespec/openapi3";
 
+import "./error.tsp";
 import "./lendings.tsp";
+import "./borrowings.tsp";
 import "./credits.tsp";
 import "./health.tsp";
 

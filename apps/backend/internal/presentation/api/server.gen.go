@@ -28,6 +28,9 @@ type ServerInterface interface {
 	// 立て替えの取得
 	// (GET /lendings/{id})
 	LendingGet(ctx echo.Context, id string) error
+	// 立て替えの更新
+	// (PUT /lendings/{id})
+	LendingUpdate(ctx echo.Context, id string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -97,6 +100,24 @@ func (w *ServerInterfaceWrapper) LendingGet(ctx echo.Context) error {
 	return err
 }
 
+// LendingUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) LendingUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.LendingUpdate(ctx, id)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -130,5 +151,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/lendings", wrapper.LendingGetAll)
 	router.POST(baseURL+"/lendings", wrapper.LendingCreate)
 	router.GET(baseURL+"/lendings/:id", wrapper.LendingGet)
+	router.PUT(baseURL+"/lendings/:id", wrapper.LendingUpdate)
 
 }

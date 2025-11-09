@@ -80,13 +80,13 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 	return lendingEvent, nil
 }
 
-func (lr *LendingEventRepositoryImpl) FindByUserID(ctx context.Context, id uuid.UUID) (*[]domain.Lending, error) {
+func (lr *LendingEventRepositoryImpl) FindByUserID(ctx context.Context, id uuid.UUID) ([]*domain.Lending, error) {
 	lendingEvents, err := lr.queries.FindLendingsByUserId(ctx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	lendings := []domain.Lending{}
+	lendings := []*domain.Lending{}
 	for _, l := range lendingEvents {
 		eventID, err := ulid.Parse(l.ID)
 		if err != nil {
@@ -100,8 +100,31 @@ func (lr *LendingEventRepositoryImpl) FindByUserID(ctx context.Context, id uuid.
 		if err != nil {
 			return nil, err
 		}
-		lendings = append(lendings, *lending)
+		lendings = append(lendings, lending)
 	}
 
-	return &lendings, nil
+	return lendings, nil
+}
+
+func (lr *LendingEventRepositoryImpl) Update(ctx context.Context, e *domain.Lending) error {
+	ctx, span := tracer.Start(ctx, "lendingEvent.Update")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "UPDATE events SET name = $2, amount = $3, event_date = $4, updated_at = $5 WHERE id = $1")
+	err := lr.queries.UpdateEvent(ctx, postgres.UpdateEventParams{
+		ID:        e.ID().String(),
+		Name:      e.Name(),
+		Amount:    int32(e.Amount().Value()),
+		EventDate: e.EventDate(),
+		UpdatedAt: e.UpdatedAt(),
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
 }

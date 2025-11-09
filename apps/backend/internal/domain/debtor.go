@@ -26,6 +26,16 @@ func NewDebtor(id uuid.UUID, name string, avatar string, email string, amount *A
 	}, nil
 }
 
+func (d *Debtor) Update(amount *Amount) (*Debtor, error) {
+	return NewDebtor(
+		d.id,
+		d.name,
+		d.avatar,
+		d.email,
+		amount,
+	)
+}
+
 func (d *Debtor) Equal(c *Debtor) bool {
 	return d.id.String() == c.id.String()
 }
@@ -53,4 +63,6 @@ func (d *Debtor) Amount() *Amount {
 type DebtorRepository interface {
 	Create(context.Context, *Lending, *Payer, *Debtor) error
 	FindByEventID(context.Context, ulid.ULID) ([]*Debtor, error)
+	Update(context.Context, *Lending, *Debtor) error
+	Delete(context.Context, *Lending, *Debtor) error
 }

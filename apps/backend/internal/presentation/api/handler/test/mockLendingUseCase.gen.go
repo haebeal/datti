@@ -72,10 +72,10 @@ func (mr *MockLendingUseCaseMockRecorder) Get(arg0, arg1 any) *gomock.Call {
 }
 
 // GetAll mocks base method.
-func (m *MockLendingUseCase) GetAll(arg0 context.Context, arg1 handler.GetAllInput) (*[]handler.GetAllOutput, error) {
+func (m *MockLendingUseCase) GetAll(arg0 context.Context, arg1 handler.GetAllInput) (*handler.GetAllOutput, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetAll", arg0, arg1)
-	ret0, _ := ret[0].(*[]handler.GetAllOutput)
+	ret0, _ := ret[0].(*handler.GetAllOutput)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -84,4 +84,19 @@ func (m *MockLendingUseCase) GetAll(arg0 context.Context, arg1 handler.GetAllInp
 func (mr *MockLendingUseCaseMockRecorder) GetAll(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockLendingUseCase)(nil).GetAll), arg0, arg1)
+}
+
+// Update mocks base method.
+func (m *MockLendingUseCase) Update(arg0 context.Context, arg1 handler.UpdateInput) (*handler.UpdateOutput, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret0, _ := ret[0].(*handler.UpdateOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockLendingUseCaseMockRecorder) Update(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockLendingUseCase)(nil).Update), arg0, arg1)
 }

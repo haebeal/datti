@@ -86,3 +86,17 @@ func (mr *MockLendingEventRepositoryMockRecorder) FindByUserID(arg0, arg1 any) *
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByUserID", reflect.TypeOf((*MockLendingEventRepository)(nil).FindByUserID), arg0, arg1)
 }
+
+// Update mocks base method.
+func (m *MockLendingEventRepository) Update(arg0 context.Context, arg1 *domain.Lending) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockLendingEventRepositoryMockRecorder) Update(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockLendingEventRepository)(nil).Update), arg0, arg1)
+}

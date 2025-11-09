@@ -82,6 +82,39 @@ namespace Lending {
           @statusCode statusCode: 500;
           @body body: ErrorResponse;
         };
+
+    @summary("立て替えの更新")
+    @put
+    @route("/{id}")
+    update(id: string, @body request: UpdateRequest):
+      | {
+          /**
+           * 正常レスポンス
+           */
+          @statusCode statusCode: 200;
+
+          @body event: UpdateResponse;
+        }
+      | {
+          @statusCode statusCode: 400;
+          @body body: ErrorResponse;
+        }
+      | {
+          @statusCode statusCode: 401;
+          @body body: ErrorResponse;
+        }
+      | {
+          @statusCode statusCode: 403;
+          @body body: ErrorResponse;
+        }
+      | {
+          @statusCode statusCode: 404;
+          @body body: ErrorResponse;
+        }
+      | {
+          @statusCode statusCode: 500;
+          @body body: ErrorResponse;
+        };
   }
 
   model DebtParmam {
@@ -124,9 +157,25 @@ namespace Lending {
     createdAt: utcDateTime;
     updatedAt: utcDateTime;
   }
+
+  model UpdateRequest {
+    name: string;
+    amount: uint64;
+    eventDate: utcDateTime;
+    debts: DebtParmam[];
+  }
+
+  model UpdateResponse {
+    id: string;
+    name: string;
+    amount: uint64;
+    eventDate: utcDateTime;
+    debts: DebtParmam[];
+    createdAt: utcDateTime;
+    updatedAt: utcDateTime;
+  }
 }
 
 model ErrorResponse {
   message: string;
 }
-

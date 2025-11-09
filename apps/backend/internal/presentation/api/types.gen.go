@@ -82,5 +82,27 @@ type LendingGetResponse struct {
 	UpdatedAt time.Time           `json:"updatedAt"`
 }
 
+// LendingUpdateRequest defines model for Lending.UpdateRequest.
+type LendingUpdateRequest struct {
+	Amount    uint64              `json:"amount"`
+	Debts     []LendingDebtParmam `json:"debts"`
+	EventDate time.Time           `json:"eventDate"`
+	Name      string              `json:"name"`
+}
+
+// LendingUpdateResponse defines model for Lending.UpdateResponse.
+type LendingUpdateResponse struct {
+	Amount    uint64              `json:"amount"`
+	CreatedAt time.Time           `json:"createdAt"`
+	Debts     []LendingDebtParmam `json:"debts"`
+	EventDate time.Time           `json:"eventDate"`
+	Id        string              `json:"id"`
+	Name      string              `json:"name"`
+	UpdatedAt time.Time           `json:"updatedAt"`
+}
+
 // LendingCreateJSONRequestBody defines body for LendingCreate for application/json ContentType.
 type LendingCreateJSONRequestBody = LendingCreateRequest
+
+// LendingUpdateJSONRequestBody defines body for LendingUpdate for application/json ContentType.
+type LendingUpdateJSONRequestBody = LendingUpdateRequest

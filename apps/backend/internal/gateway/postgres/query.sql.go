@@ -58,6 +58,21 @@ func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) er
 	return err
 }
 
+const deletePayment = `-- name: DeletePayment :exec
+DELETE FROM payments
+WHERE event_id = $1 AND debtor_id = $2
+`
+
+type DeletePaymentParams struct {
+	EventID  string
+	DebtorID uuid.UUID
+}
+
+func (q *Queries) DeletePayment(ctx context.Context, arg DeletePaymentParams) error {
+	_, err := q.db.Exec(ctx, deletePayment, arg.EventID, arg.DebtorID)
+	return err
+}
+
 const findAllEvents = `-- name: FindAllEvents :many
 SELECT id, name, amount, event_date, created_at, updated_at FROM events
 `
@@ -304,4 +319,49 @@ func (q *Queries) ListLendingCreditAmountsByUserID(ctx context.Context, payerID 
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateEvent = `-- name: UpdateEvent :exec
+UPDATE events
+SET name = $2,
+    amount = $3,
+    event_date = $4,
+    updated_at = $5
+WHERE id = $1
+`
+
+type UpdateEventParams struct {
+	ID        string
+	Name      string
+	Amount    int32
+	EventDate time.Time
+	UpdatedAt time.Time
+}
+
+func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error {
+	_, err := q.db.Exec(ctx, updateEvent,
+		arg.ID,
+		arg.Name,
+		arg.Amount,
+		arg.EventDate,
+		arg.UpdatedAt,
+	)
+	return err
+}
+
+const updatePaymentAmount = `-- name: UpdatePaymentAmount :exec
+UPDATE payments
+SET amount = $3
+WHERE event_id = $1 AND debtor_id = $2
+`
+
+type UpdatePaymentAmountParams struct {
+	EventID  string
+	DebtorID uuid.UUID
+	Amount   int32
+}
+
+func (q *Queries) UpdatePaymentAmount(ctx context.Context, arg UpdatePaymentAmountParams) error {
+	_, err := q.db.Exec(ctx, updatePaymentAmount, arg.EventID, arg.DebtorID, arg.Amount)
+	return err
 }

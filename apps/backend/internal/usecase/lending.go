@@ -152,9 +152,7 @@ func (u LendingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllInput) (
 	}
 
 	output := handler.GetAllOutput{}
-	for _, l := range lendings {
-		output.Lendings = append(output.Lendings, l)
-	}
+	output.Lendings = append(output.Lendings, lendings...)
 	return &output, nil
 }
 
@@ -171,7 +169,7 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 
 	if payer.ID() != i.UserID {
 		// TODO: カスタムエラー構造体が必要?
-		err = fmt.Errorf("Forbidden Error")
+		err = fmt.Errorf("forbidden Error")
 		// NOTE: 正常系のためスパンステータスをエラーに設定しない
 		return nil, err
 	}

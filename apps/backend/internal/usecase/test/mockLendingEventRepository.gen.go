@@ -10,6 +10,7 @@
 package usecase_test
 
 import (
+	context "context"
 	reflect "reflect"
 
 	domain "github.com/haebeal/datti/internal/domain"
@@ -42,30 +43,44 @@ func (m *MockLendingEventRepository) EXPECT() *MockLendingEventRepositoryMockRec
 }
 
 // Create mocks base method.
-func (m *MockLendingEventRepository) Create(e *domain.LendingEvent) error {
+func (m *MockLendingEventRepository) Create(arg0 context.Context, arg1 *domain.LendingEvent) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Create", e)
+	ret := m.ctrl.Call(m, "Create", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Create indicates an expected call of Create.
-func (mr *MockLendingEventRepositoryMockRecorder) Create(e any) *gomock.Call {
+func (mr *MockLendingEventRepositoryMockRecorder) Create(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockLendingEventRepository)(nil).Create), e)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockLendingEventRepository)(nil).Create), arg0, arg1)
 }
 
 // FindByID mocks base method.
-func (m *MockLendingEventRepository) FindByID(arg0 ulid.ULID) (*domain.LendingEvent, error) {
+func (m *MockLendingEventRepository) FindByID(arg0 context.Context, arg1 ulid.ULID) (*domain.LendingEvent, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByID", arg0)
+	ret := m.ctrl.Call(m, "FindByID", arg0, arg1)
 	ret0, _ := ret[0].(*domain.LendingEvent)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindByID indicates an expected call of FindByID.
-func (mr *MockLendingEventRepositoryMockRecorder) FindByID(arg0 any) *gomock.Call {
+func (mr *MockLendingEventRepositoryMockRecorder) FindByID(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockLendingEventRepository)(nil).FindByID), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByID", reflect.TypeOf((*MockLendingEventRepository)(nil).FindByID), arg0, arg1)
+}
+
+// Update mocks base method.
+func (m *MockLendingEventRepository) Update(arg0 context.Context, arg1 *domain.LendingEvent) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Update", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update.
+func (mr *MockLendingEventRepositoryMockRecorder) Update(arg0, arg1 any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockLendingEventRepository)(nil).Update), arg0, arg1)
 }

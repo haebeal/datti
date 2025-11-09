@@ -10,6 +10,7 @@
 package usecase_test
 
 import (
+	context "context"
 	reflect "reflect"
 
 	domain "github.com/haebeal/datti/internal/domain"
@@ -42,16 +43,16 @@ func (m *MockPayerRepository) EXPECT() *MockPayerRepositoryMockRecorder {
 }
 
 // FindByEventID mocks base method.
-func (m *MockPayerRepository) FindByEventID(eventID ulid.ULID) (*domain.Payer, error) {
+func (m *MockPayerRepository) FindByEventID(arg0 context.Context, arg1 ulid.ULID) (*domain.Payer, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindByEventID", eventID)
+	ret := m.ctrl.Call(m, "FindByEventID", arg0, arg1)
 	ret0, _ := ret[0].(*domain.Payer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindByEventID indicates an expected call of FindByEventID.
-func (mr *MockPayerRepositoryMockRecorder) FindByEventID(eventID any) *gomock.Call {
+func (mr *MockPayerRepositoryMockRecorder) FindByEventID(arg0, arg1 any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByEventID", reflect.TypeOf((*MockPayerRepository)(nil).FindByEventID), eventID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindByEventID", reflect.TypeOf((*MockPayerRepository)(nil).FindByEventID), arg0, arg1)
 }

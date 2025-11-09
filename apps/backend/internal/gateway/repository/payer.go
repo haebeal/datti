@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
@@ -32,6 +33,14 @@ func (pr *PayerRepositoryImpl) FindByEventID(ctx context.Context, eventID ulid.U
 		return nil, err
 	}
 	querySpan.End()
+
+	if len(payments) == 0 {
+		err = fmt.Errorf("paymentsが存在しません")
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
 
 	ctx, querySpan = tracer.Start(ctx, "SELECT * FROM users WHERE id = $1 LIMIT 1")
 	user, err := pr.queries.FindUserByID(ctx, payments[0].PayerID)

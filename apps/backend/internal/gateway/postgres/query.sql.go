@@ -153,6 +153,50 @@ func (q *Queries) FindEventById(ctx context.Context, id string) (Event, error) {
 	return i, err
 }
 
+const findEventsByDebtorId = `-- name: FindEventsByDebtorId :many
+SELECT
+    events.id AS event_id, events.name, events.event_date, payments.amount, events.created_at, events.updated_at
+    FROM events
+    INNER join payments on events.id = payments.event_id
+    WHERE payments.debtor_id = $1
+`
+
+type FindEventsByDebtorIdRow struct {
+	EventID   string
+	Name      string
+	EventDate time.Time
+	Amount    int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (q *Queries) FindEventsByDebtorId(ctx context.Context, debtorID uuid.UUID) ([]FindEventsByDebtorIdRow, error) {
+	rows, err := q.db.Query(ctx, findEventsByDebtorId, debtorID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindEventsByDebtorIdRow
+	for rows.Next() {
+		var i FindEventsByDebtorIdRow
+		if err := rows.Scan(
+			&i.EventID,
+			&i.Name,
+			&i.EventDate,
+			&i.Amount,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findPaymentByDebtorId = `-- name: FindPaymentByDebtorId :one
 SELECT event_id, payer_id, debtor_id, amount FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1
 `

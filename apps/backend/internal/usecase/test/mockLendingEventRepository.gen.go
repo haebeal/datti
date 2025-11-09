@@ -73,10 +73,10 @@ func (mr *MockLendingEventRepositoryMockRecorder) FindByID(arg0, arg1 any) *gomo
 }
 
 // FindByUserID mocks base method.
-func (m *MockLendingEventRepository) FindByUserID(arg0 context.Context, arg1 uuid.UUID) (*[]domain.Lending, error) {
+func (m *MockLendingEventRepository) FindByUserID(arg0 context.Context, arg1 uuid.UUID) ([]*domain.Lending, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "FindByUserID", arg0, arg1)
-	ret0, _ := ret[0].(*[]domain.Lending)
+	ret0, _ := ret[0].([]*domain.Lending)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

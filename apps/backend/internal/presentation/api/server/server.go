@@ -8,6 +8,7 @@ import (
 type LendingHandler interface {
 	Create(c echo.Context) error
 	Get(c echo.Context, id string) error
+	GetAll(c echo.Context) error
 	Update(c echo.Context, id string) error
 }
 
@@ -40,6 +41,10 @@ func (s *Server) LendingCreate(ctx echo.Context) error {
 
 func (s *Server) LendingGet(ctx echo.Context, id string) error {
 	return s.lh.Get(ctx, id)
+}
+
+func (s *Server) LendingGetAll(ctx echo.Context) error {
+	return s.lh.GetAll(ctx)
 }
 
 func (s *Server) LendingUpdate(ctx echo.Context, id string) error {

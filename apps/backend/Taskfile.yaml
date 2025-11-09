@@ -41,7 +41,7 @@ tasks:
           -destination=internal/usecase/test/mockUserRepository.gen.go \
           -package=usecase_test
       - |
-        go tool mockgen -source=internal/domain/lendingEvent.go \
+        go tool mockgen -source=internal/domain/lending.go \
           -destination=internal/usecase/test/mockLendingEventRepository.gen.go \
           -package=usecase_test
       - |

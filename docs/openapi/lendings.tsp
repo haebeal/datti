@@ -63,6 +63,26 @@ namespace Lending {
           @body body: ErrorResponse;
         };
 
+    @summary("立て替え一覧の取得")
+    @get
+    getAll():
+      | {
+          /**
+           * 正常レスポンス
+           */
+          @statusCode statusCode: 200;
+
+          @body events: GetAllResponse[];
+        }
+      | {
+          @statusCode statusCode: 401;
+          @body body: ErrorResponse;
+        }
+      | {
+          @statusCode statusCode: 500;
+          @body body: ErrorResponse;
+        };
+
     @summary("立て替えの更新")
     @put
     @route("/{id}")
@@ -120,6 +140,16 @@ namespace Lending {
   }
 
   model GetResponse {
+    id: string;
+    name: string;
+    amount: uint64;
+    eventDate: utcDateTime;
+    debts: DebtParmam[];
+    createdAt: utcDateTime;
+    updatedAt: utcDateTime;
+  }
+
+  model GetAllResponse {
     id: string;
     name: string;
     amount: uint64;

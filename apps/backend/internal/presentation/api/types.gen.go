@@ -61,6 +61,17 @@ type LendingDebtParmam struct {
 	UserId string `json:"userId"`
 }
 
+// LendingGetAllResponse defines model for Lending.GetAllResponse.
+type LendingGetAllResponse struct {
+	Amount    uint64              `json:"amount"`
+	CreatedAt time.Time           `json:"createdAt"`
+	Debts     []LendingDebtParmam `json:"debts"`
+	EventDate time.Time           `json:"eventDate"`
+	Id        string              `json:"id"`
+	Name      string              `json:"name"`
+	UpdatedAt time.Time           `json:"updatedAt"`
+}
+
 // LendingGetResponse defines model for Lending.GetResponse.
 type LendingGetResponse struct {
 	Amount    uint64              `json:"amount"`

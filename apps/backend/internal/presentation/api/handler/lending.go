@@ -17,6 +17,7 @@ import (
 type LendingUseCase interface {
 	Create(context.Context, CreateInput) (*CreateOutput, error)
 	Get(context.Context, GetInput) (*GetOutput, error)
+	GetAll(context.Context, GetAllInput) (*GetAllOutput, error)
 	Update(context.Context, UpdateInput) (*UpdateOutput, error)
 }
 
@@ -165,16 +166,66 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 	}
 
 	res := &api.LendingGetResponse{
-		Id:        output.Event.ID().String(),
-		Name:      output.Event.Name(),
-		Amount:    uint64(output.Event.Amount().Value()),
-		EventDate: output.Event.EventDate(),
+		Id:        output.Lending.ID().String(),
+		Name:      output.Lending.Name(),
+		Amount:    uint64(output.Lending.Amount().Value()),
+		EventDate: output.Lending.EventDate(),
 		Debts:     debts,
-		CreatedAt: output.Event.CreatedAt(),
-		UpdatedAt: output.Event.UpdatedAt(),
+		CreatedAt: output.Lending.CreatedAt(),
+		UpdatedAt: output.Lending.UpdatedAt(),
 	}
 
 	return c.JSON(http.StatusOK, res)
+}
+
+func (h lendingHandler) GetAll(c echo.Context) error {
+	ctx, span := tracer.Start(c.Request().Context(), "lending.GetAll")
+	defer span.End()
+
+	userID, ok := c.Get("uid").(uuid.UUID)
+	if !ok {
+		message := "Failed to get authorized userID"
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := GetAllInput{
+		UserID: userID,
+	}
+
+	output, err := h.u.GetAll(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to get lending events: %v", err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	var responseItems []api.LendingGetAllResponse
+	for _, l := range output.Lendings {
+		var debts []api.LendingDebtParmam
+		for _, d := range l.Debtors {
+			debts = append(debts, api.LendingDebtParmam{
+				UserId: d.ID().String(),
+				Amount: uint64(d.Amount().Value()),
+			})
+		}
+
+		responseItems = append(responseItems, api.LendingGetAllResponse{
+			Id:        l.Lending.ID().String(),
+			CreatedAt: l.Lending.CreatedAt(),
+			Debts:     debts,
+			Amount:    uint64(l.Lending.Amount().Value()),
+			Name:      l.Lending.Name(),
+			EventDate: l.Lending.EventDate(),
+			UpdatedAt: l.Lending.UpdatedAt(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, responseItems)
 }
 
 func (h lendingHandler) Update(c echo.Context, id string) error {
@@ -286,7 +337,7 @@ type DebtParam struct {
 }
 
 type CreateOutput struct {
-	Event   *domain.LendingEvent
+	Event   *domain.Lending
 	Debtors []*domain.Debtor
 }
 
@@ -296,8 +347,19 @@ type GetInput struct {
 }
 
 type GetOutput struct {
-	Event   *domain.LendingEvent
+	Lending *domain.Lending
 	Debtors []*domain.Debtor
+}
+
+type GetAllInput struct {
+	UserID uuid.UUID
+}
+
+type GetAllOutput struct {
+	Lendings []struct {
+		Lending *domain.Lending
+		Debtors []*domain.Debtor
+	}
 }
 
 type UpdateInput struct {
@@ -310,6 +372,6 @@ type UpdateInput struct {
 }
 
 type UpdateOutput struct {
-	Lending *domain.LendingEvent
+	Lending *domain.Lending
 	Debtors []*domain.Debtor
 }

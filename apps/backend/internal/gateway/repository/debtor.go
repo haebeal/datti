@@ -19,7 +19,7 @@ func NewDebtorRepository(queries *postgres.Queries) *DebtorRepositoryImpl {
 	}
 }
 
-func (dr *DebtorRepositoryImpl) Create(ctx context.Context, event *domain.LendingEvent, payer *domain.Payer, debtor *domain.Debtor) error {
+func (dr *DebtorRepositoryImpl) Create(ctx context.Context, event *domain.Lending, payer *domain.Payer, debtor *domain.Debtor) error {
 	_, span := tracer.Start(ctx, "debtor.Create")
 	defer span.End()
 
@@ -88,7 +88,7 @@ func (dr *DebtorRepositoryImpl) FindByEventID(ctx context.Context, eventID ulid.
 	return debtors, nil
 }
 
-func (dr *DebtorRepositoryImpl) Update(ctx context.Context, event *domain.LendingEvent, debtor *domain.Debtor) error {
+func (dr *DebtorRepositoryImpl) Update(ctx context.Context, event *domain.Lending, debtor *domain.Debtor) error {
 	ctx, span := tracer.Start(ctx, "debtor.Update")
 	defer span.End()
 
@@ -109,7 +109,7 @@ func (dr *DebtorRepositoryImpl) Update(ctx context.Context, event *domain.Lendin
 	return nil
 }
 
-func (dr *DebtorRepositoryImpl) Delete(ctx context.Context, event *domain.LendingEvent, debtor *domain.Debtor) error {
+func (dr *DebtorRepositoryImpl) Delete(ctx context.Context, event *domain.Lending, debtor *domain.Debtor) error {
 	ctx, span := tracer.Start(ctx, "debtor.Delete")
 	defer span.End()
 

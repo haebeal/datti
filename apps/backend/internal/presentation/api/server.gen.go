@@ -19,6 +19,9 @@ type ServerInterface interface {
 	// ヘルスチェック
 	// (GET /health)
 	HealthCheck(ctx echo.Context) error
+	// 立て替え一覧の取得
+	// (GET /lendings)
+	LendingGetAll(ctx echo.Context) error
 	// 立て替えの作成
 	// (POST /lendings)
 	LendingCreate(ctx echo.Context) error
@@ -54,6 +57,17 @@ func (w *ServerInterfaceWrapper) HealthCheck(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.HealthCheck(ctx)
+	return err
+}
+
+// LendingGetAll converts echo context to params.
+func (w *ServerInterfaceWrapper) LendingGetAll(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.LendingGetAll(ctx)
 	return err
 }
 
@@ -134,6 +148,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/credits", wrapper.CreditsList)
 	router.GET(baseURL+"/health", wrapper.HealthCheck)
+	router.GET(baseURL+"/lendings", wrapper.LendingGetAll)
 	router.POST(baseURL+"/lendings", wrapper.LendingCreate)
 	router.GET(baseURL+"/lendings/:id", wrapper.LendingGet)
 	router.PUT(baseURL+"/lendings/:id", wrapper.LendingUpdate)

@@ -146,7 +146,3 @@ namespace Lending {
     updatedAt: utcDateTime;
   }
 }
-
-model ErrorResponse {
-  message: string;
-}

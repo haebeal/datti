@@ -38,6 +38,10 @@ func NewBorrowing(id ulid.ULID, name string, amount *Amount, eventDate time.Time
 	}, nil
 }
 
+func (b *Borrowing) ID() ulid.ULID {
+	return b.id
+}
+
 func (b *Borrowing) Name() string {
 	return b.name
 }
@@ -54,7 +58,7 @@ func (b *Borrowing) CreatedAt() time.Time {
 	return b.createdAt
 }
 
-func (b *Borrowing) Updated() time.Time {
+func (b *Borrowing) UpdatedAt() time.Time {
 	return b.updatedAt
 }
 

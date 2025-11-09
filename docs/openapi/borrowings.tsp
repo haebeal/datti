@@ -12,13 +12,12 @@ namespace DattiApi;
 namespace Borrowing {
   @summary("全ての借り入れの取得")
   @get
-  @route("/")
   op getAll():
     | {
         /**
         * 正常レスポンス
         */
-        @statusCode statusCode: 201;
+        @statusCode statusCode: 200;
 
         @body body: GetAllResponse[];
       }

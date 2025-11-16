@@ -153,27 +153,6 @@ func (q *Queries) FindEventById(ctx context.Context, id string) (Event, error) {
 	return i, err
 }
 
-<<<<<<< HEAD
-const findEventsByDebtorId = `-- name: FindEventsByDebtorId :many
-SELECT
-    events.id AS event_id, events.name, events.event_date, payments.amount, events.created_at, events.updated_at
-    FROM events
-    INNER join payments on events.id = payments.event_id
-    WHERE payments.debtor_id = $1
-`
-
-type FindEventsByDebtorIdRow struct {
-	EventID   string
-	Name      string
-	EventDate time.Time
-	Amount    int32
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (q *Queries) FindEventsByDebtorId(ctx context.Context, debtorID uuid.UUID) ([]FindEventsByDebtorIdRow, error) {
-	rows, err := q.db.Query(ctx, findEventsByDebtorId, debtorID)
-=======
 const findLendingsByUserId = `-- name: FindLendingsByUserId :many
 SELECT e.id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
 FROM events e
@@ -183,21 +162,10 @@ WHERE p.payer_id = $1
 
 func (q *Queries) FindLendingsByUserId(ctx context.Context, payerID uuid.UUID) ([]Event, error) {
 	rows, err := q.db.Query(ctx, findLendingsByUserId, payerID)
->>>>>>> main
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-<<<<<<< HEAD
-	var items []FindEventsByDebtorIdRow
-	for rows.Next() {
-		var i FindEventsByDebtorIdRow
-		if err := rows.Scan(
-			&i.EventID,
-			&i.Name,
-			&i.EventDate,
-			&i.Amount,
-=======
 	var items []Event
 	for rows.Next() {
 		var i Event
@@ -206,7 +174,6 @@ func (q *Queries) FindLendingsByUserId(ctx context.Context, payerID uuid.UUID) (
 			&i.Name,
 			&i.Amount,
 			&i.EventDate,
->>>>>>> main
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {

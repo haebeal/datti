@@ -17,9 +17,9 @@ CREATE TABLE events (
 );
 
 CREATE TABLE payments (
+  id TEXT PRIMARY KEY,
   event_id TEXT REFERENCES events(id) ON DELETE CASCADE,
   payer_id UUID REFERENCES users(id),
   debtor_id UUID REFERENCES users(id),
-  amount INT NOT NULL,
-  PRIMARY KEY(event_id, payer_id, debtor_id)
+  amount INT NOT NULL
 );

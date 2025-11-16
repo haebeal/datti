@@ -10,6 +10,7 @@ import (
 	"time"
 
 	uuid "github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createEvent = `-- name: CreateEvent :exec
@@ -38,18 +39,20 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 }
 
 const createPayment = `-- name: CreatePayment :exec
-INSERT INTO payments (event_id, payer_id, debtor_id, amount) VALUES ($1, $2, $3, $4)
+INSERT INTO payments (id, event_id, payer_id, debtor_id, amount) VALUES ($1, $2, $3, $4, $5)
 `
 
 type CreatePaymentParams struct {
-	EventID  string
-	PayerID  uuid.UUID
-	DebtorID uuid.UUID
+	ID       string
+	EventID  *string
+	PayerID  pgtype.UUID
+	DebtorID pgtype.UUID
 	Amount   int32
 }
 
 func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) error {
 	_, err := q.db.Exec(ctx, createPayment,
+		arg.ID,
 		arg.EventID,
 		arg.PayerID,
 		arg.DebtorID,
@@ -64,8 +67,8 @@ WHERE event_id = $1 AND debtor_id = $2
 `
 
 type DeletePaymentParams struct {
-	EventID  string
-	DebtorID uuid.UUID
+	EventID  *string
+	DebtorID pgtype.UUID
 }
 
 func (q *Queries) DeletePayment(ctx context.Context, arg DeletePaymentParams) error {
@@ -155,9 +158,14 @@ func (q *Queries) FindEventById(ctx context.Context, id string) (Event, error) {
 
 const findEventsByDebtorId = `-- name: FindEventsByDebtorId :many
 SELECT
-events.id AS event_id, events.name, events.event_date, payments.amount, events.created_at, events.updated_at
+  events.id AS event_id,
+  events.name,
+  events.event_date,
+  payments.amount,
+  events.created_at,
+  events.updated_at
 FROM events
-INNER join payments on events.id = payments.event_id
+INNER JOIN payments ON events.id = payments.event_id
 WHERE payments.debtor_id = $1
 `
 
@@ -170,7 +178,7 @@ type FindEventsByDebtorIdRow struct {
 	UpdatedAt time.Time
 }
 
-func (q *Queries) FindEventsByDebtorId(ctx context.Context, debtorID uuid.UUID) ([]FindEventsByDebtorIdRow, error) {
+func (q *Queries) FindEventsByDebtorId(ctx context.Context, debtorID pgtype.UUID) ([]FindEventsByDebtorIdRow, error) {
 	rows, err := q.db.Query(ctx, findEventsByDebtorId, debtorID)
 	if err != nil {
 		return nil, err
@@ -204,7 +212,7 @@ INNER JOIN payments p ON e.id = p.event_id
 WHERE p.payer_id = $1
 `
 
-func (q *Queries) FindLendingsByUserId(ctx context.Context, payerID uuid.UUID) ([]Event, error) {
+func (q *Queries) FindLendingsByUserId(ctx context.Context, payerID pgtype.UUID) ([]Event, error) {
 	rows, err := q.db.Query(ctx, findLendingsByUserId, payerID)
 	if err != nil {
 		return nil, err
@@ -232,18 +240,19 @@ func (q *Queries) FindLendingsByUserId(ctx context.Context, payerID uuid.UUID) (
 }
 
 const findPaymentByDebtorId = `-- name: FindPaymentByDebtorId :one
-SELECT event_id, payer_id, debtor_id, amount FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1
+SELECT id, event_id, payer_id, debtor_id, amount FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1
 `
 
 type FindPaymentByDebtorIdParams struct {
-	EventID  string
-	DebtorID uuid.UUID
+	EventID  *string
+	DebtorID pgtype.UUID
 }
 
 func (q *Queries) FindPaymentByDebtorId(ctx context.Context, arg FindPaymentByDebtorIdParams) (Payment, error) {
 	row := q.db.QueryRow(ctx, findPaymentByDebtorId, arg.EventID, arg.DebtorID)
 	var i Payment
 	err := row.Scan(
+		&i.ID,
 		&i.EventID,
 		&i.PayerID,
 		&i.DebtorID,
@@ -253,10 +262,10 @@ func (q *Queries) FindPaymentByDebtorId(ctx context.Context, arg FindPaymentByDe
 }
 
 const findPaymentsByEventId = `-- name: FindPaymentsByEventId :many
-SELECT event_id, payer_id, debtor_id, amount FROM payments WHERE event_id = $1
+SELECT id, event_id, payer_id, debtor_id, amount FROM payments WHERE event_id = $1
 `
 
-func (q *Queries) FindPaymentsByEventId(ctx context.Context, eventID string) ([]Payment, error) {
+func (q *Queries) FindPaymentsByEventId(ctx context.Context, eventID *string) ([]Payment, error) {
 	rows, err := q.db.Query(ctx, findPaymentsByEventId, eventID)
 	if err != nil {
 		return nil, err
@@ -266,6 +275,7 @@ func (q *Queries) FindPaymentsByEventId(ctx context.Context, eventID string) ([]
 	for rows.Next() {
 		var i Payment
 		if err := rows.Scan(
+			&i.ID,
 			&i.EventID,
 			&i.PayerID,
 			&i.DebtorID,
@@ -308,11 +318,11 @@ ORDER BY payer_id
 `
 
 type ListBorrowingCreditAmountsByUserIDRow struct {
-	UserID uuid.UUID
+	UserID pgtype.UUID
 	Amount int64
 }
 
-func (q *Queries) ListBorrowingCreditAmountsByUserID(ctx context.Context, debtorID uuid.UUID) ([]ListBorrowingCreditAmountsByUserIDRow, error) {
+func (q *Queries) ListBorrowingCreditAmountsByUserID(ctx context.Context, debtorID pgtype.UUID) ([]ListBorrowingCreditAmountsByUserIDRow, error) {
 	rows, err := q.db.Query(ctx, listBorrowingCreditAmountsByUserID, debtorID)
 	if err != nil {
 		return nil, err
@@ -341,11 +351,11 @@ ORDER BY debtor_id
 `
 
 type ListLendingCreditAmountsByUserIDRow struct {
-	UserID uuid.UUID
+	UserID pgtype.UUID
 	Amount int64
 }
 
-func (q *Queries) ListLendingCreditAmountsByUserID(ctx context.Context, payerID uuid.UUID) ([]ListLendingCreditAmountsByUserIDRow, error) {
+func (q *Queries) ListLendingCreditAmountsByUserID(ctx context.Context, payerID pgtype.UUID) ([]ListLendingCreditAmountsByUserIDRow, error) {
 	rows, err := q.db.Query(ctx, listLendingCreditAmountsByUserID, payerID)
 	if err != nil {
 		return nil, err
@@ -400,8 +410,8 @@ WHERE event_id = $1 AND debtor_id = $2
 `
 
 type UpdatePaymentAmountParams struct {
-	EventID  string
-	DebtorID uuid.UUID
+	EventID  *string
+	DebtorID pgtype.UUID
 	Amount   int32
 }
 

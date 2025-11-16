@@ -12,6 +12,10 @@ type LendingHandler interface {
 	Update(c echo.Context, id string) error
 }
 
+type BorrowingHandler interface {
+	GetAll(c echo.Context) error
+}
+
 type CreditHandler interface {
 	List(c echo.Context) error
 }
@@ -22,13 +26,15 @@ type HealthHandler interface {
 
 type Server struct {
 	lh LendingHandler
+	bh BorrowingHandler
 	ch CreditHandler
 	hh HealthHandler
 }
 
-func NewServer(lh LendingHandler, ch CreditHandler, hh HealthHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
+		bh: bh,
 		ch: ch,
 		hh: hh,
 	}
@@ -49,6 +55,10 @@ func (s *Server) LendingGetAll(ctx echo.Context) error {
 
 func (s *Server) LendingUpdate(ctx echo.Context, id string) error {
 	return s.lh.Update(ctx, id)
+}
+
+func (s *Server) BorrowingGetAll(ctx echo.Context) error {
+	return s.bh.GetAll(ctx)
 }
 
 func (s *Server) CreditsList(ctx echo.Context) error {

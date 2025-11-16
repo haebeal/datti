@@ -13,6 +13,9 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// 全ての借り入れの取得
+	// (GET /borrowings)
+	BorrowingGetAll(ctx echo.Context) error
 	// 債権一覧の取得
 	// (GET /credits)
 	CreditsList(ctx echo.Context) error
@@ -36,6 +39,17 @@ type ServerInterface interface {
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// BorrowingGetAll converts echo context to params.
+func (w *ServerInterfaceWrapper) BorrowingGetAll(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.BorrowingGetAll(ctx)
+	return err
 }
 
 // CreditsList converts echo context to params.
@@ -146,6 +160,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.GET(baseURL+"/borrowings", wrapper.BorrowingGetAll)
 	router.GET(baseURL+"/credits", wrapper.CreditsList)
 	router.GET(baseURL+"/health", wrapper.HealthCheck)
 	router.GET(baseURL+"/lendings", wrapper.LendingGetAll)

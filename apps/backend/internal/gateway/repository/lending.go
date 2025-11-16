@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/oklog/ulid/v2"
@@ -19,7 +20,7 @@ func NewLendingEventRepository(queries *postgres.Queries) *LendingEventRepositor
 	}
 }
 
-func (lr *LendingEventRepositoryImpl) Create(ctx context.Context, e *domain.LendingEvent) error {
+func (lr *LendingEventRepositoryImpl) Create(ctx context.Context, e *domain.Lending) error {
 	_, span := tracer.Start(ctx, "lendingEvent.Create")
 	defer span.End()
 
@@ -41,7 +42,7 @@ func (lr *LendingEventRepositoryImpl) Create(ctx context.Context, e *domain.Lend
 	return nil
 }
 
-func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID) (*domain.LendingEvent, error) {
+func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID) (*domain.Lending, error) {
 	ctx, span := tracer.Start(ctx, "lendingEvent.FindByID")
 	defer span.End()
 
@@ -69,7 +70,7 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 		return nil, err
 	}
 
-	lendingEvent, err := domain.NewLendingEvent(eventID, event.Name, amount, event.EventDate, event.CreatedAt, event.UpdatedAt)
+	lendingEvent, err := domain.NewLending(eventID, event.Name, amount, event.EventDate, event.CreatedAt, event.UpdatedAt)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -79,7 +80,33 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 	return lendingEvent, nil
 }
 
-func (lr *LendingEventRepositoryImpl) Update(ctx context.Context, e *domain.LendingEvent) error {
+func (lr *LendingEventRepositoryImpl) FindByUserID(ctx context.Context, id uuid.UUID) ([]*domain.Lending, error) {
+	lendingEvents, err := lr.queries.FindLendingsByUserId(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	lendings := []*domain.Lending{}
+	for _, l := range lendingEvents {
+		eventID, err := ulid.Parse(l.ID)
+		if err != nil {
+			return nil, err
+		}
+		amount, err := domain.NewAmount(int64(l.Amount))
+		if err != nil {
+			return nil, err
+		}
+		lending, err := domain.NewLending(eventID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt)
+		if err != nil {
+			return nil, err
+		}
+		lendings = append(lendings, lending)
+	}
+
+	return lendings, nil
+}
+
+func (lr *LendingEventRepositoryImpl) Update(ctx context.Context, e *domain.Lending) error {
 	ctx, span := tracer.Start(ctx, "lendingEvent.Update")
 	defer span.End()
 

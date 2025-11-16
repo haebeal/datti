@@ -13,12 +13,11 @@ SELECT * FROM events;
 -- name: FindEventById :one
 SELECT * FROM events WHERE id = $1 LIMIT 1;
 
--- name: FindEventsByDebtorId :many
-SELECT
-    events.id AS event_id, events.name, events.event_date, payments.amount, events.created_at, events.updated_at
-    FROM events
-    INNER join payments on events.id = payments.event_id
-    WHERE payments.debtor_id = $1;
+-- name: FindLendingsByUserId :many
+SELECT e.id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
+FROM events e
+INNER JOIN payments p ON e.id = p.event_id
+WHERE p.payer_id = $1;
 
 -- name: CreatePayment :exec
 INSERT INTO payments (event_id, payer_id, debtor_id, amount) VALUES ($1, $2, $3, $4);

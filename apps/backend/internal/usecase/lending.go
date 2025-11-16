@@ -36,7 +36,7 @@ func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (
 		span.RecordError(err)
 		return nil, err
 	}
-	event, err := domain.CreateLendingEvent(i.Name, eventAmount, i.EventDate)
+	event, err := domain.CreateLending(i.Name, eventAmount, i.EventDate)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -133,11 +133,44 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 	}
 
 	output := &handler.GetOutput{
-		Event:   event,
+		Lending: event,
 		Debtors: debtors,
 	}
 
 	return output, nil
+}
+
+func (u LendingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllInput) (*handler.GetAllOutput, error) {
+	ctx, span := tracer.Start(ctx, "lending.GetAll")
+	defer span.End()
+
+	lendings, err := u.lr.FindByUserID(ctx, i.UserID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, fmt.Errorf("lendingEventが存在しません")
+	}
+
+	output := handler.GetAllOutput{}
+	for _, l := range lendings {
+		debtors, err := u.dr.FindByEventID(ctx, l.ID())
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		lending := struct {
+			Lending *domain.Lending
+			Debtors []*domain.Debtor
+		}{
+			Lending: l,
+			Debtors: debtors,
+		}
+		output.Lendings = append(output.Lendings, lending)
+	}
+
+	return &output, nil
 }
 
 func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (*handler.UpdateOutput, error) {
@@ -153,7 +186,7 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 
 	if payer.ID() != i.UserID {
 		// TODO: カスタムエラー構造体が必要?
-		err = fmt.Errorf("Forbidden Error")
+		err = fmt.Errorf("forbidden Error")
 		// NOTE: 正常系のためスパンステータスをエラーに設定しない
 		return nil, err
 	}

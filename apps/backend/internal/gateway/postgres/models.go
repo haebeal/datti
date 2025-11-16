@@ -8,7 +8,6 @@ import (
 	"time"
 
 	uuid "github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Event struct {
@@ -21,11 +20,13 @@ type Event struct {
 }
 
 type Payment struct {
-	ID       string
-	EventID  *string
-	PayerID  pgtype.UUID
-	DebtorID pgtype.UUID
-	Amount   int32
+	ID        string
+	EventID   string
+	PayerID   uuid.UUID
+	DebtorID  uuid.UUID
+	Amount    int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type User struct {

@@ -14,7 +14,7 @@ type BorrowingRepositoryImpl struct {
 	queries *postgres.Queries
 }
 
-func NewBorrwingRepositoryImpl(queries *postgres.Queries) *BorrowingRepositoryImpl {
+func NewBorrowingRepositoryImpl(queries *postgres.Queries) *BorrowingRepositoryImpl {
 	return &BorrowingRepositoryImpl{
 		queries: queries,
 	}

@@ -114,7 +114,7 @@ func main() {
 	ur := repository.NewUserRepository(queries)
 	pr := repository.NewPayerRepository(queries)
 	dr := repository.NewDebtorRepository(queries)
-	br := repository.NewBorrwingRepositoryImpl(queries)
+	br := repository.NewBorrowingRepositoryImpl(queries)
 	lr := repository.NewLendingEventRepository(queries)
 	cr := repository.NewCreditRepository(queries)
 

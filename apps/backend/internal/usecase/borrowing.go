@@ -10,10 +10,10 @@ import (
 )
 
 type BorrowingUseCaseImpl struct {
-	br domain.BorrwingRepository
+	br domain.BorrowingRepository
 }
 
-func NewBorrowingUseCase(br domain.BorrwingRepository) BorrowingUseCaseImpl {
+func NewBorrowingUseCase(br domain.BorrowingRepository) BorrowingUseCaseImpl {
 	return BorrowingUseCaseImpl{
 		br: br,
 	}

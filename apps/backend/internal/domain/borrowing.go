@@ -62,6 +62,6 @@ func (b *Borrowing) UpdatedAt() time.Time {
 	return b.updatedAt
 }
 
-type BorrwingRepository interface {
+type BorrowingRepository interface {
 	FindByUserID(context.Context, uuid.UUID) ([]*Borrowing, error)
 }

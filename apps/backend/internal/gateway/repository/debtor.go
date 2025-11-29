@@ -23,8 +23,11 @@ func (dr *DebtorRepositoryImpl) Create(ctx context.Context, event *domain.Lendin
 	_, span := tracer.Start(ctx, "debtor.Create")
 	defer span.End()
 
-	_, querySpan := tracer.Start(ctx, "INSERT INTO payments (event_id, payer_id, debtor_id, amount) VALUES ($1, $2, $3, $4)")
+	paymentID := ulid.Make()
+
+	_, querySpan := tracer.Start(ctx, "INSERT INTO payments (id, event_id, payer_id, debtor_id, amount) VALUES ($1, $2, $3, $4, $5)")
 	err := dr.queries.CreatePayment(ctx, postgres.CreatePaymentParams{
+		ID:       paymentID.String(),
 		EventID:  event.ID().String(),
 		PayerID:  payer.ID(),
 		DebtorID: debtor.ID(),

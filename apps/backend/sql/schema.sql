@@ -23,5 +23,6 @@ CREATE TABLE payments (
   debtor_id UUID NOT NULL REFERENCES users(id),
   amount INT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  UNIQUE(event_id, payer_id, debtor_id)
 );

@@ -409,18 +409,24 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error 
 
 const updatePaymentAmount = `-- name: UpdatePaymentAmount :exec
 UPDATE payments
-SET amount = $3,
+SET amount = $4,
     updated_at = current_timestamp
-WHERE event_id = $1 AND debtor_id = $2
+WHERE event_id = $1 AND debtor_id = $2 AND debtor_id =$3
 `
 
 type UpdatePaymentAmountParams struct {
-	EventID  string
-	DebtorID uuid.UUID
-	Amount   int32
+	EventID    string
+	DebtorID   uuid.UUID
+	DebtorID_2 uuid.UUID
+	Amount     int32
 }
 
 func (q *Queries) UpdatePaymentAmount(ctx context.Context, arg UpdatePaymentAmountParams) error {
-	_, err := q.db.Exec(ctx, updatePaymentAmount, arg.EventID, arg.DebtorID, arg.Amount)
+	_, err := q.db.Exec(ctx, updatePaymentAmount,
+		arg.EventID,
+		arg.DebtorID,
+		arg.DebtorID_2,
+		arg.Amount,
+	)
 	return err
 }

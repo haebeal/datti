@@ -43,9 +43,9 @@ SELECT id, event_id, payer_id, debtor_id, amount, created_at, updated_at FROM pa
 
 -- name: UpdatePaymentAmount :exec
 UPDATE payments
-SET amount = $3,
+SET amount = $4,
     updated_at = current_timestamp
-WHERE event_id = $1 AND debtor_id = $2;
+WHERE event_id = $1 AND debtor_id = $2 AND debtor_id =$3;
 
 -- name: DeletePayment :exec
 DELETE FROM payments

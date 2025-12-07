@@ -38,7 +38,8 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 }
 
 const createPayment = `-- name: CreatePayment :exec
-INSERT INTO payments (id, event_id, payer_id, debtor_id, amount) VALUES ($1, $2, $3, $4, $5)
+INSERT INTO payments (id, event_id, payer_id, debtor_id, amount, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, current_timestamp, current_timestamp)
 `
 
 type CreatePaymentParams struct {
@@ -408,7 +409,8 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error 
 
 const updatePaymentAmount = `-- name: UpdatePaymentAmount :exec
 UPDATE payments
-SET amount = $3
+SET amount = $3,
+    updated_at = current_timestamp
 WHERE event_id = $1 AND debtor_id = $2
 `
 

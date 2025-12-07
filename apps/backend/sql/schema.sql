@@ -22,6 +22,6 @@ CREATE TABLE payments (
   payer_id UUID NOT NULL REFERENCES users(id),
   debtor_id UUID NOT NULL REFERENCES users(id),
   amount INT NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );

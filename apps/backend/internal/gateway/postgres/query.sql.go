@@ -38,10 +38,12 @@ func (q *Queries) CreateEvent(ctx context.Context, arg CreateEventParams) error 
 }
 
 const createPayment = `-- name: CreatePayment :exec
-INSERT INTO payments (event_id, payer_id, debtor_id, amount) VALUES ($1, $2, $3, $4)
+INSERT INTO payments (id, event_id, payer_id, debtor_id, amount, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, current_timestamp, current_timestamp)
 `
 
 type CreatePaymentParams struct {
+	ID       string
 	EventID  string
 	PayerID  uuid.UUID
 	DebtorID uuid.UUID
@@ -50,6 +52,7 @@ type CreatePaymentParams struct {
 
 func (q *Queries) CreatePayment(ctx context.Context, arg CreatePaymentParams) error {
 	_, err := q.db.Exec(ctx, createPayment,
+		arg.ID,
 		arg.EventID,
 		arg.PayerID,
 		arg.DebtorID,
@@ -155,9 +158,14 @@ func (q *Queries) FindEventById(ctx context.Context, id string) (Event, error) {
 
 const findEventsByDebtorId = `-- name: FindEventsByDebtorId :many
 SELECT
-events.id AS event_id, events.name, events.event_date, payments.amount, events.created_at, events.updated_at
+  events.id AS event_id,
+  events.name,
+  events.event_date,
+  payments.amount,
+  events.created_at,
+  events.updated_at
 FROM events
-INNER join payments on events.id = payments.event_id
+INNER JOIN payments ON events.id = payments.event_id
 WHERE payments.debtor_id = $1
 `
 
@@ -232,7 +240,7 @@ func (q *Queries) FindLendingsByUserId(ctx context.Context, payerID uuid.UUID) (
 }
 
 const findPaymentByDebtorId = `-- name: FindPaymentByDebtorId :one
-SELECT event_id, payer_id, debtor_id, amount FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1
+SELECT id, event_id, payer_id, debtor_id, amount, created_at, updated_at FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1
 `
 
 type FindPaymentByDebtorIdParams struct {
@@ -244,16 +252,19 @@ func (q *Queries) FindPaymentByDebtorId(ctx context.Context, arg FindPaymentByDe
 	row := q.db.QueryRow(ctx, findPaymentByDebtorId, arg.EventID, arg.DebtorID)
 	var i Payment
 	err := row.Scan(
+		&i.ID,
 		&i.EventID,
 		&i.PayerID,
 		&i.DebtorID,
 		&i.Amount,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const findPaymentsByEventId = `-- name: FindPaymentsByEventId :many
-SELECT event_id, payer_id, debtor_id, amount FROM payments WHERE event_id = $1
+SELECT id, event_id, payer_id, debtor_id, amount, created_at, updated_at FROM payments WHERE event_id = $1
 `
 
 func (q *Queries) FindPaymentsByEventId(ctx context.Context, eventID string) ([]Payment, error) {
@@ -266,10 +277,13 @@ func (q *Queries) FindPaymentsByEventId(ctx context.Context, eventID string) ([]
 	for rows.Next() {
 		var i Payment
 		if err := rows.Scan(
+			&i.ID,
 			&i.EventID,
 			&i.PayerID,
 			&i.DebtorID,
 			&i.Amount,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -395,17 +409,24 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error 
 
 const updatePaymentAmount = `-- name: UpdatePaymentAmount :exec
 UPDATE payments
-SET amount = $3
-WHERE event_id = $1 AND debtor_id = $2
+SET amount = $4,
+    updated_at = current_timestamp
+WHERE event_id = $1 AND debtor_id = $2 AND debtor_id =$3
 `
 
 type UpdatePaymentAmountParams struct {
-	EventID  string
-	DebtorID uuid.UUID
-	Amount   int32
+	EventID    string
+	DebtorID   uuid.UUID
+	DebtorID_2 uuid.UUID
+	Amount     int32
 }
 
 func (q *Queries) UpdatePaymentAmount(ctx context.Context, arg UpdatePaymentAmountParams) error {
-	_, err := q.db.Exec(ctx, updatePaymentAmount, arg.EventID, arg.DebtorID, arg.Amount)
+	_, err := q.db.Exec(ctx, updatePaymentAmount,
+		arg.EventID,
+		arg.DebtorID,
+		arg.DebtorID_2,
+		arg.Amount,
+	)
 	return err
 }

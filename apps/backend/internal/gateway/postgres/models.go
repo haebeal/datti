@@ -20,10 +20,13 @@ type Event struct {
 }
 
 type Payment struct {
-	EventID  string
-	PayerID  uuid.UUID
-	DebtorID uuid.UUID
-	Amount   int32
+	ID        string
+	EventID   string
+	PayerID   uuid.UUID
+	DebtorID  uuid.UUID
+	Amount    int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type User struct {

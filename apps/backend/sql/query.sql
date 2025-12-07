@@ -1,17 +1,17 @@
 -- name: FindAllUsers :many
-SELECT * FROM users;
+SELECT id, name, avatar, email, created_at, updated_at FROM users;
 
 -- name: FindUserByID :one
-SELECT * FROM users WHERE id = $1 LIMIT 1;
+SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1;
 
 -- name: CreateEvent :exec
 INSERT INTO events (id, name, amount, event_date, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6);
 
 -- name: FindAllEvents :many
-SELECT * FROM events;
+SELECT id, name, amount, event_date, created_at, updated_at FROM events;
 
 -- name: FindEventById :one
-SELECT * FROM events WHERE id = $1 LIMIT 1;
+SELECT id, name, amount, event_date, created_at, updated_at FROM events WHERE id = $1 LIMIT 1;
 
 -- name: FindLendingsByUserId :many
 SELECT e.id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
@@ -21,24 +21,31 @@ WHERE p.payer_id = $1;
 
 -- name: FindEventsByDebtorId :many
 SELECT
-events.id AS event_id, events.name, events.event_date, payments.amount, events.created_at, events.updated_at
+  events.id AS event_id,
+  events.name,
+  events.event_date,
+  payments.amount,
+  events.created_at,
+  events.updated_at
 FROM events
-INNER join payments on events.id = payments.event_id
+INNER JOIN payments ON events.id = payments.event_id
 WHERE payments.debtor_id = $1;
 
 -- name: CreatePayment :exec
-INSERT INTO payments (event_id, payer_id, debtor_id, amount) VALUES ($1, $2, $3, $4);
+INSERT INTO payments (id, event_id, payer_id, debtor_id, amount, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, current_timestamp, current_timestamp);
 
 -- name: FindPaymentsByEventId :many
-SELECT * FROM payments WHERE event_id = $1;
+SELECT id, event_id, payer_id, debtor_id, amount, created_at, updated_at FROM payments WHERE event_id = $1;
 
 -- name: FindPaymentByDebtorId :one
-SELECT * FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1;
+SELECT id, event_id, payer_id, debtor_id, amount, created_at, updated_at FROM payments WHERE event_id = $1 AND debtor_id = $2 LIMIT 1;
 
 -- name: UpdatePaymentAmount :exec
 UPDATE payments
-SET amount = $3
-WHERE event_id = $1 AND debtor_id = $2;
+SET amount = $4,
+    updated_at = current_timestamp
+WHERE event_id = $1 AND debtor_id = $2 AND debtor_id =$3;
 
 -- name: DeletePayment :exec
 DELETE FROM payments

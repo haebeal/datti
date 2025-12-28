@@ -13,10 +13,10 @@ export function Header() {
 						</Link>
 						<div className="hidden sm:ml-8 sm:flex sm:space-x-8">
 							<Link
-								href="/lending"
+								href="/credit"
 								className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-sky-500"
 							>
-								立て替え
+								債権
 							</Link>
 							<Link
 								href="/borrowing"
@@ -25,10 +25,10 @@ export function Header() {
 								借り入れ
 							</Link>
 							<Link
-								href="/credit"
+								href="/lending"
 								className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-sky-500"
 							>
-								債権
+								立て替え
 							</Link>
 						</div>
 					</div>

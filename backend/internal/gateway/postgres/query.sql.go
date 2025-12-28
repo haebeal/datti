@@ -100,6 +100,15 @@ func (q *Queries) CreateRepayment(ctx context.Context, arg CreateRepaymentParams
 	return err
 }
 
+const deleteEvent = `-- name: DeleteEvent :exec
+DELETE FROM events WHERE id = $1
+`
+
+func (q *Queries) DeleteEvent(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, deleteEvent, id)
+	return err
+}
+
 const deleteEventPayment = `-- name: DeleteEventPayment :exec
 DELETE FROM event_payments WHERE event_id = $1 AND payment_id = $2
 `

@@ -22,9 +22,15 @@ type ServerInterface interface {
 	// ヘルスチェック
 	// (GET /health)
 	HealthCheck(ctx echo.Context) error
+	// 全ての立て替えの取得
+	// (GET /lendings)
+	LendingGetAll(ctx echo.Context) error
 	// 立て替えの作成
 	// (POST /lendings)
 	LendingCreate(ctx echo.Context) error
+	// 立て替えの削除
+	// (DELETE /lendings/{id})
+	LendingDelete(ctx echo.Context, id string) error
 	// 立て替えの取得
 	// (GET /lendings/{id})
 	LendingGet(ctx echo.Context, id string) error
@@ -74,6 +80,17 @@ func (w *ServerInterfaceWrapper) HealthCheck(ctx echo.Context) error {
 	return err
 }
 
+// LendingGetAll converts echo context to params.
+func (w *ServerInterfaceWrapper) LendingGetAll(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.LendingGetAll(ctx)
+	return err
+}
+
 // LendingCreate converts echo context to params.
 func (w *ServerInterfaceWrapper) LendingCreate(ctx echo.Context) error {
 	var err error
@@ -82,6 +99,24 @@ func (w *ServerInterfaceWrapper) LendingCreate(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.LendingCreate(ctx)
+	return err
+}
+
+// LendingDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) LendingDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.LendingDelete(ctx, id)
 	return err
 }
 
@@ -163,7 +198,9 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/borrowings", wrapper.BorrowingGetAll)
 	router.GET(baseURL+"/credits", wrapper.CreditsList)
 	router.GET(baseURL+"/health", wrapper.HealthCheck)
+	router.GET(baseURL+"/lendings", wrapper.LendingGetAll)
 	router.POST(baseURL+"/lendings", wrapper.LendingCreate)
+	router.DELETE(baseURL+"/lendings/:id", wrapper.LendingDelete)
 	router.GET(baseURL+"/lendings/:id", wrapper.LendingGet)
 	router.PUT(baseURL+"/lendings/:id", wrapper.LendingUpdate)
 	router.POST(baseURL+"/repayments", wrapper.RepaymentCreate)

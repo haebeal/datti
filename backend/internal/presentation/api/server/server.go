@@ -10,6 +10,7 @@ type LendingHandler interface {
 	Get(c echo.Context, id string) error
 	GetAll(c echo.Context) error
 	Update(c echo.Context, id string) error
+	Delete(c echo.Context, id string) error
 }
 
 type BorrowingHandler interface {
@@ -61,6 +62,10 @@ func (s *Server) LendingGetAll(ctx echo.Context) error {
 
 func (s *Server) LendingUpdate(ctx echo.Context, id string) error {
 	return s.lh.Update(ctx, id)
+}
+
+func (s *Server) LendingDelete(ctx echo.Context, id string) error {
+	return s.lh.Delete(ctx, id)
 }
 
 func (s *Server) BorrowingGetAll(ctx echo.Context) error {

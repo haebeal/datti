@@ -32,13 +32,24 @@ func NewLendingHandler(u LendingUseCase) lendingHandler {
 	}
 }
 
-func (h lendingHandler) Create(c echo.Context) error {
+func (h lendingHandler) Create(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "lending.Create")
 	defer span.End()
 
+	groupID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
 	var req api.LendingCreateRequest
 
-	err := c.Bind(&req)
+	err = c.Bind(&req)
 	if err != nil {
 		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
 		span.SetStatus(codes.Error, message)
@@ -78,6 +89,7 @@ func (h lendingHandler) Create(c echo.Context) error {
 	}
 
 	input := CreateInput{
+		GroupID:   groupID,
 		UserID:    userID,
 		Name:      req.Name,
 		Amount:    int64(req.Amount),
@@ -92,6 +104,12 @@ func (h lendingHandler) Create(c echo.Context) error {
 		span.RecordError(err)
 		res := &api.ErrorResponse{
 			Message: message,
+		}
+		if err.Error() == "forbidden Error" {
+			return c.JSON(http.StatusForbidden, res)
+		}
+		if err.Error() == "BadRequest Error" {
+			return c.JSON(http.StatusBadRequest, res)
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -117,13 +135,24 @@ func (h lendingHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
-func (h lendingHandler) Get(c echo.Context, id string) error {
+func (h lendingHandler) Get(c echo.Context, id string, lendingId string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "lending.Get")
 	defer span.End()
 
-	eventID, err := ulid.Parse(id)
+	groupID, err := ulid.Parse(id)
 	if err != nil {
 		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	eventID, err := ulid.Parse(lendingId)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", lendingId)
 		span.SetStatus(codes.Error, message)
 		span.RecordError(err)
 		res := &api.ErrorResponse{
@@ -143,6 +172,7 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 	}
 
 	input := GetInput{
+		GroupID: groupID,
 		UserID:  userID,
 		EventID: eventID,
 	}
@@ -154,6 +184,9 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 		span.RecordError(err)
 		res := &api.ErrorResponse{
 			Message: message,
+		}
+		if err.Error() == "forbidden Error" {
+			return c.JSON(http.StatusForbidden, res)
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -179,9 +212,20 @@ func (h lendingHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (h lendingHandler) GetAll(c echo.Context) error {
+func (h lendingHandler) GetAll(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "lending.GetAll")
 	defer span.End()
+
+	groupID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
 
 	userID, ok := c.Get("uid").(uuid.UUID)
 	if !ok {
@@ -193,7 +237,8 @@ func (h lendingHandler) GetAll(c echo.Context) error {
 	}
 
 	input := GetAllInput{
-		UserID: userID,
+		GroupID: groupID,
+		UserID:  userID,
 	}
 
 	output, err := h.u.GetAll(ctx, input)
@@ -201,6 +246,9 @@ func (h lendingHandler) GetAll(c echo.Context) error {
 		message := fmt.Sprintf("Failed to get lending events: %v", err)
 		res := &api.ErrorResponse{
 			Message: message,
+		}
+		if err.Error() == "forbidden Error" {
+			return c.JSON(http.StatusForbidden, res)
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -229,9 +277,20 @@ func (h lendingHandler) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, responseItems)
 }
 
-func (h lendingHandler) Update(c echo.Context, id string) error {
+func (h lendingHandler) Update(c echo.Context, id string, lendingId string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "lending.Update")
 	defer span.End()
+
+	groupID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
 
 	var req api.LendingUpdateRequest
 
@@ -245,9 +304,9 @@ func (h lendingHandler) Update(c echo.Context, id string) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	eventID, err := ulid.Parse(id)
+	eventID, err := ulid.Parse(lendingId)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		message := fmt.Sprintf("Failed to parse ulid: %v", lendingId)
 		span.SetStatus(codes.Error, message)
 		span.RecordError(err)
 		res := &api.ErrorResponse{
@@ -285,6 +344,7 @@ func (h lendingHandler) Update(c echo.Context, id string) error {
 	}
 
 	input := UpdateInput{
+		GroupID:   groupID,
 		UserID:    userID,
 		EventID:   eventID,
 		Name:      req.Name,
@@ -300,6 +360,12 @@ func (h lendingHandler) Update(c echo.Context, id string) error {
 		span.RecordError(err)
 		res := &api.ErrorResponse{
 			Message: message,
+		}
+		if err.Error() == "forbidden Error" {
+			return c.JSON(http.StatusForbidden, res)
+		}
+		if err.Error() == "BadRequest Error" {
+			return c.JSON(http.StatusBadRequest, res)
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -325,13 +391,24 @@ func (h lendingHandler) Update(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (h lendingHandler) Delete(c echo.Context, id string) error {
+func (h lendingHandler) Delete(c echo.Context, id string, lendingId string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "lending.Delete")
 	defer span.End()
 
-	eventID, err := ulid.Parse(id)
+	groupID, err := ulid.Parse(id)
 	if err != nil {
 		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	eventID, err := ulid.Parse(lendingId)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", lendingId)
 		span.SetStatus(codes.Error, message)
 		span.RecordError(err)
 		res := &api.ErrorResponse{
@@ -351,6 +428,7 @@ func (h lendingHandler) Delete(c echo.Context, id string) error {
 	}
 
 	input := DeleteInput{
+		GroupID: groupID,
 		UserID:  userID,
 		EventID: eventID,
 	}
@@ -379,6 +457,7 @@ func (h lendingHandler) Delete(c echo.Context, id string) error {
 }
 
 type CreateInput struct {
+	GroupID   ulid.ULID
 	UserID    uuid.UUID
 	Name      string
 	Amount    int64
@@ -396,6 +475,7 @@ type CreateOutput struct {
 }
 
 type GetInput struct {
+	GroupID ulid.ULID
 	UserID  uuid.UUID
 	EventID ulid.ULID
 }
@@ -406,7 +486,8 @@ type GetOutput struct {
 }
 
 type GetAllInput struct {
-	UserID uuid.UUID
+	GroupID ulid.ULID
+	UserID  uuid.UUID
 }
 
 type GetAllOutput struct {
@@ -417,6 +498,7 @@ type GetAllOutput struct {
 }
 
 type UpdateInput struct {
+	GroupID   ulid.ULID
 	UserID    uuid.UUID
 	EventID   ulid.ULID
 	Name      string
@@ -431,6 +513,7 @@ type UpdateOutput struct {
 }
 
 type DeleteInput struct {
+	GroupID ulid.ULID
 	UserID  uuid.UUID
 	EventID ulid.ULID
 }

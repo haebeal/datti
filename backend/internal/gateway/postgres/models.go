@@ -12,6 +12,7 @@ import (
 
 type Event struct {
 	ID        string
+	GroupID   string
 	Name      string
 	Amount    int32
 	EventDate time.Time

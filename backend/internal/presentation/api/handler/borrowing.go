@@ -9,6 +9,7 @@ import (
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
+	"github.com/oklog/ulid/v2"
 	"go.opentelemetry.io/otel/codes"
 )
 
@@ -26,9 +27,20 @@ func NewBorrowingHandler(u BorrowingUseCase) borrowingHandler {
 	}
 }
 
-func (b borrowingHandler) GetAll(c echo.Context) error {
+func (b borrowingHandler) GetAll(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "borrowing.GetAll")
 	defer span.End()
+
+	groupID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
 
 	userID, ok := c.Get("uid").(uuid.UUID)
 	if !ok {
@@ -41,7 +53,8 @@ func (b borrowingHandler) GetAll(c echo.Context) error {
 	}
 
 	input := GetAllBorrowingInput{
-		UserID: userID,
+		UserID:  userID,
+		GroupID: groupID,
 	}
 
 	output, err := b.u.GetAll(ctx, input)
@@ -51,6 +64,9 @@ func (b borrowingHandler) GetAll(c echo.Context) error {
 		span.RecordError(err)
 		res := &api.ErrorResponse{
 			Message: message,
+		}
+		if err.Error() == "forbidden Error" {
+			return c.JSON(http.StatusForbidden, res)
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -71,7 +87,8 @@ func (b borrowingHandler) GetAll(c echo.Context) error {
 }
 
 type GetAllBorrowingInput struct {
-	UserID uuid.UUID
+	UserID  uuid.UUID
+	GroupID ulid.ULID
 }
 
 type GetAllBorrowingOutput struct {

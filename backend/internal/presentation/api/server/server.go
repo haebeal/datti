@@ -6,15 +6,15 @@ import (
 )
 
 type LendingHandler interface {
-	Create(c echo.Context) error
-	Get(c echo.Context, id string) error
-	GetAll(c echo.Context) error
-	Update(c echo.Context, id string) error
-	Delete(c echo.Context, id string) error
+	Create(c echo.Context, id string) error
+	Get(c echo.Context, id string, lendingId string) error
+	GetAll(c echo.Context, id string) error
+	Update(c echo.Context, id string, lendingId string) error
+	Delete(c echo.Context, id string, lendingId string) error
 }
 
 type BorrowingHandler interface {
-	GetAll(c echo.Context) error
+	GetAll(c echo.Context, id string) error
 }
 
 type CreditHandler interface {
@@ -29,6 +29,7 @@ type RepaymentHandler interface {
 	Create(c echo.Context) error
 	GetAll(c echo.Context) error
 	Get(c echo.Context, id string) error
+	Update(c echo.Context, id string) error
 	Delete(c echo.Context, id string) error
 }
 
@@ -68,28 +69,28 @@ func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh Heal
 }
 
 // ServerInterfaceの実装
-func (s *Server) LendingCreate(ctx echo.Context) error {
-	return s.lh.Create(ctx)
+func (s *Server) LendingCreate(ctx echo.Context, id string) error {
+	return s.lh.Create(ctx, id)
 }
 
-func (s *Server) LendingGet(ctx echo.Context, id string) error {
-	return s.lh.Get(ctx, id)
+func (s *Server) LendingGet(ctx echo.Context, id string, lendingId string) error {
+	return s.lh.Get(ctx, id, lendingId)
 }
 
-func (s *Server) LendingGetAll(ctx echo.Context) error {
-	return s.lh.GetAll(ctx)
+func (s *Server) LendingGetAll(ctx echo.Context, id string) error {
+	return s.lh.GetAll(ctx, id)
 }
 
-func (s *Server) LendingUpdate(ctx echo.Context, id string) error {
-	return s.lh.Update(ctx, id)
+func (s *Server) LendingUpdate(ctx echo.Context, id string, lendingId string) error {
+	return s.lh.Update(ctx, id, lendingId)
 }
 
-func (s *Server) LendingDelete(ctx echo.Context, id string) error {
-	return s.lh.Delete(ctx, id)
+func (s *Server) LendingDelete(ctx echo.Context, id string, lendingId string) error {
+	return s.lh.Delete(ctx, id, lendingId)
 }
 
-func (s *Server) BorrowingGetAll(ctx echo.Context) error {
-	return s.bh.GetAll(ctx)
+func (s *Server) BorrowingGetAll(ctx echo.Context, id string) error {
+	return s.bh.GetAll(ctx, id)
 }
 
 func (s *Server) CreditsList(ctx echo.Context) error {
@@ -110,6 +111,10 @@ func (s *Server) RepaymentGetAll(ctx echo.Context) error {
 
 func (s *Server) RepaymentGet(ctx echo.Context, id string) error {
 	return s.rh.Get(ctx, id)
+}
+
+func (s *Server) RepaymentUpdate(ctx echo.Context, id string) error {
+	return s.rh.Update(ctx, id)
 }
 
 func (s *Server) RepaymentDelete(ctx echo.Context, id string) error {

@@ -85,9 +85,24 @@ func (r *Repayment) UpdatedAt() time.Time {
 	return r.updatedAt
 }
 
+func (r *Repayment) UpdateAmount(amount *Amount) error {
+	if amount == nil {
+		return fmt.Errorf("amountは必須です")
+	}
+
+	if amount.Value() <= 0 {
+		return fmt.Errorf("amountは正の値である必要があります")
+	}
+
+	r.amount = amount
+	r.updatedAt = time.Now()
+	return nil
+}
+
 type RepaymentRepository interface {
 	Create(context.Context, *Repayment) error
 	FindByID(context.Context, ulid.ULID) (*Repayment, error)
 	FindByPayerID(context.Context, uuid.UUID) ([]*Repayment, error)
+	Update(context.Context, *Repayment) error
 	Delete(context.Context, ulid.ULID) error
 }

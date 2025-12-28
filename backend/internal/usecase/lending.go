@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
+	"github.com/oklog/ulid/v2"
 	"go.opentelemetry.io/otel/codes"
 )
 
@@ -15,14 +17,16 @@ type LendingUseCaseImpl struct {
 	pr domain.PayerRepository
 	dr domain.DebtorRepository
 	lr domain.LendingEventRepository
+	gmr domain.GroupMemberRepository
 }
 
-func NewLendingUseCase(ur domain.UserRepository, pr domain.PayerRepository, dr domain.DebtorRepository, lr domain.LendingEventRepository) LendingUseCaseImpl {
+func NewLendingUseCase(ur domain.UserRepository, pr domain.PayerRepository, dr domain.DebtorRepository, lr domain.LendingEventRepository, gmr domain.GroupMemberRepository) LendingUseCaseImpl {
 	return LendingUseCaseImpl{
 		ur: ur,
 		pr: pr,
 		dr: dr,
 		lr: lr,
+		gmr: gmr,
 	}
 }
 
@@ -30,13 +34,17 @@ func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (
 	ctx, span := tracer.Start(ctx, "lending.Create")
 	defer span.End()
 
+	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
+		return nil, err
+	}
+
 	eventAmount, err := domain.NewAmount(i.Amount)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
-	event, err := domain.CreateLending(i.Name, eventAmount, i.EventDate)
+	event, err := domain.CreateLending(i.GroupID, i.Name, eventAmount, i.EventDate)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -107,6 +115,10 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 	ctx, span := tracer.Start(ctx, "lending.Get")
 	defer span.End()
 
+	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
+		return nil, err
+	}
+
 	payer, err := u.pr.FindByEventID(ctx, i.EventID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
@@ -123,6 +135,9 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
+	}
+	if event.GroupID() != i.GroupID {
+		return nil, fmt.Errorf("forbidden Error")
 	}
 
 	debtors, err := u.dr.FindByEventID(ctx, i.EventID)
@@ -144,7 +159,11 @@ func (u LendingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllInput) (
 	ctx, span := tracer.Start(ctx, "lending.GetAll")
 	defer span.End()
 
-	lendings, err := u.lr.FindByUserID(ctx, i.UserID)
+	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
+		return nil, err
+	}
+
+	lendings, err := u.lr.FindByGroupIDAndUserID(ctx, i.GroupID, i.UserID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -177,6 +196,10 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 	ctx, span := tracer.Start(ctx, "lending.Update")
 	defer span.End()
 
+	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
+		return nil, err
+	}
+
 	payer, err := u.pr.FindByEventID(ctx, i.EventID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
@@ -203,6 +226,9 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
+	}
+	if lending.GroupID() != i.GroupID {
+		return nil, fmt.Errorf("forbidden Error")
 	}
 
 	var updatedDebtors []*domain.Debtor
@@ -316,6 +342,10 @@ func (u LendingUseCaseImpl) Delete(ctx context.Context, i handler.DeleteInput) e
 	ctx, span := tracer.Start(ctx, "lending.Delete")
 	defer span.End()
 
+	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
+		return err
+	}
+
 	payer, err := u.pr.FindByEventID(ctx, i.EventID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
@@ -329,6 +359,16 @@ func (u LendingUseCaseImpl) Delete(ctx context.Context, i handler.DeleteInput) e
 		return err
 	}
 
+	lending, err := u.lr.FindByID(ctx, i.EventID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+	if lending.GroupID() != i.GroupID {
+		return fmt.Errorf("forbidden Error")
+	}
+
 	err = u.lr.Delete(ctx, i.EventID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
@@ -336,5 +376,16 @@ func (u LendingUseCaseImpl) Delete(ctx context.Context, i handler.DeleteInput) e
 		return err
 	}
 
+	return nil
+}
+
+func (u LendingUseCaseImpl) ensureGroupMember(ctx context.Context, groupID ulid.ULID, userID uuid.UUID) error {
+	memberIDs, err := u.gmr.FindMembersByGroupID(ctx, groupID)
+	if err != nil {
+		return err
+	}
+	if !slices.Contains(memberIDs, userID) {
+		return fmt.Errorf("forbidden Error")
+	}
 	return nil
 }

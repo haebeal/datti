@@ -88,6 +88,50 @@ func (u RepaymentUseCaseImpl) Get(ctx context.Context, i handler.RepaymentGetInp
 	}, nil
 }
 
+func (u RepaymentUseCaseImpl) Update(ctx context.Context, i handler.RepaymentUpdateInput) (*handler.RepaymentUpdateOutput, error) {
+	ctx, span := tracer.Start(ctx, "repayment.Update")
+	defer span.End()
+
+	id, err := ulid.Parse(i.ID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	repayment, err := u.rr.FindByID(ctx, id)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	amount, err := domain.NewAmount(i.Amount)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	err = repayment.UpdateAmount(amount)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	err = u.rr.Update(ctx, repayment)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	return &handler.RepaymentUpdateOutput{
+		Repayment: repayment,
+	}, nil
+}
+
 func (u RepaymentUseCaseImpl) Delete(ctx context.Context, i handler.RepaymentDeleteInput) error {
 	ctx, span := tracer.Start(ctx, "repayment.Delete")
 	defer span.End()

@@ -121,8 +121,8 @@ func main() {
 	gr := repository.NewGroupRepository(queries)
 	gmr := repository.NewGroupMemberRepository(queries)
 
-	lu := usecase.NewLendingUseCase(ur, pr, dr, lr)
-	du := usecase.NewBorrowingUseCase(br)
+	lu := usecase.NewLendingUseCase(ur, pr, dr, lr, gmr)
+	du := usecase.NewBorrowingUseCase(br, gmr)
 	cu := usecase.NewCreditUseCase(cr)
 	ru := usecase.NewRepaymentUseCase(rr)
 	gu := usecase.NewGroupUseCase(gr, gmr)

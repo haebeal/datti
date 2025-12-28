@@ -13,24 +13,27 @@ LIMIT sqlc.arg('limit');
 SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1;
 
 -- name: CreateEvent :exec
-INSERT INTO events (id, name, amount, event_date, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6);
+INSERT INTO events (id, group_id, name, amount, event_date, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7);
 
 -- name: FindAllEvents :many
-SELECT id, name, amount, event_date, created_at, updated_at FROM events;
+SELECT id, group_id, name, amount, event_date, created_at, updated_at FROM events;
 
 -- name: FindEventById :one
-SELECT id, name, amount, event_date, created_at, updated_at FROM events WHERE id = $1 LIMIT 1;
+SELECT id, group_id, name, amount, event_date, created_at, updated_at
+FROM events WHERE id = $1 LIMIT 1;
 
--- name: FindLendingsByUserId :many
-SELECT e.id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
+-- name: FindLendingsByGroupIDAndUserID :many
+SELECT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
 FROM events e
 INNER JOIN event_payments ep ON e.id = ep.event_id
 INNER JOIN payments p ON ep.payment_id = p.id
-WHERE p.payer_id = $1;
+WHERE e.group_id = $1 AND p.payer_id = $2;
 
--- name: FindEventsByDebtorId :many
+-- name: FindEventsByGroupIDAndDebtorID :many
 SELECT
   e.id AS event_id,
+  e.group_id,
   e.name,
   e.event_date,
   p.amount,
@@ -39,7 +42,7 @@ SELECT
 FROM events e
 INNER JOIN event_payments ep ON e.id = ep.event_id
 INNER JOIN payments p ON ep.payment_id = p.id
-WHERE p.debtor_id = $1;
+WHERE e.group_id = $1 AND p.debtor_id = $2;
 
 -- name: CreatePayment :exec
 INSERT INTO payments (id, payer_id, debtor_id, amount, created_at, updated_at)
@@ -115,6 +118,11 @@ FROM payments p
 LEFT JOIN event_payments ep ON p.id = ep.payment_id
 WHERE p.id = $1 AND ep.event_id IS NULL
 LIMIT 1;
+
+-- name: UpdateRepayment :exec
+UPDATE payments
+SET amount = $2, updated_at = $3
+WHERE id = $1;
 
 -- name: DeleteRepayment :exec
 DELETE FROM payments WHERE id = $1;

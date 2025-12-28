@@ -12,40 +12,6 @@ tags:
   - name: Users
   - name: Health
 paths:
-  /borrowings:
-    get:
-      operationId: Borrowing_getAll
-      summary: 全ての借り入れの取得
-      parameters: []
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Borrowing.GetAllResponse'
-        '400':
-          description: The server could not understand the request due to invalid syntax.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Access is unauthorized.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-        - Borrowings
   /credits:
     get:
       operationId: Credits_list
@@ -241,6 +207,54 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       tags:
         - Repayments
+    put:
+      operationId: Repayment_update
+      summary: 返済の更新
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repayment.UpdateResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Repayments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Repayment.UpdateRequest'
     delete:
       operationId: Repayment_delete
       summary: 返済の削除
@@ -530,11 +544,16 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Group.AddMemberRequest'
-  /lendings:
+  /groups/{id}/lendings:
     get:
       operationId: Lending_getAll
-      summary: 全ての立て替えの取得
-      parameters: []
+      summary: グループ内の立て替え一覧取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: The request has succeeded.
@@ -550,6 +569,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Server error
           content:
@@ -560,8 +585,13 @@ paths:
         - Lendings
     post:
       operationId: Lending_create
-      summary: 立て替えの作成
-      parameters: []
+      summary: グループ内の立て替え作成
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '201':
           description: The request has succeeded and a new resource has been created as a result.
@@ -581,6 +611,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Server error
           content:
@@ -595,12 +631,17 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Lending.CreateRequest'
-  /lendings/{id}:
+  /groups/{id}/lendings/{lendingId}:
     get:
       operationId: Lending_get
-      summary: 立て替えの取得
+      summary: グループ内の立て替え取得
       parameters:
         - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: lendingId
           in: path
           required: true
           schema:
@@ -624,6 +665,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Server error
           content:
@@ -634,9 +681,14 @@ paths:
         - Lendings
     put:
       operationId: Lending_update
-      summary: 立て替えの更新
+      summary: グループ内の立て替え更新
       parameters:
         - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: lendingId
           in: path
           required: true
           schema:
@@ -688,9 +740,14 @@ paths:
               $ref: '#/components/schemas/Lending.UpdateRequest'
     delete:
       operationId: Lending_delete
-      summary: 立て替えの削除
+      summary: グループ内の立て替え削除
       parameters:
         - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: lendingId
           in: path
           required: true
           schema:
@@ -730,6 +787,45 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       tags:
         - Lendings
+  /groups/{id}/borrowings:
+    get:
+      operationId: Borrowing_getAll
+      summary: グループ内の借り一覧取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Borrowing.GetAllResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Borrowings
 security:
   - BearerAuth: []
 components:
@@ -1165,6 +1261,39 @@ components:
           type: string
           format: date-time
     Repayment.GetResponse:
+      type: object
+      required:
+        - id
+        - payerId
+        - debtorId
+        - amount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        payerId:
+          type: string
+        debtorId:
+          type: string
+        amount:
+          type: integer
+          format: uint64
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Repayment.UpdateRequest:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: integer
+          format: uint64
+    Repayment.UpdateResponse:
       type: object
       required:
         - id

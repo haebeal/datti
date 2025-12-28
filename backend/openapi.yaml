@@ -7,6 +7,7 @@ tags:
   - name: Lendings
   - name: Borrowings
   - name: Credits
+  - name: Repayments
   - name: Health
 paths:
   /borrowings:
@@ -85,6 +86,44 @@ paths:
                 $ref: '#/components/schemas/Health.CheckResponse'
       tags:
         - Health
+  /repayments:
+    post:
+      operationId: Repayment_create
+      summary: 返済の作成
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repayment.CreateResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Repayments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Repayment.CreateRequest'
   /lendings:
     post:
       operationId: Lending_create
@@ -413,6 +452,42 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Lending.DebtParmam'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Repayment.CreateRequest:
+      type: object
+      required:
+        - debtorId
+        - amount
+      properties:
+        debtorId:
+          type: string
+        amount:
+          type: integer
+          format: uint64
+    Repayment.CreateResponse:
+      type: object
+      required:
+        - id
+        - payerId
+        - debtorId
+        - amount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        payerId:
+          type: string
+        debtorId:
+          type: string
+        amount:
+          type: integer
+          format: uint64
         createdAt:
           type: string
           format: date-time

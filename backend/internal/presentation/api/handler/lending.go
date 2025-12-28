@@ -204,7 +204,7 @@ func (h lendingHandler) GetAll(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	var responseItems []api.LendingGetAllResponse
+	var responseItems []api.LendingCreateResponse
 	for _, l := range output.Lendings {
 		var debts []api.LendingDebtParmam
 		for _, d := range l.Debtors {
@@ -214,7 +214,7 @@ func (h lendingHandler) GetAll(c echo.Context) error {
 			})
 		}
 
-		responseItems = append(responseItems, api.LendingGetAllResponse{
+		responseItems = append(responseItems, api.LendingCreateResponse{
 			Id:        l.Lending.ID().String(),
 			CreatedAt: l.Lending.CreatedAt(),
 			Debts:     debts,

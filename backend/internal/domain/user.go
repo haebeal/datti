@@ -63,4 +63,5 @@ func (u *User) Email() string {
 
 type UserRepository interface {
 	FindByID(context.Context, uuid.UUID) (*User, error)
+	FindBySearch(context.Context, *string, *string, int32) ([]*User, error)
 }

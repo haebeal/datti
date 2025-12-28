@@ -2,11 +2,14 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 )
+
+var ErrGroupMemberAlreadyExists = errors.New("group member already exists")
 
 // グループメンバー
 type GroupMember struct {
@@ -39,4 +42,5 @@ func (gm *GroupMember) UserID() uuid.UUID {
 type GroupMemberRepository interface {
 	AddMember(context.Context, ulid.ULID, uuid.UUID) error
 	FindMembersByGroupID(context.Context, ulid.ULID) ([]uuid.UUID, error)
+	FindMemberUsersByGroupID(context.Context, ulid.ULID) ([]*User, error)
 }

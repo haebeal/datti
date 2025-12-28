@@ -37,6 +37,11 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
+// GroupAddMemberRequest defines model for Group.AddMemberRequest.
+type GroupAddMemberRequest struct {
+	UserId string `json:"userId"`
+}
+
 // GroupCreateRequest defines model for Group.CreateRequest.
 type GroupCreateRequest struct {
 	Name string `json:"name"`
@@ -67,6 +72,14 @@ type GroupGetResponse struct {
 	Id        string    `json:"id"`
 	Name      string    `json:"name"`
 	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// GroupMemberResponse defines model for Group.MemberResponse.
+type GroupMemberResponse struct {
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
 }
 
 // GroupUpdateRequest defines model for Group.UpdateRequest.
@@ -194,11 +207,29 @@ type RepaymentGetResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// UserSearchResponse defines model for User.SearchResponse.
+type UserSearchResponse struct {
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+}
+
+// UserSearchParams defines parameters for UserSearch.
+type UserSearchParams struct {
+	Name  *string `form:"name,omitempty" json:"name,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty"`
+	Limit *int32  `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
 // GroupCreateJSONRequestBody defines body for GroupCreate for application/json ContentType.
 type GroupCreateJSONRequestBody = GroupCreateRequest
 
 // GroupUpdateJSONRequestBody defines body for GroupUpdate for application/json ContentType.
 type GroupUpdateJSONRequestBody = GroupUpdateRequest
+
+// GroupAddMemberJSONRequestBody defines body for GroupAddMember for application/json ContentType.
+type GroupAddMemberJSONRequestBody = GroupAddMemberRequest
 
 // LendingCreateJSONRequestBody defines body for LendingCreate for application/json ContentType.
 type LendingCreateJSONRequestBody = LendingCreateRequest

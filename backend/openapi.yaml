@@ -9,6 +9,7 @@ tags:
   - name: Credits
   - name: Repayments
   - name: Groups
+  - name: Users
   - name: Health
 paths:
   /borrowings:
@@ -87,6 +88,51 @@ paths:
                 $ref: '#/components/schemas/Health.CheckResponse'
       tags:
         - Health
+  /users:
+    get:
+      operationId: User_search
+      summary: ユーザー検索
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User.SearchResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Users
   /repayments:
     get:
       operationId: Repayment_getAll
@@ -351,6 +397,101 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Group.UpdateRequest'
+  /groups/{id}/members:
+    get:
+      operationId: Group_getMembers
+      summary: グループメンバー一覧の取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group.MemberResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Groups
+    post:
+      operationId: Group_addMember
+      summary: グループメンバーの追加
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The request has succeeded.
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Conflict
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Groups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group.AddMemberRequest'
   /lendings:
     get:
       operationId: Lending_getAll
@@ -697,6 +838,45 @@ components:
         updatedAt:
           type: string
           format: date-time
+    Group.AddMemberRequest:
+      type: object
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+    Group.MemberResponse:
+      type: object
+      required:
+        - id
+        - name
+        - avatar
+        - email
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        avatar:
+          type: string
+        email:
+          type: string
+    User.SearchResponse:
+      type: object
+      required:
+        - id
+        - name
+        - avatar
+        - email
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        avatar:
+          type: string
+        email:
+          type: string
     Health.CheckResponse:
       type: object
       required:

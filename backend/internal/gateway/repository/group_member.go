@@ -2,9 +2,12 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
+	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/oklog/ulid/v2"
 	"go.opentelemetry.io/otel/codes"
 )
@@ -29,6 +32,10 @@ func (gmr *GroupMemberRepositoryImpl) AddMember(ctx context.Context, groupID uli
 		UserID:  userID,
 	})
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return domain.ErrGroupMemberAlreadyExists
+		}
 		querySpan.SetStatus(codes.Error, err.Error())
 		querySpan.RecordError(err)
 		querySpan.End()

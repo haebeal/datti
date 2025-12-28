@@ -2,11 +2,14 @@ package domain
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 )
+
+var ErrGroupMemberAlreadyExists = errors.New("group member already exists")
 
 // グループメンバー
 type GroupMember struct {

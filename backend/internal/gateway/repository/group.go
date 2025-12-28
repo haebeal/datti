@@ -107,3 +107,24 @@ func (gr *GroupRepositoryImpl) FindByID(ctx context.Context, groupID ulid.ULID) 
 
 	return group, nil
 }
+
+func (gr *GroupRepositoryImpl) Update(ctx context.Context, group *domain.Group) error {
+	ctx, span := tracer.Start(ctx, "group.Update")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "UPDATE groups SET name = $2, updated_at = $3 WHERE id = $1")
+	err := gr.queries.UpdateGroup(ctx, postgres.UpdateGroupParams{
+		ID:        group.ID().String(),
+		Name:      group.Name(),
+		UpdatedAt: group.UpdatedAt(),
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}

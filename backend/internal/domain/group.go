@@ -46,6 +46,10 @@ func CreateGroup(name string, ownerID uuid.UUID) (*Group, error) {
 	return NewGroup(id, name, ownerID, now, now)
 }
 
+func (g *Group) Update(name string) (*Group, error) {
+	return NewGroup(g.id, name, g.ownerID, g.createdAt, time.Now())
+}
+
 func (g *Group) ID() ulid.ULID {
 	return g.id
 }
@@ -70,4 +74,5 @@ type GroupRepository interface {
 	Create(context.Context, *Group) error
 	FindByMemberUserID(context.Context, uuid.UUID) ([]*Group, error)
 	FindByID(context.Context, ulid.ULID) (*Group, error)
+	Update(context.Context, *Group) error
 }

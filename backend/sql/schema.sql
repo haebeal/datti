@@ -29,12 +29,15 @@ CREATE INDEX idx_group_members_user_id ON group_members(user_id);
 
 CREATE TABLE events (
   id TEXT PRIMARY KEY,
+  group_id TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   amount INT NOT NULL,
   event_date TIMESTAMP WITH TIME ZONE NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
+
+CREATE INDEX idx_events_group_id ON events(group_id);
 
 CREATE TABLE payments (
   id TEXT PRIMARY KEY,

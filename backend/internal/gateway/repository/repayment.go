@@ -124,3 +124,20 @@ func (rr *RepaymentRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID) (
 
 	return repayment, nil
 }
+
+func (rr *RepaymentRepositoryImpl) Delete(ctx context.Context, id ulid.ULID) error {
+	ctx, span := tracer.Start(ctx, "repayment.Delete")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "DELETE FROM payments WHERE id = $1")
+	err := rr.queries.DeleteRepayment(ctx, id.String())
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}

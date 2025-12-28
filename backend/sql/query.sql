@@ -116,6 +116,9 @@ LEFT JOIN event_payments ep ON p.id = ep.payment_id
 WHERE p.id = $1 AND ep.event_id IS NULL
 LIMIT 1;
 
+-- name: DeleteRepayment :exec
+DELETE FROM payments WHERE id = $1;
+
 -- name: CreateGroup :exec
 INSERT INTO groups (id, name, created_by, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5);

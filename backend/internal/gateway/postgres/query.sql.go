@@ -473,6 +473,28 @@ func (q *Queries) FindPaymentsByEventId(ctx context.Context, eventID string) ([]
 	return items, nil
 }
 
+const findRepaymentByID = `-- name: FindRepaymentByID :one
+SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at
+FROM payments p
+LEFT JOIN event_payments ep ON p.id = ep.payment_id
+WHERE p.id = $1 AND ep.event_id IS NULL
+LIMIT 1
+`
+
+func (q *Queries) FindRepaymentByID(ctx context.Context, id string) (Payment, error) {
+	row := q.db.QueryRow(ctx, findRepaymentByID, id)
+	var i Payment
+	err := row.Scan(
+		&i.ID,
+		&i.PayerID,
+		&i.DebtorID,
+		&i.Amount,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const findRepaymentsByPayerID = `-- name: FindRepaymentsByPayerID :many
 SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at
 FROM payments p

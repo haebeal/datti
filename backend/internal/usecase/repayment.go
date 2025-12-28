@@ -5,6 +5,7 @@ import (
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
+	"github.com/oklog/ulid/v2"
 	"go.opentelemetry.io/otel/codes"
 )
 
@@ -61,5 +62,28 @@ func (u RepaymentUseCaseImpl) GetAll(ctx context.Context, i handler.RepaymentGet
 
 	return &handler.RepaymentGetAllOutput{
 		Repayments: repayments,
+	}, nil
+}
+
+func (u RepaymentUseCaseImpl) Get(ctx context.Context, i handler.RepaymentGetInput) (*handler.RepaymentGetOutput, error) {
+	ctx, span := tracer.Start(ctx, "repayment.Get")
+	defer span.End()
+
+	id, err := ulid.Parse(i.ID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	repayment, err := u.rr.FindByID(ctx, id)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	return &handler.RepaymentGetOutput{
+		Repayment: repayment,
 	}, nil
 }

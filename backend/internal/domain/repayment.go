@@ -87,5 +87,6 @@ func (r *Repayment) UpdatedAt() time.Time {
 
 type RepaymentRepository interface {
 	Create(context.Context, *Repayment) error
+	FindByID(context.Context, ulid.ULID) (*Repayment, error)
 	FindByPayerID(context.Context, uuid.UUID) ([]*Repayment, error)
 }

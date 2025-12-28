@@ -15,6 +15,7 @@ import (
 type RepaymentUseCase interface {
 	Create(context.Context, RepaymentCreateInput) (*RepaymentCreateOutput, error)
 	GetAll(context.Context, RepaymentGetAllInput) (*RepaymentGetAllOutput, error)
+	Get(context.Context, RepaymentGetInput) (*RepaymentGetOutput, error)
 }
 
 type repaymentHandler struct {
@@ -138,6 +139,37 @@ func (h repaymentHandler) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, responseItems)
 }
 
+func (h repaymentHandler) Get(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "repayment.Get")
+	defer span.End()
+
+	input := RepaymentGetInput{
+		ID: id,
+	}
+
+	output, err := h.u.Get(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to get repayment: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := &api.RepaymentGetResponse{
+		Id:        output.Repayment.ID().String(),
+		PayerId:   output.Repayment.PayerID().String(),
+		DebtorId:  output.Repayment.DebtorID().String(),
+		Amount:    uint64(output.Repayment.Amount().Value()),
+		CreatedAt: output.Repayment.CreatedAt(),
+		UpdatedAt: output.Repayment.UpdatedAt(),
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
 type RepaymentCreateInput struct {
 	PayerID  uuid.UUID
 	DebtorID uuid.UUID
@@ -154,4 +186,12 @@ type RepaymentGetAllInput struct {
 
 type RepaymentGetAllOutput struct {
 	Repayments []*domain.Repayment
+}
+
+type RepaymentGetInput struct {
+	ID string
+}
+
+type RepaymentGetOutput struct {
+	Repayment *domain.Repayment
 }

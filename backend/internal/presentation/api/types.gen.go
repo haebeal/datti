@@ -184,6 +184,16 @@ type RepaymentGetAllResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// RepaymentGetResponse defines model for Repayment.GetResponse.
+type RepaymentGetResponse struct {
+	Amount    uint64    `json:"amount"`
+	CreatedAt time.Time `json:"createdAt"`
+	DebtorId  string    `json:"debtorId"`
+	Id        string    `json:"id"`
+	PayerId   string    `json:"payerId"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 // GroupCreateJSONRequestBody defines body for GroupCreate for application/json ContentType.
 type GroupCreateJSONRequestBody = GroupCreateRequest
 

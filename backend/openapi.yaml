@@ -152,6 +152,49 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Repayment.CreateRequest'
+  /repayments/{id}:
+    get:
+      operationId: Repayment_get
+      summary: 返済の取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repayment.GetResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Repayments
   /groups:
     get:
       operationId: Group_getAll
@@ -879,6 +922,31 @@ components:
           type: string
           format: date-time
     Repayment.GetAllResponse:
+      type: object
+      required:
+        - id
+        - payerId
+        - debtorId
+        - amount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        payerId:
+          type: string
+        debtorId:
+          type: string
+        amount:
+          type: integer
+          format: uint64
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Repayment.GetResponse:
       type: object
       required:
         - id

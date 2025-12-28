@@ -55,6 +55,9 @@ type ServerInterface interface {
 	// 返済の作成
 	// (POST /repayments)
 	RepaymentCreate(ctx echo.Context) error
+	// 返済の取得
+	// (GET /repayments/{id})
+	RepaymentGet(ctx echo.Context, id string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -251,6 +254,24 @@ func (w *ServerInterfaceWrapper) RepaymentCreate(ctx echo.Context) error {
 	return err
 }
 
+// RepaymentGet converts echo context to params.
+func (w *ServerInterfaceWrapper) RepaymentGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.RepaymentGet(ctx, id)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -293,5 +314,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.PUT(baseURL+"/lendings/:id", wrapper.LendingUpdate)
 	router.GET(baseURL+"/repayments", wrapper.RepaymentGetAll)
 	router.POST(baseURL+"/repayments", wrapper.RepaymentCreate)
+	router.GET(baseURL+"/repayments/:id", wrapper.RepaymentGet)
 
 }

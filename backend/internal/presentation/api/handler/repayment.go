@@ -14,6 +14,7 @@ import (
 
 type RepaymentUseCase interface {
 	Create(context.Context, RepaymentCreateInput) (*RepaymentCreateOutput, error)
+	GetAll(context.Context, RepaymentGetAllInput) (*RepaymentGetAllOutput, error)
 }
 
 type repaymentHandler struct {
@@ -93,6 +94,50 @@ func (h repaymentHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
+func (h repaymentHandler) GetAll(c echo.Context) error {
+	ctx, span := tracer.Start(c.Request().Context(), "repayment.GetAll")
+	defer span.End()
+
+	userID, ok := c.Get("uid").(uuid.UUID)
+	if !ok {
+		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := RepaymentGetAllInput{
+		UserID: userID,
+	}
+
+	output, err := h.u.GetAll(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to get repayments: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	responseItems := make([]api.RepaymentGetAllResponse, 0)
+	for _, r := range output.Repayments {
+		responseItems = append(responseItems, api.RepaymentGetAllResponse{
+			Id:        r.ID().String(),
+			PayerId:   r.PayerID().String(),
+			DebtorId:  r.DebtorID().String(),
+			Amount:    uint64(r.Amount().Value()),
+			CreatedAt: r.CreatedAt(),
+			UpdatedAt: r.UpdatedAt(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, responseItems)
+}
+
 type RepaymentCreateInput struct {
 	PayerID  uuid.UUID
 	DebtorID uuid.UUID
@@ -101,4 +146,12 @@ type RepaymentCreateInput struct {
 
 type RepaymentCreateOutput struct {
 	Repayment *domain.Repayment
+}
+
+type RepaymentGetAllInput struct {
+	UserID uuid.UUID
+}
+
+type RepaymentGetAllOutput struct {
+	Repayments []*domain.Repayment
 }

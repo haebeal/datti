@@ -29,6 +29,7 @@ type RepaymentHandler interface {
 	Create(c echo.Context) error
 	GetAll(c echo.Context) error
 	Get(c echo.Context, id string) error
+	Update(c echo.Context, id string) error
 }
 
 type GroupHandler interface {
@@ -109,6 +110,10 @@ func (s *Server) RepaymentGetAll(ctx echo.Context) error {
 
 func (s *Server) RepaymentGet(ctx echo.Context, id string) error {
 	return s.rh.Get(ctx, id)
+}
+
+func (s *Server) RepaymentUpdate(ctx echo.Context, id string) error {
+	return s.rh.Update(ctx, id)
 }
 
 func (s *Server) GroupCreate(ctx echo.Context) error {

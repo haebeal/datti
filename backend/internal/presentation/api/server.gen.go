@@ -64,6 +64,9 @@ type ServerInterface interface {
 	// 返済の取得
 	// (GET /repayments/{id})
 	RepaymentGet(ctx echo.Context, id string) error
+	// 返済の更新
+	// (PUT /repayments/{id})
+	RepaymentUpdate(ctx echo.Context, id string) error
 	// ユーザー検索
 	// (GET /users)
 	UserSearch(ctx echo.Context, params UserSearchParams) error
@@ -317,6 +320,24 @@ func (w *ServerInterfaceWrapper) RepaymentGet(ctx echo.Context) error {
 	return err
 }
 
+// RepaymentUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) RepaymentUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.RepaymentUpdate(ctx, id)
+	return err
+}
+
 // UserSearch converts echo context to params.
 func (w *ServerInterfaceWrapper) UserSearch(ctx echo.Context) error {
 	var err error
@@ -396,6 +417,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/repayments", wrapper.RepaymentGetAll)
 	router.POST(baseURL+"/repayments", wrapper.RepaymentCreate)
 	router.GET(baseURL+"/repayments/:id", wrapper.RepaymentGet)
+	router.PUT(baseURL+"/repayments/:id", wrapper.RepaymentUpdate)
 	router.GET(baseURL+"/users", wrapper.UserSearch)
 
 }

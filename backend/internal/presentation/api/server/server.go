@@ -38,6 +38,10 @@ type GroupHandler interface {
 	GetMembers(c echo.Context, id string) error
 }
 
+type UserHandler interface {
+	Search(c echo.Context, params api.UserSearchParams) error
+}
+
 type Server struct {
 	lh LendingHandler
 	bh BorrowingHandler
@@ -45,9 +49,10 @@ type Server struct {
 	hh HealthHandler
 	rh RepaymentHandler
 	gh GroupHandler
+	uh UserHandler
 }
 
-func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler, uh UserHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		bh: bh,
@@ -55,6 +60,7 @@ func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh Heal
 		hh: hh,
 		rh: rh,
 		gh: gh,
+		uh: uh,
 	}
 }
 
@@ -117,4 +123,8 @@ func (s *Server) GroupAddMember(ctx echo.Context, id string) error {
 
 func (s *Server) GroupGetMembers(ctx echo.Context, id string) error {
 	return s.gh.GetMembers(ctx, id)
+}
+
+func (s *Server) UserSearch(ctx echo.Context, params api.UserSearchParams) error {
+	return s.uh.Search(ctx, params)
 }

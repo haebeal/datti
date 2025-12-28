@@ -1,7 +1,8 @@
 @import "tailwindcss";
+@plugin "tailwindcss-react-aria-components";
 
 :root {
-  --background: #ffffff;
+  --background: #edf2f7;
   --foreground: #171717;
 }
 

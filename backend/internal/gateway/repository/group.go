@@ -76,3 +76,34 @@ func (gr *GroupRepositoryImpl) FindByMemberUserID(ctx context.Context, userID uu
 
 	return groups, nil
 }
+
+func (gr *GroupRepositoryImpl) FindByID(ctx context.Context, groupID ulid.ULID) (*domain.Group, error) {
+	ctx, span := tracer.Start(ctx, "group.FindByID")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT id, name, owner_id, created_at, updated_at FROM groups WHERE id = $1 LIMIT 1")
+	row, err := gr.queries.FindGroupByID(ctx, groupID.String())
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	parsedID, err := ulid.Parse(row.ID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	group, err := domain.NewGroup(parsedID, row.Name, row.OwnerID, row.CreatedAt, row.UpdatedAt)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	return group, nil
+}

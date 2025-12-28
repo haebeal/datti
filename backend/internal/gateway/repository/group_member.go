@@ -38,3 +38,20 @@ func (gmr *GroupMemberRepositoryImpl) AddMember(ctx context.Context, groupID uli
 
 	return nil
 }
+
+func (gmr *GroupMemberRepositoryImpl) FindMembersByGroupID(ctx context.Context, groupID ulid.ULID) ([]uuid.UUID, error) {
+	ctx, span := tracer.Start(ctx, "groupMember.FindMembersByGroupID")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT user_id FROM group_members WHERE group_id = $1 ORDER BY created_at ASC")
+	rows, err := gmr.queries.FindGroupMembersByGroupID(ctx, groupID.String())
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	return rows, nil
+}

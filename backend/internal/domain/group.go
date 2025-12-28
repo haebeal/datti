@@ -69,4 +69,5 @@ func (g *Group) UpdatedAt() time.Time {
 type GroupRepository interface {
 	Create(context.Context, *Group) error
 	FindByMemberUserID(context.Context, uuid.UUID) ([]*Group, error)
+	FindByID(context.Context, ulid.ULID) (*Group, error)
 }

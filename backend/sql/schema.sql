@@ -18,11 +18,15 @@ CREATE TABLE events (
 
 CREATE TABLE payments (
   id TEXT PRIMARY KEY,
-  event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
   payer_id UUID NOT NULL REFERENCES users(id),
   debtor_id UUID NOT NULL REFERENCES users(id),
   amount INT NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  UNIQUE(event_id, payer_id, debtor_id)
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE event_payments (
+  event_id TEXT NOT NULL REFERENCES events(id) ON DELETE CASCADE,
+  payment_id TEXT NOT NULL REFERENCES payments(id) ON DELETE CASCADE,
+  PRIMARY KEY (event_id, payment_id)
 );

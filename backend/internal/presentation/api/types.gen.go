@@ -51,6 +51,15 @@ type GroupCreateResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// GroupGetAllResponse defines model for Group.GetAllResponse.
+type GroupGetAllResponse struct {
+	CreatedAt time.Time `json:"createdAt"`
+	CreatedBy string    `json:"createdBy"`
+	Id        string    `json:"id"`
+	Name      string    `json:"name"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 // HealthCheckResponse defines model for Health.CheckResponse.
 type HealthCheckResponse struct {
 	Status    HealthCheckResponseStatus `json:"status"`

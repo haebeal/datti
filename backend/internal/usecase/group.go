@@ -49,3 +49,19 @@ func (u GroupUseCaseImpl) Create(ctx context.Context, input handler.GroupCreateI
 		Group: group,
 	}, nil
 }
+
+func (u GroupUseCaseImpl) GetAll(ctx context.Context, input handler.GroupGetAllInput) (*handler.GroupGetAllOutput, error) {
+	ctx, span := tracer.Start(ctx, "group.GetAll")
+	defer span.End()
+
+	groups, err := u.gr.FindByMemberUserID(ctx, input.UserID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	return &handler.GroupGetAllOutput{
+		Groups: groups,
+	}, nil
+}

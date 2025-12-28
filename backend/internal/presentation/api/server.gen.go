@@ -19,6 +19,9 @@ type ServerInterface interface {
 	// 債権一覧の取得
 	// (GET /credits)
 	CreditsList(ctx echo.Context) error
+	// グループ一覧の取得
+	// (GET /groups)
+	GroupGetAll(ctx echo.Context) error
 	// グループの作成
 	// (POST /groups)
 	GroupCreate(ctx echo.Context) error
@@ -69,6 +72,17 @@ func (w *ServerInterfaceWrapper) CreditsList(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.CreditsList(ctx)
+	return err
+}
+
+// GroupGetAll converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupGetAll(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupGetAll(ctx)
 	return err
 }
 
@@ -211,6 +225,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 
 	router.GET(baseURL+"/borrowings", wrapper.BorrowingGetAll)
 	router.GET(baseURL+"/credits", wrapper.CreditsList)
+	router.GET(baseURL+"/groups", wrapper.GroupGetAll)
 	router.POST(baseURL+"/groups", wrapper.GroupCreate)
 	router.GET(baseURL+"/health", wrapper.HealthCheck)
 	router.GET(baseURL+"/lendings", wrapper.LendingGetAll)

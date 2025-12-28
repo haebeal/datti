@@ -14,6 +14,7 @@ import (
 
 type GroupUseCase interface {
 	Create(context.Context, GroupCreateInput) (*GroupCreateOutput, error)
+	GetAll(context.Context, GroupGetAllInput) (*GroupGetAllOutput, error)
 }
 
 type groupHandler struct {
@@ -78,6 +79,49 @@ func (h groupHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
+func (h groupHandler) GetAll(c echo.Context) error {
+	ctx, span := tracer.Start(c.Request().Context(), "group.GetAll")
+	defer span.End()
+
+	userID, ok := c.Get("uid").(uuid.UUID)
+	if !ok {
+		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := GroupGetAllInput{
+		UserID: userID,
+	}
+
+	output, err := h.u.GetAll(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to get groups: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := []api.GroupGetAllResponse{}
+	for _, group := range output.Groups {
+		res = append(res, api.GroupGetAllResponse{
+			Id:        group.ID().String(),
+			Name:      group.Name(),
+			CreatedBy: group.OwnerID().String(),
+			CreatedAt: group.CreatedAt(),
+			UpdatedAt: group.UpdatedAt(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
 type GroupCreateInput struct {
 	OwnerID uuid.UUID
 	Name    string
@@ -85,4 +129,12 @@ type GroupCreateInput struct {
 
 type GroupCreateOutput struct {
 	Group *domain.Group
+}
+
+type GroupGetAllInput struct {
+	UserID uuid.UUID
+}
+
+type GroupGetAllOutput struct {
+	Groups []*domain.Group
 }

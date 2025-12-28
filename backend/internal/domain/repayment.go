@@ -104,4 +104,5 @@ type RepaymentRepository interface {
 	FindByID(context.Context, ulid.ULID) (*Repayment, error)
 	FindByPayerID(context.Context, uuid.UUID) ([]*Repayment, error)
 	Update(context.Context, *Repayment) error
+	Delete(context.Context, ulid.ULID) error
 }

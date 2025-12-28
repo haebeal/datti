@@ -124,6 +124,9 @@ UPDATE payments
 SET amount = $2, updated_at = $3
 WHERE id = $1;
 
+-- name: DeleteRepayment :exec
+DELETE FROM payments WHERE id = $1;
+
 -- name: CreateGroup :exec
 INSERT INTO groups (id, name, created_by, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5);

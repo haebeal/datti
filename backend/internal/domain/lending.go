@@ -85,4 +85,5 @@ type LendingEventRepository interface {
 	FindByID(context.Context, ulid.ULID) (*Lending, error)
 	FindByUserID(context.Context, uuid.UUID) ([]*Lending, error)
 	Update(context.Context, *Lending) error
+	Delete(context.Context, ulid.ULID) error
 }

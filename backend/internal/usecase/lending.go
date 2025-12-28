@@ -311,3 +311,30 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 		Debtors: updatedDebtors,
 	}, nil
 }
+
+func (u LendingUseCaseImpl) Delete(ctx context.Context, i handler.DeleteInput) error {
+	ctx, span := tracer.Start(ctx, "lending.Delete")
+	defer span.End()
+
+	payer, err := u.pr.FindByEventID(ctx, i.EventID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	if payer.ID() != i.UserID {
+		err = fmt.Errorf("forbidden Error")
+		// NOTE: 正常系のためスパンステータスをエラーに設定しない
+		return err
+	}
+
+	err = u.lr.Delete(ctx, i.EventID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	return nil
+}

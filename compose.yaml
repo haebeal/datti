@@ -1,15 +1,4 @@
 services:
-  app:
-    container_name: datti
-    build:
-      context: .
-      dockerfile: Dockerfile
-      no_cache: true
-    environment:
-      - TZ=Asia/Tokyo
-    tty: true
-    depends_on:
-      - db
   db:
     container_name: datti-db
     ports:
@@ -23,8 +12,7 @@ services:
   jaeger:
     image: jaegertracing/all-in-one
     ports:
-      - "16686:16686"
-      - "4318:4318"
+      - 16686:16686
+      - 4318:4318
     environment:
       - LOG_LEVEL=debug
-

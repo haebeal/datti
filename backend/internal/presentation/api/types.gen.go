@@ -69,6 +69,20 @@ type GroupGetResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// GroupUpdateRequest defines model for Group.UpdateRequest.
+type GroupUpdateRequest struct {
+	Name string `json:"name"`
+}
+
+// GroupUpdateResponse defines model for Group.UpdateResponse.
+type GroupUpdateResponse struct {
+	CreatedAt time.Time `json:"createdAt"`
+	CreatedBy string    `json:"createdBy"`
+	Id        string    `json:"id"`
+	Name      string    `json:"name"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 // HealthCheckResponse defines model for Health.CheckResponse.
 type HealthCheckResponse struct {
 	Status    HealthCheckResponseStatus `json:"status"`
@@ -162,6 +176,9 @@ type RepaymentCreateResponse struct {
 
 // GroupCreateJSONRequestBody defines body for GroupCreate for application/json ContentType.
 type GroupCreateJSONRequestBody = GroupCreateRequest
+
+// GroupUpdateJSONRequestBody defines body for GroupUpdate for application/json ContentType.
+type GroupUpdateJSONRequestBody = GroupUpdateRequest
 
 // LendingCreateJSONRequestBody defines body for LendingCreate for application/json ContentType.
 type LendingCreateJSONRequestBody = LendingCreateRequest

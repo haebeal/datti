@@ -103,3 +103,37 @@ func (u GroupUseCaseImpl) Get(ctx context.Context, input handler.GroupGetInput) 
 		Group: group,
 	}, nil
 }
+
+func (u GroupUseCaseImpl) Update(ctx context.Context, input handler.GroupUpdateInput) (*handler.GroupUpdateOutput, error) {
+	ctx, span := tracer.Start(ctx, "group.Update")
+	defer span.End()
+
+	group, err := u.gr.FindByID(ctx, input.GroupID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	if input.UserID != group.OwnerID() {
+		return nil, fmt.Errorf("forbidden Error")
+	}
+
+	updatedGroup, err := group.Update(input.Name)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	err = u.gr.Update(ctx, updatedGroup)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	return &handler.GroupUpdateOutput{
+		Group: updatedGroup,
+	}, nil
+}

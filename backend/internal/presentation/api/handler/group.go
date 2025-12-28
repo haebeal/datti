@@ -17,6 +17,7 @@ type GroupUseCase interface {
 	Create(context.Context, GroupCreateInput) (*GroupCreateOutput, error)
 	GetAll(context.Context, GroupGetAllInput) (*GroupGetAllOutput, error)
 	Get(context.Context, GroupGetInput) (*GroupGetOutput, error)
+	Update(context.Context, GroupUpdateInput) (*GroupUpdateOutput, error)
 }
 
 type groupHandler struct {
@@ -179,6 +180,73 @@ func (h groupHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h groupHandler) Update(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "group.Update")
+	defer span.End()
+
+	groupID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	var req api.GroupUpdateRequest
+	if err := c.Bind(&req); err != nil {
+		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	userID, ok := c.Get("uid").(uuid.UUID)
+	if !ok {
+		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := GroupUpdateInput{
+		UserID:  userID,
+		GroupID: groupID,
+		Name:    req.Name,
+	}
+
+	output, err := h.u.Update(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to update group: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		if err.Error() == "forbidden Error" {
+			return c.JSON(http.StatusForbidden, res)
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := &api.GroupUpdateResponse{
+		Id:        output.Group.ID().String(),
+		Name:      output.Group.Name(),
+		CreatedBy: output.Group.OwnerID().String(),
+		CreatedAt: output.Group.CreatedAt(),
+		UpdatedAt: output.Group.UpdatedAt(),
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
 type GroupCreateInput struct {
 	OwnerID uuid.UUID
 	Name    string
@@ -202,5 +270,15 @@ type GroupGetInput struct {
 }
 
 type GroupGetOutput struct {
+	Group *domain.Group
+}
+
+type GroupUpdateInput struct {
+	UserID  uuid.UUID
+	GroupID ulid.ULID
+	Name    string
+}
+
+type GroupUpdateOutput struct {
 	Group *domain.Group
 }

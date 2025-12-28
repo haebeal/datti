@@ -25,7 +25,7 @@ func (u GroupUseCaseImpl) Create(ctx context.Context, input handler.GroupCreateI
 	ctx, span := tracer.Start(ctx, "group.Create")
 	defer span.End()
 
-	group, err := domain.CreateGroup(input.Name, input.OwnerID)
+	group, err := domain.CreateGroup(input.Name, input.CreatedBy)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -39,7 +39,7 @@ func (u GroupUseCaseImpl) Create(ctx context.Context, input handler.GroupCreateI
 		return nil, err
 	}
 
-	err = u.gmr.AddMember(ctx, group.ID(), group.OwnerID())
+	err = u.gmr.AddMember(ctx, group.ID(), group.CreatedBy())
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -78,7 +78,7 @@ func (u GroupUseCaseImpl) Get(ctx context.Context, input handler.GroupGetInput) 
 		return nil, err
 	}
 
-	if input.UserID != group.OwnerID() {
+	if input.UserID != group.CreatedBy() {
 		memberIDs, err := u.gmr.FindMembersByGroupID(ctx, input.GroupID)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
@@ -115,7 +115,7 @@ func (u GroupUseCaseImpl) Update(ctx context.Context, input handler.GroupUpdateI
 		return nil, err
 	}
 
-	if input.UserID != group.OwnerID() {
+	if input.UserID != group.CreatedBy() {
 		return nil, fmt.Errorf("forbidden Error")
 	}
 

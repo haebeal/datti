@@ -28,7 +28,7 @@ func (gr *GroupRepositoryImpl) Create(ctx context.Context, group *domain.Group) 
 	err := gr.queries.CreateGroup(ctx, postgres.CreateGroupParams{
 		ID:        group.ID().String(),
 		Name:      group.Name(),
-		OwnerID:   group.OwnerID(),
+		OwnerID:   group.CreatedBy(),
 		CreatedAt: group.CreatedAt(),
 		UpdatedAt: group.UpdatedAt(),
 	})

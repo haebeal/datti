@@ -45,7 +45,7 @@ func (h groupHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	ownerID, ok := c.Get("uid").(uuid.UUID)
+	createdBy, ok := c.Get("uid").(uuid.UUID)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -56,8 +56,8 @@ func (h groupHandler) Create(c echo.Context) error {
 	}
 
 	input := GroupCreateInput{
-		OwnerID: ownerID,
-		Name:    req.Name,
+		CreatedBy: createdBy,
+		Name:      req.Name,
 	}
 
 	output, err := h.u.Create(ctx, input)
@@ -72,7 +72,7 @@ func (h groupHandler) Create(c echo.Context) error {
 	}
 
 	res := &api.GroupCreateResponse{
-		CreatedBy: output.Group.OwnerID().String(),
+		CreatedBy: output.Group.CreatedBy().String(),
 		Id:        output.Group.ID().String(),
 		Name:      output.Group.Name(),
 		CreatedAt: output.Group.CreatedAt(),
@@ -116,7 +116,7 @@ func (h groupHandler) GetAll(c echo.Context) error {
 		res = append(res, api.GroupGetAllResponse{
 			Id:        group.ID().String(),
 			Name:      group.Name(),
-			CreatedBy: group.OwnerID().String(),
+			CreatedBy: group.CreatedBy().String(),
 			CreatedAt: group.CreatedAt(),
 			UpdatedAt: group.UpdatedAt(),
 		})
@@ -172,7 +172,7 @@ func (h groupHandler) Get(c echo.Context, id string) error {
 	res := &api.GroupGetResponse{
 		Id:        output.Group.ID().String(),
 		Name:      output.Group.Name(),
-		CreatedBy: output.Group.OwnerID().String(),
+		CreatedBy: output.Group.CreatedBy().String(),
 		CreatedAt: output.Group.CreatedAt(),
 		UpdatedAt: output.Group.UpdatedAt(),
 	}
@@ -239,7 +239,7 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 	res := &api.GroupUpdateResponse{
 		Id:        output.Group.ID().String(),
 		Name:      output.Group.Name(),
-		CreatedBy: output.Group.OwnerID().String(),
+		CreatedBy: output.Group.CreatedBy().String(),
 		CreatedAt: output.Group.CreatedAt(),
 		UpdatedAt: output.Group.UpdatedAt(),
 	}
@@ -248,8 +248,8 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 }
 
 type GroupCreateInput struct {
-	OwnerID uuid.UUID
-	Name    string
+	CreatedBy uuid.UUID
+	Name      string
 }
 
 type GroupCreateOutput struct {

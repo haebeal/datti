@@ -14,17 +14,17 @@ import (
 type Group struct {
 	id        ulid.ULID
 	name      string
-	ownerID   uuid.UUID
+	createdBy uuid.UUID
 	createdAt time.Time
 	updatedAt time.Time
 }
 
-func NewGroup(id ulid.ULID, name string, ownerID uuid.UUID, createdAt time.Time, updatedAt time.Time) (*Group, error) {
+func NewGroup(id ulid.ULID, name string, createdBy uuid.UUID, createdAt time.Time, updatedAt time.Time) (*Group, error) {
 	if utf8.RuneCountInString(name) < 1 {
 		return nil, fmt.Errorf("グループ名は1文字以上である必要があります: %v", name)
 	}
-	if ownerID == uuid.Nil {
-		return nil, fmt.Errorf("ownerID must not be nil")
+	if createdBy == uuid.Nil {
+		return nil, fmt.Errorf("createdBy must not be nil")
 	}
 	if createdAt.After(updatedAt) {
 		return nil, fmt.Errorf("作成日は更新日より前である必要があります")
@@ -33,21 +33,21 @@ func NewGroup(id ulid.ULID, name string, ownerID uuid.UUID, createdAt time.Time,
 	return &Group{
 		id:        id,
 		name:      name,
-		ownerID:   ownerID,
+		createdBy: createdBy,
 		createdAt: createdAt,
 		updatedAt: updatedAt,
 	}, nil
 }
 
-func CreateGroup(name string, ownerID uuid.UUID) (*Group, error) {
+func CreateGroup(name string, createdBy uuid.UUID) (*Group, error) {
 	id := ulid.Make()
 	now := time.Now()
 
-	return NewGroup(id, name, ownerID, now, now)
+	return NewGroup(id, name, createdBy, now, now)
 }
 
 func (g *Group) Update(name string) (*Group, error) {
-	return NewGroup(g.id, name, g.ownerID, g.createdAt, time.Now())
+	return NewGroup(g.id, name, g.createdBy, g.createdAt, time.Now())
 }
 
 func (g *Group) ID() ulid.ULID {
@@ -58,8 +58,8 @@ func (g *Group) Name() string {
 	return g.name
 }
 
-func (g *Group) OwnerID() uuid.UUID {
-	return g.ownerID
+func (g *Group) CreatedBy() uuid.UUID {
+	return g.createdBy
 }
 
 func (g *Group) CreatedAt() time.Time {

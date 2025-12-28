@@ -37,6 +37,11 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
+// GroupAddMemberRequest defines model for Group.AddMemberRequest.
+type GroupAddMemberRequest struct {
+	UserId string `json:"userId"`
+}
+
 // GroupCreateRequest defines model for Group.CreateRequest.
 type GroupCreateRequest struct {
 	Name string `json:"name"`
@@ -179,6 +184,9 @@ type GroupCreateJSONRequestBody = GroupCreateRequest
 
 // GroupUpdateJSONRequestBody defines body for GroupUpdate for application/json ContentType.
 type GroupUpdateJSONRequestBody = GroupUpdateRequest
+
+// GroupAddMemberJSONRequestBody defines body for GroupAddMember for application/json ContentType.
+type GroupAddMemberJSONRequestBody = GroupAddMemberRequest
 
 // LendingCreateJSONRequestBody defines body for LendingCreate for application/json ContentType.
 type LendingCreateJSONRequestBody = LendingCreateRequest

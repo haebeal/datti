@@ -5,8 +5,8 @@
 誰にいくら払ったかを記録・共有するサービス
 
 ## リポジトリ構成
-- `apps/backend`: Go 製 API サーバー本体。Taskfile やスキーマ、OpenAPI 生成物を含む
-- `docs`: TypeSpec から生成された OpenAPI などドキュメント類
+- `backend`: Go 製 API サーバー本体。Taskfile やスキーマ、OpenAPI 生成物を含む
+- `backend/openapi.yaml`: OpenAPI 定義
 - `infra`: Terraform などインフラ構成管理
 - `.devcontainer`: VS Code Dev Container 用設定と Dockerfile
 
@@ -26,7 +26,7 @@
 | [dlv](https://github.com/go-delve/delve) | 最新 | `go install github.com/go-delve/delve/cmd/dlv@latest` |
 
 ## 環境変数
-`apps/backend/.env.example` を複製して `.env` を作成し、必要に応じて値を変更してください。Task は `.env` を自動で読み込みます。
+`backend/.env.example` を複製して `.env` を作成し、必要に応じて値を変更してください。Task は `.env` を自動で読み込みます。
 
 | 変数名 | 説明 |
 | --- | --- |
@@ -47,7 +47,7 @@ Jaeger にトレースを送信する場合は Collector を起動した上で�
    - Jaeger UI: `http://localhost:16686`
 2. マイグレーション & 初期データ投入
    ```bash
-   cd apps/backend
+   cd backend
    go mod download
    task db-migrate
    task db-seed
@@ -56,7 +56,7 @@ Jaeger にトレースを送信する場合は Collector を起動した上で�
 ## ローカル開発
 - API サーバーの起動
   ```bash
-  cd apps/backend
+  cd backend
   air
   ```
   - `.air.toml` が `godotenv` と `dlv` を介してバイナリを起動します（デバッグポート :2345）
@@ -68,9 +68,8 @@ Jaeger にトレースを送信する場合は Collector を起動した上で�
 | `task db-migrate` | Atlas 経由で Postgres スキーマを適用 |
 | `task db-seed` | サンプルデータを投入 |
 | `task gen-sqlc` | `sql/query.sql` から `internal/gateway/postgres` のクエリコードを生成 |
-| `task gen-types` | OpenAPI からリクエスト/レスポンス型を生成（出力: `internal/presentation/api/types.gen.go`） |
-| `task gen-server` | OpenAPI からサーバースタブを生成（出力: `internal/presentation/api/server.gen.go`） |
+| `task gen-api` | OpenAPI から型とサーバースタブを生成（出力: `internal/presentation/api/*.gen.go`） |
 | `task gen-mocks` | モックを生成（出力: `internal/usecase/test` など） |
 | `task test` | テストの実行 |
 
-OpenAPI の元定義は `docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml` に配置されています。
+OpenAPI の元定義は `backend/openapi.yaml` に配置されています。

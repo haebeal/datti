@@ -19,9 +19,13 @@ type Event struct {
 	UpdatedAt time.Time
 }
 
+type EventPayment struct {
+	EventID   string
+	PaymentID string
+}
+
 type Payment struct {
 	ID        string
-	EventID   string
 	PayerID   uuid.UUID
 	DebtorID  uuid.UUID
 	Amount    int32

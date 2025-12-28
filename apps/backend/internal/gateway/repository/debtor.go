@@ -20,15 +20,14 @@ func NewDebtorRepository(queries *postgres.Queries) *DebtorRepositoryImpl {
 }
 
 func (dr *DebtorRepositoryImpl) Create(ctx context.Context, event *domain.Lending, payer *domain.Payer, debtor *domain.Debtor) error {
-	_, span := tracer.Start(ctx, "debtor.Create")
+	ctx, span := tracer.Start(ctx, "debtor.Create")
 	defer span.End()
 
 	paymentID := ulid.Make()
 
-	_, querySpan := tracer.Start(ctx, "INSERT INTO payments (id, event_id, payer_id, debtor_id, amount, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, current_timestamp, current_timestamp)")
+	ctx, querySpan := tracer.Start(ctx, "INSERT INTO payments (id, payer_id, debtor_id, amount, created_at, updated_at) VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp)")
 	err := dr.queries.CreatePayment(ctx, postgres.CreatePaymentParams{
 		ID:       paymentID.String(),
-		EventID:  event.ID().String(),
 		PayerID:  payer.ID(),
 		DebtorID: debtor.ID(),
 		Amount:   int32(debtor.Amount().Value()),
@@ -40,6 +39,19 @@ func (dr *DebtorRepositoryImpl) Create(ctx context.Context, event *domain.Lendin
 		return err
 	}
 	querySpan.End()
+
+	ctx, eventPaymentSpan := tracer.Start(ctx, "INSERT INTO event_payments (event_id, payment_id) VALUES ($1, $2)")
+	err = dr.queries.CreateEventPayment(ctx, postgres.CreateEventPaymentParams{
+		EventID:   event.ID().String(),
+		PaymentID: paymentID.String(),
+	})
+	if err != nil {
+		eventPaymentSpan.SetStatus(codes.Error, err.Error())
+		eventPaymentSpan.RecordError(err)
+		eventPaymentSpan.End()
+		return err
+	}
+	eventPaymentSpan.End()
 
 	return nil
 }
@@ -95,11 +107,23 @@ func (dr *DebtorRepositoryImpl) Update(ctx context.Context, event *domain.Lendin
 	ctx, span := tracer.Start(ctx, "debtor.Update")
 	defer span.End()
 
-	ctx, querySpan := tracer.Start(ctx, "UPDATE payments SET amount = $3, updated_at = current_timestamp WHERE event_id = $1 AND debtor_id = $2")
-	err := dr.queries.UpdatePaymentAmount(ctx, postgres.UpdatePaymentAmountParams{
+	ctx, findSpan := tracer.Start(ctx, "SELECT payment FROM event_payments JOIN payments WHERE event_id = $1 AND debtor_id = $2")
+	payment, err := dr.queries.FindPaymentByDebtorId(ctx, postgres.FindPaymentByDebtorIdParams{
 		EventID:  event.ID().String(),
 		DebtorID: debtor.ID(),
-		Amount:   int32(debtor.Amount().Value()),
+	})
+	if err != nil {
+		findSpan.SetStatus(codes.Error, err.Error())
+		findSpan.RecordError(err)
+		findSpan.End()
+		return err
+	}
+	findSpan.End()
+
+	ctx, querySpan := tracer.Start(ctx, "UPDATE payments SET amount = $2, updated_at = current_timestamp WHERE id = $1")
+	err = dr.queries.UpdatePaymentAmount(ctx, postgres.UpdatePaymentAmountParams{
+		ID:     payment.ID,
+		Amount: int32(debtor.Amount().Value()),
 	})
 	if err != nil {
 		querySpan.SetStatus(codes.Error, err.Error())
@@ -116,11 +140,21 @@ func (dr *DebtorRepositoryImpl) Delete(ctx context.Context, event *domain.Lendin
 	ctx, span := tracer.Start(ctx, "debtor.Delete")
 	defer span.End()
 
-	ctx, querySpan := tracer.Start(ctx, "DELETE FROM payments WHERE event_id = $1 AND debtor_id = $2")
-	err := dr.queries.DeletePayment(ctx, postgres.DeletePaymentParams{
+	ctx, findSpan := tracer.Start(ctx, "SELECT payment FROM event_payments JOIN payments WHERE event_id = $1 AND debtor_id = $2")
+	payment, err := dr.queries.FindPaymentByDebtorId(ctx, postgres.FindPaymentByDebtorIdParams{
 		EventID:  event.ID().String(),
 		DebtorID: debtor.ID(),
 	})
+	if err != nil {
+		findSpan.SetStatus(codes.Error, err.Error())
+		findSpan.RecordError(err)
+		findSpan.End()
+		return err
+	}
+	findSpan.End()
+
+	ctx, querySpan := tracer.Start(ctx, "DELETE FROM payments WHERE id = $1")
+	err = dr.queries.DeletePayment(ctx, payment.ID)
 	if err != nil {
 		querySpan.SetStatus(codes.Error, err.Error())
 		querySpan.RecordError(err)

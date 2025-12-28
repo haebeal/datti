@@ -65,3 +65,8 @@ tasks:
         mockgen -source=internal/presentation/api/handler/credit.go \
           -destination=internal/presentation/api/handler/test/mockCreditUseCase.gen.go \
           -package=handler_test
+  api-dev:
+    desc: "Start development server with hot reload"
+    dir: backend
+    cmds:
+      - air

@@ -88,6 +88,33 @@ paths:
       tags:
         - Health
   /repayments:
+    get:
+      operationId: Repayment_getAll
+      summary: 全ての返済の取得
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Repayment.GetAllResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Repayments
     post:
       operationId: Repayment_create
       summary: 返済の作成
@@ -827,6 +854,31 @@ components:
           type: integer
           format: uint64
     Repayment.CreateResponse:
+      type: object
+      required:
+        - id
+        - payerId
+        - debtorId
+        - amount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        payerId:
+          type: string
+        debtorId:
+          type: string
+        amount:
+          type: integer
+          format: uint64
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Repayment.GetAllResponse:
       type: object
       required:
         - id

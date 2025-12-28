@@ -3,8 +3,10 @@ package repository
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
+	"github.com/oklog/ulid/v2"
 	"go.opentelemetry.io/otel/codes"
 )
 
@@ -40,4 +42,47 @@ func (rr *RepaymentRepositoryImpl) Create(ctx context.Context, repayment *domain
 	querySpan.End()
 
 	return nil
+}
+
+func (rr *RepaymentRepositoryImpl) FindByPayerID(ctx context.Context, payerID uuid.UUID) ([]*domain.Repayment, error) {
+	ctx, span := tracer.Start(ctx, "repayment.FindByPayerID")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM payments WHERE payer_id = $1 AND event_id IS NULL")
+	payments, err := rr.queries.FindRepaymentsByPayerID(ctx, payerID)
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	repayments := make([]*domain.Repayment, 0, len(payments))
+	for _, p := range payments {
+		id, err := ulid.Parse(p.ID)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		amount, err := domain.NewAmount(int64(p.Amount))
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		repayment, err := domain.NewRepayment(id, p.PayerID, p.DebtorID, amount, p.CreatedAt, p.UpdatedAt)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		repayments = append(repayments, repayment)
+	}
+
+	return repayments, nil
 }

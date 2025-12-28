@@ -13,3 +13,5 @@
 .secrets
 
 tmp/
+
+mise.toml

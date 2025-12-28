@@ -369,6 +369,24 @@ func (u LendingUseCaseImpl) Delete(ctx context.Context, i handler.DeleteInput) e
 		return fmt.Errorf("forbidden Error")
 	}
 
+
+	debtors, err := u.dr.FindByEventID(ctx, i.EventID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	for _, debtor := range debtors {
+		err = u.dr.Delete(ctx, lending, debtor)
+		if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+		}
+	}
+
+
 	err = u.lr.Delete(ctx, i.EventID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())

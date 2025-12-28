@@ -24,11 +24,11 @@ func (gr *GroupRepositoryImpl) Create(ctx context.Context, group *domain.Group) 
 	ctx, span := tracer.Start(ctx, "group.Create")
 	defer span.End()
 
-	ctx, querySpan := tracer.Start(ctx, "INSERT INTO groups (id, name, owner_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)")
+	ctx, querySpan := tracer.Start(ctx, "INSERT INTO groups (id, name, created_by, created_at, updated_at) VALUES ($1, $2, $3, $4, $5)")
 	err := gr.queries.CreateGroup(ctx, postgres.CreateGroupParams{
 		ID:        group.ID().String(),
 		Name:      group.Name(),
-		OwnerID:   group.CreatedBy(),
+		CreatedBy: group.CreatedBy(),
 		CreatedAt: group.CreatedAt(),
 		UpdatedAt: group.UpdatedAt(),
 	})
@@ -65,7 +65,7 @@ func (gr *GroupRepositoryImpl) FindByMemberUserID(ctx context.Context, userID uu
 			span.RecordError(err)
 			return nil, err
 		}
-		group, err := domain.NewGroup(groupID, row.Name, row.OwnerID, row.CreatedAt, row.UpdatedAt)
+		group, err := domain.NewGroup(groupID, row.Name, row.CreatedBy, row.CreatedAt, row.UpdatedAt)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
@@ -81,7 +81,7 @@ func (gr *GroupRepositoryImpl) FindByID(ctx context.Context, groupID ulid.ULID) 
 	ctx, span := tracer.Start(ctx, "group.FindByID")
 	defer span.End()
 
-	ctx, querySpan := tracer.Start(ctx, "SELECT id, name, owner_id, created_at, updated_at FROM groups WHERE id = $1 LIMIT 1")
+	ctx, querySpan := tracer.Start(ctx, "SELECT id, name, created_by, created_at, updated_at FROM groups WHERE id = $1 LIMIT 1")
 	row, err := gr.queries.FindGroupByID(ctx, groupID.String())
 	if err != nil {
 		querySpan.SetStatus(codes.Error, err.Error())
@@ -98,7 +98,7 @@ func (gr *GroupRepositoryImpl) FindByID(ctx context.Context, groupID ulid.ULID) 
 		return nil, err
 	}
 
-	group, err := domain.NewGroup(parsedID, row.Name, row.OwnerID, row.CreatedAt, row.UpdatedAt)
+	group, err := domain.NewGroup(parsedID, row.Name, row.CreatedBy, row.CreatedAt, row.UpdatedAt)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)

@@ -93,3 +93,11 @@ ORDER BY payer_id;
 -- name: CreateRepayment :exec
 INSERT INTO payments (id, payer_id, debtor_id, amount, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6);
+
+-- name: CreateGroup :exec
+INSERT INTO groups (id, name, owner_id, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5);
+
+-- name: AddGroupMember :exec
+INSERT INTO group_members (group_id, user_id, created_at)
+VALUES ($1, $2, current_timestamp);

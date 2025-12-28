@@ -8,6 +8,7 @@ tags:
   - name: Borrowings
   - name: Credits
   - name: Repayments
+  - name: Groups
   - name: Health
 paths:
   /borrowings:

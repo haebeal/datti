@@ -86,3 +86,41 @@ func (rr *RepaymentRepositoryImpl) FindByPayerID(ctx context.Context, payerID uu
 
 	return repayments, nil
 }
+
+func (rr *RepaymentRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID) (*domain.Repayment, error) {
+	ctx, span := tracer.Start(ctx, "repayment.FindByID")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM payments WHERE id = $1 AND event_id IS NULL")
+	p, err := rr.queries.FindRepaymentByID(ctx, id.String())
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	parsedID, err := ulid.Parse(p.ID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	amount, err := domain.NewAmount(int64(p.Amount))
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	repayment, err := domain.NewRepayment(parsedID, p.PayerID, p.DebtorID, amount, p.CreatedAt, p.UpdatedAt)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	return repayment, nil
+}

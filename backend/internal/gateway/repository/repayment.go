@@ -1,0 +1,43 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/haebeal/datti/internal/domain"
+	"github.com/haebeal/datti/internal/gateway/postgres"
+	"go.opentelemetry.io/otel/codes"
+)
+
+type RepaymentRepositoryImpl struct {
+	queries *postgres.Queries
+}
+
+func NewRepaymentRepository(queries *postgres.Queries) *RepaymentRepositoryImpl {
+	return &RepaymentRepositoryImpl{
+		queries: queries,
+	}
+}
+
+func (rr *RepaymentRepositoryImpl) Create(ctx context.Context, repayment *domain.Repayment) error {
+	ctx, span := tracer.Start(ctx, "repayment.Create")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "INSERT INTO payments (id, payer_id, debtor_id, amount, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)")
+	err := rr.queries.CreateRepayment(ctx, postgres.CreateRepaymentParams{
+		ID:        repayment.ID().String(),
+		PayerID:   repayment.PayerID(),
+		DebtorID:  repayment.DebtorID(),
+		Amount:    int32(repayment.Amount().Value()),
+		CreatedAt: repayment.CreatedAt(),
+		UpdatedAt: repayment.UpdatedAt(),
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}

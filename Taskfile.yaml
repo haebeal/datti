@@ -19,18 +19,18 @@ tasks:
   gen-sqlc:
     dir: backend
     cmds:
-      - go tool sqlc generate
+      - sqlc generate
   gen-api:
     desc: "Generate types and server from OpenAPI"
     dir: backend
     cmds:
       - |
-        go tool oapi-codegen -generate "types" \
+        oapi-codegen -generate "types" \
           -package api \
           ./openapi.yaml \
           > ./internal/presentation/api/types.gen.go
       - |
-        go tool oapi-codegen -generate "server" \
+        oapi-codegen -generate "server" \
           -package api ./openapi.yaml \
           > ./internal/presentation/api/server.gen.go
   test:
@@ -42,26 +42,26 @@ tasks:
     dir: backend
     cmds:
       - |
-        go tool mockgen -source=internal/domain/user.go \
+        mockgen -source=internal/domain/user.go \
           -destination=internal/usecase/test/mockUserRepository.gen.go \
           -package=usecase_test
       - |
-        go tool mockgen -source=internal/domain/lending.go \
+        mockgen -source=internal/domain/lending.go \
           -destination=internal/usecase/test/mockLendingEventRepository.gen.go \
           -package=usecase_test
       - |
-        go tool mockgen -source=internal/domain/payer.go \
+        mockgen -source=internal/domain/payer.go \
           -destination=internal/usecase/test/mockPayerRepository.gen.go \
           -package=usecase_test
       - |
-        go tool mockgen -source=internal/domain/credit.go \
+        mockgen -source=internal/domain/credit.go \
           -destination=internal/usecase/test/mockCreditRepository.gen.go \
           -package=usecase_test
       - |
-        go tool mockgen -source=internal/presentation/api/handler/lending.go \
+        mockgen -source=internal/presentation/api/handler/lending.go \
           -destination=internal/presentation/api/handler/test/mockLendingUseCase.gen.go \
           -package=handler_test
       - |
-        go tool mockgen -source=internal/presentation/api/handler/credit.go \
+        mockgen -source=internal/presentation/api/handler/credit.go \
           -destination=internal/presentation/api/handler/test/mockCreditUseCase.gen.go \
           -package=handler_test

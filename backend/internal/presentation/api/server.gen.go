@@ -37,6 +37,9 @@ type ServerInterface interface {
 	// 立て替えの更新
 	// (PUT /lendings/{id})
 	LendingUpdate(ctx echo.Context, id string) error
+	// 全ての返済の取得
+	// (GET /repayments)
+	RepaymentGetAll(ctx echo.Context) error
 	// 返済の作成
 	// (POST /repayments)
 	RepaymentCreate(ctx echo.Context) error
@@ -156,6 +159,17 @@ func (w *ServerInterfaceWrapper) LendingUpdate(ctx echo.Context) error {
 	return err
 }
 
+// RepaymentGetAll converts echo context to params.
+func (w *ServerInterfaceWrapper) RepaymentGetAll(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.RepaymentGetAll(ctx)
+	return err
+}
+
 // RepaymentCreate converts echo context to params.
 func (w *ServerInterfaceWrapper) RepaymentCreate(ctx echo.Context) error {
 	var err error
@@ -203,6 +217,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.DELETE(baseURL+"/lendings/:id", wrapper.LendingDelete)
 	router.GET(baseURL+"/lendings/:id", wrapper.LendingGet)
 	router.PUT(baseURL+"/lendings/:id", wrapper.LendingUpdate)
+	router.GET(baseURL+"/repayments", wrapper.RepaymentGetAll)
 	router.POST(baseURL+"/repayments", wrapper.RepaymentCreate)
 
 }

@@ -27,7 +27,7 @@ type EventPayment struct {
 type Group struct {
 	ID        string
 	Name      string
-	OwnerID   uuid.UUID
+	CreatedBy uuid.UUID
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

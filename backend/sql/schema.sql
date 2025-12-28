@@ -10,12 +10,12 @@ CREATE TABLE users (
 CREATE TABLE groups (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
-  owner_id UUID NOT NULL REFERENCES users(id),
+  created_by UUID NOT NULL REFERENCES users(id),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp
 );
 
-CREATE INDEX idx_groups_owner_id ON groups(owner_id);
+CREATE INDEX idx_groups_created_by ON groups(created_by);
 
 CREATE TABLE group_members (
   group_id TEXT NOT NULL REFERENCES groups(id) ON DELETE CASCADE,

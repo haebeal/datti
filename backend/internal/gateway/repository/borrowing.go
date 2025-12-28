@@ -20,12 +20,15 @@ func NewBorrowingRepositoryImpl(queries *postgres.Queries) *BorrowingRepositoryI
 	}
 }
 
-func (br *BorrowingRepositoryImpl) FindByUserID(ctx context.Context, id uuid.UUID) ([]*domain.Borrowing, error) {
+func (br *BorrowingRepositoryImpl) FindByGroupIDAndUserID(ctx context.Context, groupID ulid.ULID, userID uuid.UUID) ([]*domain.Borrowing, error) {
 	ctx, span := tracer.Start(ctx, "borrowing.FindAll")
 	defer span.End()
 
-	_, querySpan := tracer.Start(ctx, "SELECT events.id AS event_id, events.name, events.event_date, payments.amount, events.created_at, events.updated_at FROM events INNER join payments on events.id = payments.event_id WHERE payments.debtor_id = $1")
-	events, err := br.queries.FindEventsByDebtorId(ctx, id)
+	_, querySpan := tracer.Start(ctx, "SELECT events.id AS event_id, events.name, events.event_date, payments.amount, events.created_at, events.updated_at FROM events INNER join payments on events.id = payments.event_id WHERE events.group_id = $1 AND payments.debtor_id = $2")
+	events, err := br.queries.FindEventsByGroupIDAndDebtorID(ctx, postgres.FindEventsByGroupIDAndDebtorIDParams{
+		GroupID:  groupID.String(),
+		DebtorID: userID,
+	})
 	if err != nil {
 		querySpan.SetStatus(codes.Error, err.Error())
 		querySpan.RecordError(err)

@@ -101,3 +101,10 @@ VALUES ($1, $2, $3, $4, $5);
 -- name: AddGroupMember :exec
 INSERT INTO group_members (group_id, user_id, created_at)
 VALUES ($1, $2, current_timestamp);
+
+-- name: FindGroupsByMemberUserID :many
+SELECT g.id, g.name, g.owner_id, g.created_at, g.updated_at
+FROM groups g
+INNER JOIN group_members gm ON g.id = gm.group_id
+WHERE gm.user_id = $1
+ORDER BY g.created_at DESC;

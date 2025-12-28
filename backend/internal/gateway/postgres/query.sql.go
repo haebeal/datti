@@ -301,6 +301,40 @@ func (q *Queries) FindEventsByDebtorId(ctx context.Context, debtorID uuid.UUID) 
 	return items, nil
 }
 
+const findGroupsByMemberUserID = `-- name: FindGroupsByMemberUserID :many
+SELECT g.id, g.name, g.owner_id, g.created_at, g.updated_at
+FROM groups g
+INNER JOIN group_members gm ON g.id = gm.group_id
+WHERE gm.user_id = $1
+ORDER BY g.created_at DESC
+`
+
+func (q *Queries) FindGroupsByMemberUserID(ctx context.Context, userID uuid.UUID) ([]Group, error) {
+	rows, err := q.db.Query(ctx, findGroupsByMemberUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Group
+	for rows.Next() {
+		var i Group
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.OwnerID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findLendingsByUserId = `-- name: FindLendingsByUserId :many
 SELECT e.id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
 FROM events e

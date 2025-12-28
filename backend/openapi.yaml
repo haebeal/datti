@@ -241,6 +241,54 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       tags:
         - Repayments
+    put:
+      operationId: Repayment_update
+      summary: 返済の更新
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repayment.UpdateResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Repayments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Repayment.UpdateRequest'
   /groups:
     get:
       operationId: Group_getAll
@@ -1127,6 +1175,39 @@ components:
           type: string
           format: date-time
     Repayment.GetResponse:
+      type: object
+      required:
+        - id
+        - payerId
+        - debtorId
+        - amount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        payerId:
+          type: string
+        debtorId:
+          type: string
+        amount:
+          type: integer
+          format: uint64
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Repayment.UpdateRequest:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: integer
+          format: uint64
+    Repayment.UpdateResponse:
       type: object
       required:
         - id

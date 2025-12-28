@@ -91,7 +91,7 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserID(ctx context.Context, groupID ulid.ULID, userID uuid.UUID) ([]*domain.Lending, error) {
 	lendingEvents, err := lr.queries.FindLendingsByGroupIDAndUserID(ctx, postgres.FindLendingsByGroupIDAndUserIDParams{
 		GroupID: groupID.String(),
-		UserID:  userID,
+		PayerID: userID,
 	})
 	if err != nil {
 		return nil, err

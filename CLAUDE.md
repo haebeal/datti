@@ -17,8 +17,8 @@ Datti APIは「誰にいくら払ったか」を記録・共有するサービ�
 
 ## リポジトリ構成
 
-- `apps/backend`: Go製APIサーバー本体
-- `apps/backend/openapi.yaml`: OpenAPI契約定義
+- `backend`: Go製APIサーバー本体
+- `backend/openapi.yaml`: OpenAPI契約定義
 - `infra`: Terraformによるインフラ構成管理
 - `.devcontainer`: VS Code Dev Container用設定
 
@@ -40,7 +40,7 @@ Datti APIは「誰にいくら払ったか」を記録・共有するサービ�
 docker compose up -d
 
 # 2. バックエンドセットアップ
-cd apps/backend
+cd backend
 go mod download
 cp .env.example .env
 task db-migrate
@@ -56,7 +56,7 @@ air
 
 ```bash
 # OpenAPI 定義
-# apps/backend/openapi.yaml を編集
+# backend/openapi.yaml を編集
 
 # コード生成
 task gen-sqlc gen-api gen-mocks
@@ -72,7 +72,7 @@ task test
 
 ## 参考資料
 
-- 📖 **[OpenAPI仕様](apps/backend/openapi.yaml)** - API契約定義
+- 📖 **[OpenAPI仕様](backend/openapi.yaml)** - API契約定義
 - 🌐 **[公開ドキュメント](https://haebeal.github.io/datti-api)** - API仕様書
 - 📝 **[AGENTS.md](AGENTS.md)** - エージェント向け作業手順書
 - 🎯 **[Backend Skill](.claude/skills/backend/)** - バックエンド開発ガイド

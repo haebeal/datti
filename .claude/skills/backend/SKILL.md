@@ -113,7 +113,7 @@ go test ./internal/usecase/... -v
 ユースケースの入出力をもとに、API契約を定義します。
 
 ```bash
-# apps/backend/openapi.yaml を編集
+# backend/openapi.yaml を編集
 # OpenAPI 定義を更新
 ```
 
@@ -170,14 +170,14 @@ go test ./internal/presentation/api/handler/... -v
 **5.1 データベーススキーマ定義**
 
 ```bash
-# apps/backend/sql/schema.sql を編集
+# backend/sql/schema.sql を編集
 # テーブル定義を追加・更新
 ```
 
 **5.2 SQLクエリ定義**
 
 ```bash
-# apps/backend/sql/query.sql を編集
+# backend/sql/query.sql を編集
 # 必要なクエリを追加
 ```
 
@@ -272,7 +272,7 @@ task test          # go test -race ./...
 
 ### コード生成の管理
 
-- **API定義後**: `apps/backend/openapi.yaml` 変更 → `task gen-api`
+- **API定義後**: `backend/openapi.yaml` 変更 → `task gen-api`
 - **SQL定義後**: `sql/schema.sql` や `sql/query.sql` 変更 → `task gen-sqlc` 実行
 - **リポジトリインターフェース追加後**: `Taskfile.yaml` に mockgen 設定追加 → `task gen-mocks` 実行
 - **生成物は元データと同じコミットに含める**
@@ -299,17 +299,17 @@ task test          # go test -race ./...
 
 - **認証**: 現状ダミー実装（`middleware.AuthMiddleware` が `uid` を注入）
 - **通貨**: すべて円（整数）
-- **環境変数**: `apps/backend/.env` 参照
+- **環境変数**: `backend/.env` 参照
 - **トレース**: `APP_ENV=production` → Google Cloud Trace、その他 → OTLP HTTP
 
 ## ディレクトリと役割
 
-- `apps/backend/internal/domain`: ドメインモデル・値オブジェクト
-- `apps/backend/internal/gateway`: リポジトリ実装（SQLC 生成物を利用）
-- `apps/backend/internal/usecase`: アプリケーションユースケース
-- `apps/backend/internal/presentation/api`: oapi-codegen 生成物とハンドラー
-- `apps/backend/openapi.yaml`: OpenAPI 定義
-- `apps/backend/sql`: Atlas スキーマ、SQLC クエリ、初期データ
+- `backend/internal/domain`: ドメインモデル・値オブジェクト
+- `backend/internal/gateway`: リポジトリ実装（SQLC 生成物を利用）
+- `backend/internal/usecase`: アプリケーションユースケース
+- `backend/internal/presentation/api`: oapi-codegen 生成物とハンドラー
+- `backend/openapi.yaml`: OpenAPI 定義
+- `backend/sql`: Atlas スキーマ、SQLC クエリ、初期データ
 - `infra`: Terraform などのインフラ定義（現フェーズでは変更予定なし）
 
 ## 参考資料

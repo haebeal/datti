@@ -1,9 +1,9 @@
 version: '3'
 dotenv:
-  - 'apps/backend/.env'
+  - 'backend/.env'
 tasks:
   db-migrate:
-    dir: apps/backend
+    dir: backend
     cmds:
       - |
         atlas schema apply \
@@ -11,18 +11,18 @@ tasks:
           --dev-url "docker://postgres" \
           --to "file://sql/schema.sql"
   db-seed:
-    dir: apps/backend
+    dir: backend
     cmds:
       - |
         psql $DSN \
           -f sql/init.sql
   gen-sqlc:
-    dir: apps/backend
+    dir: backend
     cmds:
       - go tool sqlc generate
   gen-api:
     desc: "Generate types and server from OpenAPI"
-    dir: apps/backend
+    dir: backend
     cmds:
       - |
         go tool oapi-codegen -generate "types" \
@@ -34,12 +34,12 @@ tasks:
           -package api ./openapi.yaml \
           > ./internal/presentation/api/server.gen.go
   test:
-    dir: apps/backend
+    dir: backend
     cmds:
       - go test -race ./...
   gen-mocks:
     desc: "Generate mocks using mockgen"
-    dir: apps/backend
+    dir: backend
     cmds:
       - |
         go tool mockgen -source=internal/domain/user.go \

@@ -19,6 +19,7 @@ type LendingUseCase interface {
 	Get(context.Context, GetInput) (*GetOutput, error)
 	GetAll(context.Context, GetAllInput) (*GetAllOutput, error)
 	Update(context.Context, UpdateInput) (*UpdateOutput, error)
+	Delete(context.Context, DeleteInput) error
 }
 
 type lendingHandler struct {
@@ -204,7 +205,7 @@ func (h lendingHandler) GetAll(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	var responseItems []api.LendingGetAllResponse
+	responseItems := make([]api.LendingGetAllResponse, 0)
 	for _, l := range output.Lendings {
 		var debts []api.LendingDebtParmam
 		for _, d := range l.Debtors {
@@ -324,6 +325,59 @@ func (h lendingHandler) Update(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h lendingHandler) Delete(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "lending.Delete")
+	defer span.End()
+
+	eventID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	userID, ok := c.Get("uid").(uuid.UUID)
+	if !ok {
+		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := DeleteInput{
+		UserID:  userID,
+		EventID: eventID,
+	}
+
+	err = h.u.Delete(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to delete lending event: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+
+		// 権限エラーの場合は403を返す
+		if err.Error() == "forbidden Error" {
+			res := &api.ErrorResponse{
+				Message: message,
+			}
+			return c.JSON(http.StatusForbidden, res)
+		}
+
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
 type CreateInput struct {
 	UserID    uuid.UUID
 	Name      string
@@ -374,4 +428,9 @@ type UpdateInput struct {
 type UpdateOutput struct {
 	Lending *domain.Lending
 	Debtors []*domain.Debtor
+}
+
+type DeleteInput struct {
+	UserID  uuid.UUID
+	EventID ulid.ULID
 }

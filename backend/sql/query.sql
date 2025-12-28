@@ -86,3 +86,7 @@ FROM payments
 WHERE debtor_id = $1
 GROUP BY payer_id
 ORDER BY payer_id;
+
+-- name: CreateRepayment :exec
+INSERT INTO payments (id, payer_id, debtor_id, amount, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6);

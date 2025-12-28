@@ -12,6 +12,7 @@ import (
 // 貸したイベント
 type Lending struct {
 	id        ulid.ULID
+	groupID   ulid.ULID
 	name      string
 	amount    *Amount
 	eventDate time.Time
@@ -19,9 +20,12 @@ type Lending struct {
 	updatedAt time.Time
 }
 
-func NewLending(id ulid.ULID, name string, amount *Amount, eventDate time.Time, createdAt time.Time, updatedAt time.Time) (*Lending, error) {
+func NewLending(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, eventDate time.Time, createdAt time.Time, updatedAt time.Time) (*Lending, error) {
 	if len(name) < 1 {
 		return nil, fmt.Errorf("イベント名は1文字以上である必要があります: %v", name)
+	}
+	if groupID == (ulid.ULID{}) {
+		return nil, fmt.Errorf("groupID must not be nil")
 	}
 
 	if createdAt.After(updatedAt) {
@@ -30,6 +34,7 @@ func NewLending(id ulid.ULID, name string, amount *Amount, eventDate time.Time, 
 
 	return &Lending{
 		id:        id,
+		groupID:   groupID,
 		name:      name,
 		amount:    amount,
 		eventDate: eventDate,
@@ -38,22 +43,26 @@ func NewLending(id ulid.ULID, name string, amount *Amount, eventDate time.Time, 
 	}, nil
 }
 
-func CreateLending(name string, amount *Amount, eventDate time.Time) (*Lending, error) {
+func CreateLending(groupID ulid.ULID, name string, amount *Amount, eventDate time.Time) (*Lending, error) {
 	id := ulid.Make()
 	now := time.Now()
 
-	return NewLending(id, name, amount, eventDate, now, now)
+	return NewLending(id, groupID, name, amount, eventDate, now, now)
 }
 
 func (le *Lending) Update(name string, amount *Amount, eventDate time.Time) (*Lending, error) {
 	now := time.Now()
 
-	return NewLending(le.id, name, amount, eventDate, le.createdAt, now)
+	return NewLending(le.id, le.groupID, name, amount, eventDate, le.createdAt, now)
 }
 
 // ID returns the ID of the lending event
 func (le *Lending) ID() ulid.ULID {
 	return le.id
+}
+
+func (le *Lending) GroupID() ulid.ULID {
+	return le.groupID
 }
 
 // Name returns the name of the lending event
@@ -83,7 +92,7 @@ func (le *Lending) UpdatedAt() time.Time {
 type LendingEventRepository interface {
 	Create(context.Context, *Lending) error
 	FindByID(context.Context, ulid.ULID) (*Lending, error)
-	FindByUserID(context.Context, uuid.UUID) ([]*Lending, error)
+	FindByGroupIDAndUserID(context.Context, ulid.ULID, uuid.UUID) ([]*Lending, error)
 	Update(context.Context, *Lending) error
 	Delete(context.Context, ulid.ULID) error
 }

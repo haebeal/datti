@@ -26,8 +26,9 @@ func (lr *LendingEventRepositoryImpl) Create(ctx context.Context, e *domain.Lend
 
 	err := lr.queries.CreateEvent(ctx, postgres.CreateEventParams{
 		ID:        e.ID().String(),
-		Amount:    int32(e.Amount().Value()),
+		GroupID:   e.GroupID().String(),
 		Name:      e.Name(),
+		Amount:    int32(e.Amount().Value()),
 		EventDate: e.EventDate(),
 		CreatedAt: e.CreatedAt(),
 		UpdatedAt: e.UpdatedAt(),
@@ -63,6 +64,13 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 		return nil, err
 	}
 
+	groupID, err := ulid.Parse(event.GroupID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
 	amount, err := domain.NewAmount(int64(event.Amount))
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
@@ -70,7 +78,7 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 		return nil, err
 	}
 
-	lendingEvent, err := domain.NewLending(eventID, event.Name, amount, event.EventDate, event.CreatedAt, event.UpdatedAt)
+	lendingEvent, err := domain.NewLending(eventID, groupID, event.Name, amount, event.EventDate, event.CreatedAt, event.UpdatedAt)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -80,8 +88,11 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 	return lendingEvent, nil
 }
 
-func (lr *LendingEventRepositoryImpl) FindByUserID(ctx context.Context, id uuid.UUID) ([]*domain.Lending, error) {
-	lendingEvents, err := lr.queries.FindLendingsByUserId(ctx, id)
+func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserID(ctx context.Context, groupID ulid.ULID, userID uuid.UUID) ([]*domain.Lending, error) {
+	lendingEvents, err := lr.queries.FindLendingsByGroupIDAndUserID(ctx, postgres.FindLendingsByGroupIDAndUserIDParams{
+		GroupID: groupID.String(),
+		PayerID: userID,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -92,11 +103,15 @@ func (lr *LendingEventRepositoryImpl) FindByUserID(ctx context.Context, id uuid.
 		if err != nil {
 			return nil, err
 		}
+		eventGroupID, err := ulid.Parse(l.GroupID)
+		if err != nil {
+			return nil, err
+		}
 		amount, err := domain.NewAmount(int64(l.Amount))
 		if err != nil {
 			return nil, err
 		}
-		lending, err := domain.NewLending(eventID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt)
+		lending, err := domain.NewLending(eventID, eventGroupID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}

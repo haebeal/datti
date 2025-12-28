@@ -1,7 +1,0 @@
-### Node.js ###
-#
-# Dependency directories
-node_modules/
-
-# TypeSpec output directories
-tsp-output/

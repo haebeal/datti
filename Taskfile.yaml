@@ -27,11 +27,11 @@ tasks:
       - |
         go tool oapi-codegen -generate "types" \
           -package api \
-          ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml \
+          ./openapi.yaml \
           > ./internal/presentation/api/types.gen.go
       - |
         go tool oapi-codegen -generate "server" \
-          -package api ../../docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml \
+          -package api ./openapi.yaml \
           > ./internal/presentation/api/server.gen.go
   test:
     dir: apps/backend

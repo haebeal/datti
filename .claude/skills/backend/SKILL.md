@@ -1,6 +1,6 @@
 ---
 name: backend
-description: Datti APIバックエンド開発ガイド。Go製PostgreSQL APIサーバーの開発、新機能実装（TypeSpec→ドメイン→リポジトリ→ユースケース→ハンドラー）、テスト、デプロイに関する標準フロー。契約定義、スキーマ設計、ユースケース実装時に自動的に使用。
+description: Datti APIバックエンド開発ガイド。Go製PostgreSQL APIサーバーの開発、新機能実装、テスト、デプロイに関する標準フロー。契約定義、スキーマ設計、ユースケース実装時に自動的に使用。
 ---
 
 # Datti Backend Development Skill
@@ -108,32 +108,24 @@ task gen-mocks
 go test ./internal/usecase/... -v
 ```
 
-### 3. API定義（TypeSpec）
+### 3. API定義（OpenAPI）
 
 ユースケースの入出力をもとに、API契約を定義します。
 
 ```bash
-cd docs/openapi
-
-# TypeSpecファイルを編集（例: lendings.tsp, credits.tsp）
-# main.tspにインポートを追加（必要な場合）
-
-npm run compile  # OpenAPI生成
-# tsp-output/@typespec/openapi3/openapi.yaml を確認
+# apps/backend/openapi.yaml を編集
+# OpenAPI 定義を更新
 ```
 
 **実装内容**:
 - ユースケースの入出力をもとに、エンドポイント・リクエスト・レスポンスを定義
-- 適切な@tag、@route、@summaryを設定
+- 適切な tags / summary / operationId を設定
 - エラーハンドリングを含む完全な定義を作成
 - 生成結果（OpenAPI YAML/JSON）を確認し、想定どおりかレビューする
 
 **型とサーバーコード生成**:
 ```bash
-cd ../../apps/backend
-
-task gen-types    # types.gen.go 生成
-task gen-server   # server.gen.go 生成
+task gen-api   # types.gen.go と server.gen.go を生成
 ```
 
 - 生成された `types.gen.go` と `server.gen.go` を確認
@@ -251,8 +243,7 @@ task db-seed       # サンプルデータ投入
 
 # コード生成
 task gen-sqlc      # SQLCでクエリコード生成
-task gen-types     # OpenAPIから型生成
-task gen-server    # OpenAPIからサーバースタブ生成
+task gen-api       # OpenAPIから型とサーバースタブ生成
 task gen-mocks     # モック生成
 
 # テスト（ユーザーから明示的な指示があった場合のみ）
@@ -281,7 +272,7 @@ task test          # go test -race ./...
 
 ### コード生成の管理
 
-- **API定義後**: TypeSpec変更 → `npm run compile` → `task gen-types` → `task gen-server`
+- **API定義後**: `apps/backend/openapi.yaml` 変更 → `task gen-api`
 - **SQL定義後**: `sql/schema.sql` や `sql/query.sql` 変更 → `task gen-sqlc` 実行
 - **リポジトリインターフェース追加後**: `Taskfile.yaml` に mockgen 設定追加 → `task gen-mocks` 実行
 - **生成物は元データと同じコミットに含める**
@@ -290,7 +281,7 @@ task test          # go test -race ./...
 
 1. ドメインエンティティ定義
 2. ユースケース実装（リポジトリインターフェース定義を含む）
-3. API定義（TypeSpec）
+3. API定義（OpenAPI）
 4. ハンドラー実装
 5. リポジトリ実装（ゲートウェイとDBマイグレーションを含む）
 
@@ -317,8 +308,8 @@ task test          # go test -race ./...
 - `apps/backend/internal/gateway`: リポジトリ実装（SQLC 生成物を利用）
 - `apps/backend/internal/usecase`: アプリケーションユースケース
 - `apps/backend/internal/presentation/api`: oapi-codegen 生成物とハンドラー
+- `apps/backend/openapi.yaml`: OpenAPI 定義
 - `apps/backend/sql`: Atlas スキーマ、SQLC クエリ、初期データ
-- `docs/openapi`: TypeSpec ソースと生成物
 - `infra`: Terraform などのインフラ定義（現フェーズでは変更予定なし）
 
 ## 参考資料

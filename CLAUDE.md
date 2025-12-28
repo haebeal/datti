@@ -18,7 +18,7 @@ Datti APIは「誰にいくら払ったか」を記録・共有するサービ�
 ## リポジトリ構成
 
 - `apps/backend`: Go製APIサーバー本体
-- `docs/openapi`: TypeSpecによるAPI契約定義と生成されたOpenAPI仕様
+- `apps/backend/openapi.yaml`: OpenAPI契約定義
 - `infra`: Terraformによるインフラ構成管理
 - `.devcontainer`: VS Code Dev Container用設定
 
@@ -55,11 +55,11 @@ air
 ## よく使うコマンド
 
 ```bash
-# TypeSpec → OpenAPI
-cd docs/openapi && npm run compile
+# OpenAPI 定義
+# apps/backend/openapi.yaml を編集
 
 # コード生成
-task gen-sqlc gen-types gen-server gen-mocks
+task gen-sqlc gen-api gen-mocks
 
 # データベース
 task db-migrate db-seed
@@ -72,7 +72,7 @@ task test
 
 ## 参考資料
 
-- 📖 **[OpenAPI仕様](docs/openapi/tsp-output/@typespec/openapi3/openapi.yaml)** - API契約定義
+- 📖 **[OpenAPI仕様](apps/backend/openapi.yaml)** - API契約定義
 - 🌐 **[公開ドキュメント](https://haebeal.github.io/datti-api)** - API仕様書
 - 📝 **[AGENTS.md](AGENTS.md)** - エージェント向け作業手順書
 - 🎯 **[Backend Skill](.claude/skills/backend/)** - バックエンド開発ガイド

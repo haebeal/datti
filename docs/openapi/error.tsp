@@ -1,3 +1,0 @@
-model ErrorResponse {
-  message: string;
-}

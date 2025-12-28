@@ -87,3 +87,24 @@ func (u RepaymentUseCaseImpl) Get(ctx context.Context, i handler.RepaymentGetInp
 		Repayment: repayment,
 	}, nil
 }
+
+func (u RepaymentUseCaseImpl) Delete(ctx context.Context, i handler.RepaymentDeleteInput) error {
+	ctx, span := tracer.Start(ctx, "repayment.Delete")
+	defer span.End()
+
+	id, err := ulid.Parse(i.ID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	err = u.rr.Delete(ctx, id)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	return nil
+}

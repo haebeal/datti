@@ -10,6 +10,7 @@ type LendingHandler interface {
 	Get(c echo.Context, id string) error
 	GetAll(c echo.Context) error
 	Update(c echo.Context, id string) error
+	Delete(c echo.Context, id string) error
 }
 
 type BorrowingHandler interface {
@@ -24,19 +25,25 @@ type HealthHandler interface {
 	Check(c echo.Context) error
 }
 
+type RepaymentHandler interface {
+	Create(c echo.Context) error
+}
+
 type Server struct {
 	lh LendingHandler
 	bh BorrowingHandler
 	ch CreditHandler
 	hh HealthHandler
+	rh RepaymentHandler
 }
 
-func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		bh: bh,
 		ch: ch,
 		hh: hh,
+		rh: rh,
 	}
 }
 
@@ -57,6 +64,10 @@ func (s *Server) LendingUpdate(ctx echo.Context, id string) error {
 	return s.lh.Update(ctx, id)
 }
 
+func (s *Server) LendingDelete(ctx echo.Context, id string) error {
+	return s.lh.Delete(ctx, id)
+}
+
 func (s *Server) BorrowingGetAll(ctx echo.Context) error {
 	return s.bh.GetAll(ctx)
 }
@@ -67,4 +78,8 @@ func (s *Server) CreditsList(ctx echo.Context) error {
 
 func (s *Server) HealthCheck(ctx echo.Context) error {
 	return s.hh.Check(ctx)
+}
+
+func (s *Server) RepaymentCreate(ctx echo.Context) error {
+	return s.rh.Create(ctx)
 }

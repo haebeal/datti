@@ -73,6 +73,9 @@ SET name = $2,
     updated_at = $5
 WHERE id = $1;
 
+-- name: DeleteEvent :exec
+DELETE FROM events WHERE id = $1;
+
 -- name: ListLendingCreditAmountsByUserID :many
 SELECT debtor_id AS user_id, SUM(amount)::bigint AS amount
 FROM payments
@@ -86,3 +89,7 @@ FROM payments
 WHERE debtor_id = $1
 GROUP BY payer_id
 ORDER BY payer_id;
+
+-- name: CreateRepayment :exec
+INSERT INTO payments (id, payer_id, debtor_id, amount, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6);

@@ -128,3 +128,20 @@ func (lr *LendingEventRepositoryImpl) Update(ctx context.Context, e *domain.Lend
 
 	return nil
 }
+
+func (lr *LendingEventRepositoryImpl) Delete(ctx context.Context, id ulid.ULID) error {
+	ctx, span := tracer.Start(ctx, "lendingEvent.Delete")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "DELETE FROM events WHERE id = $1")
+	err := lr.queries.DeleteEvent(ctx, id.String())
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}

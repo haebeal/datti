@@ -7,6 +7,7 @@ tags:
   - name: Lendings
   - name: Borrowings
   - name: Credits
+  - name: Repayments
   - name: Health
 paths:
   /borrowings:
@@ -85,7 +86,72 @@ paths:
                 $ref: '#/components/schemas/Health.CheckResponse'
       tags:
         - Health
+  /repayments:
+    post:
+      operationId: Repayment_create
+      summary: 返済の作成
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Repayment.CreateResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Repayments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Repayment.CreateRequest'
   /lendings:
+    get:
+      operationId: Lending_getAll
+      summary: 全ての立て替えの取得
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Lending.GetAllResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Lendings
     post:
       operationId: Lending_create
       summary: 立て替えの作成
@@ -214,6 +280,50 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Lending.UpdateRequest'
+    delete:
+      operationId: Lending_delete
+      summary: 立て替えの削除
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The server successfully processed the request and is not returning any content.
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Lendings
 security:
   - BearerAuth: []
 components:
@@ -368,6 +478,37 @@ components:
         updatedAt:
           type: string
           format: date-time
+    Lending.GetAllResponse:
+      type: object
+      required:
+        - id
+        - name
+        - amount
+        - eventDate
+        - debts
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        amount:
+          type: integer
+          format: uint64
+        eventDate:
+          type: string
+          format: date-time
+        debts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lending.DebtParmam'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     Lending.UpdateRequest:
       type: object
       required:
@@ -413,6 +554,42 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Lending.DebtParmam'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Repayment.CreateRequest:
+      type: object
+      required:
+        - debtorId
+        - amount
+      properties:
+        debtorId:
+          type: string
+        amount:
+          type: integer
+          format: uint64
+    Repayment.CreateResponse:
+      type: object
+      required:
+        - id
+        - payerId
+        - debtorId
+        - amount
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        payerId:
+          type: string
+        debtorId:
+          type: string
+        amount:
+          type: integer
+          format: uint64
         createdAt:
           type: string
           format: date-time

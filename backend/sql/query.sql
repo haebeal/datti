@@ -110,6 +110,13 @@ FROM groups WHERE id = $1 LIMIT 1;
 SELECT user_id FROM group_members
 WHERE group_id = $1 ORDER BY created_at ASC;
 
+-- name: FindGroupMemberUsersByGroupID :many
+SELECT u.id, u.name, u.avatar, u.email
+FROM users u
+INNER JOIN group_members gm ON u.id = gm.user_id
+WHERE gm.group_id = $1
+ORDER BY gm.created_at ASC;
+
 -- name: UpdateGroup :exec
 UPDATE groups
 SET name = $2,

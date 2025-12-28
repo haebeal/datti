@@ -319,6 +319,46 @@ func (q *Queries) FindGroupByID(ctx context.Context, id string) (Group, error) {
 	return i, err
 }
 
+const findGroupMemberUsersByGroupID = `-- name: FindGroupMemberUsersByGroupID :many
+SELECT u.id, u.name, u.avatar, u.email
+FROM users u
+INNER JOIN group_members gm ON u.id = gm.user_id
+WHERE gm.group_id = $1
+ORDER BY gm.created_at ASC
+`
+
+type FindGroupMemberUsersByGroupIDRow struct {
+	ID     uuid.UUID
+	Name   string
+	Avatar string
+	Email  string
+}
+
+func (q *Queries) FindGroupMemberUsersByGroupID(ctx context.Context, groupID string) ([]FindGroupMemberUsersByGroupIDRow, error) {
+	rows, err := q.db.Query(ctx, findGroupMemberUsersByGroupID, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindGroupMemberUsersByGroupIDRow
+	for rows.Next() {
+		var i FindGroupMemberUsersByGroupIDRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Avatar,
+			&i.Email,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findGroupMembersByGroupID = `-- name: FindGroupMembersByGroupID :many
 SELECT user_id FROM group_members
 WHERE group_id = $1 ORDER BY created_at ASC

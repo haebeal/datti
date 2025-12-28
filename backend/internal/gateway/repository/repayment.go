@@ -124,3 +124,24 @@ func (rr *RepaymentRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID) (
 
 	return repayment, nil
 }
+
+func (rr *RepaymentRepositoryImpl) Update(ctx context.Context, repayment *domain.Repayment) error {
+	ctx, span := tracer.Start(ctx, "repayment.Update")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "UPDATE payments SET amount = $2, updated_at = $3 WHERE id = $1")
+	err := rr.queries.UpdateRepayment(ctx, postgres.UpdateRepaymentParams{
+		ID:        repayment.ID().String(),
+		Amount:    int32(repayment.Amount().Value()),
+		UpdatedAt: repayment.UpdatedAt(),
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}

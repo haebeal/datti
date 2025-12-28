@@ -16,6 +16,7 @@ type RepaymentUseCase interface {
 	Create(context.Context, RepaymentCreateInput) (*RepaymentCreateOutput, error)
 	GetAll(context.Context, RepaymentGetAllInput) (*RepaymentGetAllOutput, error)
 	Get(context.Context, RepaymentGetInput) (*RepaymentGetOutput, error)
+	Update(context.Context, RepaymentUpdateInput) (*RepaymentUpdateOutput, error)
 }
 
 type repaymentHandler struct {
@@ -170,6 +171,51 @@ func (h repaymentHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h repaymentHandler) Update(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "repayment.Update")
+	defer span.End()
+
+	var req api.RepaymentUpdateRequest
+
+	err := c.Bind(&req)
+	if err != nil {
+		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	input := RepaymentUpdateInput{
+		ID:     id,
+		Amount: int64(req.Amount),
+	}
+
+	output, err := h.u.Update(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to update repayment: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := &api.RepaymentUpdateResponse{
+		Id:        output.Repayment.ID().String(),
+		PayerId:   output.Repayment.PayerID().String(),
+		DebtorId:  output.Repayment.DebtorID().String(),
+		Amount:    uint64(output.Repayment.Amount().Value()),
+		CreatedAt: output.Repayment.CreatedAt(),
+		UpdatedAt: output.Repayment.UpdatedAt(),
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
 type RepaymentCreateInput struct {
 	PayerID  uuid.UUID
 	DebtorID uuid.UUID
@@ -193,5 +239,14 @@ type RepaymentGetInput struct {
 }
 
 type RepaymentGetOutput struct {
+	Repayment *domain.Repayment
+}
+
+type RepaymentUpdateInput struct {
+	ID     string
+	Amount int64
+}
+
+type RepaymentUpdateOutput struct {
 	Repayment *domain.Repayment
 }

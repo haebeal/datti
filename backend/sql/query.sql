@@ -116,6 +116,11 @@ LEFT JOIN event_payments ep ON p.id = ep.payment_id
 WHERE p.id = $1 AND ep.event_id IS NULL
 LIMIT 1;
 
+-- name: UpdateRepayment :exec
+UPDATE payments
+SET amount = $2, updated_at = $3
+WHERE id = $1;
+
 -- name: CreateGroup :exec
 INSERT INTO groups (id, name, created_by, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5);

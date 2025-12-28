@@ -585,6 +585,24 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error 
 	return err
 }
 
+const updateGroup = `-- name: UpdateGroup :exec
+UPDATE groups
+SET name = $2,
+    updated_at = $3
+WHERE id = $1
+`
+
+type UpdateGroupParams struct {
+	ID        string
+	Name      string
+	UpdatedAt time.Time
+}
+
+func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) error {
+	_, err := q.db.Exec(ctx, updateGroup, arg.ID, arg.Name, arg.UpdatedAt)
+	return err
+}
+
 const updatePaymentAmount = `-- name: UpdatePaymentAmount :exec
 UPDATE payments
 SET amount = $2,

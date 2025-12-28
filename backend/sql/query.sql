@@ -110,6 +110,12 @@ FROM groups WHERE id = $1 LIMIT 1;
 SELECT user_id FROM group_members
 WHERE group_id = $1 ORDER BY created_at ASC;
 
+-- name: UpdateGroup :exec
+UPDATE groups
+SET name = $2,
+    updated_at = $3
+WHERE id = $1;
+
 -- name: FindGroupsByMemberUserID :many
 SELECT g.id, g.name, g.owner_id, g.created_at, g.updated_at
 FROM groups g

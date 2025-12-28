@@ -74,6 +74,14 @@ type GroupGetResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// GroupMemberResponse defines model for Group.MemberResponse.
+type GroupMemberResponse struct {
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+}
+
 // GroupUpdateRequest defines model for Group.UpdateRequest.
 type GroupUpdateRequest struct {
 	Name string `json:"name"`

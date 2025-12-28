@@ -31,6 +31,9 @@ type ServerInterface interface {
 	// グループの更新
 	// (PUT /groups/{id})
 	GroupUpdate(ctx echo.Context, id string) error
+	// グループメンバー一覧の取得
+	// (GET /groups/{id}/members)
+	GroupGetMembers(ctx echo.Context, id string) error
 	// グループメンバーの追加
 	// (POST /groups/{id}/members)
 	GroupAddMember(ctx echo.Context, id string) error
@@ -139,6 +142,24 @@ func (w *ServerInterfaceWrapper) GroupUpdate(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GroupUpdate(ctx, id)
+	return err
+}
+
+// GroupGetMembers converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupGetMembers(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupGetMembers(ctx, id)
 	return err
 }
 
@@ -292,6 +313,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.POST(baseURL+"/groups", wrapper.GroupCreate)
 	router.GET(baseURL+"/groups/:id", wrapper.GroupGet)
 	router.PUT(baseURL+"/groups/:id", wrapper.GroupUpdate)
+	router.GET(baseURL+"/groups/:id/members", wrapper.GroupGetMembers)
 	router.POST(baseURL+"/groups/:id/members", wrapper.GroupAddMember)
 	router.GET(baseURL+"/health", wrapper.HealthCheck)
 	router.GET(baseURL+"/lendings", wrapper.LendingGetAll)

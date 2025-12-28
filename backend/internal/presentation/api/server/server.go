@@ -29,21 +29,27 @@ type RepaymentHandler interface {
 	Create(c echo.Context) error
 }
 
+type GroupHandler interface {
+	Create(c echo.Context) error
+}
+
 type Server struct {
 	lh LendingHandler
 	bh BorrowingHandler
 	ch CreditHandler
 	hh HealthHandler
 	rh RepaymentHandler
+	gh GroupHandler
 }
 
-func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		bh: bh,
 		ch: ch,
 		hh: hh,
 		rh: rh,
+		gh: gh,
 	}
 }
 
@@ -82,4 +88,8 @@ func (s *Server) HealthCheck(ctx echo.Context) error {
 
 func (s *Server) RepaymentCreate(ctx echo.Context) error {
 	return s.rh.Create(ctx)
+}
+
+func (s *Server) GroupCreate(ctx echo.Context) error {
+	return s.gh.Create(ctx)
 }

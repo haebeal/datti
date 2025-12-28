@@ -125,6 +125,44 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Repayment.CreateRequest'
+  /groups:
+    post:
+      operationId: Group_create
+      summary: グループの作成
+      parameters: []
+      responses:
+        '201':
+          description: The request has succeeded and a new resource has been created as a result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group.CreateResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Groups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group.CreateRequest'
   /lendings:
     get:
       operationId: Lending_getAll
@@ -373,6 +411,34 @@ components:
       properties:
         message:
           type: string
+    Group.CreateRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+    Group.CreateResponse:
+      type: object
+      required:
+        - id
+        - name
+        - createdBy
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     Health.CheckResponse:
       type: object
       required:

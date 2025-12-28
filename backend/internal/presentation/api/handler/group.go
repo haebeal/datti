@@ -20,6 +20,7 @@ type GroupUseCase interface {
 	Get(context.Context, GroupGetInput) (*GroupGetOutput, error)
 	Update(context.Context, GroupUpdateInput) (*GroupUpdateOutput, error)
 	AddMember(context.Context, GroupAddMemberInput) error
+	ListMembers(context.Context, GroupListMembersInput) (*GroupListMembersOutput, error)
 }
 
 type groupHandler struct {
@@ -321,6 +322,63 @@ func (h groupHandler) AddMember(c echo.Context, id string) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+func (h groupHandler) GetMembers(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "group.GetMembers")
+	defer span.End()
+
+	groupID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	userID, ok := c.Get("uid").(uuid.UUID)
+	if !ok {
+		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := GroupListMembersInput{
+		UserID:  userID,
+		GroupID: groupID,
+	}
+
+	output, err := h.u.ListMembers(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to get group members: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		if err.Error() == "forbidden Error" {
+			return c.JSON(http.StatusForbidden, res)
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := make([]api.GroupMemberResponse, 0, len(output.Members))
+	for _, member := range output.Members {
+		res = append(res, api.GroupMemberResponse{
+			Id:     member.ID().String(),
+			Name:   member.Name(),
+			Avatar: member.Avatar(),
+			Email:  member.Email(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
 type GroupCreateInput struct {
 	CreatedBy uuid.UUID
 	Name      string
@@ -361,4 +419,13 @@ type GroupAddMemberInput struct {
 	UserID   uuid.UUID
 	GroupID  ulid.ULID
 	MemberID uuid.UUID
+}
+
+type GroupListMembersInput struct {
+	UserID  uuid.UUID
+	GroupID ulid.ULID
+}
+
+type GroupListMembersOutput struct {
+	Members []*domain.User
 }

@@ -16,6 +16,7 @@ type RepaymentUseCase interface {
 	Create(context.Context, RepaymentCreateInput) (*RepaymentCreateOutput, error)
 	GetAll(context.Context, RepaymentGetAllInput) (*RepaymentGetAllOutput, error)
 	Get(context.Context, RepaymentGetInput) (*RepaymentGetOutput, error)
+	Delete(context.Context, RepaymentDeleteInput) error
 }
 
 type repaymentHandler struct {
@@ -170,6 +171,28 @@ func (h repaymentHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h repaymentHandler) Delete(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "repayment.Delete")
+	defer span.End()
+
+	input := RepaymentDeleteInput{
+		ID: id,
+	}
+
+	err := h.u.Delete(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to delete repayment: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
 type RepaymentCreateInput struct {
 	PayerID  uuid.UUID
 	DebtorID uuid.UUID
@@ -194,4 +217,8 @@ type RepaymentGetInput struct {
 
 type RepaymentGetOutput struct {
 	Repayment *domain.Repayment
+}
+
+type RepaymentDeleteInput struct {
+	ID string
 }

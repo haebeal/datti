@@ -100,3 +100,32 @@ FROM payments p
 LEFT JOIN event_payments ep ON p.id = ep.payment_id
 WHERE p.payer_id = $1 AND ep.event_id IS NULL
 ORDER BY p.created_at DESC;
+
+-- name: CreateGroup :exec
+INSERT INTO groups (id, name, created_by, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5);
+
+-- name: AddGroupMember :exec
+INSERT INTO group_members (group_id, user_id, created_at)
+VALUES ($1, $2, current_timestamp);
+
+-- name: FindGroupByID :one
+SELECT id, name, created_by, created_at, updated_at
+FROM groups WHERE id = $1 LIMIT 1;
+
+-- name: FindGroupMembersByGroupID :many
+SELECT user_id FROM group_members
+WHERE group_id = $1 ORDER BY created_at ASC;
+
+-- name: UpdateGroup :exec
+UPDATE groups
+SET name = $2,
+    updated_at = $3
+WHERE id = $1;
+
+-- name: FindGroupsByMemberUserID :many
+SELECT g.id, g.name, g.created_by, g.created_at, g.updated_at
+FROM groups g
+INNER JOIN group_members gm ON g.id = gm.group_id
+WHERE gm.user_id = $1
+ORDER BY g.created_at DESC;

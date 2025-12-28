@@ -30,21 +30,30 @@ type RepaymentHandler interface {
 	GetAll(c echo.Context) error
 }
 
+type GroupHandler interface {
+	Create(c echo.Context) error
+	GetAll(c echo.Context) error
+	Get(c echo.Context, id string) error
+	Update(c echo.Context, id string) error
+}
+
 type Server struct {
 	lh LendingHandler
 	bh BorrowingHandler
 	ch CreditHandler
 	hh HealthHandler
 	rh RepaymentHandler
+	gh GroupHandler
 }
 
-func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		bh: bh,
 		ch: ch,
 		hh: hh,
 		rh: rh,
+		gh: gh,
 	}
 }
 
@@ -87,4 +96,20 @@ func (s *Server) RepaymentCreate(ctx echo.Context) error {
 
 func (s *Server) RepaymentGetAll(ctx echo.Context) error {
 	return s.rh.GetAll(ctx)
+}
+
+func (s *Server) GroupCreate(ctx echo.Context) error {
+	return s.gh.Create(ctx)
+}
+
+func (s *Server) GroupGetAll(ctx echo.Context) error {
+	return s.gh.GetAll(ctx)
+}
+
+func (s *Server) GroupGet(ctx echo.Context, id string) error {
+	return s.gh.Get(ctx, id)
+}
+
+func (s *Server) GroupUpdate(ctx echo.Context, id string) error {
+	return s.gh.Update(ctx, id)
 }

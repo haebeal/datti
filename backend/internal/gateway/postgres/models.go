@@ -24,6 +24,20 @@ type EventPayment struct {
 	PaymentID string
 }
 
+type Group struct {
+	ID        string
+	Name      string
+	CreatedBy uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type GroupMember struct {
+	GroupID   string
+	UserID    uuid.UUID
+	CreatedAt time.Time
+}
+
 type Payment struct {
 	ID        string
 	PayerID   uuid.UUID

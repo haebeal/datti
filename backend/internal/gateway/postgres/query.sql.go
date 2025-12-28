@@ -301,6 +301,49 @@ func (q *Queries) FindEventsByDebtorId(ctx context.Context, debtorID uuid.UUID) 
 	return items, nil
 }
 
+const findGroupByID = `-- name: FindGroupByID :one
+SELECT id, name, owner_id, created_at, updated_at
+FROM groups WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) FindGroupByID(ctx context.Context, id string) (Group, error) {
+	row := q.db.QueryRow(ctx, findGroupByID, id)
+	var i Group
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.OwnerID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const findGroupMembersByGroupID = `-- name: FindGroupMembersByGroupID :many
+SELECT user_id FROM group_members
+WHERE group_id = $1 ORDER BY created_at ASC
+`
+
+func (q *Queries) FindGroupMembersByGroupID(ctx context.Context, groupID string) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, findGroupMembersByGroupID, groupID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []uuid.UUID
+	for rows.Next() {
+		var user_id uuid.UUID
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findGroupsByMemberUserID = `-- name: FindGroupsByMemberUserID :many
 SELECT g.id, g.name, g.owner_id, g.created_at, g.updated_at
 FROM groups g

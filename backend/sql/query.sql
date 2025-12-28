@@ -102,6 +102,14 @@ VALUES ($1, $2, $3, $4, $5);
 INSERT INTO group_members (group_id, user_id, created_at)
 VALUES ($1, $2, current_timestamp);
 
+-- name: FindGroupByID :one
+SELECT id, name, owner_id, created_at, updated_at
+FROM groups WHERE id = $1 LIMIT 1;
+
+-- name: FindGroupMembersByGroupID :many
+SELECT user_id FROM group_members
+WHERE group_id = $1 ORDER BY created_at ASC;
+
 -- name: FindGroupsByMemberUserID :many
 SELECT g.id, g.name, g.owner_id, g.created_at, g.updated_at
 FROM groups g

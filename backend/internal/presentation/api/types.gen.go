@@ -187,6 +187,21 @@ type RepaymentCreateResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// UserSearchResponse defines model for User.SearchResponse.
+type UserSearchResponse struct {
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+}
+
+// UserSearchParams defines parameters for UserSearch.
+type UserSearchParams struct {
+	Name  *string `form:"name,omitempty" json:"name,omitempty"`
+	Email *string `form:"email,omitempty" json:"email,omitempty"`
+	Limit *int32  `form:"limit,omitempty" json:"limit,omitempty"`
+}
+
 // GroupCreateJSONRequestBody defines body for GroupCreate for application/json ContentType.
 type GroupCreateJSONRequestBody = GroupCreateRequest
 

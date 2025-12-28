@@ -58,6 +58,9 @@ type ServerInterface interface {
 	// 返済の作成
 	// (POST /repayments)
 	RepaymentCreate(ctx echo.Context) error
+	// ユーザー検索
+	// (GET /users)
+	UserSearch(ctx echo.Context, params UserSearchParams) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -279,6 +282,40 @@ func (w *ServerInterfaceWrapper) RepaymentCreate(ctx echo.Context) error {
 	return err
 }
 
+// UserSearch converts echo context to params.
+func (w *ServerInterfaceWrapper) UserSearch(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Parameter object where we will unmarshal all parameters from the context
+	var params UserSearchParams
+	// ------------- Optional query parameter "name" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "name", ctx.QueryParams(), &params.Name)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter name: %s", err))
+	}
+
+	// ------------- Optional query parameter "email" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "email", ctx.QueryParams(), &params.Email)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter email: %s", err))
+	}
+
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", ctx.QueryParams(), &params.Limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter limit: %s", err))
+	}
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UserSearch(ctx, params)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -322,5 +359,6 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/lendings/:id", wrapper.LendingGet)
 	router.PUT(baseURL+"/lendings/:id", wrapper.LendingUpdate)
 	router.POST(baseURL+"/repayments", wrapper.RepaymentCreate)
+	router.GET(baseURL+"/users", wrapper.UserSearch)
 
 }

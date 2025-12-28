@@ -9,6 +9,7 @@ tags:
   - name: Credits
   - name: Repayments
   - name: Groups
+  - name: Users
   - name: Health
 paths:
   /borrowings:
@@ -87,6 +88,51 @@ paths:
                 $ref: '#/components/schemas/Health.CheckResponse'
       tags:
         - Health
+  /users:
+    get:
+      operationId: User_search
+      summary: ユーザー検索
+      parameters:
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User.SearchResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Users
   /repayments:
     post:
       operationId: Repayment_create
@@ -730,6 +776,22 @@ components:
         userId:
           type: string
     Group.MemberResponse:
+      type: object
+      required:
+        - id
+        - name
+        - avatar
+        - email
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        avatar:
+          type: string
+        email:
+          type: string
+    User.SearchResponse:
       type: object
       required:
         - id

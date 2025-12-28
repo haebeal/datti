@@ -47,3 +47,19 @@ func (u RepaymentUseCaseImpl) Create(ctx context.Context, i handler.RepaymentCre
 		Repayment: repayment,
 	}, nil
 }
+
+func (u RepaymentUseCaseImpl) GetAll(ctx context.Context, i handler.RepaymentGetAllInput) (*handler.RepaymentGetAllOutput, error) {
+	ctx, span := tracer.Start(ctx, "repayment.GetAll")
+	defer span.End()
+
+	repayments, err := u.rr.FindByPayerID(ctx, i.UserID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	return &handler.RepaymentGetAllOutput{
+		Repayments: repayments,
+	}, nil
+}

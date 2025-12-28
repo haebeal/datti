@@ -220,6 +220,15 @@ task db-seed     # サンプルデータ投入（必要な場合）
 - ハンドラーをサーバーに登録
 - ルーティングを設定
 
+### 6. ビルド確認
+
+実装完了後、必ずビルドを実行してエラーがないことを確認します。
+
+```bash
+cd backend
+go build -o ./tmp/bin ./cmd
+```
+
 ### コミットとログ
 
 - **コミットメッセージは日本語・命令形で一意に作成し、生成物と元ファイルは同一コミットに含める**
@@ -233,8 +242,6 @@ task db-seed     # サンプルデータ投入（必要な場合）
 - **不要なエラーハンドリング**: 発生しないシナリオの検証を追加しない。システム境界（ユーザー入力、外部API）でのみ検証する
 
 ## 開発コマンド
-
-詳細は [commands.md](commands.md) を参照。
 
 ```bash
 # データベース
@@ -252,23 +259,11 @@ task test          # go test -race ./...
 
 ## テスト方針
 
-詳細は [testing.md](testing.md) を参照。
-
 - **テスト実行はユーザーのリクエストがある場合のみ対応**
 - testify（assert/require）を使用
 - gomockでモック生成（`task gen-mocks`）
 
 ## 重要な実務ルール
-
-### Codex MCPの使用
-
-実際の実装に差し掛かる際には、Codex MCPを使用してください。
-オプション：
-
-- `workspace`: `workspace-write`
-- `approval-policy`: `never`
-
-タスクは細分化して投げ、進捗を追いやすくしてください。
 
 ### コード生成の管理
 
@@ -284,8 +279,9 @@ task test          # go test -race ./...
 3. API定義（OpenAPI）
 4. ハンドラー実装
 5. リポジトリ実装（ゲートウェイとDBマイグレーションを含む）
+6. ビルド確認（`go build -o ./tmp/bin ./cmd`）
 
-**実装は内から外へ進める**: ドメイン → ユースケース → API定義 → ハンドラー → リポジトリ の順を守る。
+**実装は内から外へ進める**: ドメイン → ユースケース → API定義 → ハンドラー → リポジトリ → ビルド確認 の順を守る。
 
 ### コーディング規約
 
@@ -315,5 +311,3 @@ task test          # go test -race ./...
 ## 参考資料
 
 - [architecture.md](architecture.md) - アーキテクチャの詳細
-- [commands.md](commands.md) - 全開発コマンドとセットアップ
-- [testing.md](testing.md) - テスト方針と実装例

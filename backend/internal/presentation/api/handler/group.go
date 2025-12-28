@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -18,6 +19,7 @@ type GroupUseCase interface {
 	GetAll(context.Context, GroupGetAllInput) (*GroupGetAllOutput, error)
 	Get(context.Context, GroupGetInput) (*GroupGetOutput, error)
 	Update(context.Context, GroupUpdateInput) (*GroupUpdateOutput, error)
+	AddMember(context.Context, GroupAddMemberInput) error
 }
 
 type groupHandler struct {
@@ -247,6 +249,78 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h groupHandler) AddMember(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "group.AddMember")
+	defer span.End()
+
+	groupID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	var req api.GroupAddMemberRequest
+	if err := c.Bind(&req); err != nil {
+		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	memberID, err := uuid.Parse(req.UserId)
+	if err != nil {
+		message := fmt.Sprintf("UserId UUID Parse Error ID: %v", req.UserId)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	userID, ok := c.Get("uid").(uuid.UUID)
+	if !ok {
+		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := GroupAddMemberInput{
+		UserID:   userID,
+		GroupID:  groupID,
+		MemberID: memberID,
+	}
+
+	if err := h.u.AddMember(ctx, input); err != nil {
+		message := fmt.Sprintf("Failed to add group member: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		if errors.Is(err, domain.ErrGroupMemberAlreadyExists) {
+			return c.JSON(http.StatusConflict, res)
+		}
+		if err.Error() == "forbidden Error" {
+			return c.JSON(http.StatusForbidden, res)
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
 type GroupCreateInput struct {
 	CreatedBy uuid.UUID
 	Name      string
@@ -281,4 +355,10 @@ type GroupUpdateInput struct {
 
 type GroupUpdateOutput struct {
 	Group *domain.Group
+}
+
+type GroupAddMemberInput struct {
+	UserID   uuid.UUID
+	GroupID  ulid.ULID
+	MemberID uuid.UUID
 }

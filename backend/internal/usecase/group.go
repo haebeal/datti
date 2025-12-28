@@ -137,3 +137,28 @@ func (u GroupUseCaseImpl) Update(ctx context.Context, input handler.GroupUpdateI
 		Group: updatedGroup,
 	}, nil
 }
+
+func (u GroupUseCaseImpl) AddMember(ctx context.Context, input handler.GroupAddMemberInput) error {
+	ctx, span := tracer.Start(ctx, "group.AddMember")
+	defer span.End()
+
+	group, err := u.gr.FindByID(ctx, input.GroupID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	if input.UserID != group.CreatedBy() {
+		return fmt.Errorf("forbidden Error")
+	}
+
+	err = u.gmr.AddMember(ctx, input.GroupID, input.MemberID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	return nil
+}

@@ -34,6 +34,7 @@ type GroupHandler interface {
 	GetAll(c echo.Context) error
 	Get(c echo.Context, id string) error
 	Update(c echo.Context, id string) error
+	AddMember(c echo.Context, id string) error
 }
 
 type Server struct {
@@ -107,4 +108,8 @@ func (s *Server) GroupGet(ctx echo.Context, id string) error {
 
 func (s *Server) GroupUpdate(ctx echo.Context, id string) error {
 	return s.gh.Update(ctx, id)
+}
+
+func (s *Server) GroupAddMember(ctx echo.Context, id string) error {
+	return s.gh.AddMember(ctx, id)
 }

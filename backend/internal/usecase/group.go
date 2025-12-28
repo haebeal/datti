@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
@@ -63,5 +64,42 @@ func (u GroupUseCaseImpl) GetAll(ctx context.Context, input handler.GroupGetAllI
 
 	return &handler.GroupGetAllOutput{
 		Groups: groups,
+	}, nil
+}
+
+func (u GroupUseCaseImpl) Get(ctx context.Context, input handler.GroupGetInput) (*handler.GroupGetOutput, error) {
+	ctx, span := tracer.Start(ctx, "group.Get")
+	defer span.End()
+
+	group, err := u.gr.FindByID(ctx, input.GroupID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	if input.UserID != group.OwnerID() {
+		memberIDs, err := u.gmr.FindMembersByGroupID(ctx, input.GroupID)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		authorized := false
+		for _, memberID := range memberIDs {
+			if memberID == input.UserID {
+				authorized = true
+				break
+			}
+		}
+
+		if !authorized {
+			return nil, fmt.Errorf("forbidden Error")
+		}
+	}
+
+	return &handler.GroupGetOutput{
+		Group: group,
 	}, nil
 }

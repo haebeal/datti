@@ -9,12 +9,14 @@ import (
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
+	"github.com/oklog/ulid/v2"
 	"go.opentelemetry.io/otel/codes"
 )
 
 type GroupUseCase interface {
 	Create(context.Context, GroupCreateInput) (*GroupCreateOutput, error)
 	GetAll(context.Context, GroupGetAllInput) (*GroupGetAllOutput, error)
+	Get(context.Context, GroupGetInput) (*GroupGetOutput, error)
 }
 
 type groupHandler struct {
@@ -122,6 +124,61 @@ func (h groupHandler) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h groupHandler) Get(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "group.Get")
+	defer span.End()
+
+	groupID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	userID, ok := c.Get("uid").(uuid.UUID)
+	if !ok {
+		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := GroupGetInput{
+		UserID:  userID,
+		GroupID: groupID,
+	}
+
+	output, err := h.u.Get(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to get group: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		if err.Error() == "forbidden Error" {
+			return c.JSON(http.StatusForbidden, res)
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := &api.GroupGetResponse{
+		Id:        output.Group.ID().String(),
+		Name:      output.Group.Name(),
+		CreatedBy: output.Group.OwnerID().String(),
+		CreatedAt: output.Group.CreatedAt(),
+		UpdatedAt: output.Group.UpdatedAt(),
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
 type GroupCreateInput struct {
 	OwnerID uuid.UUID
 	Name    string
@@ -137,4 +194,13 @@ type GroupGetAllInput struct {
 
 type GroupGetAllOutput struct {
 	Groups []*domain.Group
+}
+
+type GroupGetInput struct {
+	UserID  uuid.UUID
+	GroupID ulid.ULID
+}
+
+type GroupGetOutput struct {
+	Group *domain.Group
 }

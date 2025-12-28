@@ -32,6 +32,7 @@ type RepaymentHandler interface {
 type GroupHandler interface {
 	Create(c echo.Context) error
 	GetAll(c echo.Context) error
+	Get(c echo.Context, id string) error
 }
 
 type Server struct {
@@ -97,4 +98,8 @@ func (s *Server) GroupCreate(ctx echo.Context) error {
 
 func (s *Server) GroupGetAll(ctx echo.Context) error {
 	return s.gh.GetAll(ctx)
+}
+
+func (s *Server) GroupGet(ctx echo.Context, id string) error {
+	return s.gh.Get(ctx, id)
 }

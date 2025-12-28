@@ -42,4 +42,5 @@ func (gm *GroupMember) UserID() uuid.UUID {
 type GroupMemberRepository interface {
 	AddMember(context.Context, ulid.ULID, uuid.UUID) error
 	FindMembersByGroupID(context.Context, ulid.ULID) ([]uuid.UUID, error)
+	FindMemberUsersByGroupID(context.Context, ulid.ULID) ([]*User, error)
 }

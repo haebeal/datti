@@ -62,3 +62,31 @@ func (gmr *GroupMemberRepositoryImpl) FindMembersByGroupID(ctx context.Context, 
 
 	return rows, nil
 }
+
+func (gmr *GroupMemberRepositoryImpl) FindMemberUsersByGroupID(ctx context.Context, groupID ulid.ULID) ([]*domain.User, error) {
+	ctx, span := tracer.Start(ctx, "groupMember.FindMemberUsersByGroupID")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT u.id, u.name, u.avatar, u.email FROM users u INNER JOIN group_members gm ON u.id = gm.user_id WHERE gm.group_id = $1")
+	rows, err := gmr.queries.FindGroupMemberUsersByGroupID(ctx, groupID.String())
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	members := make([]*domain.User, 0, len(rows))
+	for _, row := range rows {
+		user, err := domain.NewUser(row.ID.String(), row.Name, row.Avatar, row.Email)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+		members = append(members, user)
+	}
+
+	return members, nil
+}

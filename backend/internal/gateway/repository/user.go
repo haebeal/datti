@@ -42,3 +42,35 @@ func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*doma
 
 	return user, nil
 }
+
+func (ur *UserRepositoryImpl) FindBySearch(ctx context.Context, name *string, email *string, limit int32) ([]*domain.User, error) {
+	ctx, span := tracer.Start(ctx, "user.FindBySearch")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM users WHERE name ILIKE $1 OR email ILIKE $2")
+	rows, err := ur.queries.FindUsersBySearch(ctx, postgres.FindUsersBySearchParams{
+		Name:  name,
+		Email: email,
+		Limit: limit,
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	users := make([]*domain.User, 0, len(rows))
+	for _, row := range rows {
+		user, err := domain.NewUser(row.ID.String(), row.Name, row.Avatar, row.Email)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
+}

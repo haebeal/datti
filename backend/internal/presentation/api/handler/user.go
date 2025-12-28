@@ -1,0 +1,104 @@
+package handler
+
+import (
+	"context"
+	"fmt"
+	"net/http"
+	"strings"
+
+	"github.com/google/uuid"
+	"github.com/haebeal/datti/internal/domain"
+	"github.com/haebeal/datti/internal/presentation/api"
+	"github.com/labstack/echo/v4"
+	"go.opentelemetry.io/otel/codes"
+)
+
+type UserUseCase interface {
+	Search(context.Context, UserSearchInput) (*UserSearchOutput, error)
+}
+
+type userHandler struct {
+	u UserUseCase
+}
+
+func NewUserHandler(u UserUseCase) userHandler {
+	return userHandler{
+		u: u,
+	}
+}
+
+func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
+	ctx, span := tracer.Start(c.Request().Context(), "user.Search")
+	defer span.End()
+
+	if _, ok := c.Get("uid").(uuid.UUID); !ok {
+		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	name := ""
+	if params.Name != nil {
+		name = strings.TrimSpace(*params.Name)
+	}
+	email := ""
+	if params.Email != nil {
+		email = strings.TrimSpace(*params.Email)
+	}
+
+	if name == "" && email == "" {
+		message := "name or email is required"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	var limit int32
+	if params.Limit != nil {
+		limit = *params.Limit
+	}
+
+	input := UserSearchInput{
+		Name:  name,
+		Email: email,
+		Limit: limit,
+	}
+
+	output, err := h.u.Search(ctx, input)
+	if err != nil {
+		message := fmt.Sprintf("Failed to search users: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := make([]api.UserSearchResponse, 0, len(output.Users))
+	for _, user := range output.Users {
+		res = append(res, api.UserSearchResponse{
+			Id:     user.ID().String(),
+			Name:   user.Name(),
+			Avatar: user.Avatar(),
+			Email:  user.Email(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+type UserSearchInput struct {
+	Name  string
+	Email string
+	Limit int32
+}
+
+type UserSearchOutput struct {
+	Users []*domain.User
+}

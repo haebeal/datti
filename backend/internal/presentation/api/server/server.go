@@ -35,6 +35,12 @@ type GroupHandler interface {
 	GetAll(c echo.Context) error
 	Get(c echo.Context, id string) error
 	Update(c echo.Context, id string) error
+	AddMember(c echo.Context, id string) error
+	GetMembers(c echo.Context, id string) error
+}
+
+type UserHandler interface {
+	Search(c echo.Context, params api.UserSearchParams) error
 }
 
 type Server struct {
@@ -44,9 +50,10 @@ type Server struct {
 	hh HealthHandler
 	rh RepaymentHandler
 	gh GroupHandler
+	uh UserHandler
 }
 
-func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler, uh UserHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		bh: bh,
@@ -54,6 +61,7 @@ func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh Heal
 		hh: hh,
 		rh: rh,
 		gh: gh,
+		uh: uh,
 	}
 }
 
@@ -112,4 +120,16 @@ func (s *Server) GroupGet(ctx echo.Context, id string) error {
 
 func (s *Server) GroupUpdate(ctx echo.Context, id string) error {
 	return s.gh.Update(ctx, id)
+}
+
+func (s *Server) GroupAddMember(ctx echo.Context, id string) error {
+	return s.gh.AddMember(ctx, id)
+}
+
+func (s *Server) GroupGetMembers(ctx echo.Context, id string) error {
+	return s.gh.GetMembers(ctx, id)
+}
+
+func (s *Server) UserSearch(ctx echo.Context, params api.UserSearchParams) error {
+	return s.uh.Search(ctx, params)
 }

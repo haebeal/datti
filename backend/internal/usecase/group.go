@@ -137,3 +137,72 @@ func (u GroupUseCaseImpl) Update(ctx context.Context, input handler.GroupUpdateI
 		Group: updatedGroup,
 	}, nil
 }
+
+func (u GroupUseCaseImpl) AddMember(ctx context.Context, input handler.GroupAddMemberInput) error {
+	ctx, span := tracer.Start(ctx, "group.AddMember")
+	defer span.End()
+
+	group, err := u.gr.FindByID(ctx, input.GroupID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	if input.UserID != group.CreatedBy() {
+		return fmt.Errorf("forbidden Error")
+	}
+
+	err = u.gmr.AddMember(ctx, input.GroupID, input.MemberID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	return nil
+}
+
+func (u GroupUseCaseImpl) ListMembers(ctx context.Context, input handler.GroupListMembersInput) (*handler.GroupListMembersOutput, error) {
+	ctx, span := tracer.Start(ctx, "group.ListMembers")
+	defer span.End()
+
+	group, err := u.gr.FindByID(ctx, input.GroupID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	if input.UserID != group.CreatedBy() {
+		memberIDs, err := u.gmr.FindMembersByGroupID(ctx, input.GroupID)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		authorized := false
+		for _, memberID := range memberIDs {
+			if memberID == input.UserID {
+				authorized = true
+				break
+			}
+		}
+
+		if !authorized {
+			return nil, fmt.Errorf("forbidden Error")
+		}
+	}
+
+	members, err := u.gmr.FindMemberUsersByGroupID(ctx, input.GroupID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	return &handler.GroupListMembersOutput{
+		Members: members,
+	}, nil
+}

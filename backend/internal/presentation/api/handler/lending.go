@@ -205,7 +205,7 @@ func (h lendingHandler) GetAll(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	var responseItems []api.LendingGetAllResponse
+	responseItems := make([]api.LendingGetAllResponse, 0)
 	for _, l := range output.Lendings {
 		var debts []api.LendingDebtParmam
 		for _, d := range l.Debtors {

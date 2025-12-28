@@ -531,6 +531,48 @@ func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (User, error) 
 	return i, err
 }
 
+const findUsersBySearch = `-- name: FindUsersBySearch :many
+SELECT id, name, avatar, email, created_at, updated_at
+FROM users
+WHERE ($1::text IS NOT NULL AND name ILIKE '%' || $1 || '%')
+   OR ($2::text IS NOT NULL AND email ILIKE '%' || $2 || '%')
+ORDER BY name ASC
+LIMIT $3
+`
+
+type FindUsersBySearchParams struct {
+	Name  *string
+	Email *string
+	Limit int32
+}
+
+func (q *Queries) FindUsersBySearch(ctx context.Context, arg FindUsersBySearchParams) ([]User, error) {
+	rows, err := q.db.Query(ctx, findUsersBySearch, arg.Name, arg.Email, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Avatar,
+			&i.Email,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listBorrowingCreditAmountsByUserID = `-- name: ListBorrowingCreditAmountsByUserID :many
 SELECT payer_id AS user_id, SUM(amount)::bigint AS amount
 FROM payments

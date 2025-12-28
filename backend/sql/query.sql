@@ -1,6 +1,14 @@
 -- name: FindAllUsers :many
 SELECT id, name, avatar, email, created_at, updated_at FROM users;
 
+-- name: FindUsersBySearch :many
+SELECT id, name, avatar, email, created_at, updated_at
+FROM users
+WHERE (sqlc.narg('name')::text IS NOT NULL AND name ILIKE '%' || sqlc.narg('name') || '%')
+   OR (sqlc.narg('email')::text IS NOT NULL AND email ILIKE '%' || sqlc.narg('email') || '%')
+ORDER BY name ASC
+LIMIT sqlc.arg('limit');
+
 -- name: FindUserByID :one
 SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1;
 

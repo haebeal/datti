@@ -6,7 +6,6 @@ import (
 
 	firebase "firebase.google.com/go/v4"
 	"firebase.google.com/go/v4/auth"
-	"google.golang.org/api/option"
 )
 
 // Client handles Firebase/Identity Platform token verification
@@ -23,17 +22,10 @@ type TokenClaims struct {
 }
 
 // NewClient creates a new Firebase client
-func NewClient(ctx context.Context, projectID string) (*Client, error) {
-	var app *firebase.App
-	var err error
-
-	if projectID != "" {
-		conf := &firebase.Config{ProjectID: projectID}
-		app, err = firebase.NewApp(ctx, conf)
-	} else {
-		// Use default credentials (GOOGLE_APPLICATION_CREDENTIALS)
-		app, err = firebase.NewApp(ctx, nil, option.WithCredentialsFile(""))
-	}
+// GCP環境ではApplication Default Credentialsとメタデータサーバーから
+// 自動的に認証情報とプロジェクトIDを取得する
+func NewClient(ctx context.Context) (*Client, error) {
+	app, err := firebase.NewApp(ctx, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize firebase app: %w", err)
 	}

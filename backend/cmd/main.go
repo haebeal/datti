@@ -153,8 +153,7 @@ func main() {
 	}
 
 	if !devMode {
-		projectID := os.Getenv("PROJECT_ID")
-		firebaseClient, err := firebase.NewClient(ctx, projectID)
+		firebaseClient, err := firebase.NewClient(ctx)
 		if err != nil {
 			log.Fatalf("Firebase認証の初期化に失敗しました: %v", err)
 		}

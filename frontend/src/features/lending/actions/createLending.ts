@@ -1,32 +1,45 @@
 "use server";
 
+import { parseWithZod } from "@conform-to/zod";
+import { redirect } from "next/navigation";
 import { apiClient } from "@/libs/api/client";
-import type { Result } from "@/schema";
-import type { CreateLendingRequest, Lending } from "../types";
+import { createLendingSchema } from "../schema";
+import type { Lending } from "../types";
 
 export async function createLending(
-	data: CreateLendingRequest,
-): Promise<Result<Lending>> {
-	try {
-		const requestBody = {
-			name: data.name,
-			amount: data.amount,
-			eventDate: data.eventDate.toISOString(),
-			debts: data.debts,
-		};
+  groupId: string,
+  _: unknown,
+  formData: FormData,
+) {
+  const submission = parseWithZod(formData, {
+    schema: createLendingSchema,
+  });
 
-		const response = await apiClient.post<Lending>("/lendings", requestBody);
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
 
-		return {
-			success: true,
-			result: response,
-			error: null,
-		};
-	} catch (error) {
-		return {
-			success: false,
-			result: null,
-			error: error instanceof Error ? error.message : "Unknown error",
-		};
-	}
+  const { name, amount, eventDate, debts } = submission.value;
+
+  let response: Lending;
+
+  try {
+    response = await apiClient.post<Lending>(
+      `/groups/${groupId}/lendings`,
+      {
+        name,
+        amount,
+        eventDate,
+        debts,
+      },
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return submission.reply({
+      formErrors: [message],
+    });
+  }
+
+  // redirect は try ブロックの外で呼ぶ
+  redirect(`/groups/${groupId}/lendings/${response.id}`);
 }

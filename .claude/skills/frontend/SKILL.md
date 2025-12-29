@@ -27,6 +27,10 @@ Dattiフロントエンドは「誰にいくら払ったか」を記録・共有
 
 詳細は [patterns.md](patterns.md) を参照。
 
+## デザインシステム
+
+間隔、UIコンポーネント、統一デザイン原則については [design-system.md](design-system.md) を参照。
+
 ### ディレクトリ構造
 
 ```

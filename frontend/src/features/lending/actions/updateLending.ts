@@ -1,35 +1,41 @@
 "use server";
 
+import { parseWithZod } from "@conform-to/zod";
+import { revalidatePath } from "next/cache";
 import { apiClient } from "@/libs/api/client";
-import type { Result } from "@/schema";
-import type { Lending, UpdateLendingRequest } from "../types";
+import { updateLendingSchema } from "../schema";
+import type { Lending } from "../types";
 
 export async function updateLending(
-	data: UpdateLendingRequest,
-): Promise<Result<Lending>> {
-	try {
-		const requestBody = {
-			name: data.name,
-			amount: data.amount,
-			eventDate: data.eventDate.toISOString(),
-			debts: data.debts,
-		};
+  groupId: string,
+  _: unknown,
+  formData: FormData,
+) {
+  const submission = parseWithZod(formData, {
+    schema: updateLendingSchema,
+  });
 
-		const response = await apiClient.put<Lending>(
-			`/lendings/${data.id}`,
-			requestBody,
-		);
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
 
-		return {
-			success: true,
-			result: response,
-			error: null,
-		};
-	} catch (error) {
-		return {
-			success: false,
-			result: null,
-			error: error instanceof Error ? error.message : "Unknown error",
-		};
-	}
+  const { id, name, amount, eventDate, debts } = submission.value;
+
+  try {
+    await apiClient.put<Lending>(`/groups/${groupId}/lendings/${id}`, {
+      name,
+      amount,
+      eventDate,
+      debts,
+    });
+    revalidatePath(`/groups/${groupId}/lendings/${id}/edit`);
+    revalidatePath(`/groups/${groupId}/lendings/${id}`);
+    revalidatePath(`/groups/${groupId}/lendings`);
+    return submission.reply({ resetForm: true });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return submission.reply({
+      formErrors: [message],
+    });
+  }
 }

@@ -1,5 +1,5 @@
 import { getMembers } from "@/features/group/actions/getMembers";
-import { LendingForm } from "@/features/lending/components/lending-form";
+import { LendingCreateForm } from "@/features/lending/components/lending-create-form";
 import { cn } from "@/utils/cn";
 
 export default async function CreateLendingPage({
@@ -16,5 +16,11 @@ export default async function CreateLendingPage({
 
   const members = result.result;
 
-  return <LendingForm groupId={groupId} members={members} />;
+  return (
+    <div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
+      <h1 className={cn("text-2xl font-bold")}>新規立て替え作成</h1>
+
+      <LendingCreateForm groupId={groupId} members={members} />
+    </div>
+  );
 }

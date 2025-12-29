@@ -61,6 +61,9 @@ type ServerInterface interface {
 	// グループメンバーの追加
 	// (POST /groups/{id}/members)
 	GroupAddMember(ctx echo.Context, id string) error
+	// グループメンバーの削除
+	// (DELETE /groups/{id}/members/{userId})
+	GroupRemoveMember(ctx echo.Context, id string, userId string) error
 	// ヘルスチェック
 	// (GET /health)
 	HealthCheck(ctx echo.Context) error
@@ -217,6 +220,7 @@ func (w *ServerInterfaceWrapper) BorrowingGet(ctx echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
 	}
+
 	// ------------- Path parameter "borrowingId" -------------
 	var borrowingId string
 
@@ -379,6 +383,32 @@ func (w *ServerInterfaceWrapper) GroupAddMember(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GroupAddMember(ctx, id)
+	return err
+}
+
+// GroupRemoveMember converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupRemoveMember(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	// ------------- Path parameter "userId" -------------
+	var userId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "userId", ctx.Param("userId"), &userId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter userId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupRemoveMember(ctx, id, userId)
 	return err
 }
 
@@ -594,6 +624,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.PUT(baseURL+"/groups/:id/lendings/:lendingId", wrapper.LendingUpdate)
 	router.GET(baseURL+"/groups/:id/members", wrapper.GroupGetMembers)
 	router.POST(baseURL+"/groups/:id/members", wrapper.GroupAddMember)
+	router.DELETE(baseURL+"/groups/:id/members/:userId", wrapper.GroupRemoveMember)
 	router.GET(baseURL+"/health", wrapper.HealthCheck)
 	router.GET(baseURL+"/repayments", wrapper.RepaymentGetAll)
 	router.POST(baseURL+"/repayments", wrapper.RepaymentCreate)

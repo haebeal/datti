@@ -344,6 +344,53 @@ func (q *Queries) FindEventsByGroupIDAndDebtorID(ctx context.Context, arg FindEv
 	return items, nil
 }
 
+const findEventByGroupIDAndDebtorIDAndEventID = `-- name: FindEventByGroupIDAndDebtorIDAndEventID :one
+SELECT
+  e.id AS event_id,
+  e.group_id,
+  e.name,
+  e.event_date,
+  p.amount,
+  e.created_at,
+  e.updated_at
+FROM events e
+INNER JOIN event_payments ep ON e.id = ep.event_id
+INNER JOIN payments p ON ep.payment_id = p.id
+WHERE e.group_id = $1 AND p.debtor_id = $2 AND e.id = $3
+LIMIT 1
+`
+
+type FindEventByGroupIDAndDebtorIDAndEventIDParams struct {
+	GroupID  string
+	DebtorID string
+	ID       string
+}
+
+type FindEventByGroupIDAndDebtorIDAndEventIDRow struct {
+	EventID   string
+	GroupID   string
+	Name      string
+	EventDate time.Time
+	Amount    int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (q *Queries) FindEventByGroupIDAndDebtorIDAndEventID(ctx context.Context, arg FindEventByGroupIDAndDebtorIDAndEventIDParams) (FindEventByGroupIDAndDebtorIDAndEventIDRow, error) {
+	row := q.db.QueryRow(ctx, findEventByGroupIDAndDebtorIDAndEventID, arg.GroupID, arg.DebtorID, arg.ID)
+	var i FindEventByGroupIDAndDebtorIDAndEventIDRow
+	err := row.Scan(
+		&i.EventID,
+		&i.GroupID,
+		&i.Name,
+		&i.EventDate,
+		&i.Amount,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const findGroupByID = `-- name: FindGroupByID :one
 SELECT id, name, created_by, created_at, updated_at
 FROM groups WHERE id = $1 LIMIT 1

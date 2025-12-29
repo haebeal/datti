@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"go.opentelemetry.io/otel/codes"
@@ -19,7 +18,7 @@ func NewCreditRepository(queries *postgres.Queries) *CreditRepositoryImpl {
 	}
 }
 
-func (r *CreditRepositoryImpl) ListLendingCreditsByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Credit, error) {
+func (r *CreditRepositoryImpl) ListLendingCreditsByUserID(ctx context.Context, userID string) ([]*domain.Credit, error) {
 	ctx, span := tracer.Start(ctx, "credit.ListLendingCreditsByUserID")
 	defer span.End()
 
@@ -52,7 +51,7 @@ func (r *CreditRepositoryImpl) ListLendingCreditsByUserID(ctx context.Context, u
 	return credits, nil
 }
 
-func (r *CreditRepositoryImpl) ListBorrowingCreditsByUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Credit, error) {
+func (r *CreditRepositoryImpl) ListBorrowingCreditsByUserID(ctx context.Context, userID string) ([]*domain.Credit, error) {
 	ctx, span := tracer.Start(ctx, "credit.ListBorrowingCreditsByUserID")
 	defer span.End()
 

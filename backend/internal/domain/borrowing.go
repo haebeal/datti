@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 )
 
@@ -63,5 +62,5 @@ func (b *Borrowing) UpdatedAt() time.Time {
 }
 
 type BorrowingRepository interface {
-	FindByGroupIDAndUserID(context.Context, ulid.ULID, uuid.UUID) ([]*Borrowing, error)
+	FindByGroupIDAndUserID(context.Context, ulid.ULID, string) ([]*Borrowing, error)
 }

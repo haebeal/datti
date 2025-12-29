@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -22,7 +21,7 @@ func NewGroupMemberRepository(queries *postgres.Queries) *GroupMemberRepositoryI
 	}
 }
 
-func (gmr *GroupMemberRepositoryImpl) AddMember(ctx context.Context, groupID ulid.ULID, userID uuid.UUID) error {
+func (gmr *GroupMemberRepositoryImpl) AddMember(ctx context.Context, groupID ulid.ULID, userID string) error {
 	ctx, span := tracer.Start(ctx, "groupMember.AddMember")
 	defer span.End()
 
@@ -46,7 +45,7 @@ func (gmr *GroupMemberRepositoryImpl) AddMember(ctx context.Context, groupID uli
 	return nil
 }
 
-func (gmr *GroupMemberRepositoryImpl) FindMembersByGroupID(ctx context.Context, groupID ulid.ULID) ([]uuid.UUID, error) {
+func (gmr *GroupMemberRepositoryImpl) FindMembersByGroupID(ctx context.Context, groupID ulid.ULID) ([]string, error) {
 	ctx, span := tracer.Start(ctx, "groupMember.FindMembersByGroupID")
 	defer span.End()
 
@@ -79,7 +78,7 @@ func (gmr *GroupMemberRepositoryImpl) FindMemberUsersByGroupID(ctx context.Conte
 
 	members := make([]*domain.User, 0, len(rows))
 	for _, row := range rows {
-		user, err := domain.NewUser(row.ID.String(), row.Name, row.Avatar, row.Email)
+		user, err := domain.NewUser(row.ID, row.Name, row.Avatar, row.Email)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)

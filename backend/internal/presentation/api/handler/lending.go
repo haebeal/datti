@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
@@ -62,23 +61,13 @@ func (h lendingHandler) Create(c echo.Context, id string) error {
 
 	var debtParams []DebtParam
 	for _, d := range req.Debts {
-		id, err := uuid.Parse(d.UserId)
-		if err != nil {
-			message := fmt.Sprintf("Debts UUID Parse Error ID: %v", d.UserId)
-			span.SetStatus(codes.Error, message)
-			span.RecordError(err)
-			res := &api.ErrorResponse{
-				Message: message,
-			}
-			return c.JSON(http.StatusBadRequest, res)
-		}
 		debtParams = append(debtParams, DebtParam{
-			UserID: id,
+			UserID: d.UserId,
 			Amount: int64(d.Amount),
 		})
 	}
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -117,7 +106,7 @@ func (h lendingHandler) Create(c echo.Context, id string) error {
 	var debts []api.LendingDebtParmam
 	for _, d := range output.Debtors {
 		debts = append(debts, api.LendingDebtParmam{
-			UserId: d.ID().String(),
+			UserId: d.ID(),
 			Amount: uint64(d.Amount().Value()),
 		})
 	}
@@ -161,7 +150,7 @@ func (h lendingHandler) Get(c echo.Context, id string, lendingId string) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -194,7 +183,7 @@ func (h lendingHandler) Get(c echo.Context, id string, lendingId string) error {
 	var debts []api.LendingDebtParmam
 	for _, d := range output.Debtors {
 		debts = append(debts, api.LendingDebtParmam{
-			UserId: d.ID().String(),
+			UserId: d.ID(),
 			Amount: uint64(d.Amount().Value()),
 		})
 	}
@@ -227,7 +216,7 @@ func (h lendingHandler) GetAll(c echo.Context, id string) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		res := &api.ErrorResponse{
@@ -258,7 +247,7 @@ func (h lendingHandler) GetAll(c echo.Context, id string) error {
 		var debts []api.LendingDebtParmam
 		for _, d := range l.Debtors {
 			debts = append(debts, api.LendingDebtParmam{
-				UserId: d.ID().String(),
+				UserId: d.ID(),
 				Amount: uint64(d.Amount().Value()),
 			})
 		}
@@ -317,23 +306,13 @@ func (h lendingHandler) Update(c echo.Context, id string, lendingId string) erro
 
 	var debtParams []DebtParam
 	for _, d := range req.Debts {
-		debtorID, err := uuid.Parse(d.UserId)
-		if err != nil {
-			message := fmt.Sprintf("Debts UUID Parse Error ID: %v", d.UserId)
-			span.SetStatus(codes.Error, message)
-			span.RecordError(err)
-			res := &api.ErrorResponse{
-				Message: message,
-			}
-			return c.JSON(http.StatusBadRequest, res)
-		}
 		debtParams = append(debtParams, DebtParam{
-			UserID: debtorID,
+			UserID: d.UserId,
 			Amount: int64(d.Amount),
 		})
 	}
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -373,7 +352,7 @@ func (h lendingHandler) Update(c echo.Context, id string, lendingId string) erro
 	var debts []api.LendingDebtParmam
 	for _, d := range output.Debtors {
 		debts = append(debts, api.LendingDebtParmam{
-			UserId: d.ID().String(),
+			UserId: d.ID(),
 			Amount: uint64(d.Amount().Value()),
 		})
 	}
@@ -417,7 +396,7 @@ func (h lendingHandler) Delete(c echo.Context, id string, lendingId string) erro
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -458,14 +437,14 @@ func (h lendingHandler) Delete(c echo.Context, id string, lendingId string) erro
 
 type CreateInput struct {
 	GroupID   ulid.ULID
-	UserID    uuid.UUID
+	UserID    string
 	Name      string
 	Amount    int64
 	Debts     []DebtParam
 	EventDate time.Time
 }
 type DebtParam struct {
-	UserID uuid.UUID
+	UserID string
 	Amount int64
 }
 
@@ -476,7 +455,7 @@ type CreateOutput struct {
 
 type GetInput struct {
 	GroupID ulid.ULID
-	UserID  uuid.UUID
+	UserID  string
 	EventID ulid.ULID
 }
 
@@ -487,7 +466,7 @@ type GetOutput struct {
 
 type GetAllInput struct {
 	GroupID ulid.ULID
-	UserID  uuid.UUID
+	UserID  string
 }
 
 type GetAllOutput struct {
@@ -499,7 +478,7 @@ type GetAllOutput struct {
 
 type UpdateInput struct {
 	GroupID   ulid.ULID
-	UserID    uuid.UUID
+	UserID    string
 	EventID   ulid.ULID
 	Name      string
 	Amount    int64
@@ -514,6 +493,6 @@ type UpdateOutput struct {
 
 type DeleteInput struct {
 	GroupID ulid.ULID
-	UserID  uuid.UUID
+	UserID  string
 	EventID ulid.ULID
 }

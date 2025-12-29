@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/oklog/ulid/v2"
@@ -88,7 +87,7 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 	return lendingEvent, nil
 }
 
-func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserID(ctx context.Context, groupID ulid.ULID, userID uuid.UUID) ([]*domain.Lending, error) {
+func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserID(ctx context.Context, groupID ulid.ULID, userID string) ([]*domain.Lending, error) {
 	lendingEvents, err := lr.queries.FindLendingsByGroupIDAndUserID(ctx, postgres.FindLendingsByGroupIDAndUserIDParams{
 		GroupID: groupID.String(),
 		PayerID: userID,

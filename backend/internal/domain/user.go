@@ -6,22 +6,19 @@ import (
 	"net/mail"
 	"net/url"
 	"unicode/utf8"
-
-	"github.com/google/uuid"
 )
 
 // ユーザー
 type User struct {
-	id     uuid.UUID
+	id     string
 	name   string
 	avatar string
 	email  string
 }
 
 func NewUser(id string, name string, avatar string, email string) (*User, error) {
-	uuid, err := uuid.Parse(id)
-	if err != nil {
-		return nil, fmt.Errorf("invalid uuid format")
+	if id == "" {
+		return nil, fmt.Errorf("id is required")
 	}
 
 	nl := utf8.RuneCountInString(name)
@@ -42,10 +39,10 @@ func NewUser(id string, name string, avatar string, email string) (*User, error)
 		return nil, fmt.Errorf("invalid email format")
 	}
 
-	return &User{uuid, name, avatar, email}, nil
+	return &User{id, name, avatar, email}, nil
 }
 
-func (u *User) ID() uuid.UUID {
+func (u *User) ID() string {
 	return u.id
 }
 
@@ -62,6 +59,6 @@ func (u *User) Email() string {
 }
 
 type UserRepository interface {
-	FindByID(context.Context, uuid.UUID) (*User, error)
+	FindByID(context.Context, string) (*User, error)
 	FindBySearch(context.Context, *string, *string, int32) ([]*User, error)
 }

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
@@ -19,7 +18,7 @@ type CreditUseCase interface {
 
 // CreditListInput carries parameters for listing credits from the perspective of the authenticated user.
 type CreditListInput struct {
-	UserID uuid.UUID
+	UserID string
 }
 
 // CreditListOutput aggregates lending and borrowing credits for the caller.
@@ -42,7 +41,7 @@ func (h creditHandler) List(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "credit.List")
 	defer span.End()
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -62,11 +61,11 @@ func (h creditHandler) List(c echo.Context) error {
 
 	balances := make(map[string]int64, len(output.Lendings)+len(output.Borrowings))
 	for _, credit := range output.Lendings {
-		userID := credit.UserID().String()
+		userID := credit.UserID()
 		balances[userID] += credit.Amount().Value()
 	}
 	for _, credit := range output.Borrowings {
-		userID := credit.UserID().String()
+		userID := credit.UserID()
 		balances[userID] -= credit.Amount().Value()
 	}
 

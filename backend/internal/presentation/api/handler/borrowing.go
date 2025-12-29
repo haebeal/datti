@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
@@ -42,7 +41,7 @@ func (b borrowingHandler) GetAll(c echo.Context, id string) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -87,7 +86,7 @@ func (b borrowingHandler) GetAll(c echo.Context, id string) error {
 }
 
 type GetAllBorrowingInput struct {
-	UserID  uuid.UUID
+	UserID  string
 	GroupID ulid.ULID
 }
 

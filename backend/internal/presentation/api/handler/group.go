@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
@@ -48,7 +47,7 @@ func (h groupHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	createdBy, ok := c.Get("uid").(uuid.UUID)
+	createdBy, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -75,7 +74,7 @@ func (h groupHandler) Create(c echo.Context) error {
 	}
 
 	res := &api.GroupCreateResponse{
-		CreatedBy: output.Group.CreatedBy().String(),
+		CreatedBy: output.Group.CreatedBy(),
 		Id:        output.Group.ID().String(),
 		Name:      output.Group.Name(),
 		CreatedAt: output.Group.CreatedAt(),
@@ -89,7 +88,7 @@ func (h groupHandler) GetAll(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "group.GetAll")
 	defer span.End()
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -119,7 +118,7 @@ func (h groupHandler) GetAll(c echo.Context) error {
 		res = append(res, api.GroupGetAllResponse{
 			Id:        group.ID().String(),
 			Name:      group.Name(),
-			CreatedBy: group.CreatedBy().String(),
+			CreatedBy: group.CreatedBy(),
 			CreatedAt: group.CreatedAt(),
 			UpdatedAt: group.UpdatedAt(),
 		})
@@ -143,7 +142,7 @@ func (h groupHandler) Get(c echo.Context, id string) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -175,7 +174,7 @@ func (h groupHandler) Get(c echo.Context, id string) error {
 	res := &api.GroupGetResponse{
 		Id:        output.Group.ID().String(),
 		Name:      output.Group.Name(),
-		CreatedBy: output.Group.CreatedBy().String(),
+		CreatedBy: output.Group.CreatedBy(),
 		CreatedAt: output.Group.CreatedAt(),
 		UpdatedAt: output.Group.UpdatedAt(),
 	}
@@ -209,7 +208,7 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -242,7 +241,7 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 	res := &api.GroupUpdateResponse{
 		Id:        output.Group.ID().String(),
 		Name:      output.Group.Name(),
-		CreatedBy: output.Group.CreatedBy().String(),
+		CreatedBy: output.Group.CreatedBy(),
 		CreatedAt: output.Group.CreatedAt(),
 		UpdatedAt: output.Group.UpdatedAt(),
 	}
@@ -276,18 +275,7 @@ func (h groupHandler) AddMember(c echo.Context, id string) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	memberID, err := uuid.Parse(req.UserId)
-	if err != nil {
-		message := fmt.Sprintf("UserId UUID Parse Error ID: %v", req.UserId)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
-		res := &api.ErrorResponse{
-			Message: message,
-		}
-		return c.JSON(http.StatusBadRequest, res)
-	}
-
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -300,7 +288,7 @@ func (h groupHandler) AddMember(c echo.Context, id string) error {
 	input := GroupAddMemberInput{
 		UserID:   userID,
 		GroupID:  groupID,
-		MemberID: memberID,
+		MemberID: req.UserId,
 	}
 
 	if err := h.u.AddMember(ctx, input); err != nil {
@@ -337,7 +325,7 @@ func (h groupHandler) GetMembers(c echo.Context, id string) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -369,7 +357,7 @@ func (h groupHandler) GetMembers(c echo.Context, id string) error {
 	res := make([]api.GroupMemberResponse, 0, len(output.Members))
 	for _, member := range output.Members {
 		res = append(res, api.GroupMemberResponse{
-			Id:     member.ID().String(),
+			Id:     member.ID(),
 			Name:   member.Name(),
 			Avatar: member.Avatar(),
 			Email:  member.Email(),
@@ -380,7 +368,7 @@ func (h groupHandler) GetMembers(c echo.Context, id string) error {
 }
 
 type GroupCreateInput struct {
-	CreatedBy uuid.UUID
+	CreatedBy string
 	Name      string
 }
 
@@ -389,7 +377,7 @@ type GroupCreateOutput struct {
 }
 
 type GroupGetAllInput struct {
-	UserID uuid.UUID
+	UserID string
 }
 
 type GroupGetAllOutput struct {
@@ -397,7 +385,7 @@ type GroupGetAllOutput struct {
 }
 
 type GroupGetInput struct {
-	UserID  uuid.UUID
+	UserID  string
 	GroupID ulid.ULID
 }
 
@@ -406,7 +394,7 @@ type GroupGetOutput struct {
 }
 
 type GroupUpdateInput struct {
-	UserID  uuid.UUID
+	UserID  string
 	GroupID ulid.ULID
 	Name    string
 }
@@ -416,13 +404,13 @@ type GroupUpdateOutput struct {
 }
 
 type GroupAddMemberInput struct {
-	UserID   uuid.UUID
+	UserID   string
 	GroupID  ulid.ULID
-	MemberID uuid.UUID
+	MemberID string
 }
 
 type GroupListMembersInput struct {
-	UserID  uuid.UUID
+	UserID  string
 	GroupID ulid.ULID
 }
 

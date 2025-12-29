@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
@@ -47,18 +46,7 @@ func (h repaymentHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	debtorID, err := uuid.Parse(req.DebtorId)
-	if err != nil {
-		message := fmt.Sprintf("DebtorId UUID Parse Error ID: %v", req.DebtorId)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
-		res := &api.ErrorResponse{
-			Message: message,
-		}
-		return c.JSON(http.StatusBadRequest, res)
-	}
-
-	payerID, ok := c.Get("uid").(uuid.UUID)
+	payerID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -70,7 +58,7 @@ func (h repaymentHandler) Create(c echo.Context) error {
 
 	input := RepaymentCreateInput{
 		PayerID:  payerID,
-		DebtorID: debtorID,
+		DebtorID: req.DebtorId,
 		Amount:   int64(req.Amount),
 	}
 
@@ -87,8 +75,8 @@ func (h repaymentHandler) Create(c echo.Context) error {
 
 	res := &api.RepaymentCreateResponse{
 		Id:        output.Repayment.ID().String(),
-		PayerId:   output.Repayment.PayerID().String(),
-		DebtorId:  output.Repayment.DebtorID().String(),
+		PayerId:   output.Repayment.PayerID(),
+		DebtorId:  output.Repayment.DebtorID(),
 		Amount:    uint64(output.Repayment.Amount().Value()),
 		CreatedAt: output.Repayment.CreatedAt(),
 		UpdatedAt: output.Repayment.UpdatedAt(),
@@ -101,7 +89,7 @@ func (h repaymentHandler) GetAll(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.GetAll")
 	defer span.End()
 
-	userID, ok := c.Get("uid").(uuid.UUID)
+	userID, ok := c.Get("uid").(string)
 	if !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
@@ -130,8 +118,8 @@ func (h repaymentHandler) GetAll(c echo.Context) error {
 	for _, r := range output.Repayments {
 		responseItems = append(responseItems, api.RepaymentGetAllResponse{
 			Id:        r.ID().String(),
-			PayerId:   r.PayerID().String(),
-			DebtorId:  r.DebtorID().String(),
+			PayerId:   r.PayerID(),
+			DebtorId:  r.DebtorID(),
 			Amount:    uint64(r.Amount().Value()),
 			CreatedAt: r.CreatedAt(),
 			UpdatedAt: r.UpdatedAt(),
@@ -162,8 +150,8 @@ func (h repaymentHandler) Get(c echo.Context, id string) error {
 
 	res := &api.RepaymentGetResponse{
 		Id:        output.Repayment.ID().String(),
-		PayerId:   output.Repayment.PayerID().String(),
-		DebtorId:  output.Repayment.DebtorID().String(),
+		PayerId:   output.Repayment.PayerID(),
+		DebtorId:  output.Repayment.DebtorID(),
 		Amount:    uint64(output.Repayment.Amount().Value()),
 		CreatedAt: output.Repayment.CreatedAt(),
 		UpdatedAt: output.Repayment.UpdatedAt(),
@@ -207,8 +195,8 @@ func (h repaymentHandler) Update(c echo.Context, id string) error {
 
 	res := &api.RepaymentUpdateResponse{
 		Id:        output.Repayment.ID().String(),
-		PayerId:   output.Repayment.PayerID().String(),
-		DebtorId:  output.Repayment.DebtorID().String(),
+		PayerId:   output.Repayment.PayerID(),
+		DebtorId:  output.Repayment.DebtorID(),
 		Amount:    uint64(output.Repayment.Amount().Value()),
 		CreatedAt: output.Repayment.CreatedAt(),
 		UpdatedAt: output.Repayment.UpdatedAt(),
@@ -240,8 +228,8 @@ func (h repaymentHandler) Delete(c echo.Context, id string) error {
 }
 
 type RepaymentCreateInput struct {
-	PayerID  uuid.UUID
-	DebtorID uuid.UUID
+	PayerID  string
+	DebtorID string
 	Amount   int64
 }
 
@@ -250,7 +238,7 @@ type RepaymentCreateOutput struct {
 }
 
 type RepaymentGetAllInput struct {
-	UserID uuid.UUID
+	UserID string
 }
 
 type RepaymentGetAllOutput struct {

@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
@@ -31,7 +30,7 @@ func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.Search")
 	defer span.End()
 
-	if _, ok := c.Get("uid").(uuid.UUID); !ok {
+	if _, ok := c.Get("uid").(string); !ok {
 		message := "Failed to get authorized userID"
 		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
@@ -83,7 +82,7 @@ func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 	res := make([]api.UserSearchResponse, 0, len(output.Users))
 	for _, user := range output.Users {
 		res = append(res, api.UserSearchResponse{
-			Id:     user.ID().String(),
+			Id:     user.ID(),
 			Name:   user.Name(),
 			Avatar: user.Avatar(),
 			Email:  user.Email(),

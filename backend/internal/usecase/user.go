@@ -92,7 +92,6 @@ func (u UserUseCaseImpl) Update(ctx context.Context, input handler.UserUpdateInp
 	ctx, span := tracer.Start(ctx, "user.Update")
 	defer span.End()
 
-	// Check if user exists
 	existingUser, err := u.ur.FindByID(ctx, input.ID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -103,21 +102,20 @@ func (u UserUseCaseImpl) Update(ctx context.Context, input handler.UserUpdateInp
 		return nil, err
 	}
 
-	// Create updated user (keep email unchanged)
-	user, err := domain.NewUser(input.ID, input.Name, input.Avatar, existingUser.Email())
+	updatedUser, err := existingUser.WithUpdatedProfile(input.Name, input.Avatar)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
 
-	if err := u.ur.Update(ctx, user); err != nil {
+	if err := u.ur.Update(ctx, updatedUser); err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
 
 	return &handler.UserUpdateOutput{
-		User: user,
+		User: updatedUser,
 	}, nil
 }

@@ -159,6 +159,10 @@ VALUES ($1, $2, $3, $4, $5);
 INSERT INTO group_members (group_id, user_id, created_at)
 VALUES ($1, $2, current_timestamp);
 
+-- name: DeleteGroupMember :exec
+DELETE FROM group_members
+WHERE group_id = $1 AND user_id = $2;
+
 -- name: FindGroupByID :one
 SELECT id, name, created_by, created_at, updated_at
 FROM groups WHERE id = $1 LIMIT 1;

@@ -218,7 +218,8 @@ func (u GroupUseCaseImpl) RemoveMember(ctx context.Context, input handler.GroupR
 		return err
 	}
 
-	if input.UserID != group.CreatedBy() {
+	// グループ作成者は誰でも削除可能、メンバーは自身のみ退出可能
+	if input.UserID != group.CreatedBy() && input.UserID != input.MemberID {
 		return fmt.Errorf("forbidden Error")
 	}
 

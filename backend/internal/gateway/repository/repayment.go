@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/oklog/ulid/v2"
@@ -44,7 +43,7 @@ func (rr *RepaymentRepositoryImpl) Create(ctx context.Context, repayment *domain
 	return nil
 }
 
-func (rr *RepaymentRepositoryImpl) FindByPayerID(ctx context.Context, payerID uuid.UUID) ([]*domain.Repayment, error) {
+func (rr *RepaymentRepositoryImpl) FindByPayerID(ctx context.Context, payerID string) ([]*domain.Repayment, error) {
 	ctx, span := tracer.Start(ctx, "repayment.FindByPayerID")
 	defer span.End()
 

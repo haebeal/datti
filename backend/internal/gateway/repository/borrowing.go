@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/oklog/ulid/v2"
@@ -20,7 +19,7 @@ func NewBorrowingRepositoryImpl(queries *postgres.Queries) *BorrowingRepositoryI
 	}
 }
 
-func (br *BorrowingRepositoryImpl) FindByGroupIDAndUserID(ctx context.Context, groupID ulid.ULID, userID uuid.UUID) ([]*domain.Borrowing, error) {
+func (br *BorrowingRepositoryImpl) FindByGroupIDAndUserID(ctx context.Context, groupID ulid.ULID, userID string) ([]*domain.Borrowing, error) {
 	ctx, span := tracer.Start(ctx, "borrowing.FindAll")
 	defer span.End()
 

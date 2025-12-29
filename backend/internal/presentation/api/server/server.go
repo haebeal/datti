@@ -44,6 +44,9 @@ type GroupHandler interface {
 
 type UserHandler interface {
 	Search(c echo.Context, params api.UserSearchParams) error
+	Get(c echo.Context, id string) error
+	GetMe(c echo.Context) error
+	Update(c echo.Context, id string) error
 }
 
 type AuthHandler interface {
@@ -154,6 +157,18 @@ func (s *Server) GroupGetMembers(ctx echo.Context, id string) error {
 
 func (s *Server) UserSearch(ctx echo.Context, params api.UserSearchParams) error {
 	return s.uh.Search(ctx, params)
+}
+
+func (s *Server) UserGet(ctx echo.Context, id string) error {
+	return s.uh.Get(ctx, id)
+}
+
+func (s *Server) UserGetMe(ctx echo.Context) error {
+	return s.uh.GetMe(ctx)
+}
+
+func (s *Server) UserUpdate(ctx echo.Context, id string) error {
+	return s.uh.Update(ctx, id)
 }
 
 func (s *Server) AuthLogin(ctx echo.Context) error {

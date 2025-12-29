@@ -237,11 +237,25 @@ type RepaymentUpdateResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// UserGetResponse defines model for User.GetResponse.
+type UserGetResponse struct {
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+}
+
 // UserSearchResponse defines model for User.SearchResponse.
 type UserSearchResponse struct {
 	Avatar string `json:"avatar"`
 	Email  string `json:"email"`
 	Id     string `json:"id"`
+	Name   string `json:"name"`
+}
+
+// UserUpdateRequest defines model for User.UpdateRequest.
+type UserUpdateRequest struct {
+	Avatar string `json:"avatar"`
 	Name   string `json:"name"`
 }
 
@@ -275,3 +289,6 @@ type RepaymentCreateJSONRequestBody = RepaymentCreateRequest
 
 // RepaymentUpdateJSONRequestBody defines body for RepaymentUpdate for application/json ContentType.
 type RepaymentUpdateJSONRequestBody = RepaymentUpdateRequest
+
+// UserUpdateJSONRequestBody defines body for UserUpdate for application/json ContentType.
+type UserUpdateJSONRequestBody = UserUpdateRequest

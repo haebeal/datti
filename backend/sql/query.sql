@@ -16,6 +16,11 @@ SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 
 INSERT INTO users (id, name, avatar, email, created_at, updated_at)
 VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp);
 
+-- name: UpdateUser :exec
+UPDATE users
+SET name = $2, avatar = $3, updated_at = current_timestamp
+WHERE id = $1;
+
 -- name: CreateEvent :exec
 INSERT INTO events (id, group_id, name, amount, event_date, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7);

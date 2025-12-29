@@ -73,3 +73,25 @@ func (ur *UserRepositoryImpl) FindBySearch(ctx context.Context, name *string, em
 
 	return users, nil
 }
+
+func (ur *UserRepositoryImpl) Create(ctx context.Context, user *domain.User) error {
+	ctx, span := tracer.Start(ctx, "user.Create")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "INSERT INTO users (id, name, avatar, email)")
+	err := ur.queries.CreateUser(ctx, postgres.CreateUserParams{
+		ID:     user.ID(),
+		Name:   user.Name(),
+		Avatar: user.Avatar(),
+		Email:  user.Email(),
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}

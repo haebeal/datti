@@ -13,6 +13,12 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// ログイン（ユーザー存在確認）
+	// (GET /auth/login)
+	AuthLogin(ctx echo.Context) error
+	// サインアップ（ユーザー登録）
+	// (POST /auth/signup)
+	AuthSignup(ctx echo.Context) error
 	// 債権一覧の取得
 	// (GET /credits)
 	CreditsList(ctx echo.Context) error
@@ -78,6 +84,28 @@ type ServerInterface interface {
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// AuthLogin converts echo context to params.
+func (w *ServerInterfaceWrapper) AuthLogin(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AuthLogin(ctx)
+	return err
+}
+
+// AuthSignup converts echo context to params.
+func (w *ServerInterfaceWrapper) AuthSignup(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AuthSignup(ctx)
+	return err
 }
 
 // CreditsList converts echo context to params.
@@ -466,6 +494,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.GET(baseURL+"/auth/login", wrapper.AuthLogin)
+	router.POST(baseURL+"/auth/signup", wrapper.AuthSignup)
 	router.GET(baseURL+"/credits", wrapper.CreditsList)
 	router.GET(baseURL+"/groups", wrapper.GroupGetAll)
 	router.POST(baseURL+"/groups", wrapper.GroupCreate)

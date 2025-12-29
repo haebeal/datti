@@ -16,6 +16,21 @@ const (
 	Ok HealthCheckResponseStatus = "ok"
 )
 
+// AuthSignupRequest defines model for Auth.SignupRequest.
+type AuthSignupRequest struct {
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Name   string `json:"name"`
+}
+
+// AuthSignupResponse defines model for Auth.SignupResponse.
+type AuthSignupResponse struct {
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+}
+
 // BorrowingGetAllResponse defines model for Borrowing.GetAllResponse.
 type BorrowingGetAllResponse struct {
 	Amount    uint64    `json:"amount"`
@@ -236,6 +251,9 @@ type UserSearchParams struct {
 	Email *string `form:"email,omitempty" json:"email,omitempty"`
 	Limit *int32  `form:"limit,omitempty" json:"limit,omitempty"`
 }
+
+// AuthSignupJSONRequestBody defines body for AuthSignup for application/json ContentType.
+type AuthSignupJSONRequestBody = AuthSignupRequest
 
 // GroupCreateJSONRequestBody defines body for GroupCreate for application/json ContentType.
 type GroupCreateJSONRequestBody = GroupCreateRequest

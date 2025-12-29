@@ -4,6 +4,7 @@ info:
   description: 誰にいくら払ったっけ？を記録するサービス
   version: 0.0.0
 tags:
+  - name: Auth
   - name: Lendings
   - name: Borrowings
   - name: Credits
@@ -12,6 +13,72 @@ tags:
   - name: Users
   - name: Health
 paths:
+  /auth/login:
+    get:
+      operationId: Auth_login
+      summary: ログイン（ユーザー存在確認）
+      parameters: []
+      responses:
+        '200':
+          description: ユーザーが存在する
+        '401':
+          description: ユーザーが存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Auth
+  /auth/signup:
+    post:
+      operationId: Auth_signup
+      summary: サインアップ（ユーザー登録）
+      parameters: []
+      responses:
+        '201':
+          description: ユーザー登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auth.SignupResponse'
+        '400':
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: ユーザーが既に存在する
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Auth.SignupRequest'
   /credits:
     get:
       operationId: Credits_list
@@ -830,6 +897,35 @@ security:
   - BearerAuth: []
 components:
   schemas:
+    Auth.SignupRequest:
+      type: object
+      required:
+        - name
+        - email
+        - avatar
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: string
+    Auth.SignupResponse:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - avatar
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: string
     Borrowing.GetAllResponse:
       type: object
       required:

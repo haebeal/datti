@@ -12,6 +12,10 @@ LIMIT sqlc.arg('limit');
 -- name: FindUserByID :one
 SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1;
 
+-- name: CreateUser :exec
+INSERT INTO users (id, name, avatar, email, created_at, updated_at)
+VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp);
+
 -- name: CreateEvent :exec
 INSERT INTO events (id, group_id, name, amount, event_date, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7);

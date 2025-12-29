@@ -46,6 +46,11 @@ type UserHandler interface {
 	Search(c echo.Context, params api.UserSearchParams) error
 }
 
+type AuthHandler interface {
+	Login(c echo.Context) error
+	Signup(c echo.Context) error
+}
+
 type Server struct {
 	lh LendingHandler
 	bh BorrowingHandler
@@ -54,9 +59,10 @@ type Server struct {
 	rh RepaymentHandler
 	gh GroupHandler
 	uh UserHandler
+	ah AuthHandler
 }
 
-func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler, uh UserHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler, uh UserHandler, ah AuthHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		bh: bh,
@@ -65,6 +71,7 @@ func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh Heal
 		rh: rh,
 		gh: gh,
 		uh: uh,
+		ah: ah,
 	}
 }
 
@@ -147,4 +154,12 @@ func (s *Server) GroupGetMembers(ctx echo.Context, id string) error {
 
 func (s *Server) UserSearch(ctx echo.Context, params api.UserSearchParams) error {
 	return s.uh.Search(ctx, params)
+}
+
+func (s *Server) AuthLogin(ctx echo.Context) error {
+	return s.ah.Login(ctx)
+}
+
+func (s *Server) AuthSignup(ctx echo.Context) error {
+	return s.ah.Signup(ctx)
 }

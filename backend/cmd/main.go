@@ -128,6 +128,7 @@ func main() {
 	ru := usecase.NewRepaymentUseCase(rr)
 	gu := usecase.NewGroupUseCase(gr, gmr)
 	uu := usecase.NewUserUseCase(ur)
+	au := usecase.NewAuthUseCase(ur)
 
 	hh := handler.NewHealthHandler()
 	lh := handler.NewLendingHandler(lu)
@@ -136,7 +137,8 @@ func main() {
 	rh := handler.NewRepaymentHandler(ru)
 	gh := handler.NewGroupHandler(gu)
 	uh := handler.NewUserHandler(uu)
-	server := server.NewServer(lh, bh, ch, hh, rh, gh, uh)
+	ah := handler.NewAuthHandler(au)
+	server := server.NewServer(lh, bh, ch, hh, rh, gh, uh, ah)
 
 	e := echo.New()
 

@@ -824,3 +824,20 @@ func (q *Queries) UpdateRepayment(ctx context.Context, arg UpdateRepaymentParams
 	_, err := q.db.Exec(ctx, updateRepayment, arg.ID, arg.Amount, arg.UpdatedAt)
 	return err
 }
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+SET name = $2, avatar = $3, updated_at = current_timestamp
+WHERE id = $1
+`
+
+type UpdateUserParams struct {
+	ID     string
+	Name   string
+	Avatar string
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser, arg.ID, arg.Name, arg.Avatar)
+	return err
+}

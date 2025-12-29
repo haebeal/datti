@@ -8,8 +8,6 @@ package postgres
 import (
 	"context"
 	"time"
-
-	uuid "github.com/google/uuid"
 )
 
 const addGroupMember = `-- name: AddGroupMember :exec
@@ -19,7 +17,7 @@ VALUES ($1, $2, current_timestamp)
 
 type AddGroupMemberParams struct {
 	GroupID string
-	UserID  uuid.UUID
+	UserID  string
 }
 
 func (q *Queries) AddGroupMember(ctx context.Context, arg AddGroupMemberParams) error {
@@ -78,7 +76,7 @@ VALUES ($1, $2, $3, $4, $5)
 type CreateGroupParams struct {
 	ID        string
 	Name      string
-	CreatedBy uuid.UUID
+	CreatedBy string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -101,8 +99,8 @@ VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp)
 
 type CreatePaymentParams struct {
 	ID       string
-	PayerID  uuid.UUID
-	DebtorID uuid.UUID
+	PayerID  string
+	DebtorID string
 	Amount   int32
 }
 
@@ -123,8 +121,8 @@ VALUES ($1, $2, $3, $4, $5, $6)
 
 type CreateRepaymentParams struct {
 	ID        string
-	PayerID   uuid.UUID
-	DebtorID  uuid.UUID
+	PayerID   string
+	DebtorID  string
 	Amount    int32
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -138,6 +136,28 @@ func (q *Queries) CreateRepayment(ctx context.Context, arg CreateRepaymentParams
 		arg.Amount,
 		arg.CreatedAt,
 		arg.UpdatedAt,
+	)
+	return err
+}
+
+const createUser = `-- name: CreateUser :exec
+INSERT INTO users (id, name, avatar, email, created_at, updated_at)
+VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp)
+`
+
+type CreateUserParams struct {
+	ID     string
+	Name   string
+	Avatar string
+	Email  string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) error {
+	_, err := q.db.Exec(ctx, createUser,
+		arg.ID,
+		arg.Name,
+		arg.Avatar,
+		arg.Email,
 	)
 	return err
 }
@@ -283,7 +303,7 @@ WHERE e.group_id = $1 AND p.debtor_id = $2
 
 type FindEventsByGroupIDAndDebtorIDParams struct {
 	GroupID  string
-	DebtorID uuid.UUID
+	DebtorID string
 }
 
 type FindEventsByGroupIDAndDebtorIDRow struct {
@@ -324,6 +344,53 @@ func (q *Queries) FindEventsByGroupIDAndDebtorID(ctx context.Context, arg FindEv
 	return items, nil
 }
 
+const findEventByGroupIDAndDebtorIDAndEventID = `-- name: FindEventByGroupIDAndDebtorIDAndEventID :one
+SELECT
+  e.id AS event_id,
+  e.group_id,
+  e.name,
+  e.event_date,
+  p.amount,
+  e.created_at,
+  e.updated_at
+FROM events e
+INNER JOIN event_payments ep ON e.id = ep.event_id
+INNER JOIN payments p ON ep.payment_id = p.id
+WHERE e.group_id = $1 AND p.debtor_id = $2 AND e.id = $3
+LIMIT 1
+`
+
+type FindEventByGroupIDAndDebtorIDAndEventIDParams struct {
+	GroupID  string
+	DebtorID string
+	ID       string
+}
+
+type FindEventByGroupIDAndDebtorIDAndEventIDRow struct {
+	EventID   string
+	GroupID   string
+	Name      string
+	EventDate time.Time
+	Amount    int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (q *Queries) FindEventByGroupIDAndDebtorIDAndEventID(ctx context.Context, arg FindEventByGroupIDAndDebtorIDAndEventIDParams) (FindEventByGroupIDAndDebtorIDAndEventIDRow, error) {
+	row := q.db.QueryRow(ctx, findEventByGroupIDAndDebtorIDAndEventID, arg.GroupID, arg.DebtorID, arg.ID)
+	var i FindEventByGroupIDAndDebtorIDAndEventIDRow
+	err := row.Scan(
+		&i.EventID,
+		&i.GroupID,
+		&i.Name,
+		&i.EventDate,
+		&i.Amount,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const findGroupByID = `-- name: FindGroupByID :one
 SELECT id, name, created_by, created_at, updated_at
 FROM groups WHERE id = $1 LIMIT 1
@@ -351,7 +418,7 @@ ORDER BY gm.created_at ASC
 `
 
 type FindGroupMemberUsersByGroupIDRow struct {
-	ID     uuid.UUID
+	ID     string
 	Name   string
 	Avatar string
 	Email  string
@@ -387,15 +454,15 @@ SELECT user_id FROM group_members
 WHERE group_id = $1 ORDER BY created_at ASC
 `
 
-func (q *Queries) FindGroupMembersByGroupID(ctx context.Context, groupID string) ([]uuid.UUID, error) {
+func (q *Queries) FindGroupMembersByGroupID(ctx context.Context, groupID string) ([]string, error) {
 	rows, err := q.db.Query(ctx, findGroupMembersByGroupID, groupID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []uuid.UUID
+	var items []string
 	for rows.Next() {
-		var user_id uuid.UUID
+		var user_id string
 		if err := rows.Scan(&user_id); err != nil {
 			return nil, err
 		}
@@ -415,7 +482,7 @@ WHERE gm.user_id = $1
 ORDER BY g.created_at DESC
 `
 
-func (q *Queries) FindGroupsByMemberUserID(ctx context.Context, userID uuid.UUID) ([]Group, error) {
+func (q *Queries) FindGroupsByMemberUserID(ctx context.Context, userID string) ([]Group, error) {
 	rows, err := q.db.Query(ctx, findGroupsByMemberUserID, userID)
 	if err != nil {
 		return nil, err
@@ -451,7 +518,7 @@ WHERE e.group_id = $1 AND p.payer_id = $2
 
 type FindLendingsByGroupIDAndUserIDParams struct {
 	GroupID string
-	PayerID uuid.UUID
+	PayerID string
 }
 
 func (q *Queries) FindLendingsByGroupIDAndUserID(ctx context.Context, arg FindLendingsByGroupIDAndUserIDParams) ([]Event, error) {
@@ -491,7 +558,7 @@ WHERE ep.event_id = $1 AND p.debtor_id = $2 LIMIT 1
 
 type FindPaymentByDebtorIdParams struct {
 	EventID  string
-	DebtorID uuid.UUID
+	DebtorID string
 }
 
 func (q *Queries) FindPaymentByDebtorId(ctx context.Context, arg FindPaymentByDebtorIdParams) (Payment, error) {
@@ -572,7 +639,7 @@ WHERE p.payer_id = $1 AND ep.event_id IS NULL
 ORDER BY p.created_at DESC
 `
 
-func (q *Queries) FindRepaymentsByPayerID(ctx context.Context, payerID uuid.UUID) ([]Payment, error) {
+func (q *Queries) FindRepaymentsByPayerID(ctx context.Context, payerID string) ([]Payment, error) {
 	rows, err := q.db.Query(ctx, findRepaymentsByPayerID, payerID)
 	if err != nil {
 		return nil, err
@@ -603,7 +670,7 @@ const findUserByID = `-- name: FindUserByID :one
 SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) FindUserByID(ctx context.Context, id uuid.UUID) (User, error) {
+func (q *Queries) FindUserByID(ctx context.Context, id string) (User, error) {
 	row := q.db.QueryRow(ctx, findUserByID, id)
 	var i User
 	err := row.Scan(
@@ -669,11 +736,11 @@ ORDER BY payer_id
 `
 
 type ListBorrowingCreditAmountsByUserIDRow struct {
-	UserID uuid.UUID
+	UserID string
 	Amount int64
 }
 
-func (q *Queries) ListBorrowingCreditAmountsByUserID(ctx context.Context, debtorID uuid.UUID) ([]ListBorrowingCreditAmountsByUserIDRow, error) {
+func (q *Queries) ListBorrowingCreditAmountsByUserID(ctx context.Context, debtorID string) ([]ListBorrowingCreditAmountsByUserIDRow, error) {
 	rows, err := q.db.Query(ctx, listBorrowingCreditAmountsByUserID, debtorID)
 	if err != nil {
 		return nil, err
@@ -703,11 +770,11 @@ ORDER BY debtor_id
 `
 
 type ListLendingCreditAmountsByUserIDRow struct {
-	UserID uuid.UUID
+	UserID string
 	Amount int64
 }
 
-func (q *Queries) ListLendingCreditAmountsByUserID(ctx context.Context, payerID uuid.UUID) ([]ListLendingCreditAmountsByUserIDRow, error) {
+func (q *Queries) ListLendingCreditAmountsByUserID(ctx context.Context, payerID string) ([]ListLendingCreditAmountsByUserIDRow, error) {
 	rows, err := q.db.Query(ctx, listLendingCreditAmountsByUserID, payerID)
 	if err != nil {
 		return nil, err
@@ -804,5 +871,22 @@ type UpdateRepaymentParams struct {
 
 func (q *Queries) UpdateRepayment(ctx context.Context, arg UpdateRepaymentParams) error {
 	_, err := q.db.Exec(ctx, updateRepayment, arg.ID, arg.Amount, arg.UpdatedAt)
+	return err
+}
+
+const updateUser = `-- name: UpdateUser :exec
+UPDATE users
+SET name = $2, avatar = $3, updated_at = current_timestamp
+WHERE id = $1
+`
+
+type UpdateUserParams struct {
+	ID     string
+	Name   string
+	Avatar string
+}
+
+func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
+	_, err := q.db.Exec(ctx, updateUser, arg.ID, arg.Name, arg.Avatar)
 	return err
 }

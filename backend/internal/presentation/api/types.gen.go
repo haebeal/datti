@@ -16,8 +16,33 @@ const (
 	Ok HealthCheckResponseStatus = "ok"
 )
 
+// AuthSignupRequest defines model for Auth.SignupRequest.
+type AuthSignupRequest struct {
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Name   string `json:"name"`
+}
+
+// AuthSignupResponse defines model for Auth.SignupResponse.
+type AuthSignupResponse struct {
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+}
+
 // BorrowingGetAllResponse defines model for Borrowing.GetAllResponse.
 type BorrowingGetAllResponse struct {
+	Amount    uint64    `json:"amount"`
+	CreatedAt time.Time `json:"createdAt"`
+	EventDate time.Time `json:"eventDate"`
+	Id        string    `json:"id"`
+	Name      string    `json:"name"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
+// BorrowingGetResponse defines model for Borrowing.GetResponse.
+type BorrowingGetResponse struct {
 	Amount    uint64    `json:"amount"`
 	CreatedAt time.Time `json:"createdAt"`
 	EventDate time.Time `json:"eventDate"`
@@ -222,11 +247,25 @@ type RepaymentUpdateResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// UserGetResponse defines model for User.GetResponse.
+type UserGetResponse struct {
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Id     string `json:"id"`
+	Name   string `json:"name"`
+}
+
 // UserSearchResponse defines model for User.SearchResponse.
 type UserSearchResponse struct {
 	Avatar string `json:"avatar"`
 	Email  string `json:"email"`
 	Id     string `json:"id"`
+	Name   string `json:"name"`
+}
+
+// UserUpdateRequest defines model for User.UpdateRequest.
+type UserUpdateRequest struct {
+	Avatar string `json:"avatar"`
 	Name   string `json:"name"`
 }
 
@@ -236,6 +275,9 @@ type UserSearchParams struct {
 	Email *string `form:"email,omitempty" json:"email,omitempty"`
 	Limit *int32  `form:"limit,omitempty" json:"limit,omitempty"`
 }
+
+// AuthSignupJSONRequestBody defines body for AuthSignup for application/json ContentType.
+type AuthSignupJSONRequestBody = AuthSignupRequest
 
 // GroupCreateJSONRequestBody defines body for GroupCreate for application/json ContentType.
 type GroupCreateJSONRequestBody = GroupCreateRequest
@@ -257,3 +299,6 @@ type RepaymentCreateJSONRequestBody = RepaymentCreateRequest
 
 // RepaymentUpdateJSONRequestBody defines body for RepaymentUpdate for application/json ContentType.
 type RepaymentUpdateJSONRequestBody = RepaymentUpdateRequest
+
+// UserUpdateJSONRequestBody defines body for UserUpdate for application/json ContentType.
+type UserUpdateJSONRequestBody = UserUpdateRequest

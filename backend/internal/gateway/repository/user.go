@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"go.opentelemetry.io/otel/codes"
@@ -19,7 +18,7 @@ func NewUserRepository(queries *postgres.Queries) *UserRepositoryImpl {
 	}
 }
 
-func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id string) (*domain.User, error) {
 	ctx, span := tracer.Start(ctx, "user.FindByID")
 	defer span.End()
 
@@ -33,7 +32,7 @@ func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id uuid.UUID) (*doma
 	}
 	querySpan.End()
 
-	user, err := domain.NewUser(row.ID.String(), row.Name, row.Avatar, row.Email)
+	user, err := domain.NewUser(row.ID, row.Name, row.Avatar, row.Email)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -63,7 +62,7 @@ func (ur *UserRepositoryImpl) FindBySearch(ctx context.Context, name *string, em
 
 	users := make([]*domain.User, 0, len(rows))
 	for _, row := range rows {
-		user, err := domain.NewUser(row.ID.String(), row.Name, row.Avatar, row.Email)
+		user, err := domain.NewUser(row.ID, row.Name, row.Avatar, row.Email)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
@@ -73,4 +72,47 @@ func (ur *UserRepositoryImpl) FindBySearch(ctx context.Context, name *string, em
 	}
 
 	return users, nil
+}
+
+func (ur *UserRepositoryImpl) Create(ctx context.Context, user *domain.User) error {
+	ctx, span := tracer.Start(ctx, "user.Create")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "INSERT INTO users (id, name, avatar, email)")
+	err := ur.queries.CreateUser(ctx, postgres.CreateUserParams{
+		ID:     user.ID(),
+		Name:   user.Name(),
+		Avatar: user.Avatar(),
+		Email:  user.Email(),
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}
+
+func (ur *UserRepositoryImpl) Update(ctx context.Context, user *domain.User) error {
+	ctx, span := tracer.Start(ctx, "user.Update")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "UPDATE users SET name = $2, avatar = $3")
+	err := ur.queries.UpdateUser(ctx, postgres.UpdateUserParams{
+		ID:     user.ID(),
+		Name:   user.Name(),
+		Avatar: user.Avatar(),
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
 }

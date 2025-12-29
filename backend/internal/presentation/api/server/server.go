@@ -14,6 +14,7 @@ type LendingHandler interface {
 }
 
 type BorrowingHandler interface {
+	Get(c echo.Context, id string, borrowingId string) error
 	GetAll(c echo.Context, id string) error
 }
 
@@ -44,6 +45,14 @@ type GroupHandler interface {
 
 type UserHandler interface {
 	Search(c echo.Context, params api.UserSearchParams) error
+	Get(c echo.Context, id string) error
+	GetMe(c echo.Context) error
+	Update(c echo.Context, id string) error
+}
+
+type AuthHandler interface {
+	Login(c echo.Context) error
+	Signup(c echo.Context) error
 }
 
 type Server struct {
@@ -54,9 +63,10 @@ type Server struct {
 	rh RepaymentHandler
 	gh GroupHandler
 	uh UserHandler
+	ah AuthHandler
 }
 
-func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler, uh UserHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler, uh UserHandler, ah AuthHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		bh: bh,
@@ -65,6 +75,7 @@ func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh Heal
 		rh: rh,
 		gh: gh,
 		uh: uh,
+		ah: ah,
 	}
 }
 
@@ -91,6 +102,10 @@ func (s *Server) LendingDelete(ctx echo.Context, id string, lendingId string) er
 
 func (s *Server) BorrowingGetAll(ctx echo.Context, id string) error {
 	return s.bh.GetAll(ctx, id)
+}
+
+func (s *Server) BorrowingGet(ctx echo.Context, id string, borrowingId string) error {
+	return s.bh.Get(ctx, id, borrowingId)
 }
 
 func (s *Server) CreditsList(ctx echo.Context) error {
@@ -147,4 +162,24 @@ func (s *Server) GroupGetMembers(ctx echo.Context, id string) error {
 
 func (s *Server) UserSearch(ctx echo.Context, params api.UserSearchParams) error {
 	return s.uh.Search(ctx, params)
+}
+
+func (s *Server) UserGet(ctx echo.Context, id string) error {
+	return s.uh.Get(ctx, id)
+}
+
+func (s *Server) UserGetMe(ctx echo.Context) error {
+	return s.uh.GetMe(ctx)
+}
+
+func (s *Server) UserUpdate(ctx echo.Context, id string) error {
+	return s.uh.Update(ctx, id)
+}
+
+func (s *Server) AuthLogin(ctx echo.Context) error {
+	return s.ah.Login(ctx)
+}
+
+func (s *Server) AuthSignup(ctx echo.Context) error {
+	return s.ah.Signup(ctx)
 }

@@ -4,6 +4,7 @@ info:
   description: 誰にいくら払ったっけ？を記録するサービス
   version: 0.0.0
 tags:
+  - name: Auth
   - name: Lendings
   - name: Borrowings
   - name: Credits
@@ -12,6 +13,72 @@ tags:
   - name: Users
   - name: Health
 paths:
+  /auth/login:
+    get:
+      operationId: Auth_login
+      summary: ログイン（ユーザー存在確認）
+      parameters: []
+      responses:
+        '200':
+          description: ユーザーが存在する
+        '401':
+          description: ユーザーが存在しない
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Auth
+  /auth/signup:
+    post:
+      operationId: Auth_signup
+      summary: サインアップ（ユーザー登録）
+      parameters: []
+      responses:
+        '201':
+          description: ユーザー登録成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Auth.SignupResponse'
+        '400':
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: ユーザーが既に存在する
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Auth.SignupRequest'
   /credits:
     get:
       operationId: Credits_list
@@ -99,6 +166,123 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       tags:
         - Users
+  /users/me:
+    get:
+      operationId: User_getMe
+      summary: 自身のユーザー情報取得
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User.GetResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Users
+  /users/{id}:
+    get:
+      operationId: User_get
+      summary: ユーザー情報取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User.GetResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Users
+    put:
+      operationId: User_update
+      summary: ユーザー情報更新
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User.GetResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: The server cannot find the requested resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User.UpdateRequest'
   /repayments:
     get:
       operationId: Repayment_getAll
@@ -826,11 +1010,114 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       tags:
         - Borrowings
+  /groups/{id}/borrowings/{borrowingId}:
+    get:
+      operationId: Borrowing_get
+      summary: グループ内の借り取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: borrowingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Borrowing.GetResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Borrowings
 security:
   - BearerAuth: []
 components:
   schemas:
+    Auth.SignupRequest:
+      type: object
+      required:
+        - name
+        - email
+        - avatar
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: string
+    Auth.SignupResponse:
+      type: object
+      required:
+        - id
+        - name
+        - email
+        - avatar
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        avatar:
+          type: string
     Borrowing.GetAllResponse:
+      type: object
+      required:
+        - id
+        - name
+        - amount
+        - eventDate
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        amount:
+          type: integer
+          format: uint64
+        eventDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Borrowing.GetResponse:
       type: object
       required:
         - id
@@ -1010,6 +1297,32 @@ components:
         avatar:
           type: string
         email:
+          type: string
+    User.GetResponse:
+      type: object
+      required:
+        - id
+        - name
+        - avatar
+        - email
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        avatar:
+          type: string
+        email:
+          type: string
+    User.UpdateRequest:
+      type: object
+      required:
+        - name
+        - avatar
+      properties:
+        name:
+          type: string
+        avatar:
           type: string
     Health.CheckResponse:
       type: object

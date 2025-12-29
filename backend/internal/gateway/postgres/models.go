@@ -6,8 +6,6 @@ package postgres
 
 import (
 	"time"
-
-	uuid "github.com/google/uuid"
 )
 
 type Event struct {
@@ -28,28 +26,28 @@ type EventPayment struct {
 type Group struct {
 	ID        string
 	Name      string
-	CreatedBy uuid.UUID
+	CreatedBy string
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 type GroupMember struct {
 	GroupID   string
-	UserID    uuid.UUID
+	UserID    string
 	CreatedAt time.Time
 }
 
 type Payment struct {
 	ID        string
-	PayerID   uuid.UUID
-	DebtorID  uuid.UUID
+	PayerID   string
+	DebtorID  string
 	Amount    int32
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
 
 type User struct {
-	ID        uuid.UUID
+	ID        string
 	Name      string
 	Avatar    string
 	Email     string

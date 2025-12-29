@@ -3,19 +3,18 @@ package domain
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 )
 
 // 支払い者
 type Payer struct {
-	id     uuid.UUID
+	id     string
 	name   string
 	avatar string
 	email  string
 }
 
-func NewPayer(id uuid.UUID, name string, avatar string, email string) (*Payer, error) {
+func NewPayer(id string, name string, avatar string, email string) (*Payer, error) {
 	return &Payer{
 		id:     id,
 		name:   name,
@@ -25,10 +24,10 @@ func NewPayer(id uuid.UUID, name string, avatar string, email string) (*Payer, e
 }
 
 func (p *Payer) Equal(c *Payer) bool {
-	return p.id.String() == c.id.String()
+	return p.id == c.id
 }
 
-func (p *Payer) ID() uuid.UUID {
+func (p *Payer) ID() string {
 	return p.id
 }
 

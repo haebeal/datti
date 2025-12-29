@@ -1,4 +1,12 @@
 #######################################
+# Identity Platform API
+#######################################
+resource "google_project_service" "identity_platform" {
+  service            = "identitytoolkit.googleapis.com"
+  disable_on_destroy = false
+}
+
+#######################################
 # Artifact Registry
 #######################################
 resource "google_artifact_registry_repository" "app" {
@@ -40,6 +48,12 @@ resource "google_project_iam_member" "cloudrun-backend-trace-agent" {
   member  = "serviceAccount:${google_service_account.cloudrun-backend.email}"
 }
 
+resource "google_project_iam_member" "cloudrun-backend-firebase-auth" {
+  project = var.project_id
+  role    = "roles/firebaseauth.viewer"
+  member  = "serviceAccount:${google_service_account.cloudrun-backend.email}"
+}
+
 #######################################
 # Cloud Run
 #######################################
@@ -67,10 +81,6 @@ resource "google_cloud_run_v2_service" "backend" {
             version = "latest"
           }
         }
-      }
-      env {
-        name  = "PROJECT_ID"
-        value = var.project_id
       }
 
       resources {

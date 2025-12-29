@@ -13,6 +13,12 @@ import (
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
+	// ログイン（ユーザー存在確認）
+	// (GET /auth/login)
+	AuthLogin(ctx echo.Context) error
+	// サインアップ（ユーザー登録）
+	// (POST /auth/signup)
+	AuthSignup(ctx echo.Context) error
 	// 債権一覧の取得
 	// (GET /credits)
 	CreditsList(ctx echo.Context) error
@@ -31,6 +37,9 @@ type ServerInterface interface {
 	// グループ内の借り一覧取得
 	// (GET /groups/{id}/borrowings)
 	BorrowingGetAll(ctx echo.Context, id string) error
+	// グループ内の借り取得
+	// (GET /groups/{id}/borrowings/{borrowingId})
+	BorrowingGet(ctx echo.Context, id string, borrowingId string) error
 	// グループ内の立て替え一覧取得
 	// (GET /groups/{id}/lendings)
 	LendingGetAll(ctx echo.Context, id string) error
@@ -73,11 +82,42 @@ type ServerInterface interface {
 	// ユーザー検索
 	// (GET /users)
 	UserSearch(ctx echo.Context, params UserSearchParams) error
+	// 自身のユーザー情報取得
+	// (GET /users/me)
+	UserGetMe(ctx echo.Context) error
+	// ユーザー情報取得
+	// (GET /users/{id})
+	UserGet(ctx echo.Context, id string) error
+	// ユーザー情報更新
+	// (PUT /users/{id})
+	UserUpdate(ctx echo.Context, id string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
 type ServerInterfaceWrapper struct {
 	Handler ServerInterface
+}
+
+// AuthLogin converts echo context to params.
+func (w *ServerInterfaceWrapper) AuthLogin(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AuthLogin(ctx)
+	return err
+}
+
+// AuthSignup converts echo context to params.
+func (w *ServerInterfaceWrapper) AuthSignup(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.AuthSignup(ctx)
+	return err
 }
 
 // CreditsList converts echo context to params.
@@ -164,6 +204,31 @@ func (w *ServerInterfaceWrapper) BorrowingGetAll(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.BorrowingGetAll(ctx, id)
+	return err
+}
+
+// BorrowingGet converts echo context to params.
+func (w *ServerInterfaceWrapper) BorrowingGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+	// ------------- Path parameter "borrowingId" -------------
+	var borrowingId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "borrowingId", ctx.Param("borrowingId"), &borrowingId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter borrowingId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.BorrowingGet(ctx, id, borrowingId)
 	return err
 }
 
@@ -438,6 +503,53 @@ func (w *ServerInterfaceWrapper) UserSearch(ctx echo.Context) error {
 	return err
 }
 
+// UserGetMe converts echo context to params.
+func (w *ServerInterfaceWrapper) UserGetMe(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UserGetMe(ctx)
+	return err
+}
+
+// UserGet converts echo context to params.
+func (w *ServerInterfaceWrapper) UserGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UserGet(ctx, id)
+	return err
+}
+
+// UserUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) UserUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UserUpdate(ctx, id)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -466,12 +578,15 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
+	router.GET(baseURL+"/auth/login", wrapper.AuthLogin)
+	router.POST(baseURL+"/auth/signup", wrapper.AuthSignup)
 	router.GET(baseURL+"/credits", wrapper.CreditsList)
 	router.GET(baseURL+"/groups", wrapper.GroupGetAll)
 	router.POST(baseURL+"/groups", wrapper.GroupCreate)
 	router.GET(baseURL+"/groups/:id", wrapper.GroupGet)
 	router.PUT(baseURL+"/groups/:id", wrapper.GroupUpdate)
 	router.GET(baseURL+"/groups/:id/borrowings", wrapper.BorrowingGetAll)
+	router.GET(baseURL+"/groups/:id/borrowings/:borrowingId", wrapper.BorrowingGet)
 	router.GET(baseURL+"/groups/:id/lendings", wrapper.LendingGetAll)
 	router.POST(baseURL+"/groups/:id/lendings", wrapper.LendingCreate)
 	router.DELETE(baseURL+"/groups/:id/lendings/:lendingId", wrapper.LendingDelete)
@@ -486,5 +601,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/repayments/:id", wrapper.RepaymentGet)
 	router.PUT(baseURL+"/repayments/:id", wrapper.RepaymentUpdate)
 	router.GET(baseURL+"/users", wrapper.UserSearch)
+	router.GET(baseURL+"/users/me", wrapper.UserGetMe)
+	router.GET(baseURL+"/users/:id", wrapper.UserGet)
+	router.PUT(baseURL+"/users/:id", wrapper.UserUpdate)
 
 }

@@ -5,26 +5,25 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 )
 
 // 返済イベント
 type Repayment struct {
 	id        ulid.ULID
-	payerID   uuid.UUID
-	debtorID  uuid.UUID
+	payerID   string
+	debtorID  string
 	amount    *Amount
 	createdAt time.Time
 	updatedAt time.Time
 }
 
-func NewRepayment(id ulid.ULID, payerID uuid.UUID, debtorID uuid.UUID, amount *Amount, createdAt time.Time, updatedAt time.Time) (*Repayment, error) {
-	if payerID == uuid.Nil {
+func NewRepayment(id ulid.ULID, payerID string, debtorID string, amount *Amount, createdAt time.Time, updatedAt time.Time) (*Repayment, error) {
+	if payerID == "" {
 		return nil, fmt.Errorf("payerIDは必須です")
 	}
 
-	if debtorID == uuid.Nil {
+	if debtorID == "" {
 		return nil, fmt.Errorf("debtorIDは必須です")
 	}
 
@@ -54,7 +53,7 @@ func NewRepayment(id ulid.ULID, payerID uuid.UUID, debtorID uuid.UUID, amount *A
 	}, nil
 }
 
-func CreateRepayment(payerID uuid.UUID, debtorID uuid.UUID, amount *Amount) (*Repayment, error) {
+func CreateRepayment(payerID string, debtorID string, amount *Amount) (*Repayment, error) {
 	id := ulid.Make()
 	now := time.Now()
 
@@ -65,11 +64,11 @@ func (r *Repayment) ID() ulid.ULID {
 	return r.id
 }
 
-func (r *Repayment) PayerID() uuid.UUID {
+func (r *Repayment) PayerID() string {
 	return r.payerID
 }
 
-func (r *Repayment) DebtorID() uuid.UUID {
+func (r *Repayment) DebtorID() string {
 	return r.debtorID
 }
 
@@ -102,7 +101,7 @@ func (r *Repayment) UpdateAmount(amount *Amount) error {
 type RepaymentRepository interface {
 	Create(context.Context, *Repayment) error
 	FindByID(context.Context, ulid.ULID) (*Repayment, error)
-	FindByPayerID(context.Context, uuid.UUID) ([]*Repayment, error)
+	FindByPayerID(context.Context, string) ([]*Repayment, error)
 	Update(context.Context, *Repayment) error
 	Delete(context.Context, ulid.ULID) error
 }

@@ -3,7 +3,6 @@ package repository
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/oklog/ulid/v2"
@@ -43,7 +42,7 @@ func (gr *GroupRepositoryImpl) Create(ctx context.Context, group *domain.Group) 
 	return nil
 }
 
-func (gr *GroupRepositoryImpl) FindByMemberUserID(ctx context.Context, userID uuid.UUID) ([]*domain.Group, error) {
+func (gr *GroupRepositoryImpl) FindByMemberUserID(ctx context.Context, userID string) ([]*domain.Group, error) {
 	ctx, span := tracer.Start(ctx, "group.FindByMemberUserID")
 	defer span.End()
 

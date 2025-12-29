@@ -12,6 +12,15 @@ LIMIT sqlc.arg('limit');
 -- name: FindUserByID :one
 SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1;
 
+-- name: CreateUser :exec
+INSERT INTO users (id, name, avatar, email, created_at, updated_at)
+VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp);
+
+-- name: UpdateUser :exec
+UPDATE users
+SET name = $2, avatar = $3, updated_at = current_timestamp
+WHERE id = $1;
+
 -- name: CreateEvent :exec
 INSERT INTO events (id, group_id, name, amount, event_date, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7);
@@ -43,6 +52,21 @@ FROM events e
 INNER JOIN event_payments ep ON e.id = ep.event_id
 INNER JOIN payments p ON ep.payment_id = p.id
 WHERE e.group_id = $1 AND p.debtor_id = $2;
+
+-- name: FindEventByGroupIDAndDebtorIDAndEventID :one
+SELECT
+  e.id AS event_id,
+  e.group_id,
+  e.name,
+  e.event_date,
+  p.amount,
+  e.created_at,
+  e.updated_at
+FROM events e
+INNER JOIN event_payments ep ON e.id = ep.event_id
+INNER JOIN payments p ON ep.payment_id = p.id
+WHERE e.group_id = $1 AND p.debtor_id = $2 AND e.id = $3
+LIMIT 1;
 
 -- name: CreatePayment :exec
 INSERT INTO payments (id, payer_id, debtor_id, amount, created_at, updated_at)

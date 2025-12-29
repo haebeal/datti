@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/haebeal/datti/internal/gateway/firebase"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/haebeal/datti/internal/gateway/repository"
 	"github.com/haebeal/datti/internal/presentation/api"
@@ -127,6 +128,7 @@ func main() {
 	ru := usecase.NewRepaymentUseCase(rr)
 	gu := usecase.NewGroupUseCase(gr, gmr)
 	uu := usecase.NewUserUseCase(ur)
+	au := usecase.NewAuthUseCase(ur)
 
 	hh := handler.NewHealthHandler()
 	lh := handler.NewLendingHandler(lu)
@@ -135,12 +137,32 @@ func main() {
 	rh := handler.NewRepaymentHandler(ru)
 	gh := handler.NewGroupHandler(gu)
 	uh := handler.NewUserHandler(uu)
-	server := server.NewServer(lh, bh, ch, hh, rh, gh, uh)
+	ah := handler.NewAuthHandler(au)
+	server := server.NewServer(lh, bh, ch, hh, rh, gh, uh, ah)
 
 	e := echo.New()
 
 	e.Use(otelecho.Middleware("github.com/haebeal/datti"))
-	e.Use(middleware.AuthMiddleware())
+
+	// Configure auth middleware
+	appEnv := os.Getenv("APP_ENV")
+	devMode := appEnv == "develop"
+
+	authConfig := middleware.AuthMiddlewareConfig{
+		SkipPaths: []string{"/health"},
+		DevMode:   devMode,
+		DevUserID: "dev-user-id",
+	}
+
+	if !devMode {
+		firebaseClient, err := firebase.NewClient(ctx)
+		if err != nil {
+			log.Fatalf("Firebase認証の初期化に失敗しました: %v", err)
+		}
+		authConfig.FirebaseClient = firebaseClient
+	}
+
+	e.Use(middleware.AuthMiddleware(authConfig))
 	api.RegisterHandlers(e, server)
 
 	if err = errors.Join(e.Start(fmt.Sprintf(":%s", port)), shutdown(ctx)); err != nil {

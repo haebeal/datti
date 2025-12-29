@@ -3,20 +3,18 @@ package domain
 import (
 	"context"
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
 // Credit represents an amount associated with another user.
 // Whether it is lending or borrowing is determined by the caller (use case layer).
 type Credit struct {
-	userID uuid.UUID
+	userID string
 	amount *Amount
 }
 
-func NewCredit(userID uuid.UUID, amount *Amount) (*Credit, error) {
-	if userID == uuid.Nil {
-		return nil, fmt.Errorf("userID must not be nil")
+func NewCredit(userID string, amount *Amount) (*Credit, error) {
+	if userID == "" {
+		return nil, fmt.Errorf("userID must not be empty")
 	}
 	if amount == nil {
 		return nil, fmt.Errorf("amount must not be nil")
@@ -31,7 +29,7 @@ func NewCredit(userID uuid.UUID, amount *Amount) (*Credit, error) {
 	}, nil
 }
 
-func (c *Credit) UserID() uuid.UUID {
+func (c *Credit) UserID() string {
 	return c.userID
 }
 
@@ -40,6 +38,6 @@ func (c *Credit) Amount() *Amount {
 }
 
 type CreditRepository interface {
-	ListLendingCreditsByUserID(context.Context, uuid.UUID) ([]*Credit, error)
-	ListBorrowingCreditsByUserID(context.Context, uuid.UUID) ([]*Credit, error)
+	ListLendingCreditsByUserID(context.Context, string) ([]*Credit, error)
+	ListBorrowingCreditsByUserID(context.Context, string) ([]*Credit, error)
 }

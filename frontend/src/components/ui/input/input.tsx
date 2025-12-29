@@ -1,35 +1,23 @@
 import { cn } from "@/utils/cn";
-import type { ComponentPropsWithRef, HTMLInputTypeAttribute } from "react";
+import type { ComponentPropsWithRef } from "react";
 
-type InputBlockSize = "lg" | "md" | "sm";
-
-const InputBlockSizeStyle: { [key in InputBlockSize]: string } = {
-	lg: "h-14",
-	md: "h-11",
-	sm: "h-10",
-};
-
-type InputType = Exclude<HTMLInputTypeAttribute, "checkbox" | "submit">;
-
-type Props = ComponentPropsWithRef<"input"> & {
-	type?: InputType;
-	isError?: boolean;
-	blockSize?: InputBlockSize;
-};
+type Props = ComponentPropsWithRef<"input">;
 
 export function Input(props: Props) {
-	const { className, isError, blockSize = "md", ...rest } = props;
+  const { className, ...rest } = props;
 
-	return (
-		<input
-			{...rest}
-			className={cn(
-				className,
-				"rounded-lg bg-slate-200 px-4 py-3",
-				"aria-disabled:bg-slate-100 aria-disabled:text-slate-400",
-				InputBlockSizeStyle[blockSize],
-				isError && "border-red-500",
-			)}
-		/>
-	);
+  return (
+    <input
+      autoComplete="off"
+      data-1p-ignore
+      {...rest}
+      className={cn(
+        "px-3 py-2",
+        "border rounded-md",
+        "focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
+        className,
+      )}
+    />
+  );
 }

@@ -1,15 +1,15 @@
-"use client";
-
-import { Button as AriaButton, type ButtonProps } from "react-aria-components";
+import Link, { type LinkProps } from "next/link";
 import { cn } from "@/utils/cn";
 
 type Color = "primary" | "error" | "gray";
-type Props = ButtonProps & {
+type Props = LinkProps & {
   colorStyle?: "outline" | "fill";
   color?: Color;
+  className?: string;
+  children: React.ReactNode;
 };
 
-export function Button(props: Props) {
+export function LinkButton(props: Props) {
   const {
     colorStyle = "fill",
     color = "primary",
@@ -44,13 +44,11 @@ export function Button(props: Props) {
   };
 
   return (
-    <AriaButton
+    <Link
       className={cn(
         "px-4 py-2",
         "rounded-md",
         getColorClasses(),
-        "disabled:opacity-50 disabled:cursor-not-allowed",
-        "hover:cursor-pointer",
         "transition-colors",
         "focus:outline-none focus:ring-2 focus:ring-offset-4",
         className,
@@ -58,6 +56,6 @@ export function Button(props: Props) {
       {...rest}
     >
       {children}
-    </AriaButton>
+    </Link>
   );
 }

@@ -893,6 +893,54 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       tags:
         - Borrowings
+  /groups/{id}/borrowings/{borrowingId}:
+    get:
+      operationId: Borrowing_get
+      summary: グループ内の借り取得
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: borrowingId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Borrowing.GetResponse'
+        '400':
+          description: The server could not understand the request due to invalid syntax.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access is forbidden.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Borrowings
 security:
   - BearerAuth: []
 components:
@@ -927,6 +975,32 @@ components:
         avatar:
           type: string
     Borrowing.GetAllResponse:
+      type: object
+      required:
+        - id
+        - name
+        - amount
+        - eventDate
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        amount:
+          type: integer
+          format: uint64
+        eventDate:
+          type: string
+          format: date-time
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Borrowing.GetResponse:
       type: object
       required:
         - id

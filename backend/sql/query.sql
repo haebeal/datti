@@ -48,6 +48,21 @@ INNER JOIN event_payments ep ON e.id = ep.event_id
 INNER JOIN payments p ON ep.payment_id = p.id
 WHERE e.group_id = $1 AND p.debtor_id = $2;
 
+-- name: FindEventByGroupIDAndDebtorIDAndEventID :one
+SELECT
+  e.id AS event_id,
+  e.group_id,
+  e.name,
+  e.event_date,
+  p.amount,
+  e.created_at,
+  e.updated_at
+FROM events e
+INNER JOIN event_payments ep ON e.id = ep.event_id
+INNER JOIN payments p ON ep.payment_id = p.id
+WHERE e.group_id = $1 AND p.debtor_id = $2 AND e.id = $3
+LIMIT 1;
+
 -- name: CreatePayment :exec
 INSERT INTO payments (id, payer_id, debtor_id, amount, created_at, updated_at)
 VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp);

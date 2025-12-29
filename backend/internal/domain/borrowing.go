@@ -63,4 +63,5 @@ func (b *Borrowing) UpdatedAt() time.Time {
 
 type BorrowingRepository interface {
 	FindByGroupIDAndUserID(context.Context, ulid.ULID, string) ([]*Borrowing, error)
+	FindByGroupIDAndUserIDAndEventID(context.Context, ulid.ULID, string, ulid.ULID) (*Borrowing, error)
 }

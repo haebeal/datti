@@ -62,3 +62,44 @@ func (br *BorrowingRepositoryImpl) FindByGroupIDAndUserID(ctx context.Context, g
 
 	return borrowings, nil
 }
+
+func (br *BorrowingRepositoryImpl) FindByGroupIDAndUserIDAndEventID(ctx context.Context, groupID ulid.ULID, userID string, eventID ulid.ULID) (*domain.Borrowing, error) {
+	ctx, span := tracer.Start(ctx, "borrowing.FindByID")
+	defer span.End()
+
+	_, querySpan := tracer.Start(ctx, "SELECT events.id AS event_id, events.name, events.event_date, payments.amount, events.created_at, events.updated_at FROM events INNER join payments on events.id = payments.event_id WHERE events.group_id = $1 AND payments.debtor_id = $2 AND events.id = $3 LIMIT 1")
+	event, err := br.queries.FindEventByGroupIDAndDebtorIDAndEventID(ctx, postgres.FindEventByGroupIDAndDebtorIDAndEventIDParams{
+		GroupID:  groupID.String(),
+		DebtorID: userID,
+		ID:       eventID.String(),
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	parsedEventID, err := ulid.Parse(event.EventID)
+	if err != nil {
+		return nil, err
+	}
+	amount, err := domain.NewAmount(int64(event.Amount))
+	if err != nil {
+		return nil, err
+	}
+	borrowing, err := domain.NewBorrowing(
+		parsedEventID,
+		event.Name,
+		amount,
+		event.EventDate,
+		event.CreatedAt,
+		event.UpdatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return borrowing, nil
+}

@@ -37,6 +37,9 @@ type ServerInterface interface {
 	// グループ内の借り一覧取得
 	// (GET /groups/{id}/borrowings)
 	BorrowingGetAll(ctx echo.Context, id string) error
+	// グループ内の借り取得
+	// (GET /groups/{id}/borrowings/{borrowingId})
+	BorrowingGet(ctx echo.Context, id string, borrowingId string) error
 	// グループ内の立て替え一覧取得
 	// (GET /groups/{id}/lendings)
 	LendingGetAll(ctx echo.Context, id string) error
@@ -192,6 +195,31 @@ func (w *ServerInterfaceWrapper) BorrowingGetAll(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.BorrowingGetAll(ctx, id)
+	return err
+}
+
+// BorrowingGet converts echo context to params.
+func (w *ServerInterfaceWrapper) BorrowingGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+	// ------------- Path parameter "borrowingId" -------------
+	var borrowingId string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "borrowingId", ctx.Param("borrowingId"), &borrowingId, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter borrowingId: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.BorrowingGet(ctx, id, borrowingId)
 	return err
 }
 
@@ -502,6 +530,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/groups/:id", wrapper.GroupGet)
 	router.PUT(baseURL+"/groups/:id", wrapper.GroupUpdate)
 	router.GET(baseURL+"/groups/:id/borrowings", wrapper.BorrowingGetAll)
+	router.GET(baseURL+"/groups/:id/borrowings/:borrowingId", wrapper.BorrowingGet)
 	router.GET(baseURL+"/groups/:id/lendings", wrapper.LendingGetAll)
 	router.POST(baseURL+"/groups/:id/lendings", wrapper.LendingCreate)
 	router.DELETE(baseURL+"/groups/:id/lendings/:lendingId", wrapper.LendingDelete)

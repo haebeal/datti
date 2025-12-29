@@ -41,6 +41,16 @@ type BorrowingGetAllResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// BorrowingGetResponse defines model for Borrowing.GetResponse.
+type BorrowingGetResponse struct {
+	Amount    uint64    `json:"amount"`
+	CreatedAt time.Time `json:"createdAt"`
+	EventDate time.Time `json:"eventDate"`
+	Id        string    `json:"id"`
+	Name      string    `json:"name"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 // Credit defines model for Credit.
 type Credit struct {
 	Amount int64  `json:"amount"`

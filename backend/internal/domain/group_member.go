@@ -40,6 +40,7 @@ func (gm *GroupMember) UserID() string {
 
 type GroupMemberRepository interface {
 	AddMember(context.Context, ulid.ULID, string) error
+	RemoveMember(context.Context, ulid.ULID, string) error
 	FindMembersByGroupID(context.Context, ulid.ULID) ([]string, error)
 	FindMemberUsersByGroupID(context.Context, ulid.ULID) ([]*User, error)
 }

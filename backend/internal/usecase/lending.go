@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"slices"
 
-	"github.com/google/uuid"
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
 	"github.com/oklog/ulid/v2"
@@ -397,7 +396,7 @@ func (u LendingUseCaseImpl) Delete(ctx context.Context, i handler.DeleteInput) e
 	return nil
 }
 
-func (u LendingUseCaseImpl) ensureGroupMember(ctx context.Context, groupID ulid.ULID, userID uuid.UUID) error {
+func (u LendingUseCaseImpl) ensureGroupMember(ctx context.Context, groupID ulid.ULID, userID string) error {
 	memberIDs, err := u.gmr.FindMembersByGroupID(ctx, groupID)
 	if err != nil {
 		return err

@@ -20,22 +20,31 @@ export async function updateLending(
   }
 
   const { id, name, amount, eventDate, debts } = submission.value;
+  const normalizedEventDate = normalizeEventDate(eventDate);
 
   try {
     await apiClient.put<Lending>(`/groups/${groupId}/lendings/${id}`, {
       name,
       amount,
-      eventDate,
+      eventDate: normalizedEventDate,
       debts,
     });
     revalidatePath(`/groups/${groupId}/lendings/${id}/edit`);
     revalidatePath(`/groups/${groupId}/lendings/${id}`);
     revalidatePath(`/groups/${groupId}/lendings`);
-    return submission.reply({ resetForm: true });
+    return submission.reply();
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return submission.reply({
       formErrors: [message],
     });
   }
+}
+
+function normalizeEventDate(value: string) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+  return parsed.toISOString();
 }

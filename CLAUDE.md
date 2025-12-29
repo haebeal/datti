@@ -97,5 +97,4 @@ task test
 
 - 📖 **[OpenAPI仕様](backend/openapi.yaml)** - API契約定義
 - 🌐 **[公開ドキュメント](https://haebeal.github.io/datti-api)** - API仕様書
-- 📝 **[AGENTS.md](AGENTS.md)** - エージェント向け作業手順書
 - 🎯 **[Backend Skill](.claude/skills/backend/)** - バックエンド開発ガイド

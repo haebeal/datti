@@ -4,9 +4,13 @@ import { apiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
 import type { Lending } from "../types";
 
-export async function getAllLendings(): Promise<Result<Lending[]>> {
+export async function getAllLendings(
+	groupId: string,
+): Promise<Result<Lending[]>> {
 	try {
-		const response = await apiClient.get<Lending[]>("/lendings");
+		const response = await apiClient.get<Lending[]>(
+			`/groups/${groupId}/lendings`,
+		);
 		return {
 			success: true,
 			result: response,

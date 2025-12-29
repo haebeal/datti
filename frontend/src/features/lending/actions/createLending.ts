@@ -20,6 +20,7 @@ export async function createLending(
   }
 
   const { name, amount, eventDate, debts } = submission.value;
+  const normalizedEventDate = normalizeEventDate(eventDate);
 
   let response: Lending;
 
@@ -29,7 +30,7 @@ export async function createLending(
       {
         name,
         amount,
-        eventDate,
+        eventDate: normalizedEventDate,
         debts,
       },
     );
@@ -42,4 +43,12 @@ export async function createLending(
 
   // redirect は try ブロックの外で呼ぶ
   redirect(`/groups/${groupId}/lendings/${response.id}`);
+}
+
+function normalizeEventDate(value: string) {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return value;
+  }
+  return parsed.toISOString();
 }

@@ -1,5 +1,5 @@
 import { cn } from "@/utils/cn";
-import { type ComponentPropsWithRef, useState } from "react";
+import { type ComponentPropsWithRef, useEffect, useState } from "react";
 import {
   Select as AriaSelect,
   Button,
@@ -20,7 +20,6 @@ type Props<T> = Omit<ComponentPropsWithRef<"input">, "defaultValue"> & {
 
 export function Select<T>(props: Props<T>) {
   const {
-    ref,
     className,
     defaultValue,
     placeholder = "選択してください",
@@ -28,12 +27,21 @@ export function Select<T>(props: Props<T>) {
     options,
     getOptionLabel,
     getOptionValue,
-    ...rest
+    name,
+    id,
+    required,
+    disabled,
+    autoComplete,
+    form
   } = props;
 
   const [selectedKey, setSelectedKey] = useState<string | null>(
     defaultValue ?? null,
   );
+
+  useEffect(() => {
+    setSelectedKey(defaultValue ?? null);
+  }, [defaultValue]);
 
   const selectedOption = options.find(
     (option) => getOptionValue(option) === selectedKey,
@@ -44,9 +52,14 @@ export function Select<T>(props: Props<T>) {
       className={className}
       selectedKey={selectedKey}
       onSelectionChange={(key) => setSelectedKey(key as string)}
-      aria-labelledby={props.id}
+      name={name}
+      isRequired={required}
+      isDisabled={disabled}
+      autoComplete={autoComplete}
+      form={form}
     >
       <Button
+        id={id}
         className={cn(
           "flex items-center justify-between w-full",
           "px-3 py-2",
@@ -63,7 +76,6 @@ export function Select<T>(props: Props<T>) {
           ▼
         </span>
       </Button>
-      <input {...rest} ref={ref} value={selectedKey ?? ""} type="hidden" />
       <Popover
         className={cn(
           "w-[--trigger-width] min-w-64",

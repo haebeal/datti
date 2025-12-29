@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 )
 
@@ -92,7 +91,7 @@ func (le *Lending) UpdatedAt() time.Time {
 type LendingEventRepository interface {
 	Create(context.Context, *Lending) error
 	FindByID(context.Context, ulid.ULID) (*Lending, error)
-	FindByGroupIDAndUserID(context.Context, ulid.ULID, uuid.UUID) ([]*Lending, error)
+	FindByGroupIDAndUserID(context.Context, ulid.ULID, string) ([]*Lending, error)
 	Update(context.Context, *Lending) error
 	Delete(context.Context, ulid.ULID) error
 }

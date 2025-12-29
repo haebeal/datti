@@ -3,20 +3,19 @@ package domain
 import (
 	"context"
 
-	"github.com/google/uuid"
 	"github.com/oklog/ulid/v2"
 )
 
 // 債務者
 type Debtor struct {
-	id     uuid.UUID
+	id     string
 	name   string
 	avatar string
 	email  string
 	amount *Amount
 }
 
-func NewDebtor(id uuid.UUID, name string, avatar string, email string, amount *Amount) (*Debtor, error) {
+func NewDebtor(id string, name string, avatar string, email string, amount *Amount) (*Debtor, error) {
 	return &Debtor{
 		id:     id,
 		name:   name,
@@ -37,10 +36,10 @@ func (d *Debtor) Update(amount *Amount) (*Debtor, error) {
 }
 
 func (d *Debtor) Equal(c *Debtor) bool {
-	return d.id.String() == c.id.String()
+	return d.id == c.id
 }
 
-func (d *Debtor) ID() uuid.UUID {
+func (d *Debtor) ID() string {
 	return d.id
 }
 

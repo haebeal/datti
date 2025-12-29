@@ -14,7 +14,7 @@ import (
 	"github.com/haebeal/datti/internal/presentation/api/middleware"
 	"github.com/haebeal/datti/internal/presentation/api/server"
 	"github.com/haebeal/datti/internal/usecase"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 
 	googletrace "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
@@ -103,13 +103,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	conn, err := pgx.Connect(ctx, dsn)
+	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer conn.Close(ctx)
+	defer pool.Close()
 
-	queries := postgres.New(conn)
+	queries := postgres.New(pool)
 
 	ur := repository.NewUserRepository(queries)
 	pr := repository.NewPayerRepository(queries)

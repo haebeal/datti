@@ -45,6 +45,26 @@ func (gmr *GroupMemberRepositoryImpl) AddMember(ctx context.Context, groupID uli
 	return nil
 }
 
+func (gmr *GroupMemberRepositoryImpl) RemoveMember(ctx context.Context, groupID ulid.ULID, userID string) error {
+	ctx, span := tracer.Start(ctx, "groupMember.RemoveMember")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "DELETE FROM group_members WHERE group_id = $1 AND user_id = $2")
+	err := gmr.queries.DeleteGroupMember(ctx, postgres.DeleteGroupMemberParams{
+		GroupID: groupID.String(),
+		UserID:  userID,
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}
+
 func (gmr *GroupMemberRepositoryImpl) FindMembersByGroupID(ctx context.Context, groupID ulid.ULID) ([]string, error) {
 	ctx, span := tracer.Start(ctx, "groupMember.FindMembersByGroupID")
 	defer span.End()

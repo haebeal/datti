@@ -95,3 +95,24 @@ func (ur *UserRepositoryImpl) Create(ctx context.Context, user *domain.User) err
 
 	return nil
 }
+
+func (ur *UserRepositoryImpl) Update(ctx context.Context, user *domain.User) error {
+	ctx, span := tracer.Start(ctx, "user.Update")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "UPDATE users SET name = $2, avatar = $3")
+	err := ur.queries.UpdateUser(ctx, postgres.UpdateUserParams{
+		ID:     user.ID(),
+		Name:   user.Name(),
+		Avatar: user.Avatar(),
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}

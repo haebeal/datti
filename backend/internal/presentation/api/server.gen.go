@@ -82,6 +82,15 @@ type ServerInterface interface {
 	// ユーザー検索
 	// (GET /users)
 	UserSearch(ctx echo.Context, params UserSearchParams) error
+	// 自身のユーザー情報取得
+	// (GET /users/me)
+	UserGetMe(ctx echo.Context) error
+	// ユーザー情報取得
+	// (GET /users/{id})
+	UserGet(ctx echo.Context, id string) error
+	// ユーザー情報更新
+	// (PUT /users/{id})
+	UserUpdate(ctx echo.Context, id string) error
 }
 
 // ServerInterfaceWrapper converts echo contexts to parameters.
@@ -494,6 +503,53 @@ func (w *ServerInterfaceWrapper) UserSearch(ctx echo.Context) error {
 	return err
 }
 
+// UserGetMe converts echo context to params.
+func (w *ServerInterfaceWrapper) UserGetMe(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UserGetMe(ctx)
+	return err
+}
+
+// UserGet converts echo context to params.
+func (w *ServerInterfaceWrapper) UserGet(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UserGet(ctx, id)
+	return err
+}
+
+// UserUpdate converts echo context to params.
+func (w *ServerInterfaceWrapper) UserUpdate(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UserUpdate(ctx, id)
+	return err
+}
+
 // This is a simple interface which specifies echo.Route addition functions which
 // are present on both echo.Echo and echo.Group, since we want to allow using
 // either of them for path registration
@@ -545,5 +601,8 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/repayments/:id", wrapper.RepaymentGet)
 	router.PUT(baseURL+"/repayments/:id", wrapper.RepaymentUpdate)
 	router.GET(baseURL+"/users", wrapper.UserSearch)
+	router.GET(baseURL+"/users/me", wrapper.UserGetMe)
+	router.GET(baseURL+"/users/:id", wrapper.UserGet)
+	router.PUT(baseURL+"/users/:id", wrapper.UserUpdate)
 
 }

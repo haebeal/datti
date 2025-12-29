@@ -26,24 +26,14 @@ export function GroupSelector({ groups }: Props) {
   // URLから現在のgroupIdを取得
   const [currentGroupId, setCurrentGroupId] = useState<string>();
   const currentGroup = groups.find((g) => g.id === currentGroupId);
-  // useEffect(() => {
-  //   if (params.groupId === undefined) {
-  //     return;
-  //   }
-  //   setCurrentGroupId(params.groupId);
-  //   router.push(`/groups/${params.groupId}/lendings`);
-  // }, [params.groupId, router]);
 
-  // グループページにいて、かつURLにgroupIdがない場合のみ最初のグループにリダイレクト
-  // useEffect(() => {
-  //   if (
-  //     pathname.startsWith("/groups") &&
-  //     groups.length > 0 &&
-  //     currentGroupId === undefined
-  //   ) {
-  //     router.push(`/groups/${groups[0].id}/lendings`);
-  //   }
-  // }, [currentGroupId, router, pathname, groups]);
+  // URLからgroupIdを抽出してstateにセット
+  useEffect(() => {
+    const match = pathname.match(/\/groups\/([^/]+)/);
+    if (match) {
+      setCurrentGroupId(match[1]);
+    }
+  }, [pathname]);
 
   if (groups.length === 0) {
     return (
@@ -87,121 +77,84 @@ export function GroupSelector({ groups }: Props) {
       <Label className="sr-only">グループを選択</Label>
       <Button
         className={cn(
-          "w-full flex items-center justify-between gap-2",
-          "px-4 py-3 rounded-lg",
-          "bg-white border-2 border-gray-200",
-          "hover:border-primary hover:bg-primary-50",
-          "focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent",
-          "transition-all duration-200",
-          "data-[focus-visible]:border-primary data-[focus-visible]:bg-primary-50",
+          "flex items-center justify-between w-full",
+          "px-3 py-2.5",
+          "border rounded-md",
+          "focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
+          "hover:cursor-pointer",
         )}
       >
         <div className={cn("flex items-center gap-3 flex-1 min-w-0")}>
-          {/* Group Icon */}
           <div
             className={cn(
-              "flex-shrink-0 w-10 h-10 rounded-full",
-              "bg-gradient-to-br from-primary to-primary-hover",
+              "flex-shrink-0 w-8 h-8 rounded-full",
+              "bg-primary-base",
               "flex items-center justify-center",
-              "text-white font-bold text-lg",
+              "text-white font-bold text-sm",
             )}
           >
             {currentGroup?.name.charAt(0) || "G"}
           </div>
 
-          {/* Group Info */}
           <div className={cn("flex-1 min-w-0 text-left")}>
-            <SelectValue
-              className={cn("font-bold text-gray-900 truncate block")}
-            >
+            <SelectValue className={cn("font-medium text-gray-900 truncate block")}>
               {currentGroup?.name || "グループを選択"}
             </SelectValue>
-            {currentGroup && (
-              <div className={cn("text-xs text-gray-500 truncate")}>
-                作成: {formatDate(currentGroup.createdAt)}
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Dropdown Arrow */}
-        <svg
-          className={cn(
-            "w-5 h-5 text-gray-500 transition-transform duration-200",
-          )}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
+        <span aria-hidden="true" className="text-gray-400">
+          ▼
+        </span>
       </Button>
 
       <Popover
         className={cn(
-          "entering:animate-in entering:fade-in entering:slide-in-from-top-2",
-          "exiting:animate-out exiting:fade-out exiting:slide-out-to-top-2",
-          "bg-white rounded-lg shadow-lg border border-gray-200",
-          "max-h-96 overflow-y-auto",
+          "w-[--trigger-width] min-w-64",
+          "mt-1",
+          "rounded-md border bg-white shadow-lg",
+          "entering:animate-in entering:fade-in entering:zoom-in-95",
+          "exiting:animate-out exiting:fade-out exiting:zoom-out-95",
         )}
       >
-        <ListBox className={cn("py-2 outline-none")}>
+        <ListBox className={cn("max-h-60 overflow-auto", "outline-none", "p-1")}>
           {groups.map((group) => (
             <ListBoxItem
               key={group.id}
               id={group.id}
               className={cn(
-                "w-full flex items-center gap-3 px-4 py-3",
-                "hover:bg-primary-50 transition-colors cursor-pointer outline-none",
-                "data-focused:bg-primary-50",
-                "selected:bg-primary-50",
+                "px-4 py-3",
+                "flex items-center gap-3",
+                "cursor-pointer outline-none rounded-md",
+                "transition-colors duration-150",
+                "data-[hovered]:bg-gray-100",
+                "data-[focused]:outline-none",
+                "data-[selected]:bg-primary-surface data-[selected]:text-primary-base",
               )}
             >
-              {/* Group Avatar */}
               <div
                 className={cn(
-                  "flex-shrink-0 w-10 h-10 rounded-full",
-                  "bg-gradient-to-br from-primary to-primary-hover",
+                  "flex-shrink-0 w-8 h-8 rounded-full",
+                  "bg-primary-base",
                   "flex items-center justify-center",
-                  "text-white font-bold text-lg",
+                  "text-white font-bold text-sm",
                 )}
               >
                 {group.name.charAt(0)}
               </div>
 
-              {/* Group Info */}
               <div className={cn("flex-1 min-w-0")}>
-                <div
-                  className={cn(
-                    "font-bold text-gray-900 truncate flex items-center gap-2",
-                  )}
-                >
+                <div className={cn("font-medium text-gray-900 truncate")}>
                   {group.name}
-                  {group.id === currentGroupId && (
-                    <span
-                      className={cn(
-                        "inline-flex items-center px-2 py-0.5 rounded text-xs font-medium",
-                        "bg-primary text-white",
-                      )}
-                    >
-                      選択中
-                    </span>
-                  )}
                 </div>
                 <div className={cn("text-xs text-gray-500 truncate")}>
-                  作成者: {group.createdBy}
+                  {group.createdBy}
                 </div>
               </div>
 
-              {/* Checkmark for selected */}
               {group.id === currentGroupId && (
                 <svg
-                  className={cn("w-5 h-5 text-primary shrink-0")}
+                  className={cn("w-5 h-5 text-primary-base flex-shrink-0")}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -218,21 +171,19 @@ export function GroupSelector({ groups }: Props) {
           ))}
         </ListBox>
 
-        {/* Divider */}
         <div className={cn("border-t border-gray-200")} />
 
-        {/* Actions */}
-        <div className={cn("p-2")}>
+        <div className={cn("p-1")}>
           <a
             href="/groups"
             className={cn(
               "w-full flex items-center gap-2 px-4 py-2 rounded-md",
-              "text-sm font-medium text-primary",
-              "hover:bg-primary-50 transition-colors",
+              "text-sm font-medium text-gray-700",
+              "hover:bg-gray-100 transition-colors",
             )}
           >
             <svg
-              className={cn("w-5 h-5")}
+              className={cn("w-4 h-4")}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -256,12 +207,12 @@ export function GroupSelector({ groups }: Props) {
             href="/groups/new"
             className={cn(
               "w-full flex items-center gap-2 px-4 py-2 rounded-md",
-              "text-sm font-medium text-primary",
-              "hover:bg-primary-50 transition-colors",
+              "text-sm font-medium text-gray-700",
+              "hover:bg-gray-100 transition-colors",
             )}
           >
             <svg
-              className={cn("w-5 h-5")}
+              className={cn("w-4 h-4")}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"

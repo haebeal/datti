@@ -74,4 +74,5 @@ type GroupRepository interface {
 	FindByMemberUserID(context.Context, string) ([]*Group, error)
 	FindByID(context.Context, ulid.ULID) (*Group, error)
 	Update(context.Context, *Group) error
+	Delete(context.Context, ulid.ULID) error
 }

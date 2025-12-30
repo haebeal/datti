@@ -182,6 +182,10 @@ SET name = $2,
     updated_at = $3
 WHERE id = $1;
 
+-- name: DeleteGroup :exec
+DELETE FROM groups
+WHERE id = $1;
+
 -- name: FindGroupsByMemberUserID :many
 SELECT g.id, g.name, g.created_by, g.created_at, g.updated_at
 FROM groups g

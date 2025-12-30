@@ -3,6 +3,6 @@
  */
 
 export type Credit = {
-	userId: string;
-	amount: number;
+  userId: string;
+  amount: number;
 };

@@ -1,69 +1,59 @@
+"use client";
+
+import { Button as AriaButton, type ButtonProps } from "react-aria-components";
 import { cn } from "@/utils/cn";
-import type { ButtonProps } from "react-aria-components";
-import { Button as AriaButton } from "react-aria-components";
 
-type ButtonColors = "default" | "primary" | "error" | "blue" | "green";
-
-const colorPallet: {
-	[key in ButtonColors]: {
-		text?: string;
-		bgDefault: string;
-		bgHover: string;
-		bgActive: string;
-	};
-} = {
-	default: {
-		bgDefault: "bg-gray-100",
-		bgHover: "bg-gray-200",
-		bgActive: "bg-gray-300",
-	},
-	primary: {
-		text: "text-white",
-		bgDefault: "bg-sky-500",
-		bgHover: "bg-sky-600",
-		bgActive: "bg-sky-700",
-	},
-	error: {
-		text: "text-white",
-		bgDefault: "bg-red-500",
-		bgHover: "bg-red-600",
-		bgActive: "bg-red-700",
-	},
-	blue: {
-		text: "text-white",
-		bgDefault: "bg-blue-700",
-		bgHover: "bg-blue-800",
-		bgActive: "bg-blue-900",
-	},
-	green: {
-		text: "text-white",
-		bgDefault: "bg-green-600",
-		bgHover: "bg-green-700",
-		bgActive: "bg-green-800",
-	},
+type Color = "primary" | "error";
+type Props = ButtonProps & {
+  colorStyle?: "outline" | "fill";
+  color?: Color;
 };
 
-type Props = ButtonProps & { color: ButtonColors };
-
 export function Button(props: Props) {
-	const { color, className, isPending, isDisabled, ...rest } = props;
+  const {
+    colorStyle = "fill",
+    color = "primary",
+    className,
+    children,
+    ...rest
+  } = props;
 
-	const colorClass = colorPallet[color];
+  const getColorClasses = () => {
+    if (colorStyle === "outline") {
+      switch (color) {
+        case "error":
+          return "border border-error-base hover:bg-error-base hover:text-white disabled:hover:bg-transparent disabled:hover:text-error-base text-error-base focus:ring-error-base";
+        case "primary":
+        default:
+          return "border border-primary-base hover:bg-primary-base hover:text-white disabled:hover:bg-transparent disabled:hover:text-primary-base text-primary-base focus:ring-primary-base";
+      }
+    } else {
+      // fill
+      switch (color) {
+        case "error":
+          return "border border-error-base bg-error-base hover:bg-transparent hover:text-error-base hover:ring-error-base disabled:hover:bg-error-base disabled:hover:text-white disabled:hover:ring-transparent active:bg-error-active text-white focus:ring-error-base";
+        case "primary":
+        default:
+          return "border border-primary-base bg-primary-base hover:bg-transparent hover:text-primary-base hover:ring-primary-base disabled:hover:bg-primary-base disabled:hover:text-white disabled:hover:ring-transparent active:bg-primary-active text-white focus:ring-primary-base";
+      }
+    }
+  };
 
-	return (
-		<AriaButton
-			isDisabled={isDisabled}
-			isPending={isPending}
-			className={cn(
-				"px-5 py-3",
-				"rounded-lg",
-				"hover:cursor-pointer disabled:cursor-not-allowed pending:cursor-not-allowed",
-				!isPending && !isDisabled && `active:${colorClass.bgActive}`,
-				`font-semibold ${colorClass.text ?? ""}`,
-				`${colorClass.bgDefault} hover:${colorClass.bgHover} disabled:opacity-60 pending:opacity-60`,
-				className,
-			)}
-			{...rest}
-		/>
-	);
+  return (
+    <AriaButton
+      className={cn(
+        "px-4 py-2",
+        "rounded-md",
+        getColorClasses(),
+        "disabled:opacity-50 disabled:cursor-not-allowed",
+        "hover:cursor-pointer",
+        "transition-colors",
+        "focus:outline-none focus:ring-2 focus:ring-offset-4",
+        className,
+      )}
+      {...rest}
+    >
+      {children}
+    </AriaButton>
+  );
 }

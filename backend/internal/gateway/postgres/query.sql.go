@@ -730,6 +730,7 @@ const listBorrowingCreditAmountsByUserID = `-- name: ListBorrowingCreditAmountsB
 SELECT payer_id AS user_id, SUM(amount)::bigint AS amount
 FROM payments
 WHERE debtor_id = $1
+  AND payer_id != debtor_id
 GROUP BY payer_id
 ORDER BY payer_id
 `
@@ -763,6 +764,7 @@ const listLendingCreditAmountsByUserID = `-- name: ListLendingCreditAmountsByUse
 SELECT debtor_id AS user_id, SUM(amount)::bigint AS amount
 FROM payments
 WHERE payer_id = $1
+  AND payer_id != debtor_id
 GROUP BY debtor_id
 ORDER BY debtor_id
 `

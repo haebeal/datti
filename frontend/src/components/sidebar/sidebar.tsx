@@ -49,21 +49,11 @@ export function Sidebar({ groups }: SidebarProps) {
 
       <hr className={cn("border-gray-200 mb-2")} />
 
-      {/* Global Navigation */}
-      <nav className={cn("flex flex-col gap-1")}>
-        <Link
-          href="/"
-          className={cn(
-            "flex items-center gap-3",
-            "px-4 py-3 rounded-md",
-            "transition-colors",
-            isActive("/")
-              ? "bg-primary-surface text-primary-base font-semibold"
-              : "text-gray-700 hover:bg-gray-100",
-          )}
-        >
+      {/* My Page Section */}
+      <div className={cn("flex flex-col gap-3")}>
+        <div className={cn("flex items-center gap-2", "px-2")}>
           <svg
-            className="w-5 h-5"
+            className={cn("w-4 h-4 text-primary-base")}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -72,39 +62,70 @@ export function Sidebar({ groups }: SidebarProps) {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             />
           </svg>
-          <span>支払い</span>
-        </Link>
+          <span className={cn("text-xs font-bold text-primary-base uppercase")}>
+            マイページ
+          </span>
+        </div>
 
-        <Link
-          href="/repayments"
-          className={cn(
-            "flex items-center gap-3",
-            "px-4 py-3 rounded-md",
-            "transition-colors",
-            isActive("/repayments")
-              ? "bg-primary-surface text-primary-base font-semibold"
-              : "text-gray-700 hover:bg-gray-100",
-          )}
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        <nav className={cn("flex flex-col gap-1")}>
+          <Link
+            href="/"
+            className={cn(
+              "flex items-center gap-3",
+              "px-4 py-3 rounded-md",
+              "transition-colors",
+              isActive("/")
+                ? "bg-primary-surface text-primary-base font-semibold"
+                : "text-gray-700 hover:bg-gray-100",
+            )}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M7 7h11m0 0-3-3m3 3-3 3M17 17H6m0 0 3 3m-3-3 3-3"
-            />
-          </svg>
-          <span>返済</span>
-        </Link>
-      </nav>
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>支払い</span>
+          </Link>
+
+          <Link
+            href="/repayments"
+            className={cn(
+              "flex items-center gap-3",
+              "px-4 py-3 rounded-md",
+              "transition-colors",
+              isActive("/repayments")
+                ? "bg-primary-surface text-primary-base font-semibold"
+                : "text-gray-700 hover:bg-gray-100",
+            )}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M7 7h11m0 0-3-3m3 3-3 3M17 17H6m0 0 3 3m-3-3 3-3"
+              />
+            </svg>
+            <span>返済</span>
+          </Link>
+        </nav>
+      </div>
 
       <hr className={cn("border-gray-200 my-4")} />
 

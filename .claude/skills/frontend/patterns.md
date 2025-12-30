@@ -626,7 +626,181 @@ export function ItemList({ items }: Props) {
 }
 ```
 
-## 9. React Aria + Conform の互換性
+## 9. よくあるピットフォールとトラブルシューティング
+
+このセクションでは、実装中に頻繁に遭遇する問題とその解決策を詳しく説明します。
+
+### 1. FormDataが空になる
+
+**症状**: Server Actionでフォームデータを受け取れない
+
+**原因**: `name` 属性の欠落（最も多いエラー）
+
+**解決策**:
+```tsx
+// ❌NG: name属性がない
+<input id={field.id} defaultValue={field.defaultValue} />
+
+// ✅OK: name属性を設定
+<input name={field.name} id={field.id} defaultValue={field.defaultValue} />
+```
+
+**デバッグ方法**:
+```typescript
+// Server Action内でFormDataの内容を確認
+export async function myAction(_: unknown, formData: FormData) {
+  console.log("FormData entries:", Array.from(formData.entries()));
+  // 空配列の場合、name属性が欠落している
+}
+```
+
+### 2. APIが空レスポンスを返す（204 No Content）
+
+**症状**: `Unexpected end of JSON input` エラー
+
+**原因**: 空のレスポンスボディを`response.json()`でパースしようとしている
+
+**解決策**:
+```typescript
+// libs/api/client.ts
+const text = await response.text();
+if (!text) {
+  return null as T;
+}
+return JSON.parse(text) as T;
+```
+
+### 3. disabled状態でもボタンの色が変わる
+
+**症状**: 無効化されたボタンがホバーで色が変わる
+
+**原因**: disabled時のhover状態を上書きしていない
+
+**解決策**:
+```tsx
+className={cn(
+  "bg-primary-base",
+  "hover:bg-primary-hover",
+  "disabled:hover:bg-primary-base",  // 元の色に戻す
+  "disabled:opacity-50",
+  "disabled:cursor-not-allowed"
+)}
+```
+
+### 4. revalidatePathで画面が更新されない
+
+**症状**: データ更新後、画面に反映されない
+
+**原因**: 関連するパスを全て revalidate していない
+
+**解決策**:
+```typescript
+// 設定ページと一覧ページの両方をrevalidate
+revalidatePath(`/groups/${id}/settings`);
+revalidatePath("/groups");
+
+// または親パスをrevalidate（全ての子パスも更新される）
+revalidatePath(`/groups/${id}`, 'layout');
+```
+
+### 5. 1Password拡張機能の補完が邪魔
+
+**症状**: フォーム入力時に1Passwordの候補が表示される
+
+**原因**: ブラウザの自動補完機能
+
+**解決策**: `Input` コンポーネントを使用（自動的に対応される）
+```tsx
+<Input
+  type="text"
+  name={field.name}
+  // autoComplete="off" と data-1p-ignore が自動適用される
+/>
+```
+
+### 6. HTMLセマンティックエラー
+
+**症状**: `<a>` の中に `<button>` を入れてしまう
+
+**原因**: ナビゲーションとアクションの混同
+
+**解決策**: `LinkButton` コンポーネントを使用
+```tsx
+// ❌NG: HTMLの仕様違反
+<Link href="/groups/1">
+  <Button>開く</Button>
+</Link>
+
+// ✅OK: LinkButtonを使用
+<LinkButton href="/groups/1">開く</LinkButton>
+```
+
+### 7. Conformのフィールドが更新されない
+
+**症状**: フィールドの値を変更してもUIに反映されない
+
+**原因**: `key` 属性の欠落
+
+**解決策**:
+```tsx
+// ❌NG: keyがない
+<Input
+  name={field.name}
+  id={field.id}
+  defaultValue={field.defaultValue}
+/>
+
+// ✅OK: keyを設定（値が変わったら再レンダリング）
+<Input
+  name={field.name}
+  id={field.id}
+  key={field.key}
+  defaultValue={field.defaultValue}
+/>
+```
+
+### 8. useActionStateのisPendingが動作しない
+
+**症状**: フォーム送信中も`isPending`が`false`のまま
+
+**原因**: `action`属性に渡していない、または`type="submit"`がない
+
+**解決策**:
+```tsx
+const [lastResult, action, isPending] = useActionState(myAction, undefined);
+
+// ✅OK: actionを渡す
+<form action={action} onSubmit={form.onSubmit}>
+  {/* type="submit"を指定 */}
+  <Button type="submit" isDisabled={isPending}>
+    {isPending ? "送信中..." : "送信"}
+  </Button>
+</form>
+```
+
+### 9. 配列フィールドの追加・削除が動作しない
+
+**症状**: `form.insert()`や`form.remove()`を呼んでもフィールドが変わらない
+
+**原因**: React Aria Buttonとの互換性問題（詳細は次セクション参照）
+
+**解決策**:
+```tsx
+// ✅OK: onPressで直接呼び出す
+<Button
+  type="button"
+  onPress={() => {
+    form.insert({
+      name: fields.debts.name,
+      defaultValue: { userId: "", amount: 0 }
+    });
+  }}
+>
+  追加
+</Button>
+```
+
+## 10. React Aria + Conform の互換性
 
 ### 問題: getButtonProps と React Aria Button の不整合
 
@@ -676,7 +850,7 @@ Conformの`form.insert.getButtonProps()`や`form.remove.getButtonProps()`が返�
 2. **HTML buttonを使う場合**: `getButtonProps()` を使える（ただし非推奨）
 3. **最新のパターン確認**: Conformは頻繁にAPIが変わるため、[公式ドキュメント](https://ja.conform.guide/)で最新の推奨方法を確認すること
 
-## 10. 参考実装
+## 11. 参考実装
 
 完全な実装例：
 

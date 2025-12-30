@@ -22,18 +22,18 @@ export function Button(props: Props) {
     if (colorStyle === "outline") {
       switch (color) {
         case "error":
-          return "border border-red-500 hover:bg-red-50 disabled:hover:bg-transparent text-red-500 focus:ring-red-500";
+          return "border border-error-base hover:bg-error-base hover:text-white disabled:hover:bg-transparent disabled:hover:text-error-base text-error-base focus:ring-error-base";
         case "gray":
-          return "border border-gray-300 hover:bg-gray-50 disabled:hover:bg-transparent text-gray-700 focus:ring-gray-400";
+          return "border border-gray-300 hover:bg-gray-600 hover:text-white disabled:hover:bg-transparent disabled:hover:text-gray-700 text-gray-700 focus:ring-gray-400";
         case "primary":
         default:
-          return "border border-primary-base hover:bg-primary-hover disabled:hover:bg-transparent text-primary-base focus:ring-primary-base";
+          return "border border-primary-base hover:bg-primary-base hover:text-white disabled:hover:bg-transparent disabled:hover:text-primary-base text-primary-base focus:ring-primary-base";
       }
     } else {
       // fill
       switch (color) {
         case "error":
-          return "bg-red-500 hover:bg-red-600 disabled:hover:bg-red-500 active:bg-red-800 text-white focus:ring-red-500";
+          return "bg-error-base hover:bg-error-hover disabled:hover:bg-error-base active:bg-error-active text-white focus:ring-error-base";
         case "gray":
           return "bg-gray-300 hover:bg-gray-400 disabled:hover:bg-gray-300 active:bg-gray-500 text-gray-700 focus:ring-gray-400";
         case "primary":

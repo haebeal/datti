@@ -38,7 +38,7 @@ export default async function LendingDetailPage({
         <h1 className={cn("text-2xl font-bold")}>立て替え詳細</h1>
         <LinkButton
           href={`/groups/${groupId}/lendings/${id}/edit`}
-          color="gray"
+          color="primary"
           colorStyle="outline"
         >
           編集

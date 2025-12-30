@@ -31,10 +31,10 @@ export function Button(props: Props) {
       // fill
       switch (color) {
         case "error":
-          return "bg-error-base hover:bg-error-hover disabled:hover:bg-error-base active:bg-error-active text-white focus:ring-error-base";
+          return "border border-error-base bg-error-base hover:bg-transparent hover:text-error-base hover:ring-error-base disabled:hover:bg-error-base disabled:hover:text-white disabled:hover:ring-transparent active:bg-error-active text-white focus:ring-error-base";
         case "primary":
         default:
-          return "bg-primary-base hover:bg-primary-hover disabled:hover:bg-primary-base active:bg-primary-active text-white focus:ring-primary-base";
+          return "border border-primary-base bg-primary-base hover:bg-transparent hover:text-primary-base hover:ring-primary-base disabled:hover:bg-primary-base disabled:hover:text-white disabled:hover:ring-transparent active:bg-primary-active text-white focus:ring-primary-base";
       }
     }
   };

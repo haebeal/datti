@@ -31,10 +31,10 @@ export function LinkButton(props: Props) {
       // fill
       switch (color) {
         case "error":
-          return "bg-error-base hover:bg-error-hover disabled:hover:bg-error-base active:bg-error-active text-white focus:ring-error-base";
+          return "bg-error-base ring-2 ring-transparent hover:bg-transparent hover:text-error-base hover:ring-error-base active:bg-error-active text-white focus:ring-error-base";
         case "primary":
         default:
-          return "bg-primary-base hover:bg-primary-hover disabled:hover:bg-primary-base active:bg-primary-active text-white focus:ring-primary-base";
+          return "bg-primary-base ring-2 ring-transparent hover:bg-transparent hover:text-primary-base hover:ring-primary-base active:bg-primary-active text-white focus:ring-primary-base";
       }
     }
   };

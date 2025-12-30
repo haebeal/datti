@@ -626,12 +626,63 @@ export function ItemList({ items }: Props) {
 }
 ```
 
-## 9. 参考実装
+## 9. React Aria + Conform の互換性
+
+### 問題: getButtonProps と React Aria Button の不整合
+
+Conformの`form.insert.getButtonProps()`や`form.remove.getButtonProps()`が返すpropsは、通常のHTML `<button>`要素用に設計されており、React AriaのButtonコンポーネントとは互換性がありません。
+
+**原因**:
+- HTML button: `onClick` イベントを使用
+- React Aria Button: `onPress` イベントを使用
+
+**症状**:
+```tsx
+// ❌ これは動かない
+<Button {...form.insert.getButtonProps({ name: fields.debts.name })}>
+  追加
+</Button>
+```
+
+**解決策**: `getButtonProps`を使わず、直接`form.insert()`や`form.remove()`を呼び出す
+
+```tsx
+// ✅ 正しいパターン
+<Button
+  type="button"
+  onPress={() => {
+    form.insert({
+      name: fields.debts.name,
+      defaultValue: { userId: "", amount: 0 }
+    });
+  }}
+>
+  追加
+</Button>
+
+<Button
+  type="button"
+  onPress={() => {
+    form.remove({ name: fields.debts.name, index });
+  }}
+>
+  削除
+</Button>
+```
+
+### ベストプラクティス
+
+1. **React Aria Buttonを使う場合**: `form.insert()` / `form.remove()` を直接呼び出す
+2. **HTML buttonを使う場合**: `getButtonProps()` を使える（ただし非推奨）
+3. **最新のパターン確認**: Conformは頻繁にAPIが変わるため、[公式ドキュメント](https://ja.conform.guide/)で最新の推奨方法を確認すること
+
+## 10. 参考実装
 
 完全な実装例：
 
 - **基本的なフォーム**: `frontend/src/features/group/components/group-basic-info-form.tsx`
 - **複雑なフォーム（検索+追加+削除）**: `frontend/src/features/group/components/group-member-management.tsx`
+- **動的配列フォーム**: `frontend/src/features/lending/components/lending-create-form.tsx`
 - **Server Actions**: `frontend/src/features/group/actions/`
 - **スキーマ定義**: `frontend/src/features/group/schema.ts`
 

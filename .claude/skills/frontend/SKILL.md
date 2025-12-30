@@ -653,7 +653,10 @@ FormDataに含めたい全ての入力要素に `name` 属性を設定する。�
 ## 参考資料
 
 - [patterns.md](patterns.md) - 実装パターンの詳細
+- [design-system.md](design-system.md) - デザインシステムとUIコンポーネント
 - [MDN Web Docs](https://developer.mozilla.org/ja/) - HTML仕様の確認
+- [Conform公式ドキュメント](https://ja.conform.guide/) - フォームライブラリの最新API（バージョンアップで変わるため常に確認）
 - `frontend/src/features/group/components/group-basic-info-form.tsx` - フォーム実装の参考例
 - `frontend/src/features/group/components/group-member-management.tsx` - 複雑なフォームの参考例
+- `frontend/src/features/lending/components/lending-create-form.tsx` - 動的配列フォームの参考例
 - `frontend/src/components/ui/` - UIコンポーネントの実装例

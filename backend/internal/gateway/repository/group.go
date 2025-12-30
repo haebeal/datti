@@ -127,3 +127,20 @@ func (gr *GroupRepositoryImpl) Update(ctx context.Context, group *domain.Group) 
 
 	return nil
 }
+
+func (gr *GroupRepositoryImpl) Delete(ctx context.Context, groupID ulid.ULID) error {
+	ctx, span := tracer.Start(ctx, "group.Delete")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "DELETE FROM groups WHERE id = $1")
+	err := gr.queries.DeleteGroup(ctx, groupID.String())
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}

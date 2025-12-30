@@ -38,6 +38,7 @@ export function LendingEditForm({ groupId, lending, members }: Props) {
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: updateLendingSchema });
     },
+    shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
   });
 
@@ -126,19 +127,21 @@ export function LendingEditForm({ groupId, lending, members }: Props) {
         <label className={cn("text-sm font-semibold")}>
           立て替え詳細
         </label>
-        <button
+        <Button
           type="button"
-          {...form.insert.getButtonProps({ name: fields.debts.name })}
-          disabled={!canAddMoreMembers()}
-          className={cn(
-            "text-sm",
-            canAddMoreMembers()
-              ? "text-primary-base hover:text-primary-hover"
-              : "text-gray-400 cursor-not-allowed",
-          )}
+          onPress={() => {
+            form.insert({
+              name: fields.debts.name,
+              defaultValue: { userId: "", amount: 0 }
+            });
+          }}
+          isDisabled={!canAddMoreMembers()}
+          colorStyle="outline"
+          color="primary"
+          className={cn("text-sm")}
         >
           + 追加
-        </button>
+        </Button>
       </div>
 
       <div className={cn("flex flex-col gap-3")}>
@@ -179,16 +182,17 @@ export function LendingEditForm({ groupId, lending, members }: Props) {
               </div>
 
               {debtsList.length > 1 && (
-                <button
+                <Button
                   type="button"
-                  {...form.remove.getButtonProps({ name: fields.debts.name, index })}
-                  className={cn(
-                    "px-3 py-2",
-                    "text-red-500 hover:text-red-600",
-                  )}
+                  onPress={() => {
+                    form.remove({ name: fields.debts.name, index });
+                  }}
+                  color="error"
+                  colorStyle="outline"
+                  className={cn("px-3 py-2")}
                 >
                   削除
-                </button>
+                </Button>
               )}
             </div>
           );

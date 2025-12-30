@@ -1,24 +1,27 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { apiClient } from "@/libs/api/client";
-import type { Result } from "@/schema";
+
+export type DeleteLendingState =
+  | {
+      error: string;
+    }
+  | undefined;
 
 export async function deleteLending(
   groupId: string,
   lendingId: string,
-): Promise<Result<void>> {
+  _: DeleteLendingState,
+  _formData: FormData,
+): Promise<DeleteLendingState> {
   try {
     await apiClient.delete(`/groups/${groupId}/lendings/${lendingId}`);
-    return {
-      success: true,
-      result: undefined,
-      error: null,
-    };
   } catch (error) {
     return {
-      success: false,
-      result: null,
       error: error instanceof Error ? error.message : "Unknown error",
     };
   }
+
+  redirect(`/groups/${groupId}/lendings`);
 }

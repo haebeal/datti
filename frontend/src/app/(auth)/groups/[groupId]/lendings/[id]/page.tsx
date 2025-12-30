@@ -2,6 +2,7 @@ import { getLending } from "@/features/lending/actions/getLending";
 import { getMembers } from "@/features/group/actions/getMembers";
 import { formatCurrency, formatDate } from "@/schema";
 import { LinkButton } from "@/components/ui/link-button";
+import { LendingDeleteForm } from "@/features/lending/components/lending-delete-form";
 import { cn } from "@/utils/cn";
 
 export default async function LendingDetailPage({
@@ -78,6 +79,8 @@ export default async function LendingDetailPage({
           ))}
         </div>
       </div>
+
+      <LendingDeleteForm groupId={groupId} lendingId={id} />
     </div>
   );
 }

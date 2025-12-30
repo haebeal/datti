@@ -27,7 +27,7 @@ export default async function RepaymentDetailPage({
         <h1 className={cn("text-2xl font-bold")}>返済詳細</h1>
         <LinkButton
           href={`/repayments/${id}/edit`}
-          color="gray"
+          color="primary"
           colorStyle="outline"
         >
           編集

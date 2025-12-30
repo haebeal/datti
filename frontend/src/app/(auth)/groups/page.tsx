@@ -40,7 +40,7 @@ export default async function GroupsPage() {
             <div className={cn("flex justify-end gap-5")}>
               <LinkButton
                 href={`/groups/${group.id}/settings`}
-                color="gray"
+                color="primary"
                 colorStyle="outline"
               >
                 設定

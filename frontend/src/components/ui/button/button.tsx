@@ -3,7 +3,7 @@
 import { Button as AriaButton, type ButtonProps } from "react-aria-components";
 import { cn } from "@/utils/cn";
 
-type Color = "primary" | "error" | "gray";
+type Color = "primary" | "error";
 type Props = ButtonProps & {
   colorStyle?: "outline" | "fill";
   color?: Color;
@@ -23,8 +23,6 @@ export function Button(props: Props) {
       switch (color) {
         case "error":
           return "border border-error-base hover:bg-error-base hover:text-white disabled:hover:bg-transparent disabled:hover:text-error-base text-error-base focus:ring-error-base";
-        case "gray":
-          return "border border-gray-300 hover:bg-gray-600 hover:text-white disabled:hover:bg-transparent disabled:hover:text-gray-700 text-gray-700 focus:ring-gray-400";
         case "primary":
         default:
           return "border border-primary-base hover:bg-primary-base hover:text-white disabled:hover:bg-transparent disabled:hover:text-primary-base text-primary-base focus:ring-primary-base";
@@ -34,8 +32,6 @@ export function Button(props: Props) {
       switch (color) {
         case "error":
           return "bg-error-base hover:bg-error-hover disabled:hover:bg-error-base active:bg-error-active text-white focus:ring-error-base";
-        case "gray":
-          return "bg-gray-300 hover:bg-gray-400 disabled:hover:bg-gray-300 active:bg-gray-500 text-gray-700 focus:ring-gray-400";
         case "primary":
         default:
           return "bg-primary-base hover:bg-primary-hover disabled:hover:bg-primary-base active:bg-primary-active text-white focus:ring-primary-base";

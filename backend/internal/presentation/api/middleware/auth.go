@@ -54,6 +54,8 @@ func AuthMiddleware(cfg AuthMiddlewareConfig) echo.MiddlewareFunc {
 			// Verify token with Firebase
 			claims, err := cfg.FirebaseClient.VerifyToken(c.Request().Context(), idToken)
 			if err != nil {
+				// Debug: log the error
+				c.Logger().Errorf("Token verification failed: %v", err)
 				return c.JSON(http.StatusUnauthorized, api.ErrorResponse{
 					Message: "Invalid or expired token",
 				})

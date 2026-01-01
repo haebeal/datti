@@ -206,3 +206,29 @@ func (u GroupUseCaseImpl) ListMembers(ctx context.Context, input handler.GroupLi
 		Members: members,
 	}, nil
 }
+
+func (u GroupUseCaseImpl) Delete(ctx context.Context, input handler.GroupDeleteInput) error {
+	ctx, span := tracer.Start(ctx, "group.Delete")
+	defer span.End()
+
+	group, err := u.gr.FindByID(ctx, input.GroupID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	// グループ作成者のみ削除可能
+	if input.UserID != group.CreatedBy() {
+		return fmt.Errorf("forbidden Error")
+	}
+
+	err = u.gr.Delete(ctx, input.GroupID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	return nil
+}

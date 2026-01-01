@@ -1,7 +1,7 @@
 "use server";
 
 import { apiClient } from "@/libs/api/client";
-import type { User } from "@/features/auth/types";
+import type { User } from "../types";
 
 type GetMeResult =
   | { success: true; user: User }

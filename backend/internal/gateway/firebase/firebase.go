@@ -21,11 +21,13 @@ type TokenClaims struct {
 	Picture string
 }
 
-// NewClient creates a new Firebase client
-// GCP環境ではApplication Default Credentialsとメタデータサーバーから
-// 自動的に認証情報とプロジェクトIDを取得する
-func NewClient(ctx context.Context) (*Client, error) {
-	app, err := firebase.NewApp(ctx, nil)
+// NewClient creates a new Firebase client with the given project ID
+func NewClient(ctx context.Context, projectID string) (*Client, error) {
+	config := &firebase.Config{
+		ProjectID: projectID,
+	}
+
+	app, err := firebase.NewApp(ctx, config)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize firebase app: %w", err)
 	}

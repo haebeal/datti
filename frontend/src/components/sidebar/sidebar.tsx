@@ -3,14 +3,17 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GroupSelector } from "@/features/group/components/group-selector";
+import { LogoutButton } from "./logout-button";
 import { cn } from "@/utils/cn";
 import type { Group } from "@/features/group/types";
+import type { User } from "@/features/auth/types";
 
 interface SidebarProps {
   groups: Group[];
+  user: User | null;
 }
 
-export function Sidebar({ groups }: SidebarProps) {
+export function Sidebar({ groups, user }: SidebarProps) {
   const pathname = usePathname();
   const groupId = pathname.match(/\/groups\/([^/]+)/)?.[1];
   const firstGroupId = groups.length > 0 ? groups[0].id : null;
@@ -214,6 +217,45 @@ export function Sidebar({ groups }: SidebarProps) {
           </Link>
         </nav>
       </div>
+
+      {/* User Section */}
+      {user && (
+        <>
+          <div className="flex-1" />
+          <hr className={cn("border-gray-200 my-4")} />
+          <div className={cn("flex flex-col gap-3")}>
+            <div className={cn("flex items-center gap-3", "px-2")}>
+              {user.avatar ? (
+                <img
+                  src={user.avatar}
+                  alt={user.name}
+                  className={cn("w-10 h-10 rounded-full")}
+                />
+              ) : (
+                <div
+                  className={cn(
+                    "w-10 h-10 rounded-full",
+                    "bg-primary-surface",
+                    "flex items-center justify-center",
+                    "text-primary-base font-bold",
+                  )}
+                >
+                  {user.name.charAt(0).toUpperCase()}
+                </div>
+              )}
+              <div className="flex flex-col flex-1 min-w-0">
+                <p className={cn("text-sm font-medium text-gray-900 truncate")}>
+                  {user.name}
+                </p>
+                <p className={cn("text-xs text-gray-500 truncate")}>
+                  {user.email}
+                </p>
+              </div>
+            </div>
+            <LogoutButton />
+          </div>
+        </>
+      )}
     </aside>
   );
 }

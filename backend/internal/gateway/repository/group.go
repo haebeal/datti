@@ -132,8 +132,20 @@ func (gr *GroupRepositoryImpl) Delete(ctx context.Context, groupID ulid.ULID) er
 	ctx, span := tracer.Start(ctx, "group.Delete")
 	defer span.End()
 
+	// グループに関連するpaymentsを先に削除
+	ctx, deletePaymentsSpan := tracer.Start(ctx, "DELETE FROM payments WHERE id IN (SELECT ep.payment_id FROM event_payments ep INNER JOIN events e ON ep.event_id = e.id WHERE e.group_id = $1)")
+	err := gr.queries.DeletePaymentsByGroupID(ctx, groupID.String())
+	if err != nil {
+		deletePaymentsSpan.SetStatus(codes.Error, err.Error())
+		deletePaymentsSpan.RecordError(err)
+		deletePaymentsSpan.End()
+		return err
+	}
+	deletePaymentsSpan.End()
+
+	// グループを削除（CASCADE により events, event_payments, group_members が削除される）
 	ctx, querySpan := tracer.Start(ctx, "DELETE FROM groups WHERE id = $1")
-	err := gr.queries.DeleteGroup(ctx, groupID.String())
+	err = gr.queries.DeleteGroup(ctx, groupID.String())
 	if err != nil {
 		querySpan.SetStatus(codes.Error, err.Error())
 		querySpan.RecordError(err)

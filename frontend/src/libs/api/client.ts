@@ -1,12 +1,20 @@
-import { getAuthToken } from "./auth";
+import { cookies } from "next/headers";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7070";
+const API_BASE_URL = process.env.API_URL;
 
 type RequestOptions = {
   method: "GET" | "POST" | "PUT" | "DELETE";
   headers?: Record<string, string>;
   body?: unknown;
 };
+
+/**
+ * cookieからFirebase IDトークンを取得
+ */
+async function getAuthToken(): Promise<string | undefined> {
+  const cookieStore = await cookies();
+  return cookieStore.get("firebase_token")?.value;
+}
 
 async function fetchApi<T>(
   endpoint: string,
@@ -16,7 +24,7 @@ async function fetchApi<T>(
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+    ...(token && { Authorization: `Bearer ${token}` }),
     ...options.headers,
   };
 

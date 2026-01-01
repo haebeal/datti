@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
  */
 export async function GET() {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`;
+  const redirectUri = `${process.env.APP_URL}/api/auth/google/callback`;
 
   if (!clientId) {
     console.error("GOOGLE_CLIENT_ID is not set");

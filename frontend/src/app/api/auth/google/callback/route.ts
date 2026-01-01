@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-const FIREBASE_API_KEY = process.env.NEXT_PUBLIC_FIREBASE_API_KEY;
+const API_BASE_URL = process.env.API_URL;
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 
 interface GoogleTokenResponse {
   access_token: string;
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
         code,
         client_id: process.env.GOOGLE_CLIENT_ID!,
         client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`,
+        redirect_uri: `${process.env.APP_URL}/api/auth/google/callback`,
         grant_type: "authorization_code",
       }),
     });
@@ -66,10 +66,11 @@ export async function GET(request: NextRequest) {
     const googleIdToken = tokenData.id_token;
 
     // 2. Firebase Auth REST APIでGoogleトークンをFirebaseトークンに変換
-    const emulatorHost = process.env.NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST;
-    const firebaseAuthUrl = emulatorHost
-      ? `${emulatorHost}/identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${FIREBASE_API_KEY}`
-      : `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${FIREBASE_API_KEY}`;
+    // 開発環境ではEmulatorを使用
+    const firebaseAuthUrl =
+      process.env.NODE_ENV === "development"
+        ? `http://localhost:9099/identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${FIREBASE_API_KEY}`
+        : `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${FIREBASE_API_KEY}`;
 
     const firebaseResponse = await fetch(firebaseAuthUrl, {
       method: "POST",
@@ -78,7 +79,7 @@ export async function GET(request: NextRequest) {
       },
       body: JSON.stringify({
         postBody: `id_token=${googleIdToken}&providerId=google.com`,
-        requestUri: `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/google/callback`,
+        requestUri: `${process.env.APP_URL}/api/auth/google/callback`,
         returnSecureToken: true,
       }),
     });

@@ -1,8 +1,14 @@
 declare namespace NodeJS {
   interface ProcessEnv {
-    readonly NEXT_PUBLIC_FIREBASE_API_KEY: string;
-    readonly NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: string;
-    readonly NEXT_PUBLIC_FIREBASE_PROJECT_ID: string;
-    readonly NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_HOST?: string;
+    // Google OAuth認証
+    readonly GOOGLE_CLIENT_ID: string;
+    readonly GOOGLE_CLIENT_SECRET: string;
+
+    // アプリケーション設定
+    readonly APP_URL: string;
+    readonly API_URL: string;
+
+    // Firebase認証
+    readonly FIREBASE_API_KEY: string;
   }
 }

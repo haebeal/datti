@@ -115,6 +115,7 @@ DELETE FROM events WHERE id = $1;
 SELECT debtor_id AS user_id, SUM(amount)::bigint AS amount
 FROM payments
 WHERE payer_id = $1
+  AND payer_id != debtor_id
 GROUP BY debtor_id
 ORDER BY debtor_id;
 
@@ -122,6 +123,7 @@ ORDER BY debtor_id;
 SELECT payer_id AS user_id, SUM(amount)::bigint AS amount
 FROM payments
 WHERE debtor_id = $1
+  AND payer_id != debtor_id
 GROUP BY payer_id
 ORDER BY payer_id;
 
@@ -183,6 +185,19 @@ UPDATE groups
 SET name = $2,
     updated_at = $3
 WHERE id = $1;
+
+-- name: DeleteGroup :exec
+DELETE FROM groups
+WHERE id = $1;
+
+-- name: DeletePaymentsByGroupID :exec
+DELETE FROM payments
+WHERE id IN (
+  SELECT ep.payment_id
+  FROM event_payments ep
+  INNER JOIN events e ON ep.event_id = e.id
+  WHERE e.group_id = $1
+);
 
 -- name: FindGroupsByMemberUserID :many
 SELECT g.id, g.name, g.created_by, g.created_at, g.updated_at

@@ -39,6 +39,7 @@ type GroupHandler interface {
 	GetAll(c echo.Context) error
 	Get(c echo.Context, id string) error
 	Update(c echo.Context, id string) error
+	Delete(c echo.Context, id string) error
 	AddMember(c echo.Context, id string) error
 	RemoveMember(c echo.Context, id string, userId string) error
 	GetMembers(c echo.Context, id string) error
@@ -151,6 +152,10 @@ func (s *Server) GroupGet(ctx echo.Context, id string) error {
 
 func (s *Server) GroupUpdate(ctx echo.Context, id string) error {
 	return s.gh.Update(ctx, id)
+}
+
+func (s *Server) GroupDelete(ctx echo.Context, id string) error {
+	return s.gh.Delete(ctx, id)
 }
 
 func (s *Server) GroupAddMember(ctx echo.Context, id string) error {

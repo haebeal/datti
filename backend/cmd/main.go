@@ -15,7 +15,7 @@ import (
 	"github.com/haebeal/datti/internal/presentation/api/middleware"
 	"github.com/haebeal/datti/internal/presentation/api/server"
 	"github.com/haebeal/datti/internal/usecase"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 
 	googletrace "github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace"
@@ -104,13 +104,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	conn, err := pgx.Connect(ctx, dsn)
+	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer conn.Close(ctx)
+	defer pool.Close()
 
-	queries := postgres.New(conn)
+	queries := postgres.New(pool)
 
 	ur := repository.NewUserRepository(queries)
 	pr := repository.NewPayerRepository(queries)
@@ -145,21 +145,22 @@ func main() {
 	e.Use(otelecho.Middleware("github.com/haebeal/datti"))
 
 	// Configure auth middleware
-	appEnv := os.Getenv("APP_ENV")
-	devMode := appEnv == "develop"
-
-	authConfig := middleware.AuthMiddlewareConfig{
-		SkipPaths: []string{"/health"},
-		DevMode:   devMode,
-		DevUserID: "dev-user-id",
+	// Firebase Emulatorを使用するため、常にFirebase認証を有効化
+	firebaseProjectID := os.Getenv("FIREBASE_PROJECT_ID")
+	if firebaseProjectID == "" {
+		log.Fatal("FIREBASE_PROJECT_ID environment variable is required")
 	}
 
-	if !devMode {
-		firebaseClient, err := firebase.NewClient(ctx)
-		if err != nil {
-			log.Fatalf("Firebase認証の初期化に失敗しました: %v", err)
-		}
-		authConfig.FirebaseClient = firebaseClient
+	firebaseClient, err := firebase.NewClient(ctx, firebaseProjectID)
+	if err != nil {
+		log.Fatalf("Firebase認証の初期化に失敗しました: %v", err)
+	}
+
+	authConfig := middleware.AuthMiddlewareConfig{
+		SkipPaths:      []string{"/health"},
+		FirebaseClient: firebaseClient,
+		DevMode:        false, // Emulatorを使用するのでDevモードは無効
+		DevUserID:      "",
 	}
 
 	e.Use(middleware.AuthMiddleware(authConfig))

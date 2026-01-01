@@ -28,6 +28,9 @@ type ServerInterface interface {
 	// グループの作成
 	// (POST /groups)
 	GroupCreate(ctx echo.Context) error
+	// グループの削除
+	// (DELETE /groups/{id})
+	GroupDelete(ctx echo.Context, id string) error
 	// グループの取得
 	// (GET /groups/{id})
 	GroupGet(ctx echo.Context, id string) error
@@ -153,6 +156,24 @@ func (w *ServerInterfaceWrapper) GroupCreate(ctx echo.Context) error {
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GroupCreate(ctx)
+	return err
+}
+
+// GroupDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) GroupDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "id" -------------
+	var id string
+
+	err = runtime.BindStyledParameterWithOptions("simple", "id", ctx.Param("id"), &id, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter id: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.GroupDelete(ctx, id)
 	return err
 }
 
@@ -613,6 +634,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/credits", wrapper.CreditsList)
 	router.GET(baseURL+"/groups", wrapper.GroupGetAll)
 	router.POST(baseURL+"/groups", wrapper.GroupCreate)
+	router.DELETE(baseURL+"/groups/:id", wrapper.GroupDelete)
 	router.GET(baseURL+"/groups/:id", wrapper.GroupGet)
 	router.PUT(baseURL+"/groups/:id", wrapper.GroupUpdate)
 	router.GET(baseURL+"/groups/:id/borrowings", wrapper.BorrowingGetAll)

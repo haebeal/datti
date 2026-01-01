@@ -185,6 +185,16 @@ func (q *Queries) DeleteEventPayment(ctx context.Context, arg DeleteEventPayment
 	return err
 }
 
+const deleteGroup = `-- name: DeleteGroup :exec
+DELETE FROM groups
+WHERE id = $1
+`
+
+func (q *Queries) DeleteGroup(ctx context.Context, id string) error {
+	_, err := q.db.Exec(ctx, deleteGroup, id)
+	return err
+}
+
 const deleteGroupMember = `-- name: DeleteGroupMember :exec
 DELETE FROM group_members
 WHERE group_id = $1 AND user_id = $2
@@ -206,6 +216,21 @@ DELETE FROM payments WHERE id = $1
 
 func (q *Queries) DeletePayment(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deletePayment, id)
+	return err
+}
+
+const deletePaymentsByGroupID = `-- name: DeletePaymentsByGroupID :exec
+DELETE FROM payments
+WHERE id IN (
+  SELECT ep.payment_id
+  FROM event_payments ep
+  INNER JOIN events e ON ep.event_id = e.id
+  WHERE e.group_id = $1
+)
+`
+
+func (q *Queries) DeletePaymentsByGroupID(ctx context.Context, groupID string) error {
+	_, err := q.db.Exec(ctx, deletePaymentsByGroupID, groupID)
 	return err
 }
 
@@ -745,6 +770,7 @@ const listBorrowingCreditAmountsByUserID = `-- name: ListBorrowingCreditAmountsB
 SELECT payer_id AS user_id, SUM(amount)::bigint AS amount
 FROM payments
 WHERE debtor_id = $1
+  AND payer_id != debtor_id
 GROUP BY payer_id
 ORDER BY payer_id
 `
@@ -778,6 +804,7 @@ const listLendingCreditAmountsByUserID = `-- name: ListLendingCreditAmountsByUse
 SELECT debtor_id AS user_id, SUM(amount)::bigint AS amount
 FROM payments
 WHERE payer_id = $1
+  AND payer_id != debtor_id
 GROUP BY debtor_id
 ORDER BY debtor_id
 `

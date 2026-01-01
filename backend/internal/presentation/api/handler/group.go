@@ -18,6 +18,7 @@ type GroupUseCase interface {
 	GetAll(context.Context, GroupGetAllInput) (*GroupGetAllOutput, error)
 	Get(context.Context, GroupGetInput) (*GroupGetOutput, error)
 	Update(context.Context, GroupUpdateInput) (*GroupUpdateOutput, error)
+	Delete(context.Context, GroupDeleteInput) error
 	AddMember(context.Context, GroupAddMemberInput) error
 	RemoveMember(context.Context, GroupRemoveMemberInput) error
 	ListMembers(context.Context, GroupListMembersInput) (*GroupListMembersOutput, error)
@@ -250,6 +251,52 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+func (h groupHandler) Delete(c echo.Context, id string) error {
+	ctx, span := tracer.Start(c.Request().Context(), "group.Delete")
+	defer span.End()
+
+	groupID, err := ulid.Parse(id)
+	if err != nil {
+		message := fmt.Sprintf("Failed to parse ulid: %v", id)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	userID, ok := c.Get("uid").(string)
+	if !ok {
+		message := "Failed to get authorized userID"
+		span.SetStatus(codes.Error, message)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := GroupDeleteInput{
+		UserID:  userID,
+		GroupID: groupID,
+	}
+
+	if err := h.u.Delete(ctx, input); err != nil {
+		message := fmt.Sprintf("Failed to delete group: %v", err)
+		span.SetStatus(codes.Error, message)
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: message,
+		}
+		if err.Error() == "forbidden Error" {
+			return c.JSON(http.StatusForbidden, res)
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
 func (h groupHandler) AddMember(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "group.AddMember")
 	defer span.End()
@@ -449,6 +496,11 @@ type GroupUpdateInput struct {
 
 type GroupUpdateOutput struct {
 	Group *domain.Group
+}
+
+type GroupDeleteInput struct {
+	UserID  string
+	GroupID ulid.ULID
 }
 
 type GroupAddMemberInput struct {

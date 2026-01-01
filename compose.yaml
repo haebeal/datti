@@ -16,3 +16,12 @@ services:
       - 4318:4318
     environment:
       - LOG_LEVEL=debug
+  firebase-emulator:
+    container_name: datti-firebase-emulator
+    build:
+      context: ./firebase
+      dockerfile: Dockerfile
+    ports:
+      - 9099:9099
+      - 4000:4000
+    working_dir: /opt/firebase

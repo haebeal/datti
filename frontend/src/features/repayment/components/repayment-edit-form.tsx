@@ -32,8 +32,8 @@ export function RepaymentEditForm({ repayment }: Props) {
     shouldRevalidate: "onInput",
   });
 
-  const payerName = repayment.payerId;
-  const debtorName = repayment.debtorId;
+  const payerName = repayment.payer.name;
+  const debtorName = repayment.debtor.name;
 
   return (
     <form

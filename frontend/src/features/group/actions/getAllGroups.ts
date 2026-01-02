@@ -2,14 +2,39 @@
 
 import { apiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
-import type { Group } from "../types";
+import type { Group, GroupResponse } from "../types";
+import type { User } from "@/features/user/types";
 
 export async function getAllGroups(): Promise<Result<Group[]>> {
   try {
-    const response = await apiClient.get<Group[]>("/groups");
+    // Fetch all groups
+    const responses = await apiClient.get<GroupResponse[]>("/groups");
+
+    // Extract unique creator IDs
+    const creatorIds = new Set(responses.map((group) => group.createdBy));
+
+    // Fetch all creators in parallel
+    const creators = await Promise.all(
+      Array.from(creatorIds).map((userId) =>
+        apiClient.get<User>(`/users/${userId}`),
+      ),
+    );
+
+    // Create creator map for O(1) lookup
+    const creatorMap = new Map(creators.map((user) => [user.id, user]));
+
+    // Transform to frontend Group type
+    const groups: Group[] = responses.map((response) => ({
+      id: response.id,
+      name: response.name,
+      creator: creatorMap.get(response.createdBy)!,
+      createdAt: response.createdAt,
+      updatedAt: response.updatedAt,
+    }));
+
     return {
       success: true,
-      result: response,
+      result: groups,
       error: null,
     };
   } catch (error) {

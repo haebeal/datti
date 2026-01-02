@@ -1,16 +1,11 @@
 import { getAllCredits } from "@/features/credit/actions/getAllCredits";
-import { searchUsers } from "@/features/user/actions/searchUsers";
 import { CreditList } from "@/features/credit/components/credit-list";
 import { cn } from "@/utils/cn";
 
 export default async function CreditPage() {
-  const [creditsResponse, usersResponse] = await Promise.all([
-    getAllCredits(),
-    searchUsers(),
-  ]);
+  const creditsResponse = await getAllCredits();
 
   const { success, result, error } = creditsResponse;
-  const users = usersResponse.success ? usersResponse.result : [];
 
   return (
     <div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
@@ -26,7 +21,7 @@ export default async function CreditPage() {
         </div>
       )}
 
-      {success && result && <CreditList credits={result} users={users} />}
+      {success && result && <CreditList credits={result} />}
     </div>
   );
 }

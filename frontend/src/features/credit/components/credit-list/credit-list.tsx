@@ -2,14 +2,12 @@ import { CreditCard } from "../credit-card";
 import { cn } from "@/utils/cn";
 import { formatCurrency } from "@/schema";
 import type { Credit } from "../../types";
-import type { User } from "@/features/user/types";
 
 type Props = {
   credits: Credit[];
-  users: User[];
 };
 
-export function CreditList({ credits, users }: Props) {
+export function CreditList({ credits }: Props) {
   if (credits.length === 0) {
     return (
       <div className={cn("p-4", "flex flex-col gap-3", "border rounded-lg")}>
@@ -32,10 +30,9 @@ export function CreditList({ credits, users }: Props) {
         </p>
       </div>
       <div className={cn("flex flex-col gap-4")}>
-        {credits.map((credit) => {
-          const user = users.find((u) => u.id === credit.userId);
-          return <CreditCard key={credit.userId} credit={credit} user={user} />;
-        })}
+        {credits.map((credit) => (
+          <CreditCard key={credit.user.id} credit={credit} />
+        ))}
       </div>
     </div>
   );

@@ -1,15 +1,13 @@
 import { formatCurrency } from "@/schema";
 import { cn } from "@/utils/cn";
 import type { Credit } from "../../types";
-import type { User } from "@/features/user/types";
 
 type Props = {
   credit: Credit;
-  user?: User;
 };
 
-export function CreditCard({ credit, user }: Props) {
-  const userName = user?.name || credit.userId;
+export function CreditCard({ credit }: Props) {
+  const userName = credit.user.name;
   const avatarLetter = userName.charAt(0).toUpperCase();
 
   return (
@@ -38,7 +36,9 @@ export function CreditCard({ credit, user }: Props) {
         <h3 className={cn("text-lg font-semibold text-gray-900 truncate")}>
           {userName}
         </h3>
-        <p className={cn("text-sm text-gray-500 truncate")}>{user?.email}</p>
+        <p className={cn("text-sm text-gray-500 truncate")}>
+          {credit.user.email}
+        </p>
       </div>
 
       {/* Amount */}

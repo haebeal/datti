@@ -158,3 +158,11 @@ resource "google_cloud_run_v2_service" "frontend" {
 
   depends_on = [google_identity_platform_default_supported_idp_config.google]
 }
+
+# フロントエンドへの未認証アクセスを許可
+resource "google_cloud_run_v2_service_iam_member" "frontend_public" {
+  name     = google_cloud_run_v2_service.frontend.name
+  location = google_cloud_run_v2_service.frontend.location
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}

@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 
 const API_BASE_URL = process.env.API_URL;
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
 interface GoogleTokenResponse {
   access_token: string;
@@ -40,6 +42,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth?error=no_token", request.url));
   }
 
+  const origin = request.nextUrl.origin;
+
   try {
     // 1. GoogleのトークンエンドポイントでIDトークンを取得
     const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
@@ -49,9 +53,9 @@ export async function GET(request: NextRequest) {
       },
       body: new URLSearchParams({
         code,
-        client_id: process.env.GOOGLE_CLIENT_ID!,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-        redirect_uri: `${process.env.APP_URL}/api/auth/google/callback`,
+        client_id: GOOGLE_CLIENT_ID!,
+        client_secret: GOOGLE_CLIENT_SECRET!,
+        redirect_uri: `${origin}/api/auth/google/callback`,
         grant_type: "authorization_code",
       }),
     });
@@ -79,7 +83,7 @@ export async function GET(request: NextRequest) {
       },
       body: JSON.stringify({
         postBody: `id_token=${googleIdToken}&providerId=google.com`,
-        requestUri: `${process.env.APP_URL}/api/auth/google/callback`,
+        requestUri: `${origin}/api/auth/google/callback`,
         returnSecureToken: true,
       }),
     });

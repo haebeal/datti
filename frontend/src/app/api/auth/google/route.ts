@@ -1,12 +1,14 @@
 import { redirect } from "next/navigation";
+import type { NextRequest } from "next/server";
 
 /**
  * Google OAuth認証開始エンドポイント
  * ログインまたはサインアップ（自動判定）
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
-  const redirectUri = `${process.env.APP_URL}/api/auth/google/callback`;
+  const origin = request.nextUrl.origin;
+  const redirectUri = `${origin}/api/auth/google/callback`;
 
   if (!clientId) {
     console.error("GOOGLE_CLIENT_ID is not set");

@@ -1,6 +1,3 @@
-"use client";
-
-import { useSearchParams } from "next/navigation";
 import { LinkButton } from "@/components/ui/link-button/link-button";
 import { cn } from "@/utils/cn";
 
@@ -12,14 +9,17 @@ const ERROR_MESSAGES: Record<string, string> = {
   server_error: "サーバーエラーが発生しました",
 };
 
+type Props = {
+  searchParams: Promise<{ error?: string }>;
+};
+
 /**
  * 認証ページ
  * サーバーサイドでGoogle OAuth認証を実行
  * ログインとサインアップを自動判定
  */
-export default function AuthPage() {
-  const searchParams = useSearchParams();
-  const errorParam = searchParams.get("error");
+export default async function AuthPage({ searchParams }: Props) {
+  const { error: errorParam } = await searchParams;
   const error = errorParam ? ERROR_MESSAGES[errorParam] || errorParam : null;
 
   return (

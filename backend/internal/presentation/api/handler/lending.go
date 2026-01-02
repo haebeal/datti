@@ -100,6 +100,9 @@ func (h lendingHandler) Create(c echo.Context, id string) error {
 		if err.Error() == "BadRequest Error" {
 			return c.JSON(http.StatusBadRequest, res)
 		}
+		if err.Error() == "自分自身に立て替えを作成することはできません" {
+			return c.JSON(http.StatusBadRequest, res)
+		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
@@ -344,6 +347,9 @@ func (h lendingHandler) Update(c echo.Context, id string, lendingId string) erro
 			return c.JSON(http.StatusForbidden, res)
 		}
 		if err.Error() == "BadRequest Error" {
+			return c.JSON(http.StatusBadRequest, res)
+		}
+		if err.Error() == "自分自身に立て替えを作成することはできません" {
 			return c.JSON(http.StatusBadRequest, res)
 		}
 		return c.JSON(http.StatusInternalServerError, res)

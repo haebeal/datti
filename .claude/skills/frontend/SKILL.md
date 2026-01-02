@@ -108,6 +108,197 @@ frontend/src/
 
 詳細な実装パターン、コード例、チェックリストは [patterns.md](patterns.md) を参照してください。
 
+## Server Actionでの複数エンドポイント呼び出しパターン
+
+バックエンドAPIが `/users/{id}` のような個別エンドポイントのみを提供している場合、Server Actionで効率的に複数のユーザー情報を取得するパターンです。
+
+### 単一データの場合
+
+単一のデータ（例: 返済詳細）に関連するユーザー情報を並列取得します。
+
+```typescript
+export async function getRepayment(id: string): Promise<Result<Repayment>> {
+  try {
+    // 1. メインデータを取得
+    const response = await apiClient.get<RepaymentResponse>(`/repayments/${id}`);
+
+    // 2. 関連ユーザーを並列取得（Promise.all）
+    const [payer, debtor] = await Promise.all([
+      apiClient.get<User>(`/users/${response.payerId}`),
+      apiClient.get<User>(`/users/${response.debtorId}`),
+    ]);
+
+    // 3. 拡張データを返す
+    const repayment: Repayment = {
+      id: response.id,
+      payer,
+      debtor,
+      amount: response.amount,
+      createdAt: response.createdAt,
+      updatedAt: response.updatedAt,
+    };
+
+    return { success: true, result: repayment, error: null };
+  } catch (error) {
+    return { success: false, result: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+```
+
+### 複数データの場合（重複排除とバルク取得）
+
+複数のデータ（例: 返済一覧）に関連するユーザー情報を効率的に取得します。
+
+```typescript
+export async function getAllRepayments(): Promise<Result<Repayment[]>> {
+  try {
+    // 1. メインデータを取得
+    const responses = await apiClient.get<RepaymentResponse[]>("/repayments");
+
+    // 2. 重複を排除したユーザーIDリストを作成（Set）
+    const userIds = new Set<string>();
+    responses.forEach((repayment) => {
+      userIds.add(repayment.payerId);
+      userIds.add(repayment.debtorId);
+    });
+
+    // 3. 全ユーザー情報を並列取得（Promise.all）
+    const users = await Promise.all(
+      Array.from(userIds).map((userId) => apiClient.get<User>(`/users/${userId}`)),
+    );
+
+    // 4. O(1)検索用のマップを作成（Map）
+    const userMap = new Map(users.map((user) => [user.id, user]));
+
+    // 5. 各データにユーザー情報を付加
+    const repayments: Repayment[] = responses.map((response) => ({
+      id: response.id,
+      payer: userMap.get(response.payerId)!,
+      debtor: userMap.get(response.debtorId)!,
+      amount: response.amount,
+      createdAt: response.createdAt,
+      updatedAt: response.updatedAt,
+    }));
+
+    return { success: true, result: repayments, error: null };
+  } catch (error) {
+    return { success: false, result: null, error: error instanceof Error ? error.message : "Unknown error" };
+  }
+}
+```
+
+### パフォーマンス最適化のポイント
+
+- **`Promise.all`**: 並列リクエストでレスポンス時間を短縮
+- **`Set`**: ユーザーIDの重複を自動的に排除（例: 10件の返済に登場するユーザーが5人なら5回だけリクエスト）
+- **`Map`**: O(1)の検索速度で大量データでも高速
+
+### エラーハンドリング
+
+いずれかのユーザー取得が失敗した場合、操作全体をエラーとして扱います。これによりデータ一貫性を保ち、デバッグを容易にします。
+
+## 型設計パターン（Response型とフロントエンド型の分離）
+
+バックエンドAPIのレスポンス型とフロントエンドで使用する型を明確に分離するパターンです。
+
+### 基本パターン
+
+```typescript
+// features/repayment/types.ts
+
+import type { User } from "@/features/user/types";
+
+// バックエンドAPIのレスポンス型（IDのみ）
+export type RepaymentResponse = {
+  id: string;
+  payerId: string;      // IDのみ
+  debtorId: string;     // IDのみ
+  amount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// フロントエンド型（完全なユーザーオブジェクト）
+export type Repayment = {
+  id: string;
+  payer: User;          // Userオブジェクト
+  debtor: User;         // Userオブジェクト
+  amount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+```
+
+### なぜ分離するのか
+
+1. **Server Actionでの変換を明示**: APIレスポンス → フロントエンド型の変換がコード上で明確
+2. **型安全性の向上**: `userId`のような文字列IDを誤って使用することを防ぐ
+3. **UIコンポーネントの簡潔化**: コンポーネント側では常に完全なユーザーオブジェクトがあることを前提にできる
+
+### UIコンポーネントでの利用
+
+```typescript
+// components/repayment-card.tsx
+
+type Props = {
+  repayment: Repayment;  // フロントエンド型のみを受け取る
+};
+
+export function RepaymentCard({ repayment }: Props) {
+  // payer/debtorは常にUserオブジェクト（IDではない）
+  const payerName = repayment.payer.name;
+  const debtorAvatar = repayment.debtor.avatar;
+
+  return (
+    <div>
+      {debtorAvatar && <img src={debtorAvatar} alt={payerName} />}
+      <p>{payerName}</p>
+    </div>
+  );
+}
+```
+
+### 他のエンティティでの例
+
+```typescript
+// features/group/types.ts
+
+export type GroupResponse = {
+  id: string;
+  name: string;
+  createdBy: string;    // IDのみ
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type Group = {
+  id: string;
+  name: string;
+  creator: User;        // Userオブジェクト
+  createdAt: string;
+  updatedAt: string;
+};
+```
+
+```typescript
+// features/credit/types.ts
+
+export type CreditResponse = {
+  userId: string;       // IDのみ
+  amount: number;
+};
+
+export type Credit = {
+  user: User;           // Userオブジェクト
+  amount: number;
+};
+```
+
+### 重要な注意点
+
+- **既存の型を変更する場合**: すべての利用箇所を一度に更新する必要があります（段階的な移行は型エラーで困難）
+- **バックエンドAPIは変更不要**: この変更はフロントエンド内部のみで完結します
+
 ## よくあるエラーと対処法（最重要3つ）
 
 以下は最も頻繁に遭遇するエラーです。より詳細なトラブルシューティングは [patterns.md](patterns.md) を参照してください。

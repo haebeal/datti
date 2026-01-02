@@ -39,7 +39,7 @@ export function RepaymentCreateForm({ credits }: Props) {
 
   const getCreditLabel = (credit: Credit) => {
     const debtAmount = Math.abs(credit.amount);
-    return `${credit.userId} (借り: ${formatCurrency(debtAmount)})`;
+    return `${credit.user.name} (借り: ${formatCurrency(debtAmount)})`;
   };
 
   return (
@@ -65,7 +65,7 @@ export function RepaymentCreateForm({ credits }: Props) {
         }
         options={credits}
         getOptionLabel={getCreditLabel}
-        getOptionValue={(credit) => credit.userId}
+        getOptionValue={(credit) => credit.user.id}
         isError={!!fields.debtorId.errors}
         className={cn("w-full")}
         required

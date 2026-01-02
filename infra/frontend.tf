@@ -55,6 +55,14 @@ resource "google_secret_manager_secret_iam_member" "frontend_firebase_api_key" {
   depends_on = [google_secret_manager_secret.frontend_firebase_api_key]
 }
 
+# バックエンド呼び出し権限
+resource "google_cloud_run_v2_service_iam_member" "backend_invoker" {
+  name     = google_cloud_run_v2_service.backend.name
+  location = google_cloud_run_v2_service.backend.location
+  role     = "roles/run.invoker"
+  member   = "serviceAccount:${google_service_account.cloudrun_frontend.email}"
+}
+
 #######################################
 # Cloud Run - フロントエンド
 #######################################
@@ -103,11 +111,7 @@ resource "google_cloud_run_v2_service" "frontend" {
       }
 
       # 環境変数 - 直接設定
-      env {
-        name  = "APP_URL"
-        value = google_cloud_run_v2_service.frontend.uri
-      }
-
+      # APP_URL は自己参照になるため、アプリケーション側でリクエストヘッダーから取得
       env {
         name  = "API_URL"
         value = google_cloud_run_v2_service.backend.uri

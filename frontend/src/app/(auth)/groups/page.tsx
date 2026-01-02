@@ -35,7 +35,7 @@ export default async function GroupsPage() {
           >
             <h2 className={cn("text-lg font-semibold")}>{group.name}</h2>
 
-            <p className={cn("text-sm")}>作成者: {group.createdBy}</p>
+            <p className={cn("text-sm")}>作成者: {group.creator.name}</p>
 
             <div className={cn("flex justify-end gap-5")}>
               <LinkButton

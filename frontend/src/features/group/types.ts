@@ -2,10 +2,26 @@
  * Group feature types
  */
 
-export type Group = {
+import type { User } from "@/features/user/types";
+
+/**
+ * Backend API response type
+ */
+export type GroupResponse = {
   id: string;
   name: string;
   createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+/**
+ * Frontend Group type with creator information
+ */
+export type Group = {
+  id: string;
+  name: string;
+  creator: User;
   createdAt: string;
   updatedAt: string;
 };

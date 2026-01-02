@@ -2,14 +2,12 @@ import { RepaymentCard } from "../repayment-card";
 import { LinkButton } from "@/components/ui/link-button";
 import { cn } from "@/utils/cn";
 import type { Repayment } from "../../types";
-import type { User } from "@/features/user/types";
 
 type Props = {
   repayments: Repayment[];
-  users?: User[];
 };
 
-export function RepaymentList({ repayments, users = [] }: Props) {
+export function RepaymentList({ repayments }: Props) {
   if (repayments.length === 0) {
     return (
       <div className={cn("p-4", "flex flex-col gap-3", "border rounded-lg")}>
@@ -30,19 +28,9 @@ export function RepaymentList({ repayments, users = [] }: Props) {
 
   return (
     <div className={cn("flex flex-col gap-4")}>
-      {sortedRepayments.map((repayment) => {
-        const payer = users.find((user) => user.id === repayment.payerId);
-        const debtor = users.find((user) => user.id === repayment.debtorId);
-
-        return (
-          <RepaymentCard
-            key={repayment.id}
-            repayment={repayment}
-            payer={payer}
-            debtor={debtor}
-          />
-        );
-      })}
+      {sortedRepayments.map((repayment) => (
+        <RepaymentCard key={repayment.id} repayment={repayment} />
+      ))}
     </div>
   );
 }

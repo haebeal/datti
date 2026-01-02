@@ -2,17 +2,14 @@ import Link from "next/link";
 import { formatCurrency, formatDate } from "@/schema";
 import { cn } from "@/utils/cn";
 import type { Repayment } from "../../types";
-import type { User } from "@/features/user/types";
 
 type Props = {
   repayment: Repayment;
-  payer?: User;
-  debtor?: User;
 };
 
-export function RepaymentCard({ repayment, payer, debtor }: Props) {
-  const payerName = payer?.name || repayment.payerId;
-  const debtorName = debtor?.name || repayment.debtorId;
+export function RepaymentCard({ repayment }: Props) {
+  const payerName = repayment.payer.name;
+  const debtorName = repayment.debtor.name;
   const avatarLetter = debtorName.charAt(0).toUpperCase();
 
   return (
@@ -25,16 +22,25 @@ export function RepaymentCard({ repayment, payer, debtor }: Props) {
         "hover:bg-gray-50 transition-colors",
       )}
     >
-      <div
-        className={cn(
-          "flex-shrink-0 w-12 h-12 rounded-full",
-          "bg-gradient-to-br from-[#0d47a1] to-[#1565c0]",
-          "flex items-center justify-center",
-          "text-white font-bold text-xl",
-        )}
-      >
-        {avatarLetter}
-      </div>
+      {/* Debtor Avatar */}
+      {repayment.debtor.avatar ? (
+        <img
+          src={repayment.debtor.avatar}
+          alt={debtorName}
+          className={cn("flex-shrink-0 w-12 h-12 rounded-full object-cover")}
+        />
+      ) : (
+        <div
+          className={cn(
+            "flex-shrink-0 w-12 h-12 rounded-full",
+            "bg-gradient-to-br from-[#0d47a1] to-[#1565c0]",
+            "flex items-center justify-center",
+            "text-white font-bold text-xl",
+          )}
+        >
+          {avatarLetter}
+        </div>
+      )}
 
       <div className={cn("flex-1 min-w-0")}>
         <p className={cn("text-sm text-gray-500")}>返済先</p>

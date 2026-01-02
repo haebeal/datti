@@ -71,7 +71,7 @@ export function GroupBasicInfoForm({ group }: Props) {
 
         <hr />
 
-        <p className="text-sm">作成者: {group.createdBy}</p>
+        <p className="text-sm">作成者: {group.creator.name}</p>
 
         <p className="text-sm">
           作成日: {new Date(group.createdAt).toLocaleString("ja-JP")}

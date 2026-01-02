@@ -2,14 +2,29 @@
 
 import { apiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
-import type { Group } from "../types";
+import type { Group, GroupResponse } from "../types";
+import type { User } from "@/features/user/types";
 
 export async function getGroup(id: string): Promise<Result<Group>> {
   try {
-    const response = await apiClient.get<Group>(`/groups/${id}`);
+    // Fetch group data
+    const response = await apiClient.get<GroupResponse>(`/groups/${id}`);
+
+    // Fetch creator data
+    const creator = await apiClient.get<User>(`/users/${response.createdBy}`);
+
+    // Transform to frontend Group type
+    const group: Group = {
+      id: response.id,
+      name: response.name,
+      creator,
+      createdAt: response.createdAt,
+      updatedAt: response.updatedAt,
+    };
+
     return {
       success: true,
-      result: response,
+      result: group,
       error: null,
     };
   } catch (error) {

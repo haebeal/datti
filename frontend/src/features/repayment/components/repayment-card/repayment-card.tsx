@@ -22,16 +22,25 @@ export function RepaymentCard({ repayment }: Props) {
         "hover:bg-gray-50 transition-colors",
       )}
     >
-      <div
-        className={cn(
-          "flex-shrink-0 w-12 h-12 rounded-full",
-          "bg-gradient-to-br from-[#0d47a1] to-[#1565c0]",
-          "flex items-center justify-center",
-          "text-white font-bold text-xl",
-        )}
-      >
-        {avatarLetter}
-      </div>
+      {/* Debtor Avatar */}
+      {repayment.debtor.avatar ? (
+        <img
+          src={repayment.debtor.avatar}
+          alt={debtorName}
+          className={cn("flex-shrink-0 w-12 h-12 rounded-full object-cover")}
+        />
+      ) : (
+        <div
+          className={cn(
+            "flex-shrink-0 w-12 h-12 rounded-full",
+            "bg-gradient-to-br from-[#0d47a1] to-[#1565c0]",
+            "flex items-center justify-center",
+            "text-white font-bold text-xl",
+          )}
+        >
+          {avatarLetter}
+        </div>
+      )}
 
       <div className={cn("flex-1 min-w-0")}>
         <p className={cn("text-sm text-gray-500")}>返済先</p>

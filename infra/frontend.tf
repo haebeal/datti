@@ -1,28 +1,62 @@
 #######################################
-# Secret Manager - フロントエンド環境変数
+# Secret Manager - Google OAuth認証情報
 #######################################
-resource "google_secret_manager_secret" "frontend_google_client_id" {
-  secret_id = "frontend-google-client-id"
+resource "google_secret_manager_secret" "google_client_id" {
+  secret_id = "google-client-id"
 
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret" "frontend_google_client_secret" {
-  secret_id = "frontend-google-client-secret"
+resource "google_secret_manager_secret" "google_client_secret" {
+  secret_id = "google-client-secret"
 
   replication {
     auto {}
   }
 }
 
-resource "google_secret_manager_secret" "frontend_firebase_api_key" {
-  secret_id = "frontend-firebase-api-key"
+# Secret Manager から値を取得
+data "google_secret_manager_secret_version" "google_client_id" {
+  secret = google_secret_manager_secret.google_client_id.id
+}
 
-  replication {
-    auto {}
+data "google_secret_manager_secret_version" "google_client_secret" {
+  secret = google_secret_manager_secret.google_client_secret.id
+}
+
+#######################################
+# Identity Platform 設定
+#######################################
+resource "google_identity_platform_config" "default" {
+  project = var.project_id
+
+  depends_on = [google_project_service.identity_platform]
+}
+
+# Identity Platform 用 API Key
+resource "google_apikeys_key" "identity_platform" {
+  name         = "identity-platform-key"
+  display_name = "Identity Platform API Key"
+  project      = var.project_id
+
+  restrictions {
+    api_targets {
+      service = "identitytoolkit.googleapis.com"
+    }
   }
+}
+
+# Google認証プロバイダーを有効化
+resource "google_identity_platform_default_supported_idp_config" "google" {
+  project       = var.project_id
+  enabled       = true
+  idp_id        = "google.com"
+  client_id     = data.google_secret_manager_secret_version.google_client_id.secret_data
+  client_secret = data.google_secret_manager_secret_version.google_client_secret.secret_data
+
+  depends_on = [google_identity_platform_config.default]
 }
 
 #######################################
@@ -34,25 +68,18 @@ resource "google_service_account" "cloudrun_frontend" {
 }
 
 # Secret Manager へのアクセス権限
-resource "google_secret_manager_secret_iam_member" "frontend_google_client_id" {
-  secret_id  = google_secret_manager_secret.frontend_google_client_id.id
+resource "google_secret_manager_secret_iam_member" "google_client_id" {
+  secret_id  = google_secret_manager_secret.google_client_id.id
   role       = "roles/secretmanager.secretAccessor"
   member     = "serviceAccount:${google_service_account.cloudrun_frontend.email}"
-  depends_on = [google_secret_manager_secret.frontend_google_client_id]
+  depends_on = [google_secret_manager_secret.google_client_id]
 }
 
-resource "google_secret_manager_secret_iam_member" "frontend_google_client_secret" {
-  secret_id  = google_secret_manager_secret.frontend_google_client_secret.id
+resource "google_secret_manager_secret_iam_member" "google_client_secret" {
+  secret_id  = google_secret_manager_secret.google_client_secret.id
   role       = "roles/secretmanager.secretAccessor"
   member     = "serviceAccount:${google_service_account.cloudrun_frontend.email}"
-  depends_on = [google_secret_manager_secret.frontend_google_client_secret]
-}
-
-resource "google_secret_manager_secret_iam_member" "frontend_firebase_api_key" {
-  secret_id  = google_secret_manager_secret.frontend_firebase_api_key.id
-  role       = "roles/secretmanager.secretAccessor"
-  member     = "serviceAccount:${google_service_account.cloudrun_frontend.email}"
-  depends_on = [google_secret_manager_secret.frontend_firebase_api_key]
+  depends_on = [google_secret_manager_secret.google_client_secret]
 }
 
 # バックエンド呼び出し権限
@@ -84,7 +111,7 @@ resource "google_cloud_run_v2_service" "frontend" {
         name = "GOOGLE_CLIENT_ID"
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_secret.frontend_google_client_id.secret_id
+            secret  = google_secret_manager_secret.google_client_id.secret_id
             version = "latest"
           }
         }
@@ -94,27 +121,25 @@ resource "google_cloud_run_v2_service" "frontend" {
         name = "GOOGLE_CLIENT_SECRET"
         value_source {
           secret_key_ref {
-            secret  = google_secret_manager_secret.frontend_google_client_secret.secret_id
+            secret  = google_secret_manager_secret.google_client_secret.secret_id
             version = "latest"
           }
         }
       }
 
+      # Identity Platform 用 API Key
       env {
-        name = "FIREBASE_API_KEY"
-        value_source {
-          secret_key_ref {
-            secret  = google_secret_manager_secret.frontend_firebase_api_key.secret_id
-            version = "latest"
-          }
-        }
+        name  = "FIREBASE_API_KEY"
+        value = google_apikeys_key.identity_platform.key_string
       }
 
-      # 環境変数 - 直接設定
-      # APP_URL は自己参照になるため、アプリケーション側でリクエストヘッダーから取得
       env {
         name  = "API_URL"
         value = google_cloud_run_v2_service.backend.uri
+      }
+
+      ports {
+        container_port = 3000
       }
 
       resources {
@@ -130,4 +155,6 @@ resource "google_cloud_run_v2_service" "frontend" {
       max_instance_count = 1
     }
   }
+
+  depends_on = [google_identity_platform_default_supported_idp_config.google]
 }

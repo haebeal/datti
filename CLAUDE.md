@@ -16,27 +16,203 @@ Datti APIは「誰にいくら払ったか」を記録・共有するサービ�
 - **未確定事項の管理**: 仕様が曖昧な点は TODO やメモとして残し、AGENTS.md に反映する（解消したら速やかに削除）。
 - **コミットの粒度**: コミットは各タスクごとに後でリバートしやすい単位で細かく作成するようにしてください。
 
+## 開発フロー
+
+### ブランチ戦略
+
+機能追加やバグ修正を行う際の標準的なワークフローです。
+
+1. **ブランチ作成**
+   ```bash
+   git checkout -b feature/descriptive-name
+   # または
+   git checkout -b fix/bug-description
+   ```
+
+2. **実装とコミット**
+   - タスクを細分化し、1つのタスクが完了したら即座にコミット
+   - コミットメッセージは日本語・命令形で記述（例: `型定義を追加`, `Server Actionを実装`）
+   - 生成物と元ファイルは同一コミットに含める（例: OpenAPI YAML + 生成された型定義）
+
+3. **コミット例**
+   ```bash
+   git add frontend/src/features/repayment/types.ts
+   git commit -m "型定義にRepaymentResponseを追加"
+
+   git add frontend/src/features/repayment/actions/getRepayment.ts
+   git commit -m "getRepaymentアクションでユーザー情報を並列取得"
+
+   git add frontend/src/app/(auth)/repayments/[id]/page.tsx
+   git commit -m "返済詳細ページでユーザー名を表示"
+   ```
+
+4. **PR作成前の確認**
+   - [ ] すべてのタスクが完了している
+   - [ ] ローカルで動作確認済み
+   - [ ] コンパイルエラーがない
+   - [ ] コミットメッセージが適切
+   - [ ] 関連するissueがある場合は番号を確認
+
+### 段階的なコミット戦略
+
+**原則**: 1つのタスクが完了したら、次のタスクに移る前に必ずコミットする。
+
+#### なぜ細かくコミットするのか
+
+1. **リバートの容易性**: 問題が発生した際、特定のタスクだけを取り消せる
+2. **レビューの明確性**: 各変更の意図が明確になり、レビュワーが理解しやすい
+3. **デバッグの効率化**: どのコミットで問題が発生したか特定しやすい
+
+#### 例: ユーザー表示改善タスク
+
+以下のようなタスクリストがある場合：
+
+1. 型定義を追加（RepaymentResponse, Repayment型の分離）
+2. Server Actionを実装（getRepayment）
+3. ページコンポーネントを更新（返済詳細ページ）
+4. UIコンポーネントを更新（RepaymentCard）
+
+**各タスク完了後にコミット**:
+
+```bash
+# タスク1完了
+git add frontend/src/features/repayment/types.ts
+git commit -m "型定義にRepaymentResponseを追加し、Repaymentにユーザーオブジェクトを含める"
+
+# タスク2完了
+git add frontend/src/features/repayment/actions/getRepayment.ts
+git commit -m "getRepaymentアクションでユーザー情報を並列取得"
+
+# タスク3完了
+git add frontend/src/app/(auth)/repayments/[id]/page.tsx
+git commit -m "返済詳細ページでユーザー名とアバターを表示"
+
+# タスク4完了
+git add frontend/src/features/repayment/components/repayment-card/repayment-card.tsx
+git commit -m "RepaymentCardでアバター画像を表示"
+```
+
+#### コミットしてはいけないタイミング
+
+- ビルドエラーがある状態
+- 中途半端な実装（例: 型定義だけ変更してコンポーネントは未更新）
+- テストが失敗している状態（テストを書いている場合）
+
+ただし、**関連する複数ファイルの変更は1つのコミットにまとめる**こともあります：
+
+```bash
+# 型定義変更 + それに伴う全コンポーネントの更新を1コミット
+git add frontend/src/features/repayment/types.ts \
+        frontend/src/features/repayment/components/*.tsx \
+        frontend/src/app/(auth)/repayments/*/page.tsx
+git commit -m "Repayment型からIDを削除しユーザーオブジェクトに変更"
+```
+
 ## PRの作成
 
-プルリクエストを作成する際は、以下のフォーマットを使用してください：
+### PR作成の手順
 
-```markdown
-# 背景
+1. **issueの確認**
+   - GitHub issueを確認し、issue番号を取得（例: #248）
+   - issueの内容と実装が合致しているか確認
 
-（なぜこの変更が必要だったのか、どんな課題があったのかを記載）
+2. **PRタイトルの形式**
+   ```
+   [DATTI-xxx] 簡潔な変更内容の説明
+   ```
+   - `xxx`: issue番号（例: `[DATTI-248]`）
+   - 具体的で分かりやすいタイトルを付ける
 
-# 原因 (バグの場合)
+3. **PR本文の作成**
 
-（バグ修正の場合のみ記載。何が原因でバグが発生していたのかを説明）
+   以下のフォーマットを使用してください：
 
-# 実施内容
+   ```markdown
+   closed #xxx
 
-（具体的に何を実装・修正したのかを記載。複数ある場合は番号付きリストで整理）
+   # 背景
 
-# 備考 (あれば)
+   （なぜこの変更が必要だったのか、どんな課題があったのかを記載）
 
-（レビュワーに伝えておきたい補足情報や注意点があれば記載）
-```
+   # 原因 (バグの場合)
+
+   （バグ修正の場合のみ記載。何が原因でバグが発生していたのかを説明）
+
+   # 実施内容
+
+   （具体的に何を実装・修正したのかを記載。複数ある場合は番号付きリストで整理）
+
+   # 備考 (あれば)
+
+   （レビュワーに伝えておきたい補足情報や注意点があれば記載）
+   ```
+
+   **重要**: 本文の一番頭に `closed #xxx` を記載することで、PR がマージされた際に自動的に issue がクローズされます。
+
+4. **PRの作成例**
+
+   **タイトル**:
+   ```
+   [DATTI-248] ユーザーID表示をユーザー名・アバター表示に改善
+   ```
+
+   **本文**:
+   ```markdown
+   closed #248
+
+   # 背景
+
+   現在、返済詳細ページやグループ一覧ページなどで、ユーザーIDが直接表示されており、
+   ユーザー体験が悪い状態でした。ユーザー名とアバターを表示することで、
+   より直感的で分かりやすいUIを実現する必要がありました。
+
+   # 実施内容
+
+   1. 型定義の拡張
+      - `RepaymentResponse`, `GroupResponse`, `CreditResponse` 型を追加（バックエンドAPIレスポンス用）
+      - `Repayment`, `Group`, `Credit` 型を拡張してユーザーオブジェクトを含むように変更
+
+   2. Server Actionの更新
+      - `getRepayment`: 返済データとユーザー情報を並列取得
+      - `getAllRepayments`: 重複排除してユーザー情報をバルク取得
+      - `getGroup`, `getAllGroups`: グループ作成者情報を取得
+      - `getAllCredits`: 貸し借りユーザー情報を取得
+
+   3. UIコンポーネントの更新
+      - 返済詳細/編集/一覧ページでユーザー名とアバターを表示
+      - グループ一覧/設定ページで作成者名とメンバーアバターを表示
+      - 支払いカードでアバター画像表示と色分け（青: 受取、赤: 支払）
+
+   # 備考
+
+   - バックエンドAPIには変更なし（フロントエンド内部のみで完結）
+   - 既存の型を変更したため、関連する全コンポーネントを一度に更新
+   ```
+
+5. **gh CLI を使用したPR作成**
+
+   ```bash
+   gh pr create --title "[DATTI-248] ユーザーID表示をユーザー名・アバター表示に改善" --body "$(cat <<'EOF'
+   closed #248
+
+   # 背景
+   （背景を記載）
+
+   # 実施内容
+   （実施内容を記載）
+   EOF
+   )"
+   ```
+
+### PR作成前のチェックリスト
+
+- [ ] issue番号を確認済み
+- [ ] PRタイトルが `[DATTI-xxx]` 形式
+- [ ] PR本文の先頭に `closed #xxx` を記載
+- [ ] 背景・実施内容が明確に記載されている
+- [ ] ローカルで動作確認済み
+- [ ] コンパイルエラーがない
+- [ ] 不要なコンソールログやデバッグコードが残っていない
 
 ## リポジトリ構成
 

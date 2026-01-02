@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { apiClient } from "@/libs/api/client";
 
 export type DeleteGroupState =
@@ -22,5 +23,8 @@ export async function deleteGroup(
     };
   }
 
+  // グループ一覧とレイアウトを再検証
+  revalidatePath("/", "layout");
+  revalidatePath("/groups");
   redirect("/groups");
 }

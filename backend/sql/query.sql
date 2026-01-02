@@ -161,6 +161,10 @@ VALUES ($1, $2, $3, $4, $5);
 INSERT INTO group_members (group_id, user_id, created_at)
 VALUES ($1, $2, current_timestamp);
 
+-- name: DeleteGroupMember :exec
+DELETE FROM group_members
+WHERE group_id = $1 AND user_id = $2;
+
 -- name: FindGroupByID :one
 SELECT id, name, created_by, created_at, updated_at
 FROM groups WHERE id = $1 LIMIT 1;
@@ -193,6 +197,17 @@ WHERE id IN (
   FROM event_payments ep
   INNER JOIN events e ON ep.event_id = e.id
   WHERE e.group_id = $1
+);
+
+-- name: DeletePaymentsByGroupIDAndUserID :exec
+DELETE FROM payments
+WHERE id IN (
+  SELECT ep.payment_id
+  FROM event_payments ep
+  INNER JOIN events e ON ep.event_id = e.id
+  INNER JOIN payments p ON ep.payment_id = p.id
+  WHERE e.group_id = $1
+    AND (p.payer_id = $2 OR p.debtor_id = $2)
 );
 
 -- name: FindGroupsByMemberUserID :many

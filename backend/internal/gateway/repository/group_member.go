@@ -45,6 +45,41 @@ func (gmr *GroupMemberRepositoryImpl) AddMember(ctx context.Context, groupID uli
 	return nil
 }
 
+func (gmr *GroupMemberRepositoryImpl) RemoveMember(ctx context.Context, groupID ulid.ULID, userID string) error {
+	ctx, span := tracer.Start(ctx, "groupMember.RemoveMember")
+	defer span.End()
+
+	// メンバーに関連するpaymentsを先に削除
+	ctx, deletePaymentsSpan := tracer.Start(ctx, "DELETE FROM payments WHERE id IN (SELECT ep.payment_id FROM event_payments ep INNER JOIN events e ON ep.event_id = e.id INNER JOIN payments p ON ep.payment_id = p.id WHERE e.group_id = $1 AND (p.payer_id = $2 OR p.debtor_id = $2))")
+	err := gmr.queries.DeletePaymentsByGroupIDAndUserID(ctx, postgres.DeletePaymentsByGroupIDAndUserIDParams{
+		GroupID: groupID.String(),
+		PayerID: userID,
+	})
+	if err != nil {
+		deletePaymentsSpan.SetStatus(codes.Error, err.Error())
+		deletePaymentsSpan.RecordError(err)
+		deletePaymentsSpan.End()
+		return err
+	}
+	deletePaymentsSpan.End()
+
+	// グループメンバーを削除
+	ctx, querySpan := tracer.Start(ctx, "DELETE FROM group_members WHERE group_id = $1 AND user_id = $2")
+	err = gmr.queries.DeleteGroupMember(ctx, postgres.DeleteGroupMemberParams{
+		GroupID: groupID.String(),
+		UserID:  userID,
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}
+
 func (gmr *GroupMemberRepositoryImpl) FindMembersByGroupID(ctx context.Context, groupID ulid.ULID) ([]string, error) {
 	ctx, span := tracer.Start(ctx, "groupMember.FindMembersByGroupID")
 	defer span.End()

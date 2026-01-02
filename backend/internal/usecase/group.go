@@ -232,3 +232,34 @@ func (u GroupUseCaseImpl) Delete(ctx context.Context, input handler.GroupDeleteI
 
 	return nil
 }
+
+func (u GroupUseCaseImpl) RemoveMember(ctx context.Context, input handler.GroupRemoveMemberInput) error {
+	ctx, span := tracer.Start(ctx, "group.RemoveMember")
+	defer span.End()
+
+	group, err := u.gr.FindByID(ctx, input.GroupID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	// グループ作成者は退出できない
+	if input.MemberID == group.CreatedBy() {
+		return fmt.Errorf("forbidden Error")
+	}
+
+	// グループ作成者は誰でも削除可能、メンバーは自身のみ退出可能
+	if input.UserID != group.CreatedBy() && input.UserID != input.MemberID {
+		return fmt.Errorf("forbidden Error")
+	}
+
+	err = u.gmr.RemoveMember(ctx, input.GroupID, input.MemberID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return err
+	}
+
+	return nil
+}

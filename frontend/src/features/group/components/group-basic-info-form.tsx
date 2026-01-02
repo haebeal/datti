@@ -105,7 +105,7 @@ export function GroupBasicInfoForm({ group }: Props) {
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         title="グループを削除"
-        message="このグループを削除してもよろしいですか？この操作は取り消せません。"
+        message="このグループを削除してもよろしいですか？グループに関連する全てのイベントと立て替え記録も削除されます。"
         confirmLabel="削除する"
         cancelLabel="キャンセル"
         onConfirm={handleDeleteConfirm}

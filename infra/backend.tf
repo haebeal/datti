@@ -101,3 +101,11 @@ resource "google_cloud_run_v2_service" "backend" {
     }
   }
 }
+
+# バックエンドへの未認証アクセスを許可（認証はFirebase Authで行う）
+resource "google_cloud_run_v2_service_iam_member" "backend_public" {
+  name     = google_cloud_run_v2_service.backend.name
+  location = google_cloud_run_v2_service.backend.location
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}

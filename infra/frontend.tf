@@ -138,6 +138,11 @@ resource "google_cloud_run_v2_service" "frontend" {
         value = google_cloud_run_v2_service.backend.uri
       }
 
+      env {
+        name  = "APP_URL"
+        value = var.app_url
+      }
+
       ports {
         container_port = 3000
       }

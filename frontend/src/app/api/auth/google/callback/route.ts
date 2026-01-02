@@ -5,6 +5,7 @@ const API_BASE_URL = process.env.API_URL;
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const APP_URL = process.env.APP_URL;
 
 interface GoogleTokenResponse {
   access_token: string;
@@ -35,14 +36,12 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.error("Google OAuth error:", error);
-    return NextResponse.redirect(new URL(`/auth?error=auth_failed`, request.url));
+    return NextResponse.redirect(new URL(`/auth?error=auth_failed`, APP_URL));
   }
 
   if (!code) {
-    return NextResponse.redirect(new URL("/auth?error=no_token", request.url));
+    return NextResponse.redirect(new URL("/auth?error=no_token", APP_URL));
   }
-
-  const origin = request.nextUrl.origin;
 
   try {
     // 1. GoogleのトークンエンドポイントでIDトークンを取得
@@ -55,7 +54,7 @@ export async function GET(request: NextRequest) {
         code,
         client_id: GOOGLE_CLIENT_ID!,
         client_secret: GOOGLE_CLIENT_SECRET!,
-        redirect_uri: `${origin}/api/auth/google/callback`,
+        redirect_uri: `${APP_URL}/api/auth/google/callback`,
         grant_type: "authorization_code",
       }),
     });
@@ -63,7 +62,7 @@ export async function GET(request: NextRequest) {
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
       console.error("Google token exchange failed:", errorText);
-      return NextResponse.redirect(new URL("/auth?error=auth_failed", request.url));
+      return NextResponse.redirect(new URL("/auth?error=auth_failed", APP_URL));
     }
 
     const tokenData: GoogleTokenResponse = await tokenResponse.json();
@@ -83,7 +82,7 @@ export async function GET(request: NextRequest) {
       },
       body: JSON.stringify({
         postBody: `id_token=${googleIdToken}&providerId=google.com`,
-        requestUri: `${origin}/api/auth/google/callback`,
+        requestUri: `${APP_URL}/api/auth/google/callback`,
         returnSecureToken: true,
       }),
     });
@@ -91,7 +90,7 @@ export async function GET(request: NextRequest) {
     if (!firebaseResponse.ok) {
       const errorText = await firebaseResponse.text();
       console.error("Firebase signInWithIdp failed:", errorText);
-      return NextResponse.redirect(new URL("/auth?error=auth_failed", request.url));
+      return NextResponse.redirect(new URL("/auth?error=auth_failed", APP_URL));
     }
 
     const firebaseData: FirebaseSignInResponse = await firebaseResponse.json();
@@ -116,7 +115,7 @@ export async function GET(request: NextRequest) {
         path: "/",
       });
 
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(new URL("/", APP_URL));
     }
 
     if (loginResponse.status === 401) {
@@ -145,21 +144,21 @@ export async function GET(request: NextRequest) {
           path: "/",
         });
 
-        return NextResponse.redirect(new URL("/", request.url));
+        return NextResponse.redirect(new URL("/", APP_URL));
       }
 
       // サインアップ失敗
       const errorData = await signupResponse.text();
       console.error("Signup failed:", signupResponse.status, errorData);
-      return NextResponse.redirect(new URL("/auth?error=signup_failed", request.url));
+      return NextResponse.redirect(new URL("/auth?error=signup_failed", APP_URL));
     }
 
     // その他のエラー
     const errorData = await loginResponse.text();
     console.error("Backend auth failed:", loginResponse.status, errorData);
-    return NextResponse.redirect(new URL("/auth?error=auth_failed", request.url));
+    return NextResponse.redirect(new URL("/auth?error=auth_failed", APP_URL));
   } catch (error) {
     console.error("Auth callback error:", error);
-    return NextResponse.redirect(new URL("/auth?error=server_error", request.url));
+    return NextResponse.redirect(new URL("/auth?error=server_error", APP_URL));
   }
 }

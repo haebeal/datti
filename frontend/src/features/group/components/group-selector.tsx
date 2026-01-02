@@ -148,7 +148,7 @@ export function GroupSelector({ groups }: Props) {
                   {group.name}
                 </div>
                 <div className={cn("text-xs text-gray-500 truncate")}>
-                  {group.createdBy}
+                  {group.creator.name}
                 </div>
               </div>
 

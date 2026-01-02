@@ -1,0 +1,38 @@
+# 依存関係（Dockerfileで再インストール）
+node_modules
+
+# ビルド成果物
+.next
+out
+dist
+
+# 環境変数（機密情報）
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+
+# Git関連
+.git
+.gitignore
+
+# 開発専用ファイル
+README.md
+tsconfig.tsbuildinfo
+*.log
+npm-debug.log*
+
+# テスト関連
+coverage
+.nyc_output
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# その他
+.DS_Store

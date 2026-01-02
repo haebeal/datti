@@ -2,17 +2,14 @@ import Link from "next/link";
 import { formatCurrency, formatDate } from "@/schema";
 import { cn } from "@/utils/cn";
 import type { Repayment } from "../../types";
-import type { User } from "@/features/user/types";
 
 type Props = {
   repayment: Repayment;
-  payer?: User;
-  debtor?: User;
 };
 
-export function RepaymentCard({ repayment, payer, debtor }: Props) {
-  const payerName = payer?.name || repayment.payerId;
-  const debtorName = debtor?.name || repayment.debtorId;
+export function RepaymentCard({ repayment }: Props) {
+  const payerName = repayment.payer.name;
+  const debtorName = repayment.debtor.name;
   const avatarLetter = debtorName.charAt(0).toUpperCase();
 
   return (

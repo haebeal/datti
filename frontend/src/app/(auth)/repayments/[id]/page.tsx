@@ -18,8 +18,8 @@ export default async function RepaymentDetailPage({
   }
 
   const repayment = repaymentResult.result;
-  const payerName = repayment.payerId;
-  const debtorName = repayment.debtorId;
+  const payerName = repayment.payer.name;
+  const debtorName = repayment.debtor.name;
 
   return (
     <div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>

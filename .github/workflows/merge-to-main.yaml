@@ -87,6 +87,7 @@ jobs:
       id-token: 'write'
     environment:
       name: dev
+      url: ${{ vars.FRONTEND_APP_URL }}
     steps:
       - uses: actions/checkout@v5
       - uses: google-github-actions/auth@v3

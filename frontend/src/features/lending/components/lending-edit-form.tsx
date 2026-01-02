@@ -18,9 +18,10 @@ type Props = {
   groupId: string;
   lending: Lending;
   members: GroupMember[];
+  currentUserId: string;
 };
 
-export function LendingEditForm({ groupId, lending, members }: Props) {
+export function LendingEditForm({ groupId, lending, members, currentUserId }: Props) {
   const [lastResult, action, isUpdating] = useActionState(
     updateLending.bind(null, groupId),
     undefined,
@@ -44,7 +45,7 @@ export function LendingEditForm({ groupId, lending, members }: Props) {
 
   const debtsList = fields.debts.getFieldList();
 
-  // 各行で選択可能なメンバーを取得（既に選択されているメンバーを除外）
+  // 各行で選択可能なメンバーを取得（既に選択されているメンバーと自分自身を除外）
   const getAvailableMembers = (currentIndex: number) => {
     const selectedUserIds = debtsList.map((debt, idx) => {
       if (idx === currentIndex) return null;
@@ -52,7 +53,7 @@ export function LendingEditForm({ groupId, lending, members }: Props) {
       return debtFields.userId.initialValue;
     }).filter((id): id is string => id !== null && id !== "");
 
-    return members.filter((member) => !selectedUserIds.includes(member.id));
+    return members.filter((member) => !selectedUserIds.includes(member.id) && member.id !== currentUserId);
   };
 
   // 新しいメンバーを追加可能かチェック
@@ -61,7 +62,9 @@ export function LendingEditForm({ groupId, lending, members }: Props) {
       const debtFields = debt.getFieldset();
       return debtFields.userId.initialValue;
     }).filter((id) => id !== "");
-    return selectedUserIds.length < members.length;
+    // 自分自身を除いたメンバー数と比較
+    const availableMembersCount = members.filter(m => m.id !== currentUserId).length;
+    return selectedUserIds.length < availableMembersCount;
   };
 
   return (

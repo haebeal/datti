@@ -1,12 +1,14 @@
 "use client";
 
-import type { GroupMember } from "@/features/group/types";
+import type { Group, GroupMember } from "@/features/group/types";
 import type { User } from "@/features/user/types";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ErrorText } from "@/components/ui/error-text";
+import { ConfirmDialog } from "@/components/ui/dialog";
 import { addMember } from "../actions/addMember";
+import { removeMember } from "../actions/removeMember";
 import { searchUsers } from "@/features/user/actions/searchUsers";
 import { useActionState, useState, useRef } from "react";
 import { useForm } from "@conform-to/react";
@@ -14,21 +16,27 @@ import { parseWithZod } from "@conform-to/zod";
 import { addMemberSchema } from "../schema";
 
 type Props = {
-  groupId: string;
+  group: Group;
   members: GroupMember[];
 };
 
-export function GroupMemberManagement({ groupId, members }: Props) {
+export function GroupMemberManagement({ group, members }: Props) {
   // メンバー追加の状態管理
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
+  // メンバー削除の状態管理
+  const [removingUserId, setRemovingUserId] = useState<string | null>(null);
+  const [removeError, setRemoveError] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedUserIdToRemove, setSelectedUserIdToRemove] = useState<string | null>(null);
+
   const [lastResult, action, isAdding] = useActionState(addMember, undefined);
   const [form, { groupId: groupIdField, userId }] = useForm({
     lastResult,
-    defaultValue: { groupId },
+    defaultValue: { groupId: group.id },
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: addMemberSchema });
     },
@@ -78,6 +86,27 @@ export function GroupMemberManagement({ groupId, members }: Props) {
     }
   };
 
+  const handleRemoveMemberClick = (userId: string) => {
+    setSelectedUserIdToRemove(userId);
+    setIsDialogOpen(true);
+  };
+
+  const handleConfirmRemove = async () => {
+    if (!selectedUserIdToRemove) return;
+
+    setRemovingUserId(selectedUserIdToRemove);
+    setRemoveError(null);
+
+    const result = await removeMember(group.id, selectedUserIdToRemove);
+
+    if (!result.success) {
+      setRemoveError(result.error);
+    }
+
+    setRemovingUserId(null);
+    setSelectedUserIdToRemove(null);
+  };
+
   return (
     <div className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}>
       <h2 className={cn("text-lg font-semibold")}>メンバー管理</h2>
@@ -108,6 +137,8 @@ export function GroupMemberManagement({ groupId, members }: Props) {
       {searchError && <ErrorText>{searchError}</ErrorText>}
 
       {form.errors && <ErrorText>{form.errors}</ErrorText>}
+
+      {removeError && <ErrorText>{removeError}</ErrorText>}
 
       {searchResults.length > 0 && (
         <>
@@ -146,7 +177,7 @@ export function GroupMemberManagement({ groupId, members }: Props) {
         <input
           type="hidden"
           name={groupIdField.name}
-          value={groupId}
+          value={group.id}
           readOnly
         />
         <input type="hidden" name={userId.name} readOnly />
@@ -181,7 +212,14 @@ export function GroupMemberManagement({ groupId, members }: Props) {
               </div>
 
               <div className={cn("flex-1 min-w-0")}>
-                <h3 className={cn("font-semibold truncate")}>{member.name}</h3>
+                <h3 className={cn("font-semibold truncate")}>
+                  {member.name}
+                  {member.id === group.createdBy && (
+                    <span className={cn("ml-2 text-xs text-gray-500")}>
+                      (作成者)
+                    </span>
+                  )}
+                </h3>
                 <p className={cn("text-sm text-gray-500 truncate")}>
                   {member.email}
                 </p>
@@ -189,16 +227,30 @@ export function GroupMemberManagement({ groupId, members }: Props) {
 
               <Button
                 type="button"
-                isDisabled={true}
+                isDisabled={
+                  member.id === group.createdBy || removingUserId !== null
+                }
                 color="error"
                 colorStyle="outline"
+                onPress={() => handleRemoveMemberClick(member.id)}
               >
-                削除
+                {removingUserId === member.id ? "削除中..." : "削除"}
               </Button>
             </div>
           ))}
         </>
       )}
+
+      <ConfirmDialog
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        title="メンバーを削除"
+        message="このメンバーを削除してもよろしいですか？このメンバーに関連する立て替え記録も全て削除されます。"
+        confirmLabel="削除する"
+        cancelLabel="キャンセル"
+        onConfirm={handleConfirmRemove}
+        isLoading={removingUserId !== null}
+      />
     </div>
   );
 }

@@ -29,7 +29,7 @@ export default async function GroupSettingsPage({ params }: Props) {
 
       <GroupBasicInfoForm group={group} />
 
-      <GroupMemberManagement groupId={groupId} members={members} />
+      <GroupMemberManagement group={group} members={members} />
     </div>
   );
 }

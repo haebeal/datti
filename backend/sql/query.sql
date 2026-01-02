@@ -199,6 +199,17 @@ WHERE id IN (
   WHERE e.group_id = $1
 );
 
+-- name: DeletePaymentsByGroupIDAndUserID :exec
+DELETE FROM payments
+WHERE id IN (
+  SELECT ep.payment_id
+  FROM event_payments ep
+  INNER JOIN events e ON ep.event_id = e.id
+  INNER JOIN payments p ON ep.payment_id = p.id
+  WHERE e.group_id = $1
+    AND (p.payer_id = $2 OR p.debtor_id = $2)
+);
+
 -- name: FindGroupsByMemberUserID :many
 SELECT g.id, g.name, g.created_by, g.created_at, g.updated_at
 FROM groups g

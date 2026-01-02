@@ -234,6 +234,28 @@ func (q *Queries) DeletePaymentsByGroupID(ctx context.Context, groupID string) e
 	return err
 }
 
+const deletePaymentsByGroupIDAndUserID = `-- name: DeletePaymentsByGroupIDAndUserID :exec
+DELETE FROM payments
+WHERE id IN (
+  SELECT ep.payment_id
+  FROM event_payments ep
+  INNER JOIN events e ON ep.event_id = e.id
+  INNER JOIN payments p ON ep.payment_id = p.id
+  WHERE e.group_id = $1
+    AND (p.payer_id = $2 OR p.debtor_id = $2)
+)
+`
+
+type DeletePaymentsByGroupIDAndUserIDParams struct {
+	GroupID string
+	PayerID string
+}
+
+func (q *Queries) DeletePaymentsByGroupIDAndUserID(ctx context.Context, arg DeletePaymentsByGroupIDAndUserIDParams) error {
+	_, err := q.db.Exec(ctx, deletePaymentsByGroupIDAndUserID, arg.GroupID, arg.PayerID)
+	return err
+}
+
 const deleteRepayment = `-- name: DeleteRepayment :exec
 DELETE FROM payments WHERE id = $1
 `

@@ -54,7 +54,12 @@ export function CreditCard({ credit }: Props) {
 
       {/* Amount */}
       <div className={cn("text-right flex-shrink-0")}>
-        <p className={cn("text-2xl font-bold text-primary-base")}>
+        <p
+          className={cn(
+            "text-2xl font-bold",
+            isPositive ? "text-primary-base" : "text-red-600",
+          )}
+        >
           {sign}
           {formatCurrency(credit.amount)}
         </p>

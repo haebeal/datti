@@ -21,12 +21,18 @@ export function CreditList({ credits }: Props) {
 
   const total = credits.reduce((sum, c) => sum + c.amount, 0);
   const sign = total >= 0 ? "+" : "";
+  const isPositive = total >= 0;
 
   return (
     <div className={cn("flex flex-col gap-5")}>
       <div className={cn("p-4", "flex flex-col gap-2", "border rounded-lg")}>
         <p className={cn("text-sm text-gray-600")}>支払い総額</p>
-        <p className={cn("text-2xl font-bold text-primary-base")}>
+        <p
+          className={cn(
+            "text-2xl font-bold",
+            isPositive ? "text-primary-base" : "text-red-600",
+          )}
+        >
           {sign}
           {formatCurrency(total)}
         </p>

@@ -2,14 +2,36 @@
 
 import { apiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
-import type { Credit } from "../types";
+import type { Credit, CreditResponse } from "../types";
+import type { User } from "@/features/user/types";
 
 export async function getAllCredits(): Promise<Result<Credit[]>> {
   try {
-    const response = await apiClient.get<Credit[]>("/credits");
+    // Fetch all credits
+    const responses = await apiClient.get<CreditResponse[]>("/credits");
+
+    // Extract unique user IDs
+    const userIds = new Set(responses.map((credit) => credit.userId));
+
+    // Fetch all users in parallel
+    const users = await Promise.all(
+      Array.from(userIds).map((userId) =>
+        apiClient.get<User>(`/users/${userId}`),
+      ),
+    );
+
+    // Create user map for O(1) lookup
+    const userMap = new Map(users.map((user) => [user.id, user]));
+
+    // Transform to frontend Credit type
+    const credits: Credit[] = responses.map((response) => ({
+      user: userMap.get(response.userId)!,
+      amount: response.amount,
+    }));
+
     return {
       success: true,
-      result: response,
+      result: credits,
       error: null,
     };
   } catch (error) {

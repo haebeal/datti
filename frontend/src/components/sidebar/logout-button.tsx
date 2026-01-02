@@ -19,7 +19,6 @@ export function LogoutButton() {
   return (
     <Button
       type="button"
-      color="gray"
       colorStyle="outline"
       onPress={handleLogout}
       isDisabled={isPending}

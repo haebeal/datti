@@ -35,7 +35,7 @@ export function GroupBasicInfoForm({ group }: Props) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const deleteFormRef = useRef<HTMLFormElement>(null);
   const [_deleteState, deleteAction, isDeleting] =
-    useActionState<DeleteGroupState>(
+    useActionState<DeleteGroupState, FormData>(
       deleteGroup.bind(null, group.id),
       undefined,
     );

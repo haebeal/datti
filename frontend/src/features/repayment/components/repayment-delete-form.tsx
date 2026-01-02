@@ -17,7 +17,7 @@ type Props = {
 export function RepaymentDeleteForm({ repaymentId }: Props) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, action, isDeleting] = useActionState<DeleteRepaymentState>(
+  const [state, action, isDeleting] = useActionState<DeleteRepaymentState, FormData>(
     deleteRepayment.bind(null, repaymentId),
     undefined,
   );

@@ -18,7 +18,7 @@ type Props = {
 export function LendingDeleteForm({ groupId, lendingId }: Props) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, action, isDeleting] = useActionState<DeleteLendingState>(
+  const [state, action, isDeleting] = useActionState<DeleteLendingState, FormData>(
     deleteLending.bind(null, groupId, lendingId),
     undefined,
   );

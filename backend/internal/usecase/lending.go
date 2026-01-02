@@ -77,6 +77,14 @@ func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (
 	}
 	debtors := make([]*domain.Debtor, 0)
 	for _, d := range i.Debts {
+		// 自分自身に立て替えを作成することはできない
+		if d.UserID == i.UserID {
+			err := fmt.Errorf("自分自身に立て替えを作成することはできません")
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
 		user, err := u.ur.FindByID(ctx, d.UserID)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
@@ -283,6 +291,14 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 			return debtor.ID() == d.UserID
 		})
 		if !exist {
+			// 自分自身に立て替えを作成することはできない
+			if d.UserID == i.UserID {
+				err := fmt.Errorf("自分自身に立て替えを作成することはできません")
+				span.SetStatus(codes.Error, err.Error())
+				span.RecordError(err)
+				return nil, err
+			}
+
 			user, err := u.ur.FindByID(ctx, d.UserID)
 			if err != nil {
 				span.SetStatus(codes.Error, err.Error())

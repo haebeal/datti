@@ -1,6 +1,5 @@
 # 依存関係（Dockerfileで再インストール）
 node_modules
-pnpm-lock.yaml
 
 # ビルド成果物
 .next

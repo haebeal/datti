@@ -10,8 +10,9 @@ terraform {
 }
 
 provider "google" {
-  project = var.project_id
-  region  = "asia-northeast1"
+  project               = var.project_id
+  region                = "asia-northeast1"
+  user_project_override = true
 }
 
 variable "project_id" {

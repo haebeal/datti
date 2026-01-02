@@ -200,21 +200,32 @@ export function GroupMemberManagement({ group, members }: Props) {
               key={member.id}
               className={cn("flex items-center gap-4 p-4", "border rounded-md")}
             >
-              <div
-                className={cn(
-                  "flex-shrink-0 w-10 h-10 rounded-full",
-                  "bg-gradient-to-br from-primary-base to-primary-dark",
-                  "flex items-center justify-center",
-                  "text-white font-bold text-lg",
-                )}
-              >
-                {member.name.charAt(0).toUpperCase()}
-              </div>
+              {/* Member Avatar */}
+              {member.avatar ? (
+                <img
+                  src={member.avatar}
+                  alt={member.name}
+                  className={cn(
+                    "flex-shrink-0 w-10 h-10 rounded-full object-cover",
+                  )}
+                />
+              ) : (
+                <div
+                  className={cn(
+                    "flex-shrink-0 w-10 h-10 rounded-full",
+                    "bg-gradient-to-br from-primary-base to-primary-dark",
+                    "flex items-center justify-center",
+                    "text-white font-bold text-lg",
+                  )}
+                >
+                  {member.name.charAt(0).toUpperCase()}
+                </div>
+              )}
 
               <div className={cn("flex-1 min-w-0")}>
                 <h3 className={cn("font-semibold truncate")}>
                   {member.name}
-                  {member.id === group.createdBy && (
+                  {member.id === group.creator.id && (
                     <span className={cn("ml-2 text-xs text-gray-500")}>
                       (作成者)
                     </span>
@@ -228,7 +239,7 @@ export function GroupMemberManagement({ group, members }: Props) {
               <Button
                 type="button"
                 isDisabled={
-                  member.id === group.createdBy || removingUserId !== null
+                  member.id === group.creator.id || removingUserId !== null
                 }
                 color="error"
                 colorStyle="outline"

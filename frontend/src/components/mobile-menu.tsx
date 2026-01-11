@@ -26,7 +26,7 @@ export function MobileMenu() {
           )}
         >
           <CircleDollarSign className={cn("w-6 h-6")} />
-          <span className={cn("text-xs mt-1")}>支払い</span>
+          <span className={cn("text-xs mt-1")}>立て替え</span>
         </Link>
         <Link
           href="/repayments"

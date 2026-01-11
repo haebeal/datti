@@ -10,3 +10,9 @@ export type Borrowing = {
   createdAt: string;
   updatedAt: string;
 };
+
+export type PaginatedBorrowingResponse = {
+  borrowings: Borrowing[];
+  nextCursor: string | null;
+  hasMore: boolean;
+};

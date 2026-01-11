@@ -28,7 +28,7 @@ export function CreditCard({ credit }: Props) {
       )}
     >
       {/* Mobile: Row 1 - Avatar + Name / PC: Avatar */}
-      <div className={cn("flex items-center gap-3 md:gap-5")}>
+      <div className={cn("flex items-center gap-3 md:flex-1 md:gap-5")}>
         {/* User Avatar */}
         {credit.user.avatar ? (
           <img

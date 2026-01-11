@@ -1103,15 +1103,29 @@ paths:
           required: true
           schema:
             type: string
+        - name: limit
+          in: query
+          required: false
+          description: "取得件数（デフォルト: 20、最大: 100）"
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: cursor
+          in: query
+          required: false
+          description: "次ページ用カーソル（前回レスポンスの最後のID）"
+          schema:
+            type: string
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Borrowing.GetAllResponse'
+                $ref: '#/components/schemas/Borrowing.PaginatedResponse'
         '401':
           description: Access is unauthorized.
           content:
@@ -1265,6 +1279,23 @@ components:
         updatedAt:
           type: string
           format: date-time
+    Borrowing.PaginatedResponse:
+      type: object
+      required:
+        - borrowings
+        - hasMore
+      properties:
+        borrowings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Borrowing.GetAllResponse'
+        nextCursor:
+          type: string
+          nullable: true
+          description: "次ページ用カーソル（次ページがない場合はnull）"
+        hasMore:
+          type: boolean
+          description: "次ページが存在するかどうか"
     Credit:
       type: object
       required:

@@ -178,8 +178,11 @@ export function GroupSelector({ groups }: Props) {
           href="/groups"
           className={cn(
             "flex items-center gap-2 px-3 py-2 rounded-md",
-            "text-sm font-medium text-gray-700",
-            "hover:bg-gray-100 transition-colors",
+            "text-sm font-medium",
+            "transition-colors",
+            pathname === "/groups"
+              ? "bg-primary-surface text-primary-base"
+              : "text-gray-700 hover:bg-gray-100",
           )}
         >
           <FolderCog className="w-4 h-4" />
@@ -189,8 +192,11 @@ export function GroupSelector({ groups }: Props) {
           href="/groups/new"
           className={cn(
             "flex items-center gap-2 px-3 py-2 rounded-md",
-            "text-sm font-medium text-gray-700",
-            "hover:bg-gray-100 transition-colors",
+            "text-sm font-medium",
+            "transition-colors",
+            pathname === "/groups/new"
+              ? "bg-primary-surface text-primary-base"
+              : "text-gray-700 hover:bg-gray-100",
           )}
         >
           <Plus className="w-4 h-4" />

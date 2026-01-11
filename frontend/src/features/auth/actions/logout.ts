@@ -2,13 +2,20 @@
 
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
+import { deleteSession } from "@/libs/session/session";
 
 /**
  * ログアウト処理
- * Cookieからトークンを削除して認証ページへリダイレクト
+ * Redisからセッションを削除し、Cookieを削除して認証ページへリダイレクト
  */
 export async function logout() {
   const cookieStore = await cookies();
-  cookieStore.delete("firebase_token");
+  const sessionId = cookieStore.get("session_id")?.value;
+
+  if (sessionId) {
+    await deleteSession(sessionId);
+  }
+
+  cookieStore.delete("session_id");
   redirect("/auth");
 }

@@ -12,7 +12,7 @@ export default async function RepaymentCreatePage() {
   const credits = creditsResponse.result.filter((credit) => credit.amount < 0);
 
   return (
-    <div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
+    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <h1 className={cn("text-2xl font-bold")}>返済を記録</h1>
 
       <RepaymentCreateForm credits={credits} />

@@ -14,6 +14,7 @@
     "@conform-to/react": "^1.15.1",
     "@conform-to/zod": "^1.15.1",
     "@internationalized/date": "^3.10.1",
+    "lucide-react": "^0.562.0",
     "next": "16.1.1",
     "react": "19.2.3",
     "react-aria-components": "^1.14.0",

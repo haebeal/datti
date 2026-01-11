@@ -252,5 +252,5 @@ task test
 ## 参考資料
 
 - 📖 **[OpenAPI仕様](backend/openapi.yaml)** - API契約定義
-- 🌐 **[公開ドキュメント](https://haebeal.github.io/datti-api)** - API仕様書
+- 🌐 **[公開ドキュメント](https://datti-openapi.pages.dev)** - API仕様書
 - 🎯 **[Backend Skill](.claude/skills/backend/)** - バックエンド開発ガイド

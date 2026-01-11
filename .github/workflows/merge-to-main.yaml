@@ -21,12 +21,11 @@ jobs:
           cp backend/openapi.yaml _site/
           sed -i 's|https://petstore.swagger.io/v2/swagger.json|./openapi.yaml|g' _site/swagger-initializer.js
       - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+        uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: datti-dev-openapi
-          directory: _site
+          command: pages deploy _site --project-name=datti-dev-openapi
 
   provision:
     runs-on: ubuntu-latest

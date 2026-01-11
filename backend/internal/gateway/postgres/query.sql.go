@@ -614,47 +614,6 @@ func (q *Queries) FindGroupsByMemberUserID(ctx context.Context, userID string) (
 	return items, nil
 }
 
-const findLendingsByGroupIDAndUserID = `-- name: FindLendingsByGroupIDAndUserID :many
-SELECT DISTINCT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
-FROM events e
-INNER JOIN event_payments ep ON e.id = ep.event_id
-INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = $1 AND p.payer_id = $2
-`
-
-type FindLendingsByGroupIDAndUserIDParams struct {
-	GroupID string
-	PayerID string
-}
-
-func (q *Queries) FindLendingsByGroupIDAndUserID(ctx context.Context, arg FindLendingsByGroupIDAndUserIDParams) ([]Event, error) {
-	rows, err := q.db.Query(ctx, findLendingsByGroupIDAndUserID, arg.GroupID, arg.PayerID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Event
-	for rows.Next() {
-		var i Event
-		if err := rows.Scan(
-			&i.ID,
-			&i.GroupID,
-			&i.Name,
-			&i.Amount,
-			&i.EventDate,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const findLendingsByGroupIDAndUserIDWithCursor = `-- name: FindLendingsByGroupIDAndUserIDWithCursor :many
 SELECT DISTINCT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
 FROM events e

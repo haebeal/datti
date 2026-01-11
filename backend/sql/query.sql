@@ -32,13 +32,6 @@ SELECT id, group_id, name, amount, event_date, created_at, updated_at FROM event
 SELECT id, group_id, name, amount, event_date, created_at, updated_at
 FROM events WHERE id = $1 LIMIT 1;
 
--- name: FindLendingsByGroupIDAndUserID :many
-SELECT DISTINCT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
-FROM events e
-INNER JOIN event_payments ep ON e.id = ep.event_id
-INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = $1 AND p.payer_id = $2;
-
 -- name: FindLendingsByGroupIDAndUserIDWithCursor :many
 SELECT DISTINCT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
 FROM events e

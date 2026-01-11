@@ -1,4 +1,5 @@
 import { getLending } from "@/features/lending/actions/getLending";
+import { getGroup } from "@/features/group/actions/getGroup";
 import { getMembers } from "@/features/group/actions/getMembers";
 import { formatCurrency, formatDate } from "@/schema";
 import { LinkButton } from "@/components/ui/link-button";
@@ -11,10 +12,15 @@ export default async function LendingDetailPage({
   params: Promise<{ groupId: string; id: string }>;
 }) {
   const { groupId, id } = await params;
-  const [lendingResult, membersResult] = await Promise.all([
+  const [groupResult, lendingResult, membersResult] = await Promise.all([
+    getGroup(groupId),
     getLending(groupId, id),
     getMembers(groupId),
   ]);
+
+  if (!groupResult.success) {
+    return <div className={cn("text-red-500")}>エラー: {groupResult.error}</div>;
+  }
 
   if (!lendingResult.success) {
     return <div className={cn("text-red-500")}>エラー: {lendingResult.error}</div>;
@@ -24,6 +30,7 @@ export default async function LendingDetailPage({
     return <div className={cn("text-red-500")}>エラー: {membersResult.error}</div>;
   }
 
+  const group = groupResult.result;
   const lending = lendingResult.result;
   const members = membersResult.result;
 
@@ -36,7 +43,10 @@ export default async function LendingDetailPage({
   return (
     <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <div className={cn("flex justify-between items-center")}>
-        <h1 className={cn("text-2xl font-bold")}>立て替え詳細</h1>
+        <div>
+          <h1 className={cn("text-2xl font-bold")}>立て替え詳細</h1>
+          <p className={cn("text-base text-gray-500")}>{group.name}</p>
+        </div>
         <LinkButton
           href={`/groups/${groupId}/lendings/${id}/edit`}
           color="primary"

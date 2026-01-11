@@ -27,6 +27,25 @@ data "google_secret_manager_secret_version" "google_client_secret" {
 }
 
 #######################################
+# Secret Manager - Upstash Redis認証情報
+#######################################
+resource "google_secret_manager_secret" "upstash_redis_url" {
+  secret_id = "upstash-redis-url"
+
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret" "upstash_redis_token" {
+  secret_id = "upstash-redis-token"
+
+  replication {
+    auto {}
+  }
+}
+
+#######################################
 # Identity Platform 設定
 #######################################
 resource "google_identity_platform_config" "default" {
@@ -80,6 +99,20 @@ resource "google_secret_manager_secret_iam_member" "google_client_secret" {
   role       = "roles/secretmanager.secretAccessor"
   member     = "serviceAccount:${google_service_account.cloudrun_frontend.email}"
   depends_on = [google_secret_manager_secret.google_client_secret]
+}
+
+resource "google_secret_manager_secret_iam_member" "upstash_redis_url" {
+  secret_id  = google_secret_manager_secret.upstash_redis_url.id
+  role       = "roles/secretmanager.secretAccessor"
+  member     = "serviceAccount:${google_service_account.cloudrun_frontend.email}"
+  depends_on = [google_secret_manager_secret.upstash_redis_url]
+}
+
+resource "google_secret_manager_secret_iam_member" "upstash_redis_token" {
+  secret_id  = google_secret_manager_secret.upstash_redis_token.id
+  role       = "roles/secretmanager.secretAccessor"
+  member     = "serviceAccount:${google_service_account.cloudrun_frontend.email}"
+  depends_on = [google_secret_manager_secret.upstash_redis_token]
 }
 
 # バックエンド呼び出し権限
@@ -141,6 +174,26 @@ resource "google_cloud_run_v2_service" "frontend" {
       env {
         name  = "APP_URL"
         value = var.app_url
+      }
+
+      env {
+        name = "UPSTASH_REDIS_REST_URL"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.upstash_redis_url.secret_id
+            version = "latest"
+          }
+        }
+      }
+
+      env {
+        name = "UPSTASH_REDIS_REST_TOKEN"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.upstash_redis_token.secret_id
+            version = "latest"
+          }
+        }
       }
 
       ports {

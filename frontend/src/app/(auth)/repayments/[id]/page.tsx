@@ -22,7 +22,7 @@ export default async function RepaymentDetailPage({
   const debtorName = repayment.debtor.name;
 
   return (
-    <div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
+    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <div className={cn("flex justify-between items-center")}>
         <h1 className={cn("text-2xl font-bold")}>返済詳細</h1>
         <LinkButton

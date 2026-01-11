@@ -69,7 +69,9 @@ export async function GET(request: NextRequest) {
     const googleIdToken = tokenData.id_token;
 
     // 2. Firebase Auth REST APIでGoogleトークンをFirebaseトークンに変換
-    const firebaseResponse = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${FIREBASE_API_KEY}`, {
+    const firebaseAuthUrl = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=${FIREBASE_API_KEY}`;
+
+    const firebaseResponse = await fetch(firebaseAuthUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

@@ -80,7 +80,7 @@ function GroupAccordionItem({
 
       {/* サブメニュー */}
       {isExpanded && (
-        <nav className={cn("flex flex-col gap-1.5", "ml-11 mt-2 mb-1")}>
+        <nav className={cn("flex flex-col gap-1.5", "ml-6 mt-2 mb-1")}>
           <Link
             href={`/groups/${group.id}/lendings`}
             className={cn(

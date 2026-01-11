@@ -109,7 +109,7 @@ export function Sidebar({ groups, user }: SidebarProps) {
             )}
           >
             <CircleDollarSign className="w-5 h-5" />
-            <span>支払い</span>
+            <span>立て替え</span>
           </Link>
 
           <Link

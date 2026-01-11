@@ -1,0 +1,11 @@
+# https://github.com/gitleaks/gitleaks
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Global allowlist"
+paths = [
+  '''\.env\.example$''',
+  '''\.env\.sample$''',
+]

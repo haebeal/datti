@@ -24,6 +24,8 @@
 | [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) | 最新 | `go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest` |
 | [mockgen](https://github.com/uber-go/mock) | 最新 | `go install go.uber.org/mock/mockgen@latest` |
 | [dlv](https://github.com/go-delve/delve) | 最新 | `go install github.com/go-delve/delve/cmd/dlv@latest` |
+| [gitleaks](https://github.com/gitleaks/gitleaks) | 最新 | `brew install gitleaks` |
+| [lefthook](https://github.com/evilmartians/lefthook) | 最新 | `brew install lefthook` |
 
 ## 環境変数
 `backend/.env.example` を複製して `.env` を作成し、必要に応じて値を変更してください。Task は `.env` を自動で読み込みます。
@@ -45,7 +47,11 @@ Jaeger にトレースを送信する場合は Collector を起動した上で�
    ```
    - Postgres: `localhost:5432`
    - Jaeger UI: `http://localhost:16686`
-2. マイグレーション & 初期データ投入
+2. Git フックのセットアップ（シークレット検知）
+   ```bash
+   lefthook install
+   ```
+3. マイグレーション & 初期データ投入
    ```bash
    cd backend
    go mod download

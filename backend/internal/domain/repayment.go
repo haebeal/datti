@@ -114,7 +114,6 @@ type PaginatedRepayments struct {
 type RepaymentRepository interface {
 	Create(context.Context, *Repayment) error
 	FindByID(context.Context, ulid.ULID) (*Repayment, error)
-	FindByPayerID(context.Context, string) ([]*Repayment, error)
 	FindByPayerIDWithPagination(context.Context, string, RepaymentPaginationParams) (*PaginatedRepayments, error)
 	Update(context.Context, *Repayment) error
 	Delete(context.Context, ulid.ULID) error

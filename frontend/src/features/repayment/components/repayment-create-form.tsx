@@ -15,9 +15,15 @@ import { createRepaymentSchema } from "../schema";
 
 type Props = {
   credits: Credit[];
+  defaultDebtorId?: string;
+  defaultAmount?: number;
 };
 
-export function RepaymentCreateForm({ credits }: Props) {
+export function RepaymentCreateForm({
+  credits,
+  defaultDebtorId,
+  defaultAmount,
+}: Props) {
   const [lastResult, action, isCreating] = useActionState(
     createRepayment,
     undefined,
@@ -26,14 +32,21 @@ export function RepaymentCreateForm({ credits }: Props) {
   const [form, fields] = useForm({
     lastResult,
     defaultValue: {
-      debtorId: "",
-      amount: 0,
+      debtorId: defaultDebtorId ?? "",
+      amount: defaultAmount ?? 0,
     },
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: createRepaymentSchema });
     },
     shouldRevalidate: "onInput",
   });
+
+  // 選択中のユーザーへの借金金額を取得
+  const selectedDebtorId = fields.debtorId.value ?? defaultDebtorId;
+  const selectedCredit = credits.find(
+    (credit) => credit.user.id === selectedDebtorId,
+  );
+  const debtAmount = selectedCredit ? Math.abs(selectedCredit.amount) : null;
 
   const hasCandidates = credits.length > 0;
 
@@ -73,6 +86,15 @@ export function RepaymentCreateForm({ credits }: Props) {
 
       {fields.debtorId.errors && (
         <ErrorText>{fields.debtorId.errors}</ErrorText>
+      )}
+
+      {debtAmount !== null && (
+        <p className={cn("text-sm text-gray-600")}>
+          {selectedCredit?.user.name}への借入:{" "}
+          <span className={cn("font-semibold text-red-600")}>
+            {formatCurrency(debtAmount)}
+          </span>
+        </p>
       )}
 
       <label htmlFor={fields.amount.id} className={cn("text-sm")}>

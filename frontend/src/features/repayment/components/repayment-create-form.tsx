@@ -41,13 +41,6 @@ export function RepaymentCreateForm({
     shouldRevalidate: "onInput",
   });
 
-  // 選択中のユーザーへの借金金額を取得
-  const selectedDebtorId = fields.debtorId.value ?? defaultDebtorId;
-  const selectedCredit = credits.find(
-    (credit) => credit.user.id === selectedDebtorId,
-  );
-  const debtAmount = selectedCredit ? Math.abs(selectedCredit.amount) : null;
-
   const hasCandidates = credits.length > 0;
 
   const getCreditLabel = (credit: Credit) => {
@@ -86,15 +79,6 @@ export function RepaymentCreateForm({
 
       {fields.debtorId.errors && (
         <ErrorText>{fields.debtorId.errors}</ErrorText>
-      )}
-
-      {debtAmount !== null && (
-        <p className={cn("text-sm text-gray-600")}>
-          {selectedCredit?.user.name}への借入:{" "}
-          <span className={cn("font-semibold text-red-600")}>
-            {formatCurrency(debtAmount)}
-          </span>
-        </p>
       )}
 
       <label htmlFor={fields.amount.id} className={cn("text-sm")}>

@@ -19,7 +19,7 @@ variable "project_id" {
   description = "Google Cloud Project ID"
 }
 
-variable "app_url" {
-  description = "Frontend application URL for OAuth redirect"
+variable "frontend_domain" {
+  description = "Frontend domain (e.g., dev.datti.app)"
 }
 

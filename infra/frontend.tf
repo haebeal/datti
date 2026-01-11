@@ -173,7 +173,7 @@ resource "google_cloud_run_v2_service" "frontend" {
 
       env {
         name  = "APP_URL"
-        value = var.app_url
+        value = "https://${var.frontend_domain}"
       }
 
       env {
@@ -223,4 +223,28 @@ resource "google_cloud_run_v2_service_iam_member" "frontend_public" {
   location = google_cloud_run_v2_service.frontend.location
   role     = "roles/run.invoker"
   member   = "allUsers"
+}
+
+#######################################
+# Domain Mapping - フロントエンド
+#######################################
+
+data "google_project" "default" {}
+
+resource "google_cloud_run_domain_mapping" "frontend" {
+  name     = var.frontend_domain
+  location = google_cloud_run_v2_service.frontend.location
+
+  metadata {
+    namespace = data.google_project.default.project_id
+  }
+
+  spec {
+    route_name = google_cloud_run_v2_service.frontend.name
+  }
+}
+
+output "frontend_domain_mapping_dns_records" {
+  description = "DNS records to configure in Cloudflare"
+  value       = google_cloud_run_domain_mapping.frontend.status[0].resource_records
 }

@@ -8,7 +8,7 @@ const PUBLIC_PATHS = ["/auth"];
 
 /**
  * Proxy: 認証ガード
- * cookieにfirebase_tokenが存在しない場合は/authにリダイレクト
+ * cookieにsession_idが存在しない場合は/authにリダイレクト
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -18,11 +18,11 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // cookieからIDトークンを取得
-  const token = request.cookies.get("firebase_token")?.value;
+  // cookieからセッションIDを取得
+  const sessionId = request.cookies.get("session_id")?.value;
 
-  // トークンが存在しない場合は/authにリダイレクト
-  if (!token) {
+  // セッションIDが存在しない場合は/authにリダイレクト
+  if (!sessionId) {
     const authUrl = new URL("/auth", request.url);
     return NextResponse.redirect(authUrl);
   }

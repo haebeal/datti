@@ -21,6 +21,7 @@
     "react": "19.2.3",
     "react-aria-components": "^1.14.0",
     "react-dom": "19.2.3",
+    "react-intersection-observer": "^10.0.0",
     "tailwindcss-react-aria-components": "^2.0.1",
     "zod": "^3"
   },

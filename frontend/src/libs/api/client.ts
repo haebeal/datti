@@ -42,6 +42,7 @@ async function fetchApi<T>(
     method: options.method,
     headers,
     body: options.body ? JSON.stringify(options.body) : undefined,
+    cache: "no-store",
   });
 
   if (!response.ok) {

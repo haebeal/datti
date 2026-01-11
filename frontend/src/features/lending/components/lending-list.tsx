@@ -59,7 +59,7 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
 		return (
 			<div className={cn("p-4", "flex flex-col gap-3", "border rounded-lg")}>
 				<p className={cn("text-center text-gray-500")}>
-					立て替えがまだありません
+					イベントがまだありません
 				</p>
 				<div className={cn("flex justify-center")}>
 					<LinkButton href={`/groups/${groupId}/lendings/new`}>

@@ -34,7 +34,7 @@ export function LendingDeleteForm({ groupId, lendingId }: Props) {
         action={action}
         className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
       >
-        <h2 className={cn("text-lg font-semibold")}>立て替えを削除</h2>
+        <h2 className={cn("text-lg font-semibold")}>イベントを削除</h2>
         <p className={cn("text-sm text-gray-600")}>
           削除すると元に戻せません
         </p>
@@ -56,8 +56,8 @@ export function LendingDeleteForm({ groupId, lendingId }: Props) {
       <ConfirmDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        title="立て替えを削除"
-        message="この立て替えを削除してもよろしいですか？"
+        title="イベントを削除"
+        message="このイベントを削除してもよろしいですか？"
         confirmLabel="削除する"
         cancelLabel="キャンセル"
         onConfirm={handleConfirm}

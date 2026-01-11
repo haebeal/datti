@@ -44,7 +44,7 @@ export default async function LendingDetailPage({
     <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <div className={cn("flex justify-between items-center")}>
         <div>
-          <h1 className={cn("text-2xl font-bold")}>立て替え詳細</h1>
+          <h1 className={cn("text-2xl font-bold")}>イベント詳細</h1>
           <p className={cn("text-base text-gray-500")}>{group.name}</p>
         </div>
         <LinkButton
@@ -70,7 +70,7 @@ export default async function LendingDetailPage({
 
         <hr />
 
-        <h3 className={cn("text-sm font-semibold")}>立て替え詳細</h3>
+        <h3 className={cn("text-sm font-semibold")}>支払い詳細</h3>
 
         <div className={cn("flex flex-col gap-2")}>
           {lending.debts.map((debt) => (

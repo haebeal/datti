@@ -6,6 +6,28 @@ on:
       - main
 
 jobs:
+  deploy-openapi:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v5
+      - name: Build SwaggerUI
+        run: |
+          mkdir -p _site
+          SWAGGER_UI_VERSION=$(curl -s https://api.github.com/repos/swagger-api/swagger-ui/releases/latest | jq -r '.tag_name')
+          curl -sL "https://github.com/swagger-api/swagger-ui/archive/refs/tags/${SWAGGER_UI_VERSION}.tar.gz" | tar xz --strip-components=2 -C _site "swagger-ui-${SWAGGER_UI_VERSION#v}/dist"
+          cp backend/openapi.yaml _site/
+          sed -i 's|https://petstore.swagger.io/v2/swagger.json|./openapi.yaml|g' _site/swagger-initializer.js
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: datti-dev-openapi
+          directory: _site
+
   provision:
     runs-on: ubuntu-latest
     permissions:

@@ -1,4 +1,4 @@
-![Static Badge](https://img.shields.io/badge/https%3A%2F%2Fhaebeal.github.io%2Fdatti-api?label=OpenAPI&link=https%3A%2F%2Fhaebeal.github.io%2Fdatti-api)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-Swagger%20UI-85EA2D?logo=swagger)](https://dev-openapi.datti.app)
 
 # Datti API
 

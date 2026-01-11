@@ -33,7 +33,7 @@ export default async function EditLendingPage({
   const currentUserId = meResult.user.id;
 
   return (
-    <div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
+    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <h1 className={cn("text-2xl font-bold")}>立て替え編集</h1>
 
       <LendingEditForm groupId={groupId} lending={lending} members={members} currentUserId={currentUserId} />

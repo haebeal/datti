@@ -20,7 +20,7 @@ export default async function RepaymentEditPage({
   const repayment = repaymentResult.result;
 
   return (
-    <div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
+    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <h1 className={cn("text-2xl font-bold")}>返済編集</h1>
 
       <RepaymentEditForm repayment={repayment} />

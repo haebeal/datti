@@ -62,7 +62,7 @@ export default async function LendingPage({
   );
 
   return (
-    <div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
+    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <div className={cn("flex justify-between items-center")}>
         <h1 className={cn("text-2xl font-bold")}>立て替え一覧</h1>
         <LinkButton href={`/groups/${groupId}/lendings/new`}>

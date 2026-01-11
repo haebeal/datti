@@ -26,7 +26,7 @@ export default async function CreateLendingPage({
   const currentUserId = meResult.user.id;
 
   return (
-    <div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
+    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <h1 className={cn("text-2xl font-bold")}>新規立て替え作成</h1>
 
       <LendingCreateForm groupId={groupId} members={members} currentUserId={currentUserId} />

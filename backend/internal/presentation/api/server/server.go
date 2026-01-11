@@ -15,7 +15,7 @@ type LendingHandler interface {
 
 type BorrowingHandler interface {
 	Get(c echo.Context, id string, borrowingId string) error
-	GetAll(c echo.Context, id string) error
+	GetByQuery(c echo.Context, id string, params api.BorrowingGetAllParams) error
 }
 
 type CreditHandler interface {
@@ -102,8 +102,8 @@ func (s *Server) LendingDelete(ctx echo.Context, id string, lendingId string) er
 	return s.lh.Delete(ctx, id, lendingId)
 }
 
-func (s *Server) BorrowingGetAll(ctx echo.Context, id string) error {
-	return s.bh.GetAll(ctx, id)
+func (s *Server) BorrowingGetAll(ctx echo.Context, id string, params api.BorrowingGetAllParams) error {
+	return s.bh.GetByQuery(ctx, id, params)
 }
 
 func (s *Server) BorrowingGet(ctx echo.Context, id string, borrowingId string) error {

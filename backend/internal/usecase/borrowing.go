@@ -48,8 +48,8 @@ func (u BorrowingUseCaseImpl) Get(ctx context.Context, i handler.GetBorrowingInp
 	}, nil
 }
 
-func (u BorrowingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllBorrowingInput) (*handler.GetAllBorrowingOutput, error) {
-	ctx, span := tracer.Start(ctx, "borrowing.GetAll")
+func (u BorrowingUseCaseImpl) GetByQuery(ctx context.Context, i handler.GetAllBorrowingInput) (*handler.GetAllBorrowingOutput, error) {
+	ctx, span := tracer.Start(ctx, "borrowing.GetByQuery")
 	defer span.End()
 
 	memberIDs, err := u.gmr.FindMembersByGroupID(ctx, i.GroupID)
@@ -62,7 +62,12 @@ func (u BorrowingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllBorrow
 		return nil, fmt.Errorf("forbidden Error")
 	}
 
-	borrowings, err := u.br.FindByGroupIDAndUserID(ctx, i.GroupID, i.UserID)
+	params := domain.BorrowingPaginationParams{
+		Limit:  i.Limit,
+		Cursor: i.Cursor,
+	}
+
+	paginatedBorrowings, err := u.br.FindByGroupIDAndUserIDWithPagination(ctx, i.GroupID, i.UserID, params)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -70,6 +75,8 @@ func (u BorrowingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllBorrow
 	}
 
 	return &handler.GetAllBorrowingOutput{
-		Borrowings: borrowings,
+		Borrowings: paginatedBorrowings.Borrowings,
+		NextCursor: paginatedBorrowings.NextCursor,
+		HasMore:    paginatedBorrowings.HasMore,
 	}, nil
 }

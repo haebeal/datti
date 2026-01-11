@@ -61,7 +61,20 @@ func (b *Borrowing) UpdatedAt() time.Time {
 	return b.updatedAt
 }
 
+// BorrowingPaginationParams holds cursor-based pagination parameters
+type BorrowingPaginationParams struct {
+	Limit  int32
+	Cursor *string
+}
+
+// PaginatedBorrowings holds paginated results
+type PaginatedBorrowings struct {
+	Borrowings []*Borrowing
+	NextCursor *string
+	HasMore    bool
+}
+
 type BorrowingRepository interface {
-	FindByGroupIDAndUserID(context.Context, ulid.ULID, string) ([]*Borrowing, error)
 	FindByGroupIDAndUserIDAndEventID(context.Context, ulid.ULID, string, ulid.ULID) (*Borrowing, error)
+	FindByGroupIDAndUserIDWithPagination(context.Context, ulid.ULID, string, BorrowingPaginationParams) (*PaginatedBorrowings, error)
 }

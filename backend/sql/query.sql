@@ -43,7 +43,7 @@ WHERE e.group_id = sqlc.arg('group_id')
 ORDER BY e.id DESC
 LIMIT sqlc.arg('limit');
 
--- name: FindEventsByGroupIDAndDebtorID :many
+-- name: FindBorrowingsByGroupIDAndUserIDWithCursor :many
 SELECT
   e.id AS event_id,
   e.group_id,
@@ -55,7 +55,11 @@ SELECT
 FROM events e
 INNER JOIN event_payments ep ON e.id = ep.event_id
 INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = $1 AND p.debtor_id = $2;
+WHERE e.group_id = sqlc.arg('group_id')
+  AND p.debtor_id = sqlc.arg('debtor_id')
+  AND (sqlc.narg('cursor')::text IS NULL OR e.id < sqlc.narg('cursor'))
+ORDER BY e.id DESC
+LIMIT sqlc.arg('limit');
 
 -- name: FindEventByGroupIDAndDebtorIDAndEventID :one
 SELECT

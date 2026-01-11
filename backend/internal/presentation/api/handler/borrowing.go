@@ -14,7 +14,7 @@ import (
 
 type BorrowingUseCase interface {
 	Get(context.Context, GetBorrowingInput) (*GetBorrowingOutput, error)
-	GetAll(context.Context, GetAllBorrowingInput) (*GetAllBorrowingOutput, error)
+	GetByQuery(context.Context, GetAllBorrowingInput) (*GetAllBorrowingOutput, error)
 }
 
 type borrowingHandler struct {
@@ -95,8 +95,8 @@ func (b borrowingHandler) Get(c echo.Context, id string, borrowingId string) err
 	return c.JSON(http.StatusOK, res)
 }
 
-func (b borrowingHandler) GetAll(c echo.Context, id string) error {
-	ctx, span := tracer.Start(c.Request().Context(), "borrowing.GetAll")
+func (b borrowingHandler) GetByQuery(c echo.Context, id string, params api.BorrowingGetAllParams) error {
+	ctx, span := tracer.Start(c.Request().Context(), "borrowing.GetByQuery")
 	defer span.End()
 
 	groupID, err := ulid.Parse(id)
@@ -120,12 +120,20 @@ func (b borrowingHandler) GetAll(c echo.Context, id string) error {
 		return c.JSON(http.StatusUnauthorized, res)
 	}
 
+	// Set default limit
+	limit := int32(20)
+	if params.Limit != nil {
+		limit = *params.Limit
+	}
+
 	input := GetAllBorrowingInput{
 		UserID:  userID,
 		GroupID: groupID,
+		Limit:   limit,
+		Cursor:  params.Cursor,
 	}
 
-	output, err := b.u.GetAll(ctx, input)
+	output, err := b.u.GetByQuery(ctx, input)
 	if err != nil {
 		message := fmt.Sprintf("Failed to get borrowing event: %v", err)
 		span.SetStatus(codes.Error, message)
@@ -139,9 +147,9 @@ func (b borrowingHandler) GetAll(c echo.Context, id string) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	res := []api.BorrowingGetAllResponse{}
+	responseItems := make([]api.BorrowingGetAllResponse, 0)
 	for _, borrowing := range output.Borrowings {
-		res = append(res, api.BorrowingGetAllResponse{
+		responseItems = append(responseItems, api.BorrowingGetAllResponse{
 			Id:        borrowing.ID().String(),
 			Name:      borrowing.Name(),
 			Amount:    uint64(borrowing.Amount().Value()),
@@ -151,16 +159,26 @@ func (b borrowingHandler) GetAll(c echo.Context, id string) error {
 		})
 	}
 
+	res := &api.BorrowingPaginatedResponse{
+		Borrowings: responseItems,
+		NextCursor: output.NextCursor,
+		HasMore:    output.HasMore,
+	}
+
 	return c.JSON(http.StatusOK, res)
 }
 
 type GetAllBorrowingInput struct {
 	UserID  string
 	GroupID ulid.ULID
+	Limit   int32
+	Cursor  *string
 }
 
 type GetAllBorrowingOutput struct {
 	Borrowings []*domain.Borrowing
+	NextCursor *string
+	HasMore    bool
 }
 
 type GetBorrowingInput struct {

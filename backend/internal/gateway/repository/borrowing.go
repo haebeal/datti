@@ -103,3 +103,80 @@ func (br *BorrowingRepositoryImpl) FindByGroupIDAndUserIDAndEventID(ctx context.
 
 	return borrowing, nil
 }
+
+func (br *BorrowingRepositoryImpl) FindByGroupIDAndUserIDWithPagination(
+	ctx context.Context,
+	groupID ulid.ULID,
+	userID string,
+	params domain.BorrowingPaginationParams,
+) (*domain.PaginatedBorrowings, error) {
+	ctx, span := tracer.Start(ctx, "borrowing.FindByGroupIDAndUserIDWithPagination")
+	defer span.End()
+
+	// Fetch limit + 1 to determine hasMore
+	fetchLimit := params.Limit + 1
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM events WITH CURSOR")
+	events, err := br.queries.FindBorrowingsByGroupIDAndUserIDWithCursor(ctx, postgres.FindBorrowingsByGroupIDAndUserIDWithCursorParams{
+		GroupID:  groupID.String(),
+		DebtorID: userID,
+		Cursor:   params.Cursor,
+		Limit:    fetchLimit,
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	hasMore := len(events) > int(params.Limit)
+	if hasMore {
+		events = events[:params.Limit]
+	}
+
+	borrowings := make([]*domain.Borrowing, 0, len(events))
+	var nextCursor *string
+
+	for _, e := range events {
+		eventID, err := ulid.Parse(e.EventID)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+		amount, err := domain.NewAmount(int64(e.Amount))
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+		borrowing, err := domain.NewBorrowing(
+			eventID,
+			e.Name,
+			amount,
+			e.EventDate,
+			e.CreatedAt,
+			e.UpdatedAt,
+		)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+		borrowings = append(borrowings, borrowing)
+	}
+
+	// Set nextCursor to the ID of the last item if there are more items
+	if hasMore && len(borrowings) > 0 {
+		lastID := borrowings[len(borrowings)-1].ID().String()
+		nextCursor = &lastID
+	}
+
+	return &domain.PaginatedBorrowings{
+		Borrowings: borrowings,
+		NextCursor: nextCursor,
+		HasMore:    hasMore,
+	}, nil
+}

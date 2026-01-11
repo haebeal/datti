@@ -49,19 +49,26 @@ func (u RepaymentUseCaseImpl) Create(ctx context.Context, i handler.RepaymentCre
 	}, nil
 }
 
-func (u RepaymentUseCaseImpl) GetAll(ctx context.Context, i handler.RepaymentGetAllInput) (*handler.RepaymentGetAllOutput, error) {
-	ctx, span := tracer.Start(ctx, "repayment.GetAll")
+func (u RepaymentUseCaseImpl) GetByQuery(ctx context.Context, i handler.RepaymentGetByQueryInput) (*handler.RepaymentGetByQueryOutput, error) {
+	ctx, span := tracer.Start(ctx, "repayment.GetByQuery")
 	defer span.End()
 
-	repayments, err := u.rr.FindByPayerID(ctx, i.UserID)
+	params := domain.RepaymentPaginationParams{
+		Limit:  i.Limit,
+		Cursor: i.Cursor,
+	}
+
+	result, err := u.rr.FindByPayerIDWithPagination(ctx, i.UserID, params)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
 
-	return &handler.RepaymentGetAllOutput{
-		Repayments: repayments,
+	return &handler.RepaymentGetByQueryOutput{
+		Repayments: result.Repayments,
+		NextCursor: result.NextCursor,
+		HasMore:    result.HasMore,
 	}, nil
 }
 

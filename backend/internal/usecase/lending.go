@@ -162,28 +162,50 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 	return output, nil
 }
 
-func (u LendingUseCaseImpl) GetAll(ctx context.Context, i handler.GetAllInput) (*handler.GetAllOutput, error) {
-	ctx, span := tracer.Start(ctx, "lending.GetAll")
+func (u LendingUseCaseImpl) GetByQuery(ctx context.Context, i handler.GetAllInput) (*handler.GetAllOutput, error) {
+	ctx, span := tracer.Start(ctx, "lending.GetByQuery")
 	defer span.End()
 
 	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
 		return nil, err
 	}
 
-	lendings, err := u.lr.FindByGroupIDAndUserID(ctx, i.GroupID, i.UserID)
+	params := domain.LendingPaginationParams{
+		Limit:  i.Limit,
+		Cursor: i.Cursor,
+	}
+
+	paginatedLendings, err := u.lr.FindByGroupIDAndUserIDWithPagination(ctx, i.GroupID, i.UserID, params)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, fmt.Errorf("lendingEventが存在しません")
 	}
 
-	output := handler.GetAllOutput{}
+	lendings := paginatedLendings.Lendings
+
+	// Collect all event IDs for batch fetching
+	eventIDs := make([]ulid.ULID, len(lendings))
+	for idx, l := range lendings {
+		eventIDs[idx] = l.ID()
+	}
+
+	// Batch fetch all debtors at once
+	debtorsMap, err := u.dr.FindByEventIDs(ctx, eventIDs)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	output := handler.GetAllOutput{
+		NextCursor: paginatedLendings.NextCursor,
+		HasMore:    paginatedLendings.HasMore,
+	}
 	for _, l := range lendings {
-		debtors, err := u.dr.FindByEventID(ctx, l.ID())
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
+		debtors := debtorsMap[l.ID()]
+		if debtors == nil {
+			debtors = []*domain.Debtor{}
 		}
 
 		lending := struct {

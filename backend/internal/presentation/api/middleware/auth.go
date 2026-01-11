@@ -29,12 +29,6 @@ func AuthMiddleware(cfg AuthMiddlewareConfig) echo.MiddlewareFunc {
 				}
 			}
 
-			// Dev mode: use hardcoded user ID
-			if cfg.DevMode {
-				c.Set("uid", cfg.DevUserID)
-				return next(c)
-			}
-
 			// Extract Bearer token from Authorization header
 			authHeader := c.Request().Header.Get("Authorization")
 			if authHeader == "" {
@@ -68,4 +62,3 @@ func AuthMiddleware(cfg AuthMiddlewareConfig) echo.MiddlewareFunc {
 		}
 	}
 }
-

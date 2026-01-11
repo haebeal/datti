@@ -87,37 +87,80 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 	return lendingEvent, nil
 }
 
-func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserID(ctx context.Context, groupID ulid.ULID, userID string) ([]*domain.Lending, error) {
-	lendingEvents, err := lr.queries.FindLendingsByGroupIDAndUserID(ctx, postgres.FindLendingsByGroupIDAndUserIDParams{
+func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserIDWithPagination(
+	ctx context.Context,
+	groupID ulid.ULID,
+	userID string,
+	params domain.LendingPaginationParams,
+) (*domain.PaginatedLendings, error) {
+	ctx, span := tracer.Start(ctx, "lendingEvent.FindByGroupIDAndUserIDWithPagination")
+	defer span.End()
+
+	// Fetch limit + 1 to determine hasMore
+	fetchLimit := params.Limit + 1
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT DISTINCT * FROM events WITH CURSOR")
+	lendingEvents, err := lr.queries.FindLendingsByGroupIDAndUserIDWithCursor(ctx, postgres.FindLendingsByGroupIDAndUserIDWithCursorParams{
 		GroupID: groupID.String(),
 		PayerID: userID,
+		Cursor:  params.Cursor,
+		Limit:   fetchLimit,
 	})
 	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
 		return nil, err
 	}
+	querySpan.End()
 
-	lendings := []*domain.Lending{}
+	hasMore := len(lendingEvents) > int(params.Limit)
+	if hasMore {
+		lendingEvents = lendingEvents[:params.Limit]
+	}
+
+	lendings := make([]*domain.Lending, 0, len(lendingEvents))
+	var nextCursor *string
+
 	for _, l := range lendingEvents {
 		eventID, err := ulid.Parse(l.ID)
 		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
 			return nil, err
 		}
 		eventGroupID, err := ulid.Parse(l.GroupID)
 		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
 			return nil, err
 		}
 		amount, err := domain.NewAmount(int64(l.Amount))
 		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
 			return nil, err
 		}
 		lending, err := domain.NewLending(eventID, eventGroupID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt)
 		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
 			return nil, err
 		}
 		lendings = append(lendings, lending)
 	}
 
-	return lendings, nil
+	// Set nextCursor to the ID of the last item if there are more items
+	if hasMore && len(lendings) > 0 {
+		lastID := lendings[len(lendings)-1].ID().String()
+		nextCursor = &lastID
+	}
+
+	return &domain.PaginatedLendings{
+		Lendings:   lendings,
+		NextCursor: nextCursor,
+		HasMore:    hasMore,
+	}, nil
 }
 
 func (lr *LendingEventRepositoryImpl) Update(ctx context.Context, e *domain.Lending) error {

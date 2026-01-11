@@ -287,16 +287,30 @@ paths:
     get:
       operationId: Repayment_getAll
       summary: 全ての返済の取得
-      parameters: []
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          description: "取得件数（デフォルト: 20、最大: 100）"
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: cursor
+          in: query
+          required: false
+          description: "次ページ用カーソル（前回レスポンスの最後のID）"
+          schema:
+            type: string
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Repayment.GetAllResponse'
+                $ref: '#/components/schemas/Repayment.PaginatedResponse'
         '401':
           description: Access is unauthorized.
           content:
@@ -832,15 +846,29 @@ paths:
           required: true
           schema:
             type: string
+        - name: limit
+          in: query
+          required: false
+          description: "取得件数（デフォルト: 20、最大: 100）"
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: cursor
+          in: query
+          required: false
+          description: "次ページ用カーソル（前回レスポンスの最後のID）"
+          schema:
+            type: string
       responses:
         '200':
           description: The request has succeeded.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Lending.GetAllResponse'
+                $ref: '#/components/schemas/Lending.PaginatedResponse'
         '401':
           description: Access is unauthorized.
           content:
@@ -1555,6 +1583,23 @@ components:
         updatedAt:
           type: string
           format: date-time
+    Lending.PaginatedResponse:
+      type: object
+      required:
+        - lendings
+        - hasMore
+      properties:
+        lendings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Lending.GetAllResponse'
+        nextCursor:
+          type: string
+          nullable: true
+          description: "次ページ用カーソル（次ページがない場合はnull）"
+        hasMore:
+          type: boolean
+          description: "次ページが存在するかどうか"
     Lending.UpdateRequest:
       type: object
       required:
@@ -1667,6 +1712,23 @@ components:
         updatedAt:
           type: string
           format: date-time
+    Repayment.PaginatedResponse:
+      type: object
+      required:
+        - repayments
+        - hasMore
+      properties:
+        repayments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Repayment.GetAllResponse'
+        nextCursor:
+          type: string
+          nullable: true
+          description: 次ページ用カーソル（次ページがない場合はnull）
+        hasMore:
+          type: boolean
+          description: 次ページが存在するかどうか
     Repayment.GetResponse:
       type: object
       required:

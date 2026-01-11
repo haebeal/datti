@@ -24,7 +24,7 @@ export default async function RepaymentsPage() {
         </div>
       )}
 
-      {success && result && <RepaymentList repayments={result} />}
+      {success && result && <RepaymentList repayments={result.repayments} />}
     </div>
   );
 }

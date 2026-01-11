@@ -27,3 +27,9 @@ export type CreateLendingRequest = {
 export type UpdateLendingRequest = CreateLendingRequest & {
 	id: string;
 };
+
+export type PaginatedLendingResponse = {
+	lendings: Lending[];
+	nextCursor: string | null;
+	hasMore: boolean;
+};

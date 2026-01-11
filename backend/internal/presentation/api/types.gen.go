@@ -177,6 +177,16 @@ type LendingGetResponse struct {
 	UpdatedAt time.Time           `json:"updatedAt"`
 }
 
+// LendingPaginatedResponse defines model for Lending.PaginatedResponse.
+type LendingPaginatedResponse struct {
+	// HasMore 次ページが存在するかどうか
+	HasMore  bool                    `json:"hasMore"`
+	Lendings []LendingGetAllResponse `json:"lendings"`
+
+	// NextCursor 次ページ用カーソル（次ページがない場合はnull）
+	NextCursor *string `json:"nextCursor"`
+}
+
 // LendingUpdateRequest defines model for Lending.UpdateRequest.
 type LendingUpdateRequest struct {
 	Amount    uint64              `json:"amount"`
@@ -232,6 +242,16 @@ type RepaymentGetResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// RepaymentPaginatedResponse defines model for Repayment.PaginatedResponse.
+type RepaymentPaginatedResponse struct {
+	// HasMore 次ページが存在するかどうか
+	HasMore bool `json:"hasMore"`
+
+	// NextCursor 次ページ用カーソル（次ページがない場合はnull）
+	NextCursor *string                   `json:"nextCursor"`
+	Repayments []RepaymentGetAllResponse `json:"repayments"`
+}
+
 // RepaymentUpdateRequest defines model for Repayment.UpdateRequest.
 type RepaymentUpdateRequest struct {
 	Amount uint64 `json:"amount"`
@@ -267,6 +287,24 @@ type UserSearchResponse struct {
 type UserUpdateRequest struct {
 	Avatar string `json:"avatar"`
 	Name   string `json:"name"`
+}
+
+// LendingGetAllParams defines parameters for LendingGetAll.
+type LendingGetAllParams struct {
+	// Limit 取得件数（デフォルト: 20、最大: 100）
+	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor 次ページ用カーソル（前回レスポンスの最後のID）
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
+}
+
+// RepaymentGetAllParams defines parameters for RepaymentGetAll.
+type RepaymentGetAllParams struct {
+	// Limit 取得件数（デフォルト: 20、最大: 100）
+	Limit *int32 `form:"limit,omitempty" json:"limit,omitempty"`
+
+	// Cursor 次ページ用カーソル（前回レスポンスの最後のID）
+	Cursor *string `form:"cursor,omitempty" json:"cursor,omitempty"`
 }
 
 // UserSearchParams defines parameters for UserSearch.

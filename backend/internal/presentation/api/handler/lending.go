@@ -16,7 +16,7 @@ import (
 type LendingUseCase interface {
 	Create(context.Context, CreateInput) (*CreateOutput, error)
 	Get(context.Context, GetInput) (*GetOutput, error)
-	GetAll(context.Context, GetAllInput) (*GetAllOutput, error)
+	GetByQuery(context.Context, GetAllInput) (*GetAllOutput, error)
 	Update(context.Context, UpdateInput) (*UpdateOutput, error)
 	Delete(context.Context, DeleteInput) error
 }
@@ -204,8 +204,8 @@ func (h lendingHandler) Get(c echo.Context, id string, lendingId string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (h lendingHandler) GetAll(c echo.Context, id string) error {
-	ctx, span := tracer.Start(c.Request().Context(), "lending.GetAll")
+func (h lendingHandler) GetByQuery(c echo.Context, id string, params api.LendingGetAllParams) error {
+	ctx, span := tracer.Start(c.Request().Context(), "lending.GetByQuery")
 	defer span.End()
 
 	groupID, err := ulid.Parse(id)
@@ -228,12 +228,20 @@ func (h lendingHandler) GetAll(c echo.Context, id string) error {
 		return c.JSON(http.StatusUnauthorized, res)
 	}
 
+	// Set default limit
+	limit := int32(20)
+	if params.Limit != nil {
+		limit = *params.Limit
+	}
+
 	input := GetAllInput{
 		GroupID: groupID,
 		UserID:  userID,
+		Limit:   limit,
+		Cursor:  params.Cursor,
 	}
 
-	output, err := h.u.GetAll(ctx, input)
+	output, err := h.u.GetByQuery(ctx, input)
 	if err != nil {
 		message := fmt.Sprintf("Failed to get lending events: %v", err)
 		res := &api.ErrorResponse{
@@ -266,7 +274,13 @@ func (h lendingHandler) GetAll(c echo.Context, id string) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, responseItems)
+	res := &api.LendingPaginatedResponse{
+		Lendings:   responseItems,
+		NextCursor: output.NextCursor,
+		HasMore:    output.HasMore,
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
 
 func (h lendingHandler) Update(c echo.Context, id string, lendingId string) error {
@@ -473,6 +487,8 @@ type GetOutput struct {
 type GetAllInput struct {
 	GroupID ulid.ULID
 	UserID  string
+	Limit   int32
+	Cursor  *string
 }
 
 type GetAllOutput struct {
@@ -480,6 +496,8 @@ type GetAllOutput struct {
 		Lending *domain.Lending
 		Debtors []*domain.Debtor
 	}
+	NextCursor *string
+	HasMore    bool
 }
 
 type UpdateInput struct {

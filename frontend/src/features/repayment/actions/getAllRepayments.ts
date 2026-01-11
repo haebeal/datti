@@ -2,18 +2,16 @@
 
 import { apiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
-import type { Repayment, PaginatedRepaymentResponse } from "../types";
+import type {
+  Repayment,
+  PaginatedRepaymentResponse,
+  PaginatedRepayments,
+} from "../types";
 import type { User } from "@/features/user/types";
 
 type GetAllRepaymentsParams = {
   limit?: number;
   cursor?: string;
-};
-
-type PaginatedRepayments = {
-  repayments: Repayment[];
-  nextCursor: string | null;
-  hasMore: boolean;
 };
 
 export async function getAllRepayments(

@@ -26,6 +26,15 @@ export type PaginatedRepaymentResponse = {
 };
 
 /**
+ * Frontend paginated repayments type with user information
+ */
+export type PaginatedRepayments = {
+  repayments: Repayment[];
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
+/**
  * Frontend Repayment type with user information
  */
 export type Repayment = {

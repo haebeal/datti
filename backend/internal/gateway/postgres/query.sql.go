@@ -748,41 +748,6 @@ func (q *Queries) FindRepaymentByID(ctx context.Context, id string) (Payment, er
 	return i, err
 }
 
-const findRepaymentsByPayerID = `-- name: FindRepaymentsByPayerID :many
-SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at
-FROM payments p
-LEFT JOIN event_payments ep ON p.id = ep.payment_id
-WHERE p.payer_id = $1 AND ep.event_id IS NULL
-ORDER BY p.created_at DESC
-`
-
-func (q *Queries) FindRepaymentsByPayerID(ctx context.Context, payerID string) ([]Payment, error) {
-	rows, err := q.db.Query(ctx, findRepaymentsByPayerID, payerID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Payment
-	for rows.Next() {
-		var i Payment
-		if err := rows.Scan(
-			&i.ID,
-			&i.PayerID,
-			&i.DebtorID,
-			&i.Amount,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const findRepaymentsByPayerIDWithCursor = `-- name: FindRepaymentsByPayerIDWithCursor :many
 SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at
 FROM payments p

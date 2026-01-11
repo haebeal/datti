@@ -142,13 +142,6 @@ ORDER BY payer_id;
 INSERT INTO payments (id, payer_id, debtor_id, amount, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6);
 
--- name: FindRepaymentsByPayerID :many
-SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at
-FROM payments p
-LEFT JOIN event_payments ep ON p.id = ep.payment_id
-WHERE p.payer_id = $1 AND ep.event_id IS NULL
-ORDER BY p.created_at DESC;
-
 -- name: FindRepaymentsByPayerIDWithCursor :many
 SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at
 FROM payments p

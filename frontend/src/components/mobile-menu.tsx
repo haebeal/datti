@@ -6,13 +6,6 @@ import { cn } from "@/utils/cn";
 
 export function MobileMenu() {
   const pathname = usePathname();
-  const groupId = pathname.match(/\/groups\/([^/]+)/)?.[1];
-
-  const getGroupPath = (path: string) => {
-    return groupId ? `/groups/${groupId}${path}` : path;
-  };
-
-  const isActive = (path: string) => pathname.includes(path);
 
   return (
     <nav
@@ -23,12 +16,12 @@ export function MobileMenu() {
     >
       <div className={cn("flex justify-around items-center h-16")}>
         <Link
-          href="/credit"
+          href="/"
           className={cn(
             "flex flex-col items-center justify-center flex-1 h-full",
-            pathname === "/credit"
-              ? "text-[#0d47a1]"
-              : "text-gray-500 hover:text-[#0d47a1]",
+            pathname === "/"
+              ? "text-primary-base"
+              : "text-gray-500 hover:text-primary-base",
           )}
         >
           <svg
@@ -37,7 +30,7 @@ export function MobileMenu() {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <title>債権</title>
+            <title>支払い</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -45,15 +38,15 @@ export function MobileMenu() {
               d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
             />
           </svg>
-          <span className={cn("text-xs mt-1")}>債権</span>
+          <span className={cn("text-xs mt-1")}>支払い</span>
         </Link>
         <Link
-          href={getGroupPath("/borrowing")}
+          href="/repayments"
           className={cn(
             "flex flex-col items-center justify-center flex-1 h-full",
-            isActive("/borrowing")
-              ? "text-[#0d47a1]"
-              : "text-gray-500 hover:text-[#0d47a1]",
+            pathname.startsWith("/repayments")
+              ? "text-primary-base"
+              : "text-gray-500 hover:text-primary-base",
           )}
         >
           <svg
@@ -62,23 +55,23 @@ export function MobileMenu() {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <title>借り入れ</title>
+            <title>返済</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"
+              d="M7 7h11m0 0-3-3m3 3-3 3M17 17H6m0 0 3 3m-3-3 3-3"
             />
           </svg>
-          <span className={cn("text-xs mt-1")}>借り入れ</span>
+          <span className={cn("text-xs mt-1")}>返済</span>
         </Link>
         <Link
-          href={getGroupPath("/lendings")}
+          href="/groups"
           className={cn(
             "flex flex-col items-center justify-center flex-1 h-full",
-            isActive("/lendings")
-              ? "text-[#0d47a1]"
-              : "text-gray-500 hover:text-[#0d47a1]",
+            pathname.startsWith("/groups")
+              ? "text-primary-base"
+              : "text-gray-500 hover:text-primary-base",
           )}
         >
           <svg
@@ -87,21 +80,23 @@ export function MobileMenu() {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <title>立て替え</title>
+            <title>グループ</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+              d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
             />
           </svg>
-          <span className={cn("text-xs mt-1")}>立て替え</span>
+          <span className={cn("text-xs mt-1")}>グループ</span>
         </Link>
         <Link
-          href={getGroupPath("/lendings/new")}
+          href="/profile"
           className={cn(
             "flex flex-col items-center justify-center flex-1 h-full",
-            "text-gray-500 hover:text-[#0d47a1]",
+            pathname === "/profile"
+              ? "text-primary-base"
+              : "text-gray-500 hover:text-primary-base",
           )}
         >
           <svg
@@ -110,15 +105,15 @@ export function MobileMenu() {
             stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <title>新規作成</title>
+            <title>プロフィール</title>
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M12 4v16m8-8H4"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
             />
           </svg>
-          <span className={cn("text-xs mt-1")}>新規</span>
+          <span className={cn("text-xs mt-1")}>プロフィール</span>
         </Link>
       </div>
     </nav>

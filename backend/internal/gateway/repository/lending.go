@@ -87,39 +87,6 @@ func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID
 	return lendingEvent, nil
 }
 
-func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserID(ctx context.Context, groupID ulid.ULID, userID string) ([]*domain.Lending, error) {
-	lendingEvents, err := lr.queries.FindLendingsByGroupIDAndUserID(ctx, postgres.FindLendingsByGroupIDAndUserIDParams{
-		GroupID: groupID.String(),
-		PayerID: userID,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	lendings := []*domain.Lending{}
-	for _, l := range lendingEvents {
-		eventID, err := ulid.Parse(l.ID)
-		if err != nil {
-			return nil, err
-		}
-		eventGroupID, err := ulid.Parse(l.GroupID)
-		if err != nil {
-			return nil, err
-		}
-		amount, err := domain.NewAmount(int64(l.Amount))
-		if err != nil {
-			return nil, err
-		}
-		lending, err := domain.NewLending(eventID, eventGroupID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt)
-		if err != nil {
-			return nil, err
-		}
-		lendings = append(lendings, lending)
-	}
-
-	return lendings, nil
-}
-
 func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserIDWithPagination(
 	ctx context.Context,
 	groupID ulid.ULID,

@@ -104,7 +104,6 @@ type PaginatedLendings struct {
 type LendingEventRepository interface {
 	Create(context.Context, *Lending) error
 	FindByID(context.Context, ulid.ULID) (*Lending, error)
-	FindByGroupIDAndUserID(context.Context, ulid.ULID, string) ([]*Lending, error)
 	FindByGroupIDAndUserIDWithPagination(context.Context, ulid.ULID, string, LendingPaginationParams) (*PaginatedLendings, error)
 	Update(context.Context, *Lending) error
 	Delete(context.Context, ulid.ULID) error

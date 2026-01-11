@@ -3,14 +3,40 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GroupSelector } from "@/features/group/components/group-selector";
-import { LogoutButton } from "./logout-button";
 import { cn } from "@/utils/cn";
 import type { Group } from "@/features/group/types";
 import type { User } from "@/features/user/types";
+import { useTransition } from "react";
+import { logout } from "@/features/auth/actions/logout";
+import { Button } from "@/components/ui/button";
 
 interface SidebarProps {
   groups: Group[];
   user: User | null;
+}
+
+/**
+ * ログアウトボタン
+ */
+export function LogoutButton() {
+  const [isPending, startTransition] = useTransition();
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      await logout();
+    });
+  };
+
+  return (
+    <Button
+      type="button"
+      colorStyle="outline"
+      onPress={handleLogout}
+      isDisabled={isPending}
+    >
+      {isPending ? "ログアウト中..." : "ログアウト"}
+    </Button>
+  );
 }
 
 export function Sidebar({ groups, user }: SidebarProps) {
@@ -32,9 +58,9 @@ export function Sidebar({ groups, user }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "h-screen w-80",
+        "h-full w-80",
         "hidden",
-        "md:flex flex-col gap-2",
+        "sm:flex flex-col gap-2",
         "px-5 py-6",
         "border-gray-200 border-r",
       )}

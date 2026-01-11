@@ -133,7 +133,7 @@ closed #xxx
 
 # 実施内容
 
-（具体的に何を実装・修正したのかを記載。複数ある場合は番号付きリストで整理）
+（具体的に何を実装・修正したのかを記載。複数ある場合は箇条書きで整理）
 
 # 備考 (あれば)
 
@@ -159,20 +159,18 @@ closed #248
 
 # 実施内容
 
-1. 型定義の拡張
-   - `RepaymentResponse`, `GroupResponse`, `CreditResponse` 型を追加（バックエンドAPIレスポンス用）
-   - `Repayment`, `Group`, `Credit` 型を拡張してユーザーオブジェクトを含むように変更
-
-2. Server Actionの更新
-   - `getRepayment`: 返済データとユーザー情報を並列取得
-   - `getAllRepayments`: 重複排除してユーザー情報をバルク取得
-   - `getGroup`, `getAllGroups`: グループ作成者情報を取得
-   - `getAllCredits`: 貸し借りユーザー情報を取得
-
-3. UIコンポーネントの更新
-   - 返済詳細/編集/一覧ページでユーザー名とアバターを表示
-   - グループ一覧/設定ページで作成者名とメンバーアバターを表示
-   - 支払いカードでアバター画像表示と色分け（青: 受取、赤: 支払）
+- 型定義の拡張
+  - `RepaymentResponse`, `GroupResponse`, `CreditResponse` 型を追加（バックエンドAPIレスポンス用）
+  - `Repayment`, `Group`, `Credit` 型を拡張してユーザーオブジェクトを含むように変更
+- Server Actionの更新
+  - `getRepayment`: 返済データとユーザー情報を並列取得
+  - `getAllRepayments`: 重複排除してユーザー情報をバルク取得
+  - `getGroup`, `getAllGroups`: グループ作成者情報を取得
+  - `getAllCredits`: 貸し借りユーザー情報を取得
+- UIコンポーネントの更新
+  - 返済詳細/編集/一覧ページでユーザー名とアバターを表示
+  - グループ一覧/設定ページで作成者名とメンバーアバターを表示
+  - 支払いカードでアバター画像表示と色分け（青: 受取、赤: 支払）
 
 # 備考
 

@@ -75,7 +75,6 @@ type PaginatedBorrowings struct {
 }
 
 type BorrowingRepository interface {
-	FindByGroupIDAndUserID(context.Context, ulid.ULID, string) ([]*Borrowing, error)
 	FindByGroupIDAndUserIDAndEventID(context.Context, ulid.ULID, string, ulid.ULID) (*Borrowing, error)
 	FindByGroupIDAndUserIDWithPagination(context.Context, ulid.ULID, string, BorrowingPaginationParams) (*PaginatedBorrowings, error)
 }

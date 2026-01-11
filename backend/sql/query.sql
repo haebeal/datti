@@ -43,20 +43,6 @@ WHERE e.group_id = sqlc.arg('group_id')
 ORDER BY e.id DESC
 LIMIT sqlc.arg('limit');
 
--- name: FindEventsByGroupIDAndDebtorID :many
-SELECT
-  e.id AS event_id,
-  e.group_id,
-  e.name,
-  e.event_date,
-  p.amount,
-  e.created_at,
-  e.updated_at
-FROM events e
-INNER JOIN event_payments ep ON e.id = ep.event_id
-INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = $1 AND p.debtor_id = $2;
-
 -- name: FindBorrowingsByGroupIDAndUserIDWithCursor :many
 SELECT
   e.id AS event_id,

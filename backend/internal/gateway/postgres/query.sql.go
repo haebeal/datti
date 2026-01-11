@@ -508,64 +508,6 @@ func (q *Queries) FindEventById(ctx context.Context, id string) (Event, error) {
 	return i, err
 }
 
-const findEventsByGroupIDAndDebtorID = `-- name: FindEventsByGroupIDAndDebtorID :many
-SELECT
-  e.id AS event_id,
-  e.group_id,
-  e.name,
-  e.event_date,
-  p.amount,
-  e.created_at,
-  e.updated_at
-FROM events e
-INNER JOIN event_payments ep ON e.id = ep.event_id
-INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = $1 AND p.debtor_id = $2
-`
-
-type FindEventsByGroupIDAndDebtorIDParams struct {
-	GroupID  string
-	DebtorID string
-}
-
-type FindEventsByGroupIDAndDebtorIDRow struct {
-	EventID   string
-	GroupID   string
-	Name      string
-	EventDate time.Time
-	Amount    int32
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (q *Queries) FindEventsByGroupIDAndDebtorID(ctx context.Context, arg FindEventsByGroupIDAndDebtorIDParams) ([]FindEventsByGroupIDAndDebtorIDRow, error) {
-	rows, err := q.db.Query(ctx, findEventsByGroupIDAndDebtorID, arg.GroupID, arg.DebtorID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []FindEventsByGroupIDAndDebtorIDRow
-	for rows.Next() {
-		var i FindEventsByGroupIDAndDebtorIDRow
-		if err := rows.Scan(
-			&i.EventID,
-			&i.GroupID,
-			&i.Name,
-			&i.EventDate,
-			&i.Amount,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
 const findGroupByID = `-- name: FindGroupByID :one
 SELECT id, name, created_by, created_at, updated_at
 FROM groups WHERE id = $1 LIMIT 1

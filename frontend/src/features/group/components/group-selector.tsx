@@ -46,7 +46,7 @@ function GroupAccordionItem({
           "transition-colors",
           "hover:bg-gray-100",
           "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-base",
-          isExpanded && "bg-primary-surface",
+          isExpanded && "bg-blue-50",
         )}
       >
         {/* アイコン */}

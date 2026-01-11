@@ -3,6 +3,7 @@ import { redis } from "./redis";
 
 const SESSION_PREFIX = "session:";
 const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60; // 7日間
+const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000; // 5分前にリフレッシュ
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 
 export interface Session {
@@ -64,8 +65,8 @@ export async function getSession(
   const session: Session = typeof data === "string" ? JSON.parse(data) : data;
   const now = Date.now();
 
-  // アクセストークンが失効していればリフレッシュ
-  if (session.accessTokenExpiresAt < now) {
+  // アクセストークンが失効している、または5分以内に失効する場合はリフレッシュ
+  if (session.accessTokenExpiresAt - TOKEN_REFRESH_BUFFER_MS < now) {
     const refreshedSession = await refreshAccessToken(session);
     if (!refreshedSession) {
       // リフレッシュ失敗: セッション削除
@@ -111,6 +112,7 @@ async function refreshAccessToken(
           grant_type: "refresh_token",
           refresh_token: session.refreshToken,
         }),
+        cache: "no-store",
       }
     );
 

@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
         redirect_uri: `${APP_URL}/api/auth/google/callback`,
         grant_type: "authorization_code",
       }),
+      cache: "no-store",
     });
 
     if (!tokenResponse.ok) {
@@ -82,6 +83,7 @@ export async function GET(request: NextRequest) {
         requestUri: `${APP_URL}/api/auth/google/callback`,
         returnSecureToken: true,
       }),
+      cache: "no-store",
     });
 
     if (!firebaseResponse.ok) {
@@ -99,6 +101,7 @@ export async function GET(request: NextRequest) {
       headers: {
         Authorization: `Bearer ${firebaseIdToken}`,
       },
+      cache: "no-store",
     });
 
     if (loginResponse.status === 200) {
@@ -134,6 +137,7 @@ export async function GET(request: NextRequest) {
           email: firebaseData.email,
           avatar: firebaseData.photoUrl,
         }),
+        cache: "no-store",
       });
 
       if (signupResponse.status === 201) {

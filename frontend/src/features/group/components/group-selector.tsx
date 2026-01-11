@@ -31,6 +31,7 @@ function GroupAccordionItem({
   onToggle,
   pathname,
 }: GroupAccordionItemProps) {
+  const isGroupActive = pathname.includes(`/groups/${group.id}`);
   const isLendingsActive = pathname.includes(`/groups/${group.id}/lendings`);
   const isSettingsActive = pathname.includes(`/groups/${group.id}/settings`);
 
@@ -46,7 +47,7 @@ function GroupAccordionItem({
           "transition-colors",
           "hover:bg-gray-100",
           "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-base",
-          isExpanded && "bg-blue-50",
+          isGroupActive && "bg-blue-50",
         )}
       >
         {/* アイコン */}
@@ -65,7 +66,7 @@ function GroupAccordionItem({
         <span
           className={cn(
             "flex-1 text-left font-medium truncate",
-            isExpanded ? "text-primary-base" : "text-gray-900",
+            isGroupActive ? "text-primary-base" : "text-gray-900",
           )}
         >
           {group.name}

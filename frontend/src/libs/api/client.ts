@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { getSession } from "@/libs/session/session";
 
 const API_BASE_URL = process.env.API_URL;
 
@@ -9,11 +10,20 @@ type RequestOptions = {
 };
 
 /**
- * cookieからFirebase IDトークンを取得
+ * セッションからアクセストークンを取得
+ * セッションが存在しない場合はundefinedを返す
+ * アクセストークンが失効していれば自動リフレッシュされる
  */
 async function getAuthToken(): Promise<string | undefined> {
   const cookieStore = await cookies();
-  return cookieStore.get("firebase_token")?.value;
+  const sessionId = cookieStore.get("session_id")?.value;
+
+  if (!sessionId) {
+    return undefined;
+  }
+
+  const session = await getSession(sessionId);
+  return session?.accessToken;
 }
 
 async function fetchApi<T>(

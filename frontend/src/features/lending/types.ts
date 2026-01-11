@@ -33,3 +33,30 @@ export type PaginatedLendingResponse = {
 	nextCursor: string | null;
 	hasMore: boolean;
 };
+
+/**
+ * Discriminated union for lending items (includes borrowings)
+ */
+export type LendingItem =
+	| {
+			type: "lending";
+			id: string;
+			name: string;
+			amount: number;
+			eventDate: string;
+			debtsCount: number;
+	  }
+	| {
+			type: "borrowing";
+			id: string;
+			name: string;
+			amount: number;
+			eventDate: string;
+	  };
+
+export type PaginatedLendingItems = {
+	items: LendingItem[];
+	lendingsCursor: string | null;
+	borrowingsCursor: string | null;
+	hasMore: boolean;
+};

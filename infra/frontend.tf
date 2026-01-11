@@ -173,7 +173,7 @@ resource "google_cloud_run_v2_service" "frontend" {
 
       env {
         name  = "APP_URL"
-        value = var.app_url
+        value = "https://${var.frontend_domain}"
       }
 
       env {

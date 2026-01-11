@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { createSession } from "@/libs/session/session";
 
 const API_BASE_URL = process.env.API_URL;
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
@@ -101,13 +102,19 @@ export async function GET(request: NextRequest) {
     });
 
     if (loginResponse.status === 200) {
-      // ユーザーが既に存在: Cookieに保存してダッシュボードへ
+      // ユーザーが既に存在: セッション作成してダッシュボードへ
+      const sessionId = await createSession(
+        firebaseIdToken,
+        firebaseData.refreshToken,
+        Number.parseInt(firebaseData.expiresIn)
+      );
+
       const cookieStore = await cookies();
-      cookieStore.set("firebase_token", firebaseIdToken, {
+      cookieStore.set("session_id", sessionId, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 60 * 60,
+        maxAge: 7 * 24 * 60 * 60, // 7日間
         path: "/",
       });
 
@@ -130,13 +137,19 @@ export async function GET(request: NextRequest) {
       });
 
       if (signupResponse.status === 201) {
-        // サインアップ成功: Cookieに保存してダッシュボードへ
+        // サインアップ成功: セッション作成してダッシュボードへ
+        const sessionId = await createSession(
+          firebaseIdToken,
+          firebaseData.refreshToken,
+          Number.parseInt(firebaseData.expiresIn)
+        );
+
         const cookieStore = await cookies();
-        cookieStore.set("firebase_token", firebaseIdToken, {
+        cookieStore.set("session_id", sessionId, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
-          maxAge: 60 * 60,
+          maxAge: 7 * 24 * 60 * 60, // 7日間
           path: "/",
         });
 

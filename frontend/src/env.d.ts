@@ -10,5 +10,9 @@ declare namespace NodeJS {
 
     // Firebase認証
     readonly FIREBASE_API_KEY: string;
+
+    // Redis (Session Storage)
+    readonly UPSTASH_REDIS_REST_URL: string;
+    readonly UPSTASH_REDIS_REST_TOKEN: string;
   }
 }

@@ -15,9 +15,15 @@ import { createRepaymentSchema } from "../schema";
 
 type Props = {
   credits: Credit[];
+  defaultDebtorId?: string;
+  defaultAmount?: number;
 };
 
-export function RepaymentCreateForm({ credits }: Props) {
+export function RepaymentCreateForm({
+  credits,
+  defaultDebtorId,
+  defaultAmount,
+}: Props) {
   const [lastResult, action, isCreating] = useActionState(
     createRepayment,
     undefined,
@@ -26,8 +32,8 @@ export function RepaymentCreateForm({ credits }: Props) {
   const [form, fields] = useForm({
     lastResult,
     defaultValue: {
-      debtorId: "",
-      amount: 0,
+      debtorId: defaultDebtorId ?? "",
+      amount: defaultAmount ?? 0,
     },
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: createRepaymentSchema });

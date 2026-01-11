@@ -1,0 +1,7 @@
+# https://github.com/evilmartians/lefthook
+
+pre-commit:
+  commands:
+    gitleaks:
+      glob: "*"
+      run: gitleaks protect --staged --verbose

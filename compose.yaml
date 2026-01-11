@@ -16,3 +16,19 @@ services:
       - 4318:4318
     environment:
       - LOG_LEVEL=debug
+  redis:
+    container_name: datti-redis
+    image: redis:7-alpine
+    ports:
+      - 6379:6379
+  redis-http:
+    container_name: datti-redis-http
+    image: hiett/serverless-redis-http:latest
+    ports:
+      - 8079:80
+    environment:
+      SRH_MODE: env
+      SRH_TOKEN: local_token
+      SRH_CONNECTION_STRING: redis://redis:6379
+    depends_on:
+      - redis

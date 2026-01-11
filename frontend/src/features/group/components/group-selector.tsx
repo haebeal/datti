@@ -9,6 +9,7 @@ import {
   ClipboardList,
   Settings,
   Plus,
+  FolderCog,
 } from "lucide-react";
 import type { Group } from "@/features/group/types";
 import { cn } from "@/utils/cn";
@@ -171,19 +172,31 @@ export function GroupSelector({ groups }: Props) {
         />
       ))}
 
-      {/* グループ作成リンク */}
-      <Link
-        href="/groups/new"
-        className={cn(
-          "flex items-center gap-2 px-3 py-2 rounded-md",
-          "text-sm font-medium text-gray-700",
-          "hover:bg-gray-100 transition-colors",
-          "mt-1",
-        )}
-      >
-        <Plus className="w-4 h-4" />
-        <span>グループを作成</span>
-      </Link>
+      {/* グループ管理・作成リンク */}
+      <div className={cn("flex flex-col gap-1 mt-2 pt-2 border-t border-gray-200")}>
+        <Link
+          href="/groups"
+          className={cn(
+            "flex items-center gap-2 px-3 py-2 rounded-md",
+            "text-sm font-medium text-gray-700",
+            "hover:bg-gray-100 transition-colors",
+          )}
+        >
+          <FolderCog className="w-4 h-4" />
+          <span>グループを管理</span>
+        </Link>
+        <Link
+          href="/groups/new"
+          className={cn(
+            "flex items-center gap-2 px-3 py-2 rounded-md",
+            "text-sm font-medium text-gray-700",
+            "hover:bg-gray-100 transition-colors",
+          )}
+        >
+          <Plus className="w-4 h-4" />
+          <span>グループを作成</span>
+        </Link>
+      </div>
     </div>
   );
 }

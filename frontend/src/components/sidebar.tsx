@@ -14,7 +14,6 @@ import {
   CircleDollarSign,
   ArrowLeftRight,
   Users,
-  ClipboardList,
   Settings,
 } from "lucide-react";
 
@@ -49,18 +48,11 @@ export function LogoutButton() {
 
 export function Sidebar({ groups, user }: SidebarProps) {
   const pathname = usePathname();
-  const groupId = pathname.match(/\/groups\/([^/]+)/)?.[1];
-  const firstGroupId = groups.length > 0 ? groups[0].id : null;
-
-  const getGroupPath = (path: string) => {
-    const activeGroupId = groupId || firstGroupId;
-    return activeGroupId ? `/groups/${activeGroupId}${path}` : "/groups";
-  };
 
   const isActive = (path: string) => {
     if (path === "/") return pathname === "/";
     if (path === "/repayments") return pathname.startsWith("/repayments");
-    return pathname.includes(path);
+    return false;
   };
 
   return (
@@ -109,7 +101,7 @@ export function Sidebar({ groups, user }: SidebarProps) {
             )}
           >
             <CircleDollarSign className="w-5 h-5" />
-            <span>支払い</span>
+            <span>立て替え</span>
           </Link>
 
           <Link
@@ -141,38 +133,6 @@ export function Sidebar({ groups, user }: SidebarProps) {
         </div>
 
         <GroupSelector groups={groups} />
-
-        <nav className={cn("flex flex-col gap-1")}>
-          <Link
-            href={getGroupPath("/lendings")}
-            className={cn(
-              "flex items-center gap-3",
-              "px-4 py-3 rounded-md",
-              "transition-colors",
-              isActive("/lendings")
-                ? "bg-primary-surface text-primary-base font-semibold"
-                : "text-gray-700 hover:bg-gray-100",
-            )}
-          >
-            <ClipboardList className="w-5 h-5" />
-            <span>立て替え</span>
-          </Link>
-
-          <Link
-            href={getGroupPath("/settings")}
-            className={cn(
-              "flex items-center gap-3",
-              "px-4 py-3 rounded-md",
-              "transition-colors",
-              isActive("/settings")
-                ? "bg-primary-surface text-primary-base font-semibold"
-                : "text-gray-700 hover:bg-gray-100",
-            )}
-          >
-            <Settings className="w-5 h-5" />
-            <span>設定</span>
-          </Link>
-        </nav>
       </div>
 
       {/* User Section */}

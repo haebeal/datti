@@ -1,17 +1,16 @@
 "use client";
 
-import { useParams, usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
-  Button,
-  Label,
-  ListBox,
-  ListBoxItem,
-  Popover,
-  Select,
-  SelectValue,
-} from "react-aria-components";
-import { Check, Settings, Plus } from "lucide-react";
+  ChevronDown,
+  ChevronRight,
+  ClipboardList,
+  Settings,
+  Plus,
+  FolderCog,
+} from "lucide-react";
 import type { Group } from "@/features/group/types";
 import { cn } from "@/utils/cn";
 
@@ -19,174 +18,192 @@ type Props = {
   groups: Group[];
 };
 
+type GroupAccordionItemProps = {
+  group: Group;
+  isExpanded: boolean;
+  onToggle: () => void;
+  pathname: string;
+};
+
+function GroupAccordionItem({
+  group,
+  isExpanded,
+  onToggle,
+  pathname,
+}: GroupAccordionItemProps) {
+  const isGroupActive = pathname.includes(`/groups/${group.id}`);
+  const isLendingsActive = pathname.includes(`/groups/${group.id}/lendings`);
+  const isSettingsActive = pathname.includes(`/groups/${group.id}/settings`);
+
+  return (
+    <div className={cn("flex flex-col")}>
+      {/* グループヘッダー */}
+      <button
+        type="button"
+        onClick={onToggle}
+        className={cn(
+          "flex items-center gap-3 w-full",
+          "px-3 py-2.5 rounded-md",
+          "transition-colors",
+          "hover:bg-gray-100",
+          "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-base",
+          isGroupActive && "bg-blue-50",
+        )}
+      >
+        {/* アイコン */}
+        <div
+          className={cn(
+            "flex-shrink-0 w-8 h-8 rounded-full",
+            "bg-primary-base",
+            "flex items-center justify-center",
+            "text-white font-bold text-sm",
+          )}
+        >
+          {group.name.charAt(0)}
+        </div>
+
+        {/* グループ名 */}
+        <span
+          className={cn(
+            "flex-1 text-left font-medium truncate",
+            isGroupActive ? "text-primary-base" : "text-gray-900",
+          )}
+        >
+          {group.name}
+        </span>
+
+        {/* 展開アイコン */}
+        {isExpanded ? (
+          <ChevronDown className="w-4 h-4 text-gray-500 flex-shrink-0" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-gray-500 flex-shrink-0" />
+        )}
+      </button>
+
+      {/* サブメニュー */}
+      {isExpanded && (
+        <nav className={cn("flex flex-col gap-1.5", "ml-6 mt-2 mb-1")}>
+          <Link
+            href={`/groups/${group.id}/lendings`}
+            className={cn(
+              "flex items-center gap-3",
+              "px-4 py-2.5 rounded-md",
+              "transition-colors",
+              isLendingsActive
+                ? "bg-primary-surface text-primary-base font-semibold"
+                : "text-gray-700 hover:bg-gray-100",
+            )}
+          >
+            <ClipboardList className="w-5 h-5" />
+            <span>イベント</span>
+          </Link>
+
+          <Link
+            href={`/groups/${group.id}/settings`}
+            className={cn(
+              "flex items-center gap-3",
+              "px-4 py-2.5 rounded-md",
+              "transition-colors",
+              isSettingsActive
+                ? "bg-primary-surface text-primary-base font-semibold"
+                : "text-gray-700 hover:bg-gray-100",
+            )}
+          >
+            <Settings className="w-5 h-5" />
+            <span>設定</span>
+          </Link>
+        </nav>
+      )}
+    </div>
+  );
+}
+
 export function GroupSelector({ groups }: Props) {
   const pathname = usePathname();
-  const params = useParams<{ groupId: string | undefined }>();
-  const router = useRouter();
 
   // URLから現在のgroupIdを取得
-  const [currentGroupId, setCurrentGroupId] = useState<string>();
-  const currentGroup = groups.find((g) => g.id === currentGroupId);
+  const currentGroupId = pathname.match(/\/groups\/([^/]+)/)?.[1];
 
-  // URLからgroupIdを抽出してstateにセット
+  // 展開状態を管理（現在のグループIDがあれば展開）
+  const [expandedGroupId, setExpandedGroupId] = useState<string | null>(
+    currentGroupId || null,
+  );
+
+  // URLが変わったら展開状態を更新
   useEffect(() => {
-    const match = pathname.match(/\/groups\/([^/]+)/);
-    if (match) {
-      setCurrentGroupId(match[1]);
+    if (currentGroupId) {
+      setExpandedGroupId(currentGroupId);
     }
-  }, [pathname]);
+  }, [currentGroupId]);
+
+  const handleToggle = (groupId: string) => {
+    setExpandedGroupId((prev) => (prev === groupId ? null : groupId));
+  };
 
   if (groups.length === 0) {
     return (
-      <div className={cn("text-sm text-gray-500 px-3 py-2")}>
-        グループがありません
+      <div className={cn("flex flex-col gap-2")}>
+        <div className={cn("text-sm text-gray-500 px-3 py-2")}>
+          グループがありません
+        </div>
+        <Link
+          href="/groups/new"
+          className={cn(
+            "flex items-center gap-2 px-3 py-2 rounded-md",
+            "text-sm font-medium text-gray-700",
+            "hover:bg-gray-100 transition-colors",
+          )}
+        >
+          <Plus className="w-4 h-4" />
+          <span>グループを作成</span>
+        </Link>
       </div>
     );
   }
 
-  const handleChange = (key: React.Key | null) => {
-    if (!key) return;
-    const groupId = String(key);
-    // 現在のパスのgroupIdを新しいgroupIdに置き換える
-    if (currentGroupId) {
-      const newPath = pathname.replace(
-        `/groups/${currentGroupId}`,
-        `/groups/${groupId}`,
-      );
-      router.push(newPath);
-    } else {
-      // groupIdがない場合はデフォルトでlendingに遷移
-      router.push(`/groups/${groupId}/lendings`);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("ja-JP", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(date);
-  };
-
   return (
-    <Select
-      value={currentGroupId}
-      onChange={handleChange}
-      className={cn("relative w-full")}
-    >
-      <Label className="sr-only">グループを選択</Label>
-      <Button
-        className={cn(
-          "flex items-center justify-between w-full",
-          "px-3 py-2.5",
-          "border rounded-md",
-          "focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-          "hover:cursor-pointer",
-        )}
-      >
-        <div className={cn("flex items-center gap-3 flex-1 min-w-0")}>
-          <div
-            className={cn(
-              "flex-shrink-0 w-8 h-8 rounded-full",
-              "bg-primary-base",
-              "flex items-center justify-center",
-              "text-white font-bold text-sm",
-            )}
-          >
-            {currentGroup?.name.charAt(0) || "G"}
-          </div>
+    <div className={cn("flex flex-col gap-2")}>
+      {groups.map((group) => (
+        <GroupAccordionItem
+          key={group.id}
+          group={group}
+          isExpanded={expandedGroupId === group.id}
+          onToggle={() => handleToggle(group.id)}
+          pathname={pathname}
+        />
+      ))}
 
-          <div className={cn("flex-1 min-w-0 text-left")}>
-            <SelectValue className={cn("font-medium text-gray-900 truncate block")}>
-              {currentGroup?.name || "グループを選択"}
-            </SelectValue>
-          </div>
-        </div>
-
-        <span aria-hidden="true" className="text-gray-400">
-          ▼
-        </span>
-      </Button>
-
-      <Popover
-        className={cn(
-          "w-[--trigger-width] min-w-64",
-          "mt-1",
-          "rounded-md border bg-white shadow-lg",
-          "entering:animate-in entering:fade-in entering:zoom-in-95",
-          "exiting:animate-out exiting:fade-out exiting:zoom-out-95",
-        )}
-      >
-        <ListBox className={cn("max-h-60 overflow-auto", "outline-none", "p-1")}>
-          {groups.map((group) => (
-            <ListBoxItem
-              key={group.id}
-              id={group.id}
-              className={cn(
-                "px-4 py-3",
-                "flex items-center gap-3",
-                "cursor-pointer outline-none rounded-md",
-                "transition-colors duration-150",
-                "data-[hovered]:bg-gray-100",
-                "data-[focused]:outline-none",
-                "data-[selected]:bg-primary-surface data-[selected]:text-primary-base",
-              )}
-            >
-              <div
-                className={cn(
-                  "flex-shrink-0 w-8 h-8 rounded-full",
-                  "bg-primary-base",
-                  "flex items-center justify-center",
-                  "text-white font-bold text-sm",
-                )}
-              >
-                {group.name.charAt(0)}
-              </div>
-
-              <div className={cn("flex-1 min-w-0")}>
-                <div className={cn("font-medium text-gray-900 truncate")}>
-                  {group.name}
-                </div>
-                <div className={cn("text-xs text-gray-500 truncate")}>
-                  {group.creator.name}
-                </div>
-              </div>
-
-              {group.id === currentGroupId && (
-                <Check className={cn("w-5 h-5 text-primary-base flex-shrink-0")} />
-              )}
-            </ListBoxItem>
-          ))}
-        </ListBox>
-
-        <div className={cn("border-t border-gray-200")} />
-
-        <div className={cn("p-1")}>
-          <a
-            href="/groups"
-            className={cn(
-              "w-full flex items-center gap-2 px-4 py-2 rounded-md",
-              "text-sm font-medium text-gray-700",
-              "hover:bg-gray-100 transition-colors",
-            )}
-          >
-            <Settings className={cn("w-4 h-4")} />
-            グループを管理
-          </a>
-          <a
-            href="/groups/new"
-            className={cn(
-              "w-full flex items-center gap-2 px-4 py-2 rounded-md",
-              "text-sm font-medium text-gray-700",
-              "hover:bg-gray-100 transition-colors",
-            )}
-          >
-            <Plus className={cn("w-4 h-4")} />
-            新しいグループを作成
-          </a>
-        </div>
-      </Popover>
-    </Select>
+      {/* グループ管理・作成リンク */}
+      <div className={cn("flex flex-col gap-1 mt-2 pt-2 border-t border-gray-200")}>
+        <Link
+          href="/groups"
+          className={cn(
+            "flex items-center gap-2 px-3 py-2 rounded-md",
+            "text-sm font-medium",
+            "transition-colors",
+            pathname === "/groups"
+              ? "bg-primary-surface text-primary-base"
+              : "text-gray-700 hover:bg-gray-100",
+          )}
+        >
+          <FolderCog className="w-4 h-4" />
+          <span>グループを管理</span>
+        </Link>
+        <Link
+          href="/groups/new"
+          className={cn(
+            "flex items-center gap-2 px-3 py-2 rounded-md",
+            "text-sm font-medium",
+            "transition-colors",
+            pathname === "/groups/new"
+              ? "bg-primary-surface text-primary-base"
+              : "text-gray-700 hover:bg-gray-100",
+          )}
+        >
+          <Plus className="w-4 h-4" />
+          <span>グループを作成</span>
+        </Link>
+      </div>
+    </div>
   );
 }

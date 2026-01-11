@@ -74,7 +74,7 @@ export function LendingEditForm({ groupId, lending, members, currentUserId }: Pr
       action={action}
       className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
     >
-      <h2 className={cn("text-lg font-semibold")}>立て替え情報</h2>
+      <h2 className={cn("text-lg font-semibold")}>イベント情報</h2>
 
       <input type="hidden" name={fields.id.name} value={lending.id} readOnly />
 
@@ -128,7 +128,7 @@ export function LendingEditForm({ groupId, lending, members, currentUserId }: Pr
 
       <div className={cn("flex justify-between items-center")}>
         <label className={cn("text-sm font-semibold")}>
-          立て替え詳細
+          支払い詳細
         </label>
         <Button
           type="button"

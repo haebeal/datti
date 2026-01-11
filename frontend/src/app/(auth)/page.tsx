@@ -11,7 +11,7 @@ export default async function CreditPage() {
     <div
       className={cn("w-full max-w-4xl h-full mx-auto", "flex flex-col gap-5")}
     >
-      <h1 className={cn("text-2xl font-bold")}>支払い一覧</h1>
+      <h1 className={cn("text-2xl font-bold")}>立て替え一覧</h1>
 
       {error && (
         <div

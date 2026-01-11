@@ -68,7 +68,7 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
       action={action}
       className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
     >
-      <h2 className={cn("text-lg font-semibold")}>立て替え情報</h2>
+      <h2 className={cn("text-lg font-semibold")}>イベント情報</h2>
 
       <label htmlFor={fields.name.id} className={cn("text-sm")}>
         名前
@@ -120,7 +120,7 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
 
       <div className={cn("flex justify-between items-center")}>
         <label className={cn("text-sm font-semibold")}>
-          立て替え詳細
+          支払い詳細
         </label>
         <Button
           type="button"

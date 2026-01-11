@@ -35,7 +35,7 @@ export default async function CreateLendingPage({
   return (
     <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <div>
-        <h1 className={cn("text-2xl font-bold")}>新規立て替え作成</h1>
+        <h1 className={cn("text-2xl font-bold")}>新規イベント作成</h1>
         <p className={cn("text-base text-gray-500")}>{group.name}</p>
       </div>
 

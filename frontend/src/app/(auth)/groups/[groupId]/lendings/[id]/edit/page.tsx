@@ -42,7 +42,7 @@ export default async function EditLendingPage({
   return (
     <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <div>
-        <h1 className={cn("text-2xl font-bold")}>立て替え編集</h1>
+        <h1 className={cn("text-2xl font-bold")}>イベント編集</h1>
         <p className={cn("text-base text-gray-500")}>{group.name}</p>
       </div>
 

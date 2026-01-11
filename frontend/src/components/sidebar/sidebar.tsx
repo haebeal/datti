@@ -33,7 +33,8 @@ export function Sidebar({ groups, user }: SidebarProps) {
     <aside
       className={cn(
         "h-screen w-80",
-        "flex flex-col gap-2",
+        "hidden",
+        "md:flex flex-col gap-2",
         "px-5 py-6",
         "border-gray-200 border-r",
       )}

@@ -328,6 +328,50 @@ func (q *Queries) FindAllUsers(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
+const findDebtorsByEventIDs = `-- name: FindDebtorsByEventIDs :many
+SELECT ep.event_id, u.id, u.name, u.avatar, u.email, p.amount
+FROM payments p
+INNER JOIN event_payments ep ON p.id = ep.payment_id
+INNER JOIN users u ON p.debtor_id = u.id
+WHERE ep.event_id = ANY($1::text[])
+`
+
+type FindDebtorsByEventIDsRow struct {
+	EventID string
+	ID      string
+	Name    string
+	Avatar  string
+	Email   string
+	Amount  int32
+}
+
+func (q *Queries) FindDebtorsByEventIDs(ctx context.Context, eventIds []string) ([]FindDebtorsByEventIDsRow, error) {
+	rows, err := q.db.Query(ctx, findDebtorsByEventIDs, eventIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindDebtorsByEventIDsRow
+	for rows.Next() {
+		var i FindDebtorsByEventIDsRow
+		if err := rows.Scan(
+			&i.EventID,
+			&i.ID,
+			&i.Name,
+			&i.Avatar,
+			&i.Email,
+			&i.Amount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findEventByGroupIDAndDebtorIDAndEventID = `-- name: FindEventByGroupIDAndDebtorIDAndEventID :one
 SELECT
   e.id AS event_id,
@@ -571,7 +615,7 @@ func (q *Queries) FindGroupsByMemberUserID(ctx context.Context, userID string) (
 }
 
 const findLendingsByGroupIDAndUserID = `-- name: FindLendingsByGroupIDAndUserID :many
-SELECT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
+SELECT DISTINCT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
 FROM events e
 INNER JOIN event_payments ep ON e.id = ep.event_id
 INNER JOIN payments p ON ep.payment_id = p.id
@@ -585,6 +629,58 @@ type FindLendingsByGroupIDAndUserIDParams struct {
 
 func (q *Queries) FindLendingsByGroupIDAndUserID(ctx context.Context, arg FindLendingsByGroupIDAndUserIDParams) ([]Event, error) {
 	rows, err := q.db.Query(ctx, findLendingsByGroupIDAndUserID, arg.GroupID, arg.PayerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Event
+	for rows.Next() {
+		var i Event
+		if err := rows.Scan(
+			&i.ID,
+			&i.GroupID,
+			&i.Name,
+			&i.Amount,
+			&i.EventDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findLendingsByGroupIDAndUserIDWithCursor = `-- name: FindLendingsByGroupIDAndUserIDWithCursor :many
+SELECT DISTINCT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
+FROM events e
+INNER JOIN event_payments ep ON e.id = ep.event_id
+INNER JOIN payments p ON ep.payment_id = p.id
+WHERE e.group_id = $1
+  AND p.payer_id = $2
+  AND ($3::text IS NULL OR e.id < $3)
+ORDER BY e.id DESC
+LIMIT $4
+`
+
+type FindLendingsByGroupIDAndUserIDWithCursorParams struct {
+	GroupID string
+	PayerID string
+	Cursor  *string
+	Limit   int32
+}
+
+func (q *Queries) FindLendingsByGroupIDAndUserIDWithCursor(ctx context.Context, arg FindLendingsByGroupIDAndUserIDWithCursorParams) ([]Event, error) {
+	rows, err := q.db.Query(ctx, findLendingsByGroupIDAndUserIDWithCursor,
+		arg.GroupID,
+		arg.PayerID,
+		arg.Cursor,
+		arg.Limit,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -703,6 +799,50 @@ ORDER BY p.created_at DESC
 
 func (q *Queries) FindRepaymentsByPayerID(ctx context.Context, payerID string) ([]Payment, error) {
 	rows, err := q.db.Query(ctx, findRepaymentsByPayerID, payerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Payment
+	for rows.Next() {
+		var i Payment
+		if err := rows.Scan(
+			&i.ID,
+			&i.PayerID,
+			&i.DebtorID,
+			&i.Amount,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const findRepaymentsByPayerIDWithCursor = `-- name: FindRepaymentsByPayerIDWithCursor :many
+SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at
+FROM payments p
+LEFT JOIN event_payments ep ON p.id = ep.payment_id
+WHERE p.payer_id = $1
+  AND ep.event_id IS NULL
+  AND ($2::text IS NULL OR p.id < $2)
+ORDER BY p.id DESC
+LIMIT $3
+`
+
+type FindRepaymentsByPayerIDWithCursorParams struct {
+	PayerID string
+	Cursor  *string
+	Limit   int32
+}
+
+func (q *Queries) FindRepaymentsByPayerIDWithCursor(ctx context.Context, arg FindRepaymentsByPayerIDWithCursorParams) ([]Payment, error) {
+	rows, err := q.db.Query(ctx, findRepaymentsByPayerIDWithCursor, arg.PayerID, arg.Cursor, arg.Limit)
 	if err != nil {
 		return nil, err
 	}

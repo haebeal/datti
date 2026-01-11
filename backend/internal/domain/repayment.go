@@ -98,10 +98,24 @@ func (r *Repayment) UpdateAmount(amount *Amount) error {
 	return nil
 }
 
+// RepaymentPaginationParams holds cursor-based pagination parameters
+type RepaymentPaginationParams struct {
+	Limit  int32
+	Cursor *string
+}
+
+// PaginatedRepayments holds paginated results
+type PaginatedRepayments struct {
+	Repayments []*Repayment
+	NextCursor *string
+	HasMore    bool
+}
+
 type RepaymentRepository interface {
 	Create(context.Context, *Repayment) error
 	FindByID(context.Context, ulid.ULID) (*Repayment, error)
 	FindByPayerID(context.Context, string) ([]*Repayment, error)
+	FindByPayerIDWithPagination(context.Context, string, RepaymentPaginationParams) (*PaginatedRepayments, error)
 	Update(context.Context, *Repayment) error
 	Delete(context.Context, ulid.ULID) error
 }

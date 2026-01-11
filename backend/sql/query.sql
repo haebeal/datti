@@ -33,11 +33,22 @@ SELECT id, group_id, name, amount, event_date, created_at, updated_at
 FROM events WHERE id = $1 LIMIT 1;
 
 -- name: FindLendingsByGroupIDAndUserID :many
-SELECT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
+SELECT DISTINCT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
 FROM events e
 INNER JOIN event_payments ep ON e.id = ep.event_id
 INNER JOIN payments p ON ep.payment_id = p.id
 WHERE e.group_id = $1 AND p.payer_id = $2;
+
+-- name: FindLendingsByGroupIDAndUserIDWithCursor :many
+SELECT DISTINCT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
+FROM events e
+INNER JOIN event_payments ep ON e.id = ep.event_id
+INNER JOIN payments p ON ep.payment_id = p.id
+WHERE e.group_id = sqlc.arg('group_id')
+  AND p.payer_id = sqlc.arg('payer_id')
+  AND (sqlc.narg('cursor')::text IS NULL OR e.id < sqlc.narg('cursor'))
+ORDER BY e.id DESC
+LIMIT sqlc.arg('limit');
 
 -- name: FindEventsByGroupIDAndDebtorID :many
 SELECT
@@ -81,6 +92,13 @@ SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at
 FROM payments p
 INNER JOIN event_payments ep ON p.id = ep.payment_id
 WHERE ep.event_id = $1;
+
+-- name: FindDebtorsByEventIDs :many
+SELECT ep.event_id, u.id, u.name, u.avatar, u.email, p.amount
+FROM payments p
+INNER JOIN event_payments ep ON p.id = ep.payment_id
+INNER JOIN users u ON p.debtor_id = u.id
+WHERE ep.event_id = ANY(sqlc.arg('event_ids')::text[]);
 
 -- name: FindPaymentByDebtorId :one
 SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at
@@ -137,6 +155,16 @@ FROM payments p
 LEFT JOIN event_payments ep ON p.id = ep.payment_id
 WHERE p.payer_id = $1 AND ep.event_id IS NULL
 ORDER BY p.created_at DESC;
+
+-- name: FindRepaymentsByPayerIDWithCursor :many
+SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at
+FROM payments p
+LEFT JOIN event_payments ep ON p.id = ep.payment_id
+WHERE p.payer_id = sqlc.arg('payer_id')
+  AND ep.event_id IS NULL
+  AND (sqlc.narg('cursor')::text IS NULL OR p.id < sqlc.narg('cursor'))
+ORDER BY p.id DESC
+LIMIT sqlc.arg('limit');
 
 -- name: FindRepaymentByID :one
 SELECT p.id, p.payer_id, p.debtor_id, p.amount, p.created_at, p.updated_at

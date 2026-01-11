@@ -45,7 +45,7 @@ type ServerInterface interface {
 	BorrowingGet(ctx echo.Context, id string, borrowingId string) error
 	// グループ内の立て替え一覧取得
 	// (GET /groups/{id}/lendings)
-	LendingGetAll(ctx echo.Context, id string) error
+	LendingGetAll(ctx echo.Context, id string, params LendingGetAllParams) error
 	// グループ内の立て替え作成
 	// (POST /groups/{id}/lendings)
 	LendingCreate(ctx echo.Context, id string) error
@@ -72,7 +72,7 @@ type ServerInterface interface {
 	HealthCheck(ctx echo.Context) error
 	// 全ての返済の取得
 	// (GET /repayments)
-	RepaymentGetAll(ctx echo.Context) error
+	RepaymentGetAll(ctx echo.Context, params RepaymentGetAllParams) error
 	// 返済の作成
 	// (POST /repayments)
 	RepaymentCreate(ctx echo.Context) error
@@ -270,8 +270,24 @@ func (w *ServerInterfaceWrapper) LendingGetAll(ctx echo.Context) error {
 
 	ctx.Set(BearerAuthScopes, []string{})
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params LendingGetAllParams
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", ctx.QueryParams(), &params.Limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter limit: %s", err))
+	}
+
+	// ------------- Optional query parameter "cursor" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "cursor", ctx.QueryParams(), &params.Cursor)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter cursor: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.LendingGetAll(ctx, id)
+	err = w.Handler.LendingGetAll(ctx, id, params)
 	return err
 }
 
@@ -450,8 +466,24 @@ func (w *ServerInterfaceWrapper) RepaymentGetAll(ctx echo.Context) error {
 
 	ctx.Set(BearerAuthScopes, []string{})
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params RepaymentGetAllParams
+	// ------------- Optional query parameter "limit" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "limit", ctx.QueryParams(), &params.Limit)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter limit: %s", err))
+	}
+
+	// ------------- Optional query parameter "cursor" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "cursor", ctx.QueryParams(), &params.Cursor)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter cursor: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.RepaymentGetAll(ctx)
+	err = w.Handler.RepaymentGetAll(ctx, params)
 	return err
 }
 

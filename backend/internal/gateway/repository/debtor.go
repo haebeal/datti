@@ -103,6 +103,56 @@ func (dr *DebtorRepositoryImpl) FindByEventID(ctx context.Context, eventID ulid.
 	return debtors, nil
 }
 
+func (dr *DebtorRepositoryImpl) FindByEventIDs(ctx context.Context, eventIDs []ulid.ULID) (map[ulid.ULID][]*domain.Debtor, error) {
+	ctx, span := tracer.Start(ctx, "debtor.FindByEventIDs")
+	defer span.End()
+
+	// Convert ULIDs to strings
+	eventIDStrings := make([]string, len(eventIDs))
+	for i, id := range eventIDs {
+		eventIDStrings[i] = id.String()
+	}
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT debtors by event_ids with user join")
+	rows, err := dr.queries.FindDebtorsByEventIDs(ctx, eventIDStrings)
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	// Group debtors by event ID
+	result := make(map[ulid.ULID][]*domain.Debtor)
+	for _, row := range rows {
+		eventID, err := ulid.Parse(row.EventID)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		amount, err := domain.NewAmount(int64(row.Amount))
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		debtor, err := domain.NewDebtor(row.ID, row.Name, row.Avatar, row.Email, amount)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		result[eventID] = append(result[eventID], debtor)
+	}
+
+	return result, nil
+}
+
 func (dr *DebtorRepositoryImpl) Update(ctx context.Context, event *domain.Lending, debtor *domain.Debtor) error {
 	ctx, span := tracer.Start(ctx, "debtor.Update")
 	defer span.End()

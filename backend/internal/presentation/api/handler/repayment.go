@@ -13,7 +13,7 @@ import (
 
 type RepaymentUseCase interface {
 	Create(context.Context, RepaymentCreateInput) (*RepaymentCreateOutput, error)
-	GetAll(context.Context, RepaymentGetAllInput) (*RepaymentGetAllOutput, error)
+	GetByQuery(context.Context, RepaymentGetByQueryInput) (*RepaymentGetByQueryOutput, error)
 	Get(context.Context, RepaymentGetInput) (*RepaymentGetOutput, error)
 	Update(context.Context, RepaymentUpdateInput) (*RepaymentUpdateOutput, error)
 	Delete(context.Context, RepaymentDeleteInput) error
@@ -85,8 +85,8 @@ func (h repaymentHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
-func (h repaymentHandler) GetAll(c echo.Context) error {
-	ctx, span := tracer.Start(c.Request().Context(), "repayment.GetAll")
+func (h repaymentHandler) GetByQuery(c echo.Context, params api.RepaymentGetAllParams) error {
+	ctx, span := tracer.Start(c.Request().Context(), "repayment.GetByQuery")
 	defer span.End()
 
 	userID, ok := c.Get("uid").(string)
@@ -99,11 +99,19 @@ func (h repaymentHandler) GetAll(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, res)
 	}
 
-	input := RepaymentGetAllInput{
-		UserID: userID,
+	// Default limit
+	limit := int32(20)
+	if params.Limit != nil {
+		limit = *params.Limit
 	}
 
-	output, err := h.u.GetAll(ctx, input)
+	input := RepaymentGetByQueryInput{
+		UserID: userID,
+		Limit:  limit,
+		Cursor: params.Cursor,
+	}
+
+	output, err := h.u.GetByQuery(ctx, input)
 	if err != nil {
 		message := fmt.Sprintf("Failed to get repayments: %v", err)
 		span.SetStatus(codes.Error, message)
@@ -114,7 +122,7 @@ func (h repaymentHandler) GetAll(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	responseItems := make([]api.RepaymentGetAllResponse, 0)
+	responseItems := make([]api.RepaymentGetAllResponse, 0, len(output.Repayments))
 	for _, r := range output.Repayments {
 		responseItems = append(responseItems, api.RepaymentGetAllResponse{
 			Id:        r.ID().String(),
@@ -126,7 +134,13 @@ func (h repaymentHandler) GetAll(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, responseItems)
+	res := api.RepaymentPaginatedResponse{
+		Repayments: responseItems,
+		NextCursor: output.NextCursor,
+		HasMore:    output.HasMore,
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
 
 func (h repaymentHandler) Get(c echo.Context, id string) error {
@@ -237,12 +251,16 @@ type RepaymentCreateOutput struct {
 	Repayment *domain.Repayment
 }
 
-type RepaymentGetAllInput struct {
+type RepaymentGetByQueryInput struct {
 	UserID string
+	Limit  int32
+	Cursor *string
 }
 
-type RepaymentGetAllOutput struct {
+type RepaymentGetByQueryOutput struct {
 	Repayments []*domain.Repayment
+	NextCursor *string
+	HasMore    bool
 }
 
 type RepaymentGetInput struct {

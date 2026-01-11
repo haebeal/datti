@@ -88,10 +88,24 @@ func (le *Lending) UpdatedAt() time.Time {
 	return le.updatedAt
 }
 
+// LendingPaginationParams holds cursor-based pagination parameters
+type LendingPaginationParams struct {
+	Limit  int32
+	Cursor *string
+}
+
+// PaginatedLendings holds paginated results
+type PaginatedLendings struct {
+	Lendings   []*Lending
+	NextCursor *string
+	HasMore    bool
+}
+
 type LendingEventRepository interface {
 	Create(context.Context, *Lending) error
 	FindByID(context.Context, ulid.ULID) (*Lending, error)
 	FindByGroupIDAndUserID(context.Context, ulid.ULID, string) ([]*Lending, error)
+	FindByGroupIDAndUserIDWithPagination(context.Context, ulid.ULID, string, LendingPaginationParams) (*PaginatedLendings, error)
 	Update(context.Context, *Lending) error
 	Delete(context.Context, ulid.ULID) error
 }

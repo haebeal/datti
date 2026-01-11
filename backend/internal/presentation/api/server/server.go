@@ -8,7 +8,7 @@ import (
 type LendingHandler interface {
 	Create(c echo.Context, id string) error
 	Get(c echo.Context, id string, lendingId string) error
-	GetAll(c echo.Context, id string) error
+	GetByQuery(c echo.Context, id string, params api.LendingGetAllParams) error
 	Update(c echo.Context, id string, lendingId string) error
 	Delete(c echo.Context, id string, lendingId string) error
 }
@@ -28,7 +28,7 @@ type HealthHandler interface {
 
 type RepaymentHandler interface {
 	Create(c echo.Context) error
-	GetAll(c echo.Context) error
+	GetByQuery(c echo.Context, params api.RepaymentGetAllParams) error
 	Get(c echo.Context, id string) error
 	Update(c echo.Context, id string) error
 	Delete(c echo.Context, id string) error
@@ -90,8 +90,8 @@ func (s *Server) LendingGet(ctx echo.Context, id string, lendingId string) error
 	return s.lh.Get(ctx, id, lendingId)
 }
 
-func (s *Server) LendingGetAll(ctx echo.Context, id string) error {
-	return s.lh.GetAll(ctx, id)
+func (s *Server) LendingGetAll(ctx echo.Context, id string, params api.LendingGetAllParams) error {
+	return s.lh.GetByQuery(ctx, id, params)
 }
 
 func (s *Server) LendingUpdate(ctx echo.Context, id string, lendingId string) error {
@@ -122,8 +122,8 @@ func (s *Server) RepaymentCreate(ctx echo.Context) error {
 	return s.rh.Create(ctx)
 }
 
-func (s *Server) RepaymentGetAll(ctx echo.Context) error {
-	return s.rh.GetAll(ctx)
+func (s *Server) RepaymentGetAll(ctx echo.Context, params api.RepaymentGetAllParams) error {
+	return s.rh.GetByQuery(ctx, params)
 }
 
 func (s *Server) RepaymentGet(ctx echo.Context, id string) error {

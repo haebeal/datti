@@ -86,6 +86,77 @@ func (rr *RepaymentRepositoryImpl) FindByPayerID(ctx context.Context, payerID st
 	return repayments, nil
 }
 
+func (rr *RepaymentRepositoryImpl) FindByPayerIDWithPagination(
+	ctx context.Context,
+	payerID string,
+	params domain.RepaymentPaginationParams,
+) (*domain.PaginatedRepayments, error) {
+	ctx, span := tracer.Start(ctx, "repayment.FindByPayerIDWithPagination")
+	defer span.End()
+
+	// Fetch limit + 1 to determine hasMore
+	fetchLimit := params.Limit + 1
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM payments WHERE payer_id = ? WITH CURSOR")
+	payments, err := rr.queries.FindRepaymentsByPayerIDWithCursor(ctx, postgres.FindRepaymentsByPayerIDWithCursorParams{
+		PayerID: payerID,
+		Cursor:  params.Cursor,
+		Limit:   fetchLimit,
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	hasMore := len(payments) > int(params.Limit)
+	if hasMore {
+		payments = payments[:params.Limit]
+	}
+
+	repayments := make([]*domain.Repayment, 0, len(payments))
+	var nextCursor *string
+
+	for _, p := range payments {
+		id, err := ulid.Parse(p.ID)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		amount, err := domain.NewAmount(int64(p.Amount))
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		repayment, err := domain.NewRepayment(id, p.PayerID, p.DebtorID, amount, p.CreatedAt, p.UpdatedAt)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		repayments = append(repayments, repayment)
+	}
+
+	// Set nextCursor to the ID of the last item if there are more items
+	if hasMore && len(repayments) > 0 {
+		lastID := repayments[len(repayments)-1].ID().String()
+		nextCursor = &lastID
+	}
+
+	return &domain.PaginatedRepayments{
+		Repayments: repayments,
+		NextCursor: nextCursor,
+		HasMore:    hasMore,
+	}, nil
+}
+
 func (rr *RepaymentRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID) (*domain.Repayment, error) {
 	ctx, span := tracer.Start(ctx, "repayment.FindByID")
 	defer span.End()

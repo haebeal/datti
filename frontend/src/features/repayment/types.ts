@@ -5,7 +5,7 @@
 import type { User } from "@/features/user/types";
 
 /**
- * Backend API response type
+ * Backend API response type (single repayment)
  */
 export type RepaymentResponse = {
   id: string;
@@ -14,6 +14,15 @@ export type RepaymentResponse = {
   amount: number;
   createdAt: string;
   updatedAt: string;
+};
+
+/**
+ * Backend API response type (paginated list)
+ */
+export type PaginatedRepaymentResponse = {
+  repayments: RepaymentResponse[];
+  nextCursor: string | null;
+  hasMore: boolean;
 };
 
 /**

@@ -80,20 +80,19 @@ function GroupAccordionItem({
 
       {/* サブメニュー */}
       {isExpanded && (
-        <nav className={cn("flex flex-col gap-1", "ml-11 mt-1")}>
+        <nav className={cn("flex flex-col gap-1.5", "ml-11 mt-2 mb-1")}>
           <Link
             href={`/groups/${group.id}/lendings`}
             className={cn(
               "flex items-center gap-3",
-              "px-3 py-2 rounded-md",
+              "px-4 py-2.5 rounded-md",
               "transition-colors",
-              "text-sm",
               isLendingsActive
                 ? "bg-primary-surface text-primary-base font-semibold"
                 : "text-gray-700 hover:bg-gray-100",
             )}
           >
-            <ClipboardList className="w-4 h-4" />
+            <ClipboardList className="w-5 h-5" />
             <span>イベント</span>
           </Link>
 
@@ -101,15 +100,14 @@ function GroupAccordionItem({
             href={`/groups/${group.id}/settings`}
             className={cn(
               "flex items-center gap-3",
-              "px-3 py-2 rounded-md",
+              "px-4 py-2.5 rounded-md",
               "transition-colors",
-              "text-sm",
               isSettingsActive
                 ? "bg-primary-surface text-primary-base font-semibold"
                 : "text-gray-700 hover:bg-gray-100",
             )}
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-5 h-5" />
             <span>設定</span>
           </Link>
         </nav>
@@ -162,7 +160,7 @@ export function GroupSelector({ groups }: Props) {
   }
 
   return (
-    <div className={cn("flex flex-col gap-1")}>
+    <div className={cn("flex flex-col gap-2")}>
       {groups.map((group) => (
         <GroupAccordionItem
           key={group.id}

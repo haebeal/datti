@@ -37,7 +37,7 @@ export default async function LendingPage({
     );
   }
 
-  const lendings = lendingResult.result;
+  const lendings = lendingResult.result.lendings;
   const borrowings = borrowingResult.result;
 
   // LendingとBorrowingを統合

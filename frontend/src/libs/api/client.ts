@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { getSession } from "@/libs/session/session";
 
 const API_BASE_URL = process.env.API_URL;
@@ -11,19 +12,23 @@ type RequestOptions = {
 
 /**
  * セッションからアクセストークンを取得
- * セッションが存在しない場合はundefinedを返す
+ * セッションが存在しない、または無効な場合は/authにリダイレクト
  * アクセストークンが失効していれば自動リフレッシュされる
  */
-async function getAuthToken(): Promise<string | undefined> {
+async function getAuthToken(): Promise<string> {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get("session_id")?.value;
 
   if (!sessionId) {
-    return undefined;
+    redirect("/auth");
   }
 
   const session = await getSession(sessionId);
-  return session?.accessToken;
+  if (!session) {
+    redirect("/auth");
+  }
+
+  return session.accessToken;
 }
 
 async function fetchApi<T>(
@@ -34,7 +39,7 @@ async function fetchApi<T>(
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
-    ...(token && { Authorization: `Bearer ${token}` }),
+    Authorization: `Bearer ${token}`,
     ...options.headers,
   };
 

@@ -18,12 +18,7 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
 	const initialData = use(initialDataPromise);
 
 	const [items, setItems] = useState<LendingItem[]>(initialData.items);
-	const [lendingsCursor, setLendingsCursor] = useState<string | null>(
-		initialData.lendingsCursor,
-	);
-	const [borrowingsCursor, setBorrowingsCursor] = useState<string | null>(
-		initialData.borrowingsCursor,
-	);
+	const [cursor, setCursor] = useState<string | null>(initialData.nextCursor);
 	const [hasMore, setHasMore] = useState(initialData.hasMore);
 	const [isPending, startTransition] = useTransition();
 
@@ -37,13 +32,11 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
 
 		startTransition(async () => {
 			const result = await getAllLendings(groupId, {
-				lendingsCursor: lendingsCursor ?? undefined,
-				borrowingsCursor: borrowingsCursor ?? undefined,
+				cursor: cursor ?? undefined,
 			});
 			if (result.success) {
 				setItems((prev) => [...prev, ...result.result.items]);
-				setLendingsCursor(result.result.lendingsCursor);
-				setBorrowingsCursor(result.result.borrowingsCursor);
+				setCursor(result.result.nextCursor);
 				setHasMore(result.result.hasMore);
 			}
 		});
@@ -77,7 +70,7 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
 
 				return (
 					<Link
-						key={`${item.type}-${item.id}`}
+						key={item.id}
 						href={`/groups/${groupId}/lendings/${item.id}`}
 						className={cn(
 							"block p-4",
@@ -101,12 +94,12 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
 									{isPositive ? "+" : ""}
 									{formatCurrency(item.amount)}
 								</p>
-								{item.type === "lending" && item.debtsCount > 0 && (
+								{item.role === "payer" && item.debtsCount > 0 && (
 									<p className={cn("text-sm text-gray-500")}>
 										{item.debtsCount}人から回収予定
 									</p>
 								)}
-								{item.type === "borrowing" && (
+								{item.role === "debtor" && (
 									<p className={cn("text-sm text-gray-500")}>支払い予定</p>
 								)}
 							</div>

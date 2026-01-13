@@ -100,9 +100,9 @@ func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserIDWithPagination(
 	fetchLimit := params.Limit + 1
 
 	ctx, querySpan := tracer.Start(ctx, "SELECT DISTINCT * FROM events WITH CURSOR")
-	lendingEvents, err := lr.queries.FindLendingsByGroupIDAndUserIDWithCursor(ctx, postgres.FindLendingsByGroupIDAndUserIDWithCursorParams{
+	lendingEvents, err := lr.queries.FindAllLendingsByGroupIDAndUserIDWithCursor(ctx, postgres.FindAllLendingsByGroupIDAndUserIDWithCursorParams{
 		GroupID: groupID.String(),
-		PayerID: userID,
+		UserID:  userID,
 		Cursor:  params.Cursor,
 		Limit:   fetchLimit,
 	})
@@ -135,13 +135,26 @@ func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserIDWithPagination(
 			span.RecordError(err)
 			return nil, err
 		}
+		payerID, err := ulid.Parse(l.PayerID)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
 		amount, err := domain.NewAmount(int64(l.Amount))
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
 			return nil, err
 		}
-		lending, err := domain.NewLending(eventID, eventGroupID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt)
+		// Convert role string to LendingRole
+		var role domain.LendingRole
+		if l.Role == "payer" {
+			role = domain.LendingRolePayer
+		} else {
+			role = domain.LendingRoleDebtor
+		}
+		lending, err := domain.NewLendingWithRole(eventID, eventGroupID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt, role, payerID)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)

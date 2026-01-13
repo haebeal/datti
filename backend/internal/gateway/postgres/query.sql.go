@@ -297,6 +297,84 @@ func (q *Queries) FindAllEvents(ctx context.Context) ([]Event, error) {
 	return items, nil
 }
 
+const findAllLendingsByGroupIDAndUserIDWithCursor = `-- name: FindAllLendingsByGroupIDAndUserIDWithCursor :many
+SELECT DISTINCT ON (e.id)
+  e.id,
+  e.group_id,
+  e.name,
+  e.amount,
+  e.event_date,
+  e.created_at,
+  e.updated_at,
+  p.payer_id,
+  CASE
+    WHEN p.payer_id = $1 THEN 'payer'
+    ELSE 'debtor'
+  END AS role
+FROM events e
+INNER JOIN event_payments ep ON e.id = ep.event_id
+INNER JOIN payments p ON ep.payment_id = p.id
+WHERE e.group_id = $2
+  AND (p.payer_id = $1 OR p.debtor_id = $1)
+  AND ($3::text IS NULL OR e.id < $3)
+ORDER BY e.id DESC
+LIMIT $4
+`
+
+type FindAllLendingsByGroupIDAndUserIDWithCursorParams struct {
+	UserID  string
+	GroupID string
+	Cursor  *string
+	Limit   int32
+}
+
+type FindAllLendingsByGroupIDAndUserIDWithCursorRow struct {
+	ID        string
+	GroupID   string
+	Name      string
+	Amount    int32
+	EventDate time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	PayerID   string
+	Role      string
+}
+
+func (q *Queries) FindAllLendingsByGroupIDAndUserIDWithCursor(ctx context.Context, arg FindAllLendingsByGroupIDAndUserIDWithCursorParams) ([]FindAllLendingsByGroupIDAndUserIDWithCursorRow, error) {
+	rows, err := q.db.Query(ctx, findAllLendingsByGroupIDAndUserIDWithCursor,
+		arg.UserID,
+		arg.GroupID,
+		arg.Cursor,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []FindAllLendingsByGroupIDAndUserIDWithCursorRow
+	for rows.Next() {
+		var i FindAllLendingsByGroupIDAndUserIDWithCursorRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.GroupID,
+			&i.Name,
+			&i.Amount,
+			&i.EventDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.PayerID,
+			&i.Role,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findAllUsers = `-- name: FindAllUsers :many
 SELECT id, name, avatar, email, created_at, updated_at FROM users
 `
@@ -315,75 +393,6 @@ func (q *Queries) FindAllUsers(ctx context.Context) ([]User, error) {
 			&i.Name,
 			&i.Avatar,
 			&i.Email,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const findBorrowingsByGroupIDAndUserIDWithCursor = `-- name: FindBorrowingsByGroupIDAndUserIDWithCursor :many
-SELECT
-  e.id AS event_id,
-  e.group_id,
-  e.name,
-  e.event_date,
-  p.amount,
-  e.created_at,
-  e.updated_at
-FROM events e
-INNER JOIN event_payments ep ON e.id = ep.event_id
-INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = $1
-  AND p.debtor_id = $2
-  AND ($3::text IS NULL OR e.id < $3)
-ORDER BY e.id DESC
-LIMIT $4
-`
-
-type FindBorrowingsByGroupIDAndUserIDWithCursorParams struct {
-	GroupID  string
-	DebtorID string
-	Cursor   *string
-	Limit    int32
-}
-
-type FindBorrowingsByGroupIDAndUserIDWithCursorRow struct {
-	EventID   string
-	GroupID   string
-	Name      string
-	EventDate time.Time
-	Amount    int32
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
-func (q *Queries) FindBorrowingsByGroupIDAndUserIDWithCursor(ctx context.Context, arg FindBorrowingsByGroupIDAndUserIDWithCursorParams) ([]FindBorrowingsByGroupIDAndUserIDWithCursorRow, error) {
-	rows, err := q.db.Query(ctx, findBorrowingsByGroupIDAndUserIDWithCursor,
-		arg.GroupID,
-		arg.DebtorID,
-		arg.Cursor,
-		arg.Limit,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []FindBorrowingsByGroupIDAndUserIDWithCursorRow
-	for rows.Next() {
-		var i FindBorrowingsByGroupIDAndUserIDWithCursorRow
-		if err := rows.Scan(
-			&i.EventID,
-			&i.GroupID,
-			&i.Name,
-			&i.EventDate,
-			&i.Amount,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -612,58 +621,6 @@ func (q *Queries) FindGroupsByMemberUserID(ctx context.Context, userID string) (
 			&i.ID,
 			&i.Name,
 			&i.CreatedBy,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const findLendingsByGroupIDAndUserIDWithCursor = `-- name: FindLendingsByGroupIDAndUserIDWithCursor :many
-SELECT DISTINCT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
-FROM events e
-INNER JOIN event_payments ep ON e.id = ep.event_id
-INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = $1
-  AND p.payer_id = $2
-  AND ($3::text IS NULL OR e.id < $3)
-ORDER BY e.id DESC
-LIMIT $4
-`
-
-type FindLendingsByGroupIDAndUserIDWithCursorParams struct {
-	GroupID string
-	PayerID string
-	Cursor  *string
-	Limit   int32
-}
-
-func (q *Queries) FindLendingsByGroupIDAndUserIDWithCursor(ctx context.Context, arg FindLendingsByGroupIDAndUserIDWithCursorParams) ([]Event, error) {
-	rows, err := q.db.Query(ctx, findLendingsByGroupIDAndUserIDWithCursor,
-		arg.GroupID,
-		arg.PayerID,
-		arg.Cursor,
-		arg.Limit,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Event
-	for rows.Next() {
-		var i Event
-		if err := rows.Scan(
-			&i.ID,
-			&i.GroupID,
-			&i.Name,
-			&i.Amount,
-			&i.EventDate,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {

@@ -8,65 +8,31 @@ import type {
 	PaginatedLendingItems,
 	PaginatedLendingResponse,
 } from "../types";
-import type {
-	Borrowing,
-	PaginatedBorrowingResponse,
-} from "@/features/borrowing/types";
 
 type GetAllLendingsParams = {
 	limit?: number;
-	lendingsCursor?: string;
-	borrowingsCursor?: string;
+	cursor?: string;
 };
 
-type RawLendingItem =
-	| {
-			type: "lending";
-			id: string;
-			name: string;
-			amount: number;
-			eventDate: string;
-			debtsCount: number;
-	  }
-	| {
-			type: "borrowing";
-			id: string;
-			name: string;
-			amount: number;
-			eventDate: string;
-	  };
-
-function convertToLendingItems(
-	lendings: Lending[],
-	borrowings: Borrowing[],
-): LendingItem[] {
-	const lendingItems: RawLendingItem[] = lendings.map((lending) => ({
-		type: "lending" as const,
-		id: lending.id,
-		name: lending.name,
-		amount: lending.debts.reduce((sum, debt) => sum + debt.amount, 0),
-		eventDate: lending.eventDate,
-		debtsCount: lending.debts.length,
-	}));
-
-	const borrowingItems: RawLendingItem[] = borrowings.map((borrowing) => ({
-		type: "borrowing" as const,
-		id: borrowing.id,
-		name: borrowing.name,
-		amount: -borrowing.amount,
-		eventDate: borrowing.eventDate,
-	}));
-
-	// Sort first, then format eventDate
-	return [...lendingItems, ...borrowingItems]
+function convertToLendingItems(lendings: Lending[]): LendingItem[] {
+	return lendings
+		.map((lending) => ({
+			id: lending.id,
+			name: lending.name,
+			// payer の場合は debts の合計、debtor の場合は負の金額
+			amount:
+				lending.role === "payer"
+					? lending.debts.reduce((sum, debt) => sum + debt.amount, 0)
+					: -lending.debts.reduce((sum, debt) => sum + debt.amount, 0),
+			eventDate: formatDate(lending.eventDate),
+			role: lending.role,
+			payerId: lending.payerId,
+			debtsCount: lending.debts.length,
+		}))
 		.sort(
 			(a, b) =>
 				new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime(),
-		)
-		.map((item) => ({
-			...item,
-			eventDate: formatDate(item.eventDate),
-		}));
+		);
 }
 
 export async function getAllLendings(
@@ -74,49 +40,30 @@ export async function getAllLendings(
 	params?: GetAllLendingsParams,
 ): Promise<Result<PaginatedLendingItems>> {
 	try {
-		// Build query strings
-		const lendingsSearchParams = new URLSearchParams();
-		const borrowingsSearchParams = new URLSearchParams();
+		const searchParams = new URLSearchParams();
 
 		if (params?.limit) {
-			lendingsSearchParams.set("limit", params.limit.toString());
-			borrowingsSearchParams.set("limit", params.limit.toString());
+			searchParams.set("limit", params.limit.toString());
 		}
-		if (params?.lendingsCursor) {
-			lendingsSearchParams.set("cursor", params.lendingsCursor);
-		}
-		if (params?.borrowingsCursor) {
-			borrowingsSearchParams.set("cursor", params.borrowingsCursor);
+		if (params?.cursor) {
+			searchParams.set("cursor", params.cursor);
 		}
 
-		const lendingsQuery = lendingsSearchParams.toString();
-		const borrowingsQuery = borrowingsSearchParams.toString();
-
-		const lendingsUrl = lendingsQuery
-			? `/groups/${groupId}/lendings?${lendingsQuery}`
+		const query = searchParams.toString();
+		const url = query
+			? `/groups/${groupId}/lendings?${query}`
 			: `/groups/${groupId}/lendings`;
-		const borrowingsUrl = borrowingsQuery
-			? `/groups/${groupId}/borrowings?${borrowingsQuery}`
-			: `/groups/${groupId}/borrowings`;
 
-		// Fetch both in parallel
-		const [lendingsResponse, borrowingsResponse] = await Promise.all([
-			apiClient.get<PaginatedLendingResponse>(lendingsUrl),
-			apiClient.get<PaginatedBorrowingResponse>(borrowingsUrl),
-		]);
+		const response = await apiClient.get<PaginatedLendingResponse>(url);
 
-		const items = convertToLendingItems(
-			lendingsResponse.lendings,
-			borrowingsResponse.borrowings,
-		);
+		const items = convertToLendingItems(response.lendings);
 
 		return {
 			success: true,
 			result: {
 				items,
-				lendingsCursor: lendingsResponse.nextCursor,
-				borrowingsCursor: borrowingsResponse.nextCursor,
-				hasMore: lendingsResponse.hasMore || borrowingsResponse.hasMore,
+				nextCursor: response.nextCursor,
+				hasMore: response.hasMore,
 			},
 			error: null,
 		};

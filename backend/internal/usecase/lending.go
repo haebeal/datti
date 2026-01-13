@@ -126,17 +126,6 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 		return nil, err
 	}
 
-	payer, err := u.pr.FindByEventID(ctx, i.EventID)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-
-	if payer.ID() != i.UserID {
-		return nil, fmt.Errorf("lendingEventが存在しません")
-	}
-
 	event, err := u.lr.FindByID(ctx, i.EventID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
@@ -147,12 +136,47 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 		return nil, fmt.Errorf("forbidden Error")
 	}
 
+	payer, err := u.pr.FindByEventID(ctx, i.EventID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
 	debtors, err := u.dr.FindByEventID(ctx, i.EventID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
+
+	// Determine role: payer or debtor
+	var role domain.LendingRole
+	if payer.ID() == i.UserID {
+		role = domain.LendingRolePayer
+	} else {
+		// Check if user is a debtor
+		isDebtor := false
+		for _, d := range debtors {
+			if d.ID() == i.UserID {
+				isDebtor = true
+				break
+			}
+		}
+		if !isDebtor {
+			return nil, fmt.Errorf("lendingEventが存在しません")
+		}
+		role = domain.LendingRoleDebtor
+	}
+
+	// Set role and payerID on the lending
+	payerULID, err := ulid.Parse(payer.ID())
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+	event.SetRole(role, payerULID)
 
 	output := &handler.GetOutput{
 		Lending: event,

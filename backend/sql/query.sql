@@ -32,31 +32,25 @@ SELECT id, group_id, name, amount, event_date, created_at, updated_at FROM event
 SELECT id, group_id, name, amount, event_date, created_at, updated_at
 FROM events WHERE id = $1 LIMIT 1;
 
--- name: FindLendingsByGroupIDAndUserIDWithCursor :many
-SELECT DISTINCT e.id, e.group_id, e.name, e.amount, e.event_date, e.created_at, e.updated_at
-FROM events e
-INNER JOIN event_payments ep ON e.id = ep.event_id
-INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = sqlc.arg('group_id')
-  AND p.payer_id = sqlc.arg('payer_id')
-  AND (sqlc.narg('cursor')::text IS NULL OR e.id < sqlc.narg('cursor'))
-ORDER BY e.id DESC
-LIMIT sqlc.arg('limit');
-
--- name: FindBorrowingsByGroupIDAndUserIDWithCursor :many
-SELECT
-  e.id AS event_id,
+-- name: FindAllLendingsByGroupIDAndUserIDWithCursor :many
+SELECT DISTINCT ON (e.id)
+  e.id,
   e.group_id,
   e.name,
+  e.amount,
   e.event_date,
-  p.amount,
   e.created_at,
-  e.updated_at
+  e.updated_at,
+  p.payer_id,
+  CASE
+    WHEN p.payer_id = sqlc.arg('user_id') THEN 'payer'
+    ELSE 'debtor'
+  END AS role
 FROM events e
 INNER JOIN event_payments ep ON e.id = ep.event_id
 INNER JOIN payments p ON ep.payment_id = p.id
 WHERE e.group_id = sqlc.arg('group_id')
-  AND p.debtor_id = sqlc.arg('debtor_id')
+  AND (p.payer_id = sqlc.arg('user_id') OR p.debtor_id = sqlc.arg('user_id'))
   AND (sqlc.narg('cursor')::text IS NULL OR e.id < sqlc.narg('cursor'))
 ORDER BY e.id DESC
 LIMIT sqlc.arg('limit');

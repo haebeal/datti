@@ -8,6 +8,14 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
+// LendingRole はユーザーの役割を表す
+type LendingRole string
+
+const (
+	LendingRolePayer  LendingRole = "payer"
+	LendingRoleDebtor LendingRole = "debtor"
+)
+
 // 貸したイベント
 type Lending struct {
 	id        ulid.ULID
@@ -17,6 +25,8 @@ type Lending struct {
 	eventDate time.Time
 	createdAt time.Time
 	updatedAt time.Time
+	role      LendingRole
+	payerID   ulid.ULID
 }
 
 func NewLending(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, eventDate time.Time, createdAt time.Time, updatedAt time.Time) (*Lending, error) {
@@ -39,6 +49,33 @@ func NewLending(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, ev
 		eventDate: eventDate,
 		createdAt: createdAt,
 		updatedAt: updatedAt,
+		role:      LendingRolePayer, // デフォルトは payer
+		payerID:   ulid.ULID{},
+	}, nil
+}
+
+func NewLendingWithRole(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, eventDate time.Time, createdAt time.Time, updatedAt time.Time, role LendingRole, payerID ulid.ULID) (*Lending, error) {
+	if len(name) < 1 {
+		return nil, fmt.Errorf("イベント名は1文字以上である必要があります: %v", name)
+	}
+	if groupID == (ulid.ULID{}) {
+		return nil, fmt.Errorf("groupID must not be nil")
+	}
+
+	if createdAt.After(updatedAt) {
+		return nil, fmt.Errorf("作成日は更新日より前である必要があります: %v", updatedAt)
+	}
+
+	return &Lending{
+		id:        id,
+		groupID:   groupID,
+		name:      name,
+		amount:    amount,
+		eventDate: eventDate,
+		createdAt: createdAt,
+		updatedAt: updatedAt,
+		role:      role,
+		payerID:   payerID,
 	}, nil
 }
 
@@ -86,6 +123,22 @@ func (le *Lending) CreatedAt() time.Time {
 // UpdatedAt returns the last update time of the lending event
 func (le *Lending) UpdatedAt() time.Time {
 	return le.updatedAt
+}
+
+// Role returns the role of the user (payer or debtor)
+func (le *Lending) Role() LendingRole {
+	return le.role
+}
+
+// PayerID returns the payer's user ID
+func (le *Lending) PayerID() ulid.ULID {
+	return le.payerID
+}
+
+// SetRole sets the role and payerID for the lending
+func (le *Lending) SetRole(role LendingRole, payerID ulid.ULID) {
+	le.role = role
+	le.payerID = payerID
 }
 
 // LendingPaginationParams holds cursor-based pagination parameters

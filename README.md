@@ -16,31 +16,31 @@
 ## 必要なツール
 
 ### 共通
-| ツール | 推奨バージョン | インストール例 |
-| --- | --- | --- |
-| Docker / Docker Compose | 24.x / v2 系 | `brew install --cask docker` |
-| [gitleaks](https://github.com/gitleaks/gitleaks) | 最新 | `brew install gitleaks` |
-| [lefthook](https://github.com/evilmartians/lefthook) | 最新 | `brew install lefthook` |
+| ツール | バージョン |
+| --- | --- |
+| Docker / Docker Compose | 24.x / v2 系 |
+| [gitleaks](https://github.com/gitleaks/gitleaks) | 最新 |
+| [lefthook](https://github.com/evilmartians/lefthook) | 最新 |
 
 ### バックエンド
-| ツール | 推奨バージョン | インストール例 |
-| --- | --- | --- |
-| Go | 1.24.x | `brew install go` |
-| [Task](https://taskfile.dev) | 最新 | `brew install go-task/tap/go-task` |
-| [godotenv](https://github.com/joho/godotenv) | 最新 | `go install github.com/joho/godotenv/cmd/godotenv@latest` |
-| [sqlc](https://docs.sqlc.dev) | 最新 | `go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest` |
-| [air](https://github.com/air-verse/air) | 最新 | `go install github.com/air-verse/air@latest` |
-| psql | 15 以上 | `brew install postgresql` |
-| [Atlas](https://atlasgo.io/docs) | 最新 | `brew install ariga/tap/atlas` |
-| [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) | 最新 | `go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest` |
-| [mockgen](https://github.com/uber-go/mock) | 最新 | `go install go.uber.org/mock/mockgen@latest` |
-| [dlv](https://github.com/go-delve/delve) | 最新 | `go install github.com/go-delve/delve/cmd/dlv@latest` |
+| ツール | バージョン |
+| --- | --- |
+| Go | 1.24.x |
+| [Task](https://taskfile.dev) | 最新 |
+| [godotenv](https://github.com/joho/godotenv) | 最新 |
+| [sqlc](https://docs.sqlc.dev) | 最新 |
+| [air](https://github.com/air-verse/air) | 最新 |
+| psql | 15 以上 |
+| [Atlas](https://atlasgo.io/docs) | 最新 |
+| [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) | 最新 |
+| [mockgen](https://github.com/uber-go/mock) | 最新 |
+| [dlv](https://github.com/go-delve/delve) | 最新 |
 
 ### フロントエンド
-| ツール | 推奨バージョン | インストール例 |
-| --- | --- | --- |
-| Node.js | 20.x 以上 | `brew install node` |
-| [pnpm](https://pnpm.io) | 最新 | `npm install -g pnpm` |
+| ツール | バージョン |
+| --- | --- |
+| Node.js | 20.x 以上 |
+| [pnpm](https://pnpm.io) | 最新 |
 
 ## 環境変数
 `backend/.env.example` を複製して `.env` を作成し、必要に応じて値を変更してください。Task は `.env` を自動で読み込みます。

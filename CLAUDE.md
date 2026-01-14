@@ -8,6 +8,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Datti APIは「誰にいくら払ったか」を記録・共有するサービスのバックエンドです。Go製APIサーバーで、PostgreSQLを使用してユーザー間の立て替え支払いを管理します。
 
+## プロジェクト管理（Linear）
+
+タスク管理にはLinearを使用しています。MCP経由でチケットの確認・更新が可能です。
+
+- **チケット形式**: `DATTI-xxx`
+- **チケット確認**: `mcp__linear-server__get_issue` でチケット内容を取得
+- **チケット一覧**: `mcp__linear-server__list_issues` でチーム内のチケットを取得
+- **GitHub連携**: PRタイトルに `DATTI-xxx` を含めると自動でリンク。マージ時にチケットがDoneに移行。
+
 ## 作業開始前の確認
 
 - **ブランチ確認**: 作業対象ブランチ（例: `feature/...`）を事前に共有し、ユーザーの合意を取ってから着手する。
@@ -51,7 +60,7 @@ Datti APIは「誰にいくら払ったか」を記録・共有するサービ�
    - [ ] ローカルで動作確認済み
    - [ ] コンパイルエラーがない
    - [ ] コミットメッセージが適切
-   - [ ] 関連するissueがある場合は番号を確認
+   - [ ] Linearチケット番号を確認（DATTI-xxx）
 
 ### 段階的なコミット戦略
 
@@ -112,18 +121,16 @@ git commit -m "Repayment型からIDを削除しユーザーオブジェクトに
 
 ### PR作成の手順（チェックリスト）
 
-- [ ] **チケット番号の確認**: PR作成前に必ずユーザーにチケット番号を確認する（推測や省略は不可）
-- [ ] **issueの確認**: `gh issue list` でissue番号を取得（例: #248）
-- [ ] **PRタイトル**: `[DATTI-xxx] 簡潔な変更内容の説明` 形式にする
-- [ ] **PR本文の先頭**: `closed #xxx` を記載（マージ時にissueが自動クローズ）
+- [ ] **Linearチケットの確認**: MCP経由でチケット内容を確認（推測や省略は不可）
+- [ ] **PRタイトル**: `[DATTI-xxx] 簡潔な変更内容の説明` 形式にする（LinearとGitHubが自動連携）
 - [ ] **背景・実施内容**: 明確に記載されている
 - [ ] **ローカル確認**: 動作確認済み、コンパイルエラーなし
+
+> **Note**: PRタイトルに `DATTI-xxx` を含めることで、マージ時にLinearチケットが自動的にDoneになります。
 
 ### PR本文のフォーマット
 
 ```markdown
-closed #xxx
-
 # 背景
 
 （なぜこの変更が必要だったのか、どんな課題があったのかを記載）
@@ -150,8 +157,6 @@ closed #xxx
 
 **本文**:
 ```markdown
-closed #248
-
 # 背景
 
 現在、返済詳細ページやグループ一覧ページなどで、ユーザーIDが直接表示されており、
@@ -182,13 +187,13 @@ closed #248
 ### gh CLI を使用したPR作成
 
 ```bash
-gh pr create --title "[DATTI-248] ユーザーID表示をユーザー名・アバター表示に改善" --body "$(cat <<'EOF'
-closed #248
-
+gh pr create --title "[DATTI-xxx] 変更内容の説明" --body "$(cat <<'EOF'
 # 背景
+
 （背景を記載）
 
 # 実施内容
+
 （実施内容を記載）
 EOF
 )"

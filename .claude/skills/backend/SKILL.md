@@ -13,10 +13,10 @@ description: Datti APIバックエンド開発ガイド。Go製PostgreSQL APIサ
 
 | 層 | ディレクトリ | 責務 |
 |---|---|---|
-| ドメイン | `internal/domain/` | エンティティ、値オブジェクト、リポジトリインターフェース |
-| ユースケース | `internal/usecase/` | ビジネスロジック、トランザクション管理 |
-| ゲートウェイ | `internal/gateway/` | リポジトリ実装、外部システム連携 |
-| プレゼンテーション | `internal/presentation/api/` | HTTPハンドラー、リクエスト/レスポンス処理 |
+| ドメイン | `backend/internal/domain/` | エンティティ、値オブジェクト、リポジトリインターフェース |
+| ユースケース | `backend/internal/usecase/` | ビジネスロジック、トランザクション管理 |
+| ゲートウェイ | `backend/internal/gateway/` | リポジトリ実装、外部システム連携 |
+| プレゼンテーション | `backend/internal/presentation/api/` | HTTPハンドラー、リクエスト/レスポンス処理 |
 
 **依存の方向**: プレゼンテーション → ユースケース → ドメイン ← ゲートウェイ
 
@@ -33,7 +33,7 @@ OpenTelemetryで各層にトレースを実装：
 
 ### 1. ドメインエンティティの定義
 
-`internal/domain/` にエンティティ・値オブジェクトを定義。
+`backend/internal/domain/` にエンティティ・値オブジェクトを定義。
 
 - コンストラクタ関数で生成（例: `NewUser`, `NewCredit`）
 - イミュータブル、バリデーションはコンストラクタで実行
@@ -41,8 +41,8 @@ OpenTelemetryで各層にトレースを実装：
 
 ### 2. ユースケース実装（リポジトリインターフェース定義を含む）
 
-- `internal/domain/` にリポジトリインターフェースを定義
-- `internal/usecase/` にビジネスロジックを実装
+- `backend/internal/domain/` にリポジトリインターフェースを定義
+- `backend/internal/usecase/` にビジネスロジックを実装
 - リポジトリインターフェースを依存として受け取る
 - トランザクション管理、エラーハンドリングの統一
 
@@ -54,20 +54,20 @@ OpenTelemetryで各層にトレースを実装：
 
 ### 4. ハンドラー実装
 
-- `internal/presentation/api/handler/` にハンドラーを実装
+- `backend/internal/presentation/api/handler/` にハンドラーを実装
 - ユースケースを依存として受け取る
 - 認証情報取得（`middleware.AuthMiddleware` からの `uid`）
 - レスポンス整形（ドメインモデル → 生成されたレスポンス型）
-- `internal/presentation/api/server/server.go` にハンドラーを登録
+- `backend/internal/presentation/api/server/server.go` にハンドラーインターフェースを追加、`backend/cmd/main.go` でDI
 
 ### 5. リポジトリ実装（ゲートウェイとDBマイグレーション）
 
 - `backend/sql/schema.sql` にテーブル定義
 - `backend/sql/query.sql` にクエリ定義
 - `task gen-sqlc` でコード生成
-- `internal/gateway/repository/` にリポジトリ実装
+- `backend/internal/gateway/repository/` にリポジトリ実装
 - `task db-migrate` でスキーマ適用
-- `cmd/main.go` でDI設定を更新
+- `backend/cmd/main.go` でDI設定を更新
 
 ### 6. ビルド確認
 
@@ -96,18 +96,12 @@ task gen-mocks     # モック生成
 task test          # go test -race ./...
 ```
 
-## テスト方針
-
-- **テスト実行はユーザーのリクエストがある場合のみ対応**
-- testify（assert/require）を使用
-- gomockでモック生成（`task gen-mocks`）
-
 ## 重要な実務ルール
 
 ### コード生成の管理
 
 - **API定義後**: `backend/openapi.yaml` 変更 → `task gen-api`
-- **SQL定義後**: `sql/schema.sql` や `sql/query.sql` 変更 → `task gen-sqlc` 実行
+- **SQL定義後**: `backend/sql/schema.sql` や `backend/sql/query.sql` 変更 → `task gen-sqlc` 実行
 - **リポジトリインターフェース追加後**: `Taskfile.yaml` に mockgen 設定追加 → `task gen-mocks` 実行
 - **生成物は元データと同じコミットに含める**
 
@@ -115,14 +109,11 @@ task test          # go test -race ./...
 
 - **Go 1.24**: `gofmt` / `goimports` を必ず適用（タブインデント）
 - **生成ファイル** (`*.gen.go`): 手動編集は禁止。生成元を更新しコマンドを再実行する
-- **不変性**: ドメインエンティティはコンストラクタ関数で生成し不変
 - **エラーハンドリング**: 明示的なエラー返却
-- **バリデーション**: ドメインエンティティ作成時に実行
 
 ### 認証・環境
 
-- **認証**: 現状ダミー実装（`middleware.AuthMiddleware` が `uid` を注入）
+- **認証**: Firebase Auth（`middleware.AuthMiddleware` が `uid` を注入）
 - **通貨**: すべて円（整数）
 - **環境変数**: `backend/.env` 参照
-- **トレース**: `APP_ENV=production` → Google Cloud Trace、その他 → OTLP HTTP
 

@@ -1,19 +1,30 @@
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-Swagger%20UI-85EA2D?logo=swagger)](https://dev-openapi.datti.app)
 
-# Datti API
+# Datti
 
 誰にいくら払ったかを記録・共有するサービス
 
 ## リポジトリ構成
-- `backend`: Go 製 API サーバー本体。Taskfile やスキーマ、OpenAPI 生成物を含む
-- `backend/openapi.yaml`: OpenAPI 定義
-- `infra`: Terraform などインフラ構成管理
-- `.devcontainer`: VS Code Dev Container 用設定と Dockerfile
+
+| ディレクトリ | 説明 |
+| --- | --- |
+| `backend` | Go 製 API サーバー本体（Taskfile、スキーマ、OpenAPI 生成物を含む） |
+| `frontend` | Next.js 製 Web フロントエンド |
+| `infra` | Terraform などインフラ構成管理 |
+| `.devcontainer` | VS Code Dev Container 用設定と Dockerfile |
 
 ## 必要なツール
+
+### 共通
 | ツール | 推奨バージョン | インストール例 |
 | --- | --- | --- |
 | Docker / Docker Compose | 24.x / v2 系 | `brew install --cask docker` |
+| [gitleaks](https://github.com/gitleaks/gitleaks) | 最新 | `brew install gitleaks` |
+| [lefthook](https://github.com/evilmartians/lefthook) | 最新 | `brew install lefthook` |
+
+### バックエンド
+| ツール | 推奨バージョン | インストール例 |
+| --- | --- | --- |
 | Go | 1.24.x | `brew install go` |
 | [Task](https://taskfile.dev) | 最新 | `brew install go-task/tap/go-task` |
 | [godotenv](https://github.com/joho/godotenv) | 最新 | `go install github.com/joho/godotenv/cmd/godotenv@latest` |
@@ -24,8 +35,12 @@
 | [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) | 最新 | `go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest` |
 | [mockgen](https://github.com/uber-go/mock) | 最新 | `go install go.uber.org/mock/mockgen@latest` |
 | [dlv](https://github.com/go-delve/delve) | 最新 | `go install github.com/go-delve/delve/cmd/dlv@latest` |
-| [gitleaks](https://github.com/gitleaks/gitleaks) | 最新 | `brew install gitleaks` |
-| [lefthook](https://github.com/evilmartians/lefthook) | 最新 | `brew install lefthook` |
+
+### フロントエンド
+| ツール | 推奨バージョン | インストール例 |
+| --- | --- | --- |
+| Node.js | 20.x 以上 | `brew install node` |
+| [pnpm](https://pnpm.io) | 最新 | `npm install -g pnpm` |
 
 ## 環境変数
 `backend/.env.example` を複製して `.env` を作成し、必要に応じて値を変更してください。Task は `.env` を自動で読み込みます。
@@ -41,32 +56,54 @@
 Jaeger にトレースを送信する場合は Collector を起動した上で上記エンドポイントを指定してください。
 
 ## セットアップ手順
-1. コンテナ群の起動（リポジトリ直下の `compose.yaml` を利用）
-   ```bash
-   docker compose up
-   ```
-   - Postgres: `localhost:5432`
-   - Jaeger UI: `http://localhost:16686`
-2. Git フックのセットアップ（シークレット検知）
-   ```bash
-   lefthook install
-   ```
-3. マイグレーション & 初期データ投入
-   ```bash
-   cd backend
-   go mod download
-   task db-migrate
-   task db-seed
-   ```
+
+### 1. コンテナ群の起動
+リポジトリ直下の `compose.yaml` を利用します。
+```bash
+docker compose up -d
+```
+- Postgres: `localhost:5432`
+- Jaeger UI: `http://localhost:16686`
+
+### 2. Git フックのセットアップ
+シークレット検知用の pre-commit フックをインストールします。
+```bash
+lefthook install
+```
+
+### 3. バックエンドのセットアップ
+```bash
+cd backend
+go mod download
+cp .env.example .env
+task db-migrate
+task db-seed
+```
+
+### 4. フロントエンドのセットアップ
+```bash
+cd frontend
+pnpm install
+cp .env.example .env.local
+```
 
 ## ローカル開発
-- API サーバーの起動
-  ```bash
-  cd backend
-  air
-  ```
-  - `.air.toml` が `godotenv` と `dlv` を介してバイナリを起動します（デバッグポート :2345）
-  - ソース変更を監視し自動ビルド・再起動が行われます
+
+### バックエンド
+```bash
+cd backend
+air
+```
+- `.air.toml` が `godotenv` と `dlv` を介してバイナリを起動します（デバッグポート :2345）
+- ソース変更を監視し自動ビルド・再起動が行われます
+
+### フロントエンド
+```bash
+cd frontend
+pnpm dev
+```
+- `http://localhost:3000` で開発サーバーが起動します
+- ソース変更を監視しホットリロードが行われます
 
 ## 利用可能な Task 一覧
 | タスク | 内容 |

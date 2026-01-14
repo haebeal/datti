@@ -42,17 +42,24 @@
 | [pnpm](https://pnpm.io) | 最新 |
 
 ## 環境変数
-`backend/.env.example` を複製して `.env` を作成し、必要に応じて値を変更してください。Task は `.env` を自動で読み込みます。
 
-| 変数名 | 説明 |
-| --- | --- |
-| `PORT` | API サーバーが待ち受けるポート番号 |
-| `DSN` | Postgres 接続文字列。例: `postgres://postgres:password@localhost:5432/datti?sslmode=disable` |
-| `OTEL_SERVICE_NAME` | OpenTelemetry のサービス名。例: `Datti API` |
-| `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` | Jaeger Collector 等へのエンドポイント。例: `http://localhost:4318` |
-| `OTEL_EXPORTER_OTLP_TRACES_INSECURE` | Collector への接続に TLS を使わない場合は `true` |
+環境変数は [1Password Environments](https://developer.1password.com/docs/environments/) で管理しています。
 
-Jaeger にトレースを送信する場合は Collector を起動した上で上記エンドポイントを指定してください。
+### セットアップ
+
+1. 1Password デスクトップアプリをインストール
+2. 設定から「Developer」機能を有効化
+3. 「Developer > View Environments」から共有された環境にアクセス
+4. 各環境の Destination で `.env` ファイルのパスを設定
+
+設定後、`.env` ファイルが自動的に同期されます。
+
+### 環境一覧
+
+| 環境名 | Destination | 説明 |
+| --- | --- | --- |
+| Datti Backend | `backend/.env` | バックエンド API 用 |
+| Datti Frontend | `frontend/.env.local` | フロントエンド用 |
 
 ## セットアップ手順
 
@@ -70,20 +77,21 @@ docker compose up -d
 lefthook install
 ```
 
-### 3. バックエンドのセットアップ
+### 3. 環境変数の同期
+1Password Environments で `.env` ファイルを同期してください（[環境変数](#環境変数) 参照）。
+
+### 4. バックエンドのセットアップ
 ```bash
 cd backend
 go mod download
-cp .env.example .env
 task db-migrate
 task db-seed
 ```
 
-### 4. フロントエンドのセットアップ
+### 5. フロントエンドのセットアップ
 ```bash
 cd frontend
 pnpm install
-cp .env.example .env.local
 ```
 
 ## ローカル開発

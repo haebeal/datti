@@ -7,7 +7,25 @@ description: Datti APIバックエンド開発ガイド。Go製PostgreSQL APIサ
 
 このスキルは、Datti API（Go製バックエンドAPI）の開発に必要な知識とワークフローを提供します。
 
-アーキテクチャの詳細は [architecture.md](architecture.md) を参照。
+## アーキテクチャ
+
+クリーンアーキテクチャに基づく4層構造：
+
+| 層 | ディレクトリ | 責務 |
+|---|---|---|
+| ドメイン | `internal/domain/` | エンティティ、値オブジェクト、リポジトリインターフェース |
+| ユースケース | `internal/usecase/` | ビジネスロジック、トランザクション管理 |
+| ゲートウェイ | `internal/gateway/` | リポジトリ実装、外部システム連携 |
+| プレゼンテーション | `internal/presentation/api/` | HTTPハンドラー、リクエスト/レスポンス処理 |
+
+**依存の方向**: プレゼンテーション → ユースケース → ドメイン ← ゲートウェイ
+
+### トレース
+
+OpenTelemetryで各層にトレースを実装：
+
+- **`APP_ENV=production`**: Google Cloud Trace
+- **その他**: OTLP HTTP（ローカル: `http://localhost:4318`）
 
 ## 新機能実装フロー
 
@@ -108,6 +126,3 @@ task test          # go test -race ./...
 - **環境変数**: `backend/.env` 参照
 - **トレース**: `APP_ENV=production` → Google Cloud Trace、その他 → OTLP HTTP
 
-## 参考資料
-
-- [architecture.md](architecture.md) - アーキテクチャの詳細

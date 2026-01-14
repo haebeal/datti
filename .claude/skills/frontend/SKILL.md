@@ -15,6 +15,7 @@ Dattiフロントエンドは「誰にいくら払ったか」を記録・共有
 
 ## 技術スタック
 
+- **パッケージマネージャー**: pnpm
 - **フレームワーク**: Next.js 15 (App Router)
 - **言語**: TypeScript 5
 - **フォームライブラリ**: Conform + Zod
@@ -77,11 +78,13 @@ frontend/src/
 ## デザインとコーディングの原則
 
 ### コンポーネント設計
+
 - **最小限の分割**: サーバー/クライアント境界、明確な責務の分離のみ
 - **浅いJSX階層**: 不要なネストを避け、Biomeの警告に従う
 - **1ファイル完結**: 200〜300行程度なら分割不要
 
 ### スタイリング
+
 - **間隔とレイアウト**: 詳細は [design-system.md](design-system.md) を参照
 - **cn()ユーティリティ**: 全てのスタイルで使用
 - **一貫性**: 同じ性質の要素には同じスタイルを適用
@@ -120,7 +123,9 @@ frontend/src/
 export async function getRepayment(id: string): Promise<Result<Repayment>> {
   try {
     // 1. メインデータを取得
-    const response = await apiClient.get<RepaymentResponse>(`/repayments/${id}`);
+    const response = await apiClient.get<RepaymentResponse>(
+      `/repayments/${id}`,
+    );
 
     // 2. 関連ユーザーを並列取得（Promise.all）
     const [payer, debtor] = await Promise.all([
@@ -140,7 +145,11 @@ export async function getRepayment(id: string): Promise<Result<Repayment>> {
 
     return { success: true, result: repayment, error: null };
   } catch (error) {
-    return { success: false, result: null, error: error instanceof Error ? error.message : "Unknown error" };
+    return {
+      success: false,
+      result: null,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
   }
 }
 ```
@@ -164,7 +173,9 @@ export async function getAllRepayments(): Promise<Result<Repayment[]>> {
 
     // 3. 全ユーザー情報を並列取得（Promise.all）
     const users = await Promise.all(
-      Array.from(userIds).map((userId) => apiClient.get<User>(`/users/${userId}`)),
+      Array.from(userIds).map((userId) =>
+        apiClient.get<User>(`/users/${userId}`),
+      ),
     );
 
     // 4. O(1)検索用のマップを作成（Map）
@@ -182,7 +193,11 @@ export async function getAllRepayments(): Promise<Result<Repayment[]>> {
 
     return { success: true, result: repayments, error: null };
   } catch (error) {
-    return { success: false, result: null, error: error instanceof Error ? error.message : "Unknown error" };
+    return {
+      success: false,
+      result: null,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
   }
 }
 ```
@@ -211,8 +226,8 @@ import type { User } from "@/features/user/types";
 // バックエンドAPIのレスポンス型（IDのみ）
 export type RepaymentResponse = {
   id: string;
-  payerId: string;      // IDのみ
-  debtorId: string;     // IDのみ
+  payerId: string; // IDのみ
+  debtorId: string; // IDのみ
   amount: number;
   createdAt: string;
   updatedAt: string;
@@ -221,8 +236,8 @@ export type RepaymentResponse = {
 // フロントエンド型（完全なユーザーオブジェクト）
 export type Repayment = {
   id: string;
-  payer: User;          // Userオブジェクト
-  debtor: User;         // Userオブジェクト
+  payer: User; // Userオブジェクト
+  debtor: User; // Userオブジェクト
   amount: number;
   createdAt: string;
   updatedAt: string;
@@ -266,7 +281,7 @@ export function RepaymentCard({ repayment }: Props) {
 export type GroupResponse = {
   id: string;
   name: string;
-  createdBy: string;    // IDのみ
+  createdBy: string; // IDのみ
   createdAt: string;
   updatedAt: string;
 };
@@ -274,7 +289,7 @@ export type GroupResponse = {
 export type Group = {
   id: string;
   name: string;
-  creator: User;        // Userオブジェクト
+  creator: User; // Userオブジェクト
   createdAt: string;
   updatedAt: string;
 };
@@ -284,12 +299,12 @@ export type Group = {
 // features/credit/types.ts
 
 export type CreditResponse = {
-  userId: string;       // IDのみ
+  userId: string; // IDのみ
   amount: number;
 };
 
 export type Credit = {
-  user: User;           // Userオブジェクト
+  user: User; // Userオブジェクト
   amount: number;
 };
 ```
@@ -310,6 +325,7 @@ export type Credit = {
 **原因**: `name` 属性の欠落（最も多いエラー）
 
 **解決策**:
+
 ```tsx
 // ❌NG
 <input id={field.id} defaultValue={field.defaultValue} />
@@ -323,6 +339,7 @@ export type Credit = {
 **症状**: `<a>` の中に `<button>` を入れてしまう
 
 **解決策**: `LinkButton` コンポーネントを使用
+
 ```tsx
 // ❌NG
 <Link href="/groups/1">
@@ -338,6 +355,7 @@ export type Credit = {
 **症状**: フォーム入力時に1Passwordの候補が表示される
 
 **解決策**: `Input` コンポーネントを使用（自動的に対応される）
+
 ```tsx
 <Input type="text" name={field.name} />
 // autoComplete="off" と data-1p-ignore が自動適用される
@@ -440,6 +458,7 @@ import { LinkButton } from "@/components/ui/link-button";
 ```
 
 **理由**: これらには重要なデフォルト設定が含まれています：
+
 - **Input**: `autoComplete="off"`, `data-1p-ignore`（1Password無効化）
 - **Button**: disabled状態のスタイル、React Aria対応
 - **LinkButton**: ナビゲーション用の適切なセマンティクス

@@ -11,7 +11,6 @@
 | `backend` | Go 製 API サーバー本体（Taskfile、スキーマ、OpenAPI 生成物を含む） |
 | `frontend` | Next.js 製 Web フロントエンド |
 | `infra` | Terraform などインフラ構成管理 |
-| `.devcontainer` | VS Code Dev Container 用設定と Dockerfile |
 
 ## 必要なツール
 

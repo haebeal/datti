@@ -78,7 +78,7 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
 				return (
 					<Link
 						key={`${item.type}-${item.id}`}
-						href={`/groups/${groupId}/lendings/${item.id}`}
+						href={`/groups/${groupId}/${item.type === "lending" ? "lendings" : "borrowings"}/${item.id}`}
 						className={cn(
 							"block p-4",
 							"flex flex-col gap-2",

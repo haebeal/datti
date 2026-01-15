@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { ErrorText } from "@/components/ui/error-text";
-import { formatCurrency } from "@/utils";
+import { formatCurrency } from "@/utils/format";
 import type { Credit } from "@/features/credit/types";
 import { createRepayment } from "../actions/createRepayment";
 import { createRepaymentSchema } from "../schema";

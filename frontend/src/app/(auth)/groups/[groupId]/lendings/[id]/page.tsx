@@ -1,7 +1,7 @@
 import { getLending } from "@/features/lending/actions/getLending";
 import { getGroup } from "@/features/group/actions/getGroup";
 import { getMembers } from "@/features/group/actions/getMembers";
-import { formatCurrency, formatDate } from "@/utils";
+import { formatCurrency, formatDate } from "@/utils/format";
 import { LinkButton } from "@/components/ui/link-button";
 import { LendingDeleteForm } from "@/features/lending/components/lending-delete-form";
 import { cn } from "@/utils/cn";

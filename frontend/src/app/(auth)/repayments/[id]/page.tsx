@@ -1,6 +1,6 @@
 import { getRepayment } from "@/features/repayment/actions/getRepayment";
 import { LinkButton } from "@/components/ui/link-button";
-import { formatCurrency, formatDate } from "@/utils";
+import { formatCurrency, formatDate } from "@/utils/format";
 import { cn } from "@/utils/cn";
 
 export default async function RepaymentDetailPage({

@@ -655,10 +655,10 @@ new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date())
 
 ### 表示用フォーマット
 
-`@/utils` の `formatDate` を使用する。
+`@/utils/format` の `formatDate` を使用する。
 
 ```typescript
-import { formatDate } from "@/utils";
+import { formatDate } from "@/utils/format";
 
 formatDate(dateString);  // "2026年1月15日"
 ```

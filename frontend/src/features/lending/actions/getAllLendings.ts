@@ -2,7 +2,8 @@
 
 import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { createApiClient } from "@/libs/api/client";
-import { formatDate, type Result } from "@/utils";
+import { formatDate } from "@/utils/format";
+import type { Result } from "@/utils/types";
 import type { Lending, LendingItem, PaginatedLendingItems } from "../types";
 import type { Borrowing } from "@/features/borrowing/types";
 

@@ -2,7 +2,7 @@
 
 import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { createApiClient } from "@/libs/api/client";
-import type { Result } from "@/utils";
+import type { Result } from "@/utils/types";
 import type { Borrowing } from "../types";
 
 export async function getAllBorrowings(

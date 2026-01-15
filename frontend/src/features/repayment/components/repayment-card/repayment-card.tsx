@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { formatCurrency, formatDate } from "@/utils";
+import { formatCurrency, formatDate } from "@/utils/format";
 import { cn } from "@/utils/cn";
 import type { Repayment } from "../../types";
 

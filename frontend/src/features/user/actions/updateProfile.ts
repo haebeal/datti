@@ -4,6 +4,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { createApiClient } from "@/libs/api/client";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { profileEditSchema } from "../schema";
 
 export async function updateProfile(_prevState: unknown, formData: FormData) {
@@ -33,9 +34,5 @@ export async function updateProfile(_prevState: unknown, formData: FormData) {
 
   // サイドバーのユーザー情報を更新
   revalidatePath("/", "layout");
-
-  return submission.reply({
-    formErrors: [],
-    fieldErrors: {},
-  });
+  redirect("/profile");
 }

@@ -1,13 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
-
-const SESSION_PREFIX = "session:";
+import { deleteSession } from "@/libs/session/session";
 
 /**
  * ログアウトエンドポイント
@@ -18,7 +11,7 @@ export async function POST() {
   const sessionId = cookieStore.get("session_id")?.value;
 
   if (sessionId) {
-    await redis.del(`${SESSION_PREFIX}${sessionId}`);
+    await deleteSession(sessionId);
   }
 
   cookieStore.delete("session_id");

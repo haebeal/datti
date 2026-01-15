@@ -2,14 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { Redis } from "@upstash/redis";
-
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
-});
-
-const SESSION_PREFIX = "session:";
+import { deleteSession } from "@/libs/session/session";
 
 /**
  * ログアウト処理
@@ -20,7 +13,7 @@ export async function logout() {
   const sessionId = cookieStore.get("session_id")?.value;
 
   if (sessionId) {
-    await redis.del(`${SESSION_PREFIX}${sessionId}`);
+    await deleteSession(sessionId);
   }
 
   cookieStore.delete("session_id");

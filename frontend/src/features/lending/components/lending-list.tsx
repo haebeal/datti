@@ -24,8 +24,15 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
   const [borrowingsCursor, setBorrowingsCursor] = useState<string | null>(
     initialData.borrowingsCursor,
   );
-  const [hasMore, setHasMore] = useState(initialData.hasMore);
+  const [lendingsHasMore, setLendingsHasMore] = useState(
+    initialData.lendingsHasMore,
+  );
+  const [borrowingsHasMore, setBorrowingsHasMore] = useState(
+    initialData.borrowingsHasMore,
+  );
   const [isPending, startTransition] = useTransition();
+
+  const hasMore = lendingsHasMore || borrowingsHasMore;
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -39,15 +46,26 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
       const result = await getAllLendings(groupId, {
         lendingsCursor: lendingsCursor ?? undefined,
         borrowingsCursor: borrowingsCursor ?? undefined,
+        lendingsHasMore,
+        borrowingsHasMore,
       });
       if (result.success) {
         setItems((prev) => [...prev, ...result.result.items]);
         setLendingsCursor(result.result.lendingsCursor);
         setBorrowingsCursor(result.result.borrowingsCursor);
-        setHasMore(result.result.hasMore);
+        setLendingsHasMore(result.result.lendingsHasMore);
+        setBorrowingsHasMore(result.result.borrowingsHasMore);
       }
     });
-  }, [groupId, hasMore, isPending, lendingsCursor, borrowingsCursor]);
+  }, [
+    groupId,
+    hasMore,
+    isPending,
+    lendingsCursor,
+    borrowingsCursor,
+    lendingsHasMore,
+    borrowingsHasMore,
+  ]);
 
   useEffect(() => {
     if (inView && hasMore && !isPending) {

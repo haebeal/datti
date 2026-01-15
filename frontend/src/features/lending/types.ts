@@ -58,5 +58,6 @@ export type PaginatedLendingItems = {
   items: LendingItem[];
   lendingsCursor: string | null;
   borrowingsCursor: string | null;
-  hasMore: boolean;
+  lendingsHasMore: boolean;
+  borrowingsHasMore: boolean;
 };

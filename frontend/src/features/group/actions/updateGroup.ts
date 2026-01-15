@@ -5,6 +5,7 @@ import { createApiClient } from "@/libs/api/client";
 import { parseWithZod } from "@conform-to/zod";
 import { updateGroupSchema } from "../schema";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function updateGroup(_: unknown, formData: FormData) {
   const submission = parseWithZod(formData, {
@@ -31,6 +32,7 @@ export async function updateGroup(_: unknown, formData: FormData) {
   }
 
   revalidatePath(`/groups/${id}/settings`);
+  revalidatePath(`/groups/${id}`);
   revalidatePath("/groups");
-  return submission.reply({ resetForm: true });
+  redirect(`/groups/${id}`);
 }

@@ -646,21 +646,21 @@ new Date(dateString).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
 new Date(dateString).toLocaleString("ja-JP");
 ```
 
-### ユーティリティ関数
-
-`@/schema` に以下の関数が用意されている。
+### 今日の日付を取得
 
 ```typescript
-import { formatDate, dateToString, getTodayString } from "@/schema";
+// JSTで今日の日付を取得（yyyy-mm-dd形式）
+new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date())
+```
 
-// 表示用（JST）
+### 表示用フォーマット
+
+`@/schema` の `formatDate` を使用する。
+
+```typescript
+import { formatDate } from "@/schema";
+
 formatDate(dateString);  // "2026年1月15日"
-
-// 日付文字列変換（JST）
-dateToString(new Date());  // "2026-01-15"
-
-// 今日の日付（JST）
-getTodayString();  // "2026-01-15"
 ```
 
 ## コーディング規約

@@ -19,29 +19,6 @@ export type Result<T> =
     };
 
 /**
- * Converts a Date object to ISO date string (YYYY-MM-DD) in JST
- */
-export const dateToString = (date: Date): string => {
-  return new Intl.DateTimeFormat("sv-SE", {
-    timeZone: "Asia/Tokyo",
-  }).format(date);
-};
-
-/**
- * Converts an ISO date string to a Date object
- */
-export const stringToDate = (dateString: string): Date => {
-  return new Date(dateString);
-};
-
-/**
- * Returns today's date in YYYY-MM-DD format (JST)
- */
-export const getTodayString = (): string => {
-  return dateToString(new Date());
-};
-
-/**
  * Formats a date for display in Japanese format (JST)
  */
 export const formatDate = (date: Date | string): string => {

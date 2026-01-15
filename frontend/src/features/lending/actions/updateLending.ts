@@ -3,9 +3,8 @@
 import { parseWithZod } from "@conform-to/zod";
 import { revalidatePath } from "next/cache";
 import { getAuthToken } from "@/libs/auth/getAuthToken";
-import { apiClient } from "@/libs/api/client";
+import { createApiClient } from "@/libs/api/client";
 import { updateLendingSchema } from "../schema";
-import type { Lending } from "../types";
 
 export async function updateLending(
   groupId: string,
@@ -24,24 +23,28 @@ export async function updateLending(
   const normalizedEventDate = normalizeEventDate(eventDate);
 
   const token = await getAuthToken();
+  const client = createApiClient(token);
 
-  try {
-    await apiClient.put<Lending>(`/groups/${groupId}/lendings/${id}`, token, {
+  const { error } = await client.PUT("/groups/{id}/lendings/{lendingId}", {
+    params: { path: { id: groupId, lendingId: id } },
+    body: {
       name,
       amount,
       eventDate: normalizedEventDate,
       debts,
-    });
-    revalidatePath(`/groups/${groupId}/lendings/${id}/edit`);
-    revalidatePath(`/groups/${groupId}/lendings/${id}`);
-    revalidatePath(`/groups/${groupId}/lendings`);
-    return submission.reply();
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+    },
+  });
+
+  if (error) {
     return submission.reply({
-      formErrors: [message],
+      formErrors: [error.message],
     });
   }
+
+  revalidatePath(`/groups/${groupId}/lendings/${id}/edit`);
+  revalidatePath(`/groups/${groupId}/lendings/${id}`);
+  revalidatePath(`/groups/${groupId}/lendings`);
+  return submission.reply();
 }
 
 function normalizeEventDate(value: string) {

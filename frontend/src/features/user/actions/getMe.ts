@@ -1,7 +1,7 @@
 "use server";
 
 import { getAuthToken } from "@/libs/auth/getAuthToken";
-import { apiClient } from "@/libs/api/client";
+import { createApiClient } from "@/libs/api/client";
 import type { User } from "../types";
 
 type GetMeResult =
@@ -13,14 +13,16 @@ type GetMeResult =
  */
 export async function getMe(): Promise<GetMeResult> {
   const token = await getAuthToken();
+  const client = createApiClient(token);
 
-  try {
-    const user = await apiClient.get<User>("/users/me", token);
-    return { success: true, user };
-  } catch (error) {
+  const { data, error } = await client.GET("/users/me");
+
+  if (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error.message,
     };
   }
+
+  return { success: true, user: data };
 }

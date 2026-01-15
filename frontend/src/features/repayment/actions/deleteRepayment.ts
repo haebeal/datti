@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { getAuthToken } from "@/libs/auth/getAuthToken";
-import { apiClient } from "@/libs/api/client";
+import { createApiClient } from "@/libs/api/client";
 
 export type DeleteRepaymentState =
   | {
@@ -16,13 +16,14 @@ export async function deleteRepayment(
   _formData: FormData,
 ): Promise<DeleteRepaymentState> {
   const token = await getAuthToken();
+  const client = createApiClient(token);
 
-  try {
-    await apiClient.delete(`/repayments/${id}`, token);
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
+  const { error } = await client.DELETE("/repayments/{id}", {
+    params: { path: { id } },
+  });
+
+  if (error) {
+    return { error: error.message };
   }
 
   redirect("/repayments");

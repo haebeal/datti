@@ -2,15 +2,11 @@
 
 import { parseWithZod } from "@conform-to/zod";
 import { getAuthToken } from "@/libs/auth/getAuthToken";
-import { apiClient } from "@/libs/api/client";
+import { createApiClient } from "@/libs/api/client";
 import { revalidatePath } from "next/cache";
 import { profileEditSchema } from "../schema";
-import type { User } from "../types";
 
-export async function updateProfile(
-  _prevState: unknown,
-  formData: FormData
-) {
+export async function updateProfile(_prevState: unknown, formData: FormData) {
   const submission = parseWithZod(formData, {
     schema: profileEditSchema,
   });
@@ -22,25 +18,24 @@ export async function updateProfile(
   const { id, name, avatar } = submission.value;
 
   const token = await getAuthToken();
+  const client = createApiClient(token);
 
-  try {
-    await apiClient.put<User>(`/users/${id}`, token, {
-      name,
-      avatar,
-    });
+  const { error } = await client.PUT("/users/{id}", {
+    params: { path: { id } },
+    body: { name, avatar: avatar ?? "" },
+  });
 
-    // サイドバーのユーザー情報を更新
-    revalidatePath("/", "layout");
-
+  if (error) {
     return submission.reply({
-      formErrors: [],
-      fieldErrors: {},
-    });
-  } catch (error) {
-    return submission.reply({
-      formErrors: [
-        error instanceof Error ? error.message : "更新に失敗しました",
-      ],
+      formErrors: [error.message],
     });
   }
+
+  // サイドバーのユーザー情報を更新
+  revalidatePath("/", "layout");
+
+  return submission.reply({
+    formErrors: [],
+    fieldErrors: {},
+  });
 }

@@ -11,6 +11,7 @@ import { Select } from "@/components/ui/select";
 import { ErrorText } from "@/components/ui/error-text";
 import { createLending } from "../actions/createLending";
 import { createLendingSchema } from "../schema";
+import { getTodayString } from "@/schema";
 import type { GroupMember } from "@/features/group/types";
 
 type Props = {
@@ -110,7 +111,7 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
         name={fields.eventDate.name}
         id={fields.eventDate.id}
         key={fields.eventDate.key}
-        defaultValue={fields.eventDate.initialValue || new Date().toISOString().split("T")[0]}
+        defaultValue={fields.eventDate.initialValue || getTodayString()}
         placeholder="日付を選択"
         className={cn("w-full")}
         isError={!!fields.eventDate.errors}

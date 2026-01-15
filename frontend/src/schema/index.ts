@@ -19,10 +19,12 @@ export type Result<T> =
     };
 
 /**
- * Converts a Date object to ISO date string (YYYY-MM-DD)
+ * Converts a Date object to ISO date string (YYYY-MM-DD) in JST
  */
 export const dateToString = (date: Date): string => {
-  return date.toISOString().split("T")[0];
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Asia/Tokyo",
+  }).format(date);
 };
 
 /**
@@ -30,6 +32,13 @@ export const dateToString = (date: Date): string => {
  */
 export const stringToDate = (dateString: string): Date => {
   return new Date(dateString);
+};
+
+/**
+ * Returns today's date in YYYY-MM-DD format (JST)
+ */
+export const getTodayString = (): string => {
+  return dateToString(new Date());
 };
 
 /**

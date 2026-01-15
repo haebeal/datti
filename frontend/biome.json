@@ -33,6 +33,6 @@
     }
   },
   "files": {
-    "includes": ["**", "!**/node_modules", "!**/.next", "!**/out"]
+    "includes": ["**", "!**/node_modules", "!**/.next", "!**/out", "!**/schema.d.ts"]
   }
 }

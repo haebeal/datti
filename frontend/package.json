@@ -8,7 +8,8 @@
     "typecheck": "tsc --noEmit",
     "start": "next start",
     "lint": "biome lint ./src",
-    "format": "biome format --write ./src"
+    "format": "biome format --write ./src",
+    "gen:api": "openapi-typescript ../backend/openapi.yaml -o ./src/libs/api/schema.d.ts"
   },
   "dependencies": {
     "@conform-to/react": "^1.15.1",

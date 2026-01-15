@@ -33,7 +33,7 @@ export const stringToDate = (dateString: string): Date => {
 };
 
 /**
- * Formats a date for display in Japanese format
+ * Formats a date for display in Japanese format (JST)
  */
 export const formatDate = (date: Date | string): string => {
   const d = typeof date === "string" ? new Date(date) : date;
@@ -41,6 +41,7 @@ export const formatDate = (date: Date | string): string => {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "Asia/Tokyo",
   }).format(d);
 };
 

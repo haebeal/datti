@@ -49,9 +49,9 @@ export async function updateLending(
 }
 
 /**
- * yyyy-mm-dd形式の日付をUTCのISO文字列に変換
+ * yyyy-mm-dd形式の日付をJSTのISO文字列に変換
  */
 function normalizeEventDate(value: string) {
-  // yyyy-mm-dd形式を期待し、UTCの0時として扱う
-  return `${value}T00:00:00.000Z`;
+  // yyyy-mm-dd形式を期待し、JSTの0時として扱う
+  return `${value}T00:00:00+09:00`;
 }

@@ -31,6 +31,9 @@ interface FirebaseSignInResponse {
  * ログイン試行 → 失敗したら自動登録
  */
 export async function GET(request: NextRequest) {
+  // cookies() はリクエストスコープ内で最初に呼び出す必要がある
+  const cookieStore = await cookies();
+
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get("code");
   const error = searchParams.get("error");
@@ -109,10 +112,9 @@ export async function GET(request: NextRequest) {
       const sessionId = await createSession(
         firebaseIdToken,
         firebaseData.refreshToken,
-        Number.parseInt(firebaseData.expiresIn)
+        Number.parseInt(firebaseData.expiresIn, 10)
       );
 
-      const cookieStore = await cookies();
       cookieStore.set("session_id", sessionId, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -145,10 +147,9 @@ export async function GET(request: NextRequest) {
         const sessionId = await createSession(
           firebaseIdToken,
           firebaseData.refreshToken,
-          Number.parseInt(firebaseData.expiresIn)
+          Number.parseInt(firebaseData.expiresIn, 10)
         );
 
-        const cookieStore = await cookies();
         cookieStore.set("session_id", sessionId, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",

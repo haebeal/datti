@@ -1,133 +1,117 @@
 "use server";
 
 import { getAuthToken } from "@/libs/auth/getAuthToken";
-import { apiClient } from "@/libs/api/client";
+import { createApiClient } from "@/libs/api/client";
 import { formatDate, type Result } from "@/schema";
-import type {
-	Lending,
-	LendingItem,
-	PaginatedLendingItems,
-	PaginatedLendingResponse,
-} from "../types";
-import type {
-	Borrowing,
-	PaginatedBorrowingResponse,
-} from "@/features/borrowing/types";
+import type { Lending, LendingItem, PaginatedLendingItems } from "../types";
+import type { Borrowing } from "@/features/borrowing/types";
 
 type GetAllLendingsParams = {
-	limit?: number;
-	lendingsCursor?: string;
-	borrowingsCursor?: string;
+  limit?: number;
+  lendingsCursor?: string;
+  borrowingsCursor?: string;
 };
 
 type RawLendingItem =
-	| {
-			type: "lending";
-			id: string;
-			name: string;
-			amount: number;
-			eventDate: string;
-			debtsCount: number;
-	  }
-	| {
-			type: "borrowing";
-			id: string;
-			name: string;
-			amount: number;
-			eventDate: string;
-	  };
+  | {
+      type: "lending";
+      id: string;
+      name: string;
+      amount: number;
+      eventDate: string;
+      debtsCount: number;
+    }
+  | {
+      type: "borrowing";
+      id: string;
+      name: string;
+      amount: number;
+      eventDate: string;
+    };
 
 function convertToLendingItems(
-	lendings: Lending[],
-	borrowings: Borrowing[],
+  lendings: Lending[],
+  borrowings: Borrowing[],
 ): LendingItem[] {
-	const lendingItems: RawLendingItem[] = lendings.map((lending) => ({
-		type: "lending" as const,
-		id: lending.id,
-		name: lending.name,
-		amount: lending.debts.reduce((sum, debt) => sum + debt.amount, 0),
-		eventDate: lending.eventDate,
-		debtsCount: lending.debts.length,
-	}));
+  const lendingItems: RawLendingItem[] = lendings.map((lending) => ({
+    type: "lending" as const,
+    id: lending.id,
+    name: lending.name,
+    amount: lending.debts.reduce((sum, debt) => sum + debt.amount, 0),
+    eventDate: lending.eventDate,
+    debtsCount: lending.debts.length,
+  }));
 
-	const borrowingItems: RawLendingItem[] = borrowings.map((borrowing) => ({
-		type: "borrowing" as const,
-		id: borrowing.id,
-		name: borrowing.name,
-		amount: -borrowing.amount,
-		eventDate: borrowing.eventDate,
-	}));
+  const borrowingItems: RawLendingItem[] = borrowings.map((borrowing) => ({
+    type: "borrowing" as const,
+    id: borrowing.id,
+    name: borrowing.name,
+    amount: -borrowing.amount,
+    eventDate: borrowing.eventDate,
+  }));
 
-	// Sort first, then format eventDate
-	return [...lendingItems, ...borrowingItems]
-		.sort(
-			(a, b) =>
-				new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime(),
-		)
-		.map((item) => ({
-			...item,
-			eventDate: formatDate(item.eventDate),
-		}));
+  // Sort first, then format eventDate
+  return [...lendingItems, ...borrowingItems]
+    .sort(
+      (a, b) =>
+        new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime(),
+    )
+    .map((item) => ({
+      ...item,
+      eventDate: formatDate(item.eventDate),
+    }));
 }
 
 export async function getAllLendings(
-	groupId: string,
-	params?: GetAllLendingsParams,
+  groupId: string,
+  params?: GetAllLendingsParams,
 ): Promise<Result<PaginatedLendingItems>> {
-	const token = await getAuthToken();
+  const token = await getAuthToken();
+  const client = createApiClient(token);
 
-	try {
-		// Build query strings
-		const lendingsSearchParams = new URLSearchParams();
-		const borrowingsSearchParams = new URLSearchParams();
+  // Fetch both in parallel
+  const [lendingsResult, borrowingsResult] = await Promise.all([
+    client.GET("/groups/{id}/lendings", {
+      params: {
+        path: { id: groupId },
+        query: {
+          limit: params?.limit,
+          cursor: params?.lendingsCursor,
+        },
+      },
+    }),
+    client.GET("/groups/{id}/borrowings", {
+      params: {
+        path: { id: groupId },
+        query: {
+          limit: params?.limit,
+          cursor: params?.borrowingsCursor,
+        },
+      },
+    }),
+  ]);
 
-		if (params?.limit) {
-			lendingsSearchParams.set("limit", params.limit.toString());
-			borrowingsSearchParams.set("limit", params.limit.toString());
-		}
-		if (params?.lendingsCursor) {
-			lendingsSearchParams.set("cursor", params.lendingsCursor);
-		}
-		if (params?.borrowingsCursor) {
-			borrowingsSearchParams.set("cursor", params.borrowingsCursor);
-		}
+  if (lendingsResult.error || borrowingsResult.error) {
+    return {
+      success: false,
+      result: null,
+      error: lendingsResult.error?.message || borrowingsResult.error?.message || "Unknown error",
+    };
+  }
 
-		const lendingsQuery = lendingsSearchParams.toString();
-		const borrowingsQuery = borrowingsSearchParams.toString();
+  const items = convertToLendingItems(
+    lendingsResult.data.lendings,
+    borrowingsResult.data.borrowings,
+  );
 
-		const lendingsUrl = lendingsQuery
-			? `/groups/${groupId}/lendings?${lendingsQuery}`
-			: `/groups/${groupId}/lendings`;
-		const borrowingsUrl = borrowingsQuery
-			? `/groups/${groupId}/borrowings?${borrowingsQuery}`
-			: `/groups/${groupId}/borrowings`;
-
-		// Fetch both in parallel
-		const [lendingsResponse, borrowingsResponse] = await Promise.all([
-			apiClient.get<PaginatedLendingResponse>(lendingsUrl, token),
-			apiClient.get<PaginatedBorrowingResponse>(borrowingsUrl, token),
-		]);
-
-		const items = convertToLendingItems(
-			lendingsResponse.lendings,
-			borrowingsResponse.borrowings,
-		);
-
-		return {
-			success: true,
-			result: {
-				items,
-				lendingsCursor: lendingsResponse.nextCursor,
-				borrowingsCursor: borrowingsResponse.nextCursor,
-				hasMore: lendingsResponse.hasMore || borrowingsResponse.hasMore,
-			},
-			error: null,
-		};
-	} catch (error) {
-		return {
-			success: false,
-			result: null,
-			error: error instanceof Error ? error.message : "Unknown error",
-		};
-	}
+  return {
+    success: true,
+    result: {
+      items,
+      lendingsCursor: lendingsResult.data.nextCursor ?? null,
+      borrowingsCursor: borrowingsResult.data.nextCursor ?? null,
+      hasMore: lendingsResult.data.hasMore || borrowingsResult.data.hasMore,
+    },
+    error: null,
+  };
 }

@@ -1,10 +1,9 @@
 "use server";
 
 import { getAuthToken } from "@/libs/auth/getAuthToken";
-import { apiClient } from "@/libs/api/client";
+import { createApiClient } from "@/libs/api/client";
 import { parseWithZod } from "@conform-to/zod";
 import { updateGroupSchema } from "../schema";
-import type { Group } from "../types";
 import { revalidatePath } from "next/cache";
 
 export async function updateGroup(_: unknown, formData: FormData) {
@@ -18,18 +17,20 @@ export async function updateGroup(_: unknown, formData: FormData) {
   const { id, name } = submission.value;
 
   const token = await getAuthToken();
+  const client = createApiClient(token);
 
-  try {
-    await apiClient.put<Group>(`/groups/${id}`, token, {
-      name,
-    });
-    revalidatePath(`/groups/${id}/settings`);
-    revalidatePath("/groups");
-    return submission.reply({ resetForm: true });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+  const { error } = await client.PUT("/groups/{id}", {
+    params: { path: { id } },
+    body: { name },
+  });
+
+  if (error) {
     return submission.reply({
-      formErrors: [message],
+      formErrors: [error.message],
     });
   }
+
+  revalidatePath(`/groups/${id}/settings`);
+  revalidatePath("/groups");
+  return submission.reply({ resetForm: true });
 }

@@ -3,9 +3,8 @@
 import { parseWithZod } from "@conform-to/zod";
 import { redirect } from "next/navigation";
 import { getAuthToken } from "@/libs/auth/getAuthToken";
-import { apiClient } from "@/libs/api/client";
+import { createApiClient } from "@/libs/api/client";
 import { createLendingSchema } from "../schema";
-import type { Lending } from "../types";
 
 export async function createLending(
   groupId: string,
@@ -24,28 +23,25 @@ export async function createLending(
   const normalizedEventDate = normalizeEventDate(eventDate);
 
   const token = await getAuthToken();
+  const client = createApiClient(token);
 
-  let response: Lending;
+  const { data, error } = await client.POST("/groups/{id}/lendings", {
+    params: { path: { id: groupId } },
+    body: {
+      name,
+      amount,
+      eventDate: normalizedEventDate,
+      debts,
+    },
+  });
 
-  try {
-    response = await apiClient.post<Lending>(
-      `/groups/${groupId}/lendings`,
-      token,
-      {
-        name,
-        amount,
-        eventDate: normalizedEventDate,
-        debts,
-      },
-    );
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+  if (error) {
     return submission.reply({
-      formErrors: [message],
+      formErrors: [error.message],
     });
   }
 
-  redirect(`/groups/${groupId}/lendings/${response.id}`);
+  redirect(`/groups/${groupId}/lendings/${data.id}`);
 }
 
 function normalizeEventDate(value: string) {

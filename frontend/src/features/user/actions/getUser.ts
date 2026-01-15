@@ -1,26 +1,29 @@
 "use server";
 
 import { getAuthToken } from "@/libs/auth/getAuthToken";
-import { apiClient } from "@/libs/api/client";
+import { createApiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
 import type { User } from "../types";
 
 export async function getUser(userId: string): Promise<Result<User>> {
   const token = await getAuthToken();
+  const client = createApiClient(token);
 
-  try {
-    const response = await apiClient.get<User>(`/users/${userId}`, token);
+  const { data, error } = await client.GET("/users/{id}", {
+    params: { path: { id: userId } },
+  });
 
-    return {
-      success: true,
-      result: response,
-      error: null,
-    };
-  } catch (error) {
+  if (error) {
     return {
       success: false,
       result: null,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error.message,
     };
   }
+
+  return {
+    success: true,
+    result: data,
+    error: null,
+  };
 }

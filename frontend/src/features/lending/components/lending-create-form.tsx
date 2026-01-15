@@ -70,6 +70,20 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
     return selectedUserIds.length < availableMembersCount;
   };
 
+  // 割り勘計算を実行
+  const handleSplitBill = () => {
+    const totalAmount = Number(form.value?.amount) || 0;
+    const memberCount = debtsList.length + 1; // メンバー + 支払い者
+    const splitAmount = Math.floor(totalAmount / memberCount);
+
+    for (const debt of debtsList) {
+      form.update({
+        name: debt.getFieldset().amount.name,
+        value: splitAmount.toString(),
+      });
+    }
+  };
+
   return (
     <form
       id={form.id}
@@ -136,21 +150,33 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
 
       <div className={cn("flex justify-between items-center")}>
         <span className={cn("text-sm font-semibold")}>支払い詳細</span>
-        <Button
-          type="button"
-          onPress={() => {
-            form.insert({
-              name: fields.debts.name,
-              defaultValue: { userId: "", amount: 0 },
-            });
-          }}
-          isDisabled={!canAddMoreMembers()}
-          colorStyle="outline"
-          color="primary"
-          className={cn("text-sm")}
-        >
-          + 追加
-        </Button>
+        <div className={cn("flex gap-2")}>
+          <Button
+            type="button"
+            onPress={handleSplitBill}
+            isDisabled={debtsList.length === 0}
+            colorStyle="outline"
+            color="primary"
+            className={cn("text-sm")}
+          >
+            割り勘
+          </Button>
+          <Button
+            type="button"
+            onPress={() => {
+              form.insert({
+                name: fields.debts.name,
+                defaultValue: { userId: "", amount: 0 },
+              });
+            }}
+            isDisabled={!canAddMoreMembers()}
+            colorStyle="outline"
+            color="primary"
+            className={cn("text-sm")}
+          >
+            + 追加
+          </Button>
+        </div>
       </div>
 
       <div className={cn("flex flex-col gap-3")}>

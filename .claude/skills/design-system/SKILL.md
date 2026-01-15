@@ -1,75 +1,15 @@
-# Datti Frontend デザインシステム
+---
+name: design-system
+description: Dattiデザインシステム。間隔、UIコンポーネント仕様、スタイリング原則を定義。Web・モバイル共通で参照。
+---
 
-このドキュメントは、Dattiフロントエンドで使用するデザインシステムの仕様をまとめたものです。
-将来的にStorybookに移行する予定ですが、現時点ではこのドキュメントを参照してください。
+# Datti Design System
+
+このスキルは、Dattiのデザインシステムを定義します。Web（Next.js）およびモバイル開発で共通して参照してください。
 
 ## 間隔（Spacing）
 
 プロジェクト全体で一貫した間隔を使用すること。
-
-### フォームの基本構造
-
-```tsx
-// フォームコンテナの標準レイアウト
-<form className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}>
-  {/* フォーム内容 */}
-</form>
-```
-
-- **パディング**: `p-6` （24px - フォームコンテナの内側余白）
-- **垂直ギャップ**: `gap-3` （12px - フォーム要素間の縦の間隔）
-
-### 横並び要素のギャップ
-
-```tsx
-// 入力フィールドとボタンを横に並べる場合
-<div className={cn("flex gap-5")}>
-  <Input className={cn("flex-1")} />
-  <Button>検索</Button>
-</div>
-
-// 配列フィールド（立て替え詳細など）
-<div className={cn("flex gap-5 items-start")}>
-  <div className={cn("flex-1")}>
-    <Select />
-  </div>
-  <div className={cn("w-32")}>
-    <Input type="number" />
-  </div>
-  <button>削除</button>
-</div>
-```
-
-- **横のギャップ**: `gap-5` （20px）
-
-### リストの縦ギャップ
-
-```tsx
-// 配列アイテムのリスト
-<div className={cn("flex flex-col gap-3")}>
-  {items.map((item) => (
-    <div key={item.id}>
-      {/* アイテム内容 */}
-    </div>
-  ))}
-</div>
-```
-
-- **縦のギャップ**: `gap-3` （12px）
-
-### ページレイアウト
-
-```tsx
-// ページコンテナ
-<div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
-  <h1>ページタイトル</h1>
-  {/* コンテンツ */}
-</div>
-```
-
-- **最大幅**: `w-4xl` （896px）
-- **中央揃え**: `mx-auto`
-- **セクション間ギャップ**: `gap-5` （20px）
 
 ### 間隔早見表
 
@@ -83,13 +23,42 @@
 | カードのパディング（リスト） | `p-4` | 16px | 情報密度が低い場合 |
 | カードのパディング（詳細） | `p-6` | 24px | 情報密度が高い場合 |
 
+### フォームの基本構造
+
+```tsx
+<form className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}>
+  {/* フォーム内容 */}
+</form>
+```
+
+### 横並び要素
+
+```tsx
+<div className={cn("flex gap-5")}>
+  <Input className={cn("flex-1")} />
+  <Button>検索</Button>
+</div>
+```
+
+### ページレイアウト
+
+```tsx
+<div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
+  <h1>ページタイトル</h1>
+  {/* コンテンツ */}
+</div>
+```
+
+- **最大幅**: `w-4xl` （896px）
+- **中央揃え**: `mx-auto`
+
 ## UIコンポーネント
 
 ### Input
 
 全ての入力フィールドは `Input` コンポーネントを使用すること。
 
-**パス**: `src/components/ui/input/input.tsx`
+**パス**: `frontend/src/components/ui/input/input.tsx`
 
 ```tsx
 import { Input } from "@/components/ui/input";
@@ -121,7 +90,7 @@ className={cn(
 
 日付入力には `DatePicker` コンポーネントを使用すること。
 
-**パス**: `src/components/ui/date-picker/date-picker.tsx`
+**パス**: `frontend/src/components/ui/date-picker/date-picker.tsx`
 
 ```tsx
 import { DatePicker } from "@/components/ui/date-picker";
@@ -142,22 +111,11 @@ import { DatePicker } from "@/components/ui/date-picker";
 - Inputコンポーネントと統一されたデザイン
 - 内部でhidden inputを使用してFormDataに対応
 
-**デザイン仕様** (トリガーボタン):
-```tsx
-className={cn(
-  "flex items-center justify-between",
-  "px-3 py-2",
-  "border rounded-md",
-  "focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-  "hover:cursor-text",
-)}
-```
-
 ### Select
 
 選択肢入力には `Select` コンポーネントを使用すること。ネイティブの `<select>` 要素は使用しない。
 
-**パス**: `src/components/ui/select/select.tsx`
+**パス**: `frontend/src/components/ui/select/select.tsx`
 
 ```tsx
 import { Select } from "@/components/ui/select";
@@ -178,44 +136,23 @@ import { Select } from "@/components/ui/select";
 **特徴**:
 - React Aria Components ベース
 - ネイティブselect要素より優れたUX
-- Inputコンポーネントと統一されたデザイン
-- カスタマイズ可能なオプション表示
 - ジェネリック型でタイプセーフ
-
-**デザイン仕様** (トリガーボタン):
-```tsx
-className={cn(
-  "flex items-center justify-between w-full",
-  "px-3 py-2",
-  "border rounded-md",
-  "focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-  "hover:cursor-pointer",
-)}
-```
 
 **デザイン仕様** (ドロップダウン):
 ```tsx
-// Popover
-className={cn(
-  "w-[--trigger-width] min-w-64",  // トリガーと同じ幅、最小256px
-  "mt-1",
-  "rounded-md border bg-white shadow-lg",
-)}
-
 // ListBoxItem
 className={cn(
   "px-4 py-2",
   "cursor-pointer outline-none rounded-md",
   "transition-colors duration-150",
   "data-[hovered]:bg-gray-100",
-  "data-[focused]:outline-none",
   "data-[selected]:bg-primary-base data-[selected]:text-white",
 )}
 ```
 
 ### Button
 
-**パス**: `src/components/ui/button/button.tsx`
+**パス**: `frontend/src/components/ui/button/button.tsx`
 
 ```tsx
 import { Button } from "@/components/ui/button";
@@ -234,11 +171,22 @@ import { Button } from "@/components/ui/button";
 - `disabled:cursor-not-allowed` - カーソルを禁止マークに
 - `disabled:hover:bg-[元の色]` - ホバー時も色が変わらない
 
+**注意**: disabled でもホバー時に色が変わる問題を防ぐには、`disabled:hover:bg-[元の色]` を明示的に指定：
+
+```tsx
+className={cn(
+  "bg-primary-base",
+  "hover:bg-primary-hover",
+  "disabled:hover:bg-primary-base",  // 元の色に戻す
+  "disabled:opacity-50",
+)}
+```
+
 ### LinkButton
 
 ナビゲーション用のボタンスタイルリンク。
 
-**パス**: `src/components/ui/link-button/link-button.tsx`
+**パス**: `frontend/src/components/ui/link-button/link-button.tsx`
 
 ```tsx
 import { LinkButton } from "@/components/ui/link-button";
@@ -256,7 +204,7 @@ import { LinkButton } from "@/components/ui/link-button";
 
 エラーメッセージ表示用コンポーネント。
 
-**パス**: `src/components/ui/error-text/error-text.tsx`
+**パス**: `frontend/src/components/ui/error-text/error-text.tsx`
 
 ```tsx
 import { ErrorText } from "@/components/ui/error-text";
@@ -264,7 +212,7 @@ import { ErrorText } from "@/components/ui/error-text";
 {field.errors && <ErrorText>{field.errors}</ErrorText>}
 ```
 
-## 統一デザイン原則
+## スタイリング原則
 
 ### 入力コンポーネントの統一
 
@@ -272,10 +220,9 @@ import { ErrorText } from "@/components/ui/error-text";
 
 ```tsx
 className={cn(
-  "px-3 py-2",                    // パディング
-  "border rounded-md",            // ボーダーと角丸
+  "px-3 py-2",
+  "border rounded-md",
   "focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-  // フォーカス時のリング
 )}
 ```
 
@@ -289,14 +236,30 @@ className={cn(
 ```tsx
 // リストビュー（情報密度: 低）
 <div className={cn("p-4", "border rounded-lg")}>
-  {/* カード内容 */}
-</div>
 
 // 詳細ビュー（情報密度: 高）
 <div className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}>
-  {/* カード内容 */}
-</div>
 ```
+
+### cn() ユーティリティ
+
+Tailwindクラスは `cn()` ユーティリティでグループ化：
+
+```tsx
+import { cn } from "@/utils/cn";
+
+<div className={cn(
+  "px-3 py-2",
+  "border rounded-md",
+  isError && "border-red-500",
+  isDisabled && "opacity-50"
+)} />
+```
+
+**メリット**:
+- 可読性の向上
+- クラスの競合解決
+- 条件付きクラスの管理
 
 ### ホバーとフォーカス
 
@@ -320,40 +283,6 @@ className={cn("data-[hovered]:bg-gray-100")}
 className={cn(
   "transition-colors duration-150",
   "data-[hovered]:bg-gray-100",
-)}
-```
-
-## ベストプラクティス
-
-### cn() ユーティリティの使用
-
-Tailwindクラスは `cn()` ユーティリティでグループ化：
-
-```tsx
-import { cn } from "@/utils/cn";
-
-<div
-  className={cn(
-    "px-3 py-2",           // パディング
-    "border rounded-md",   // ボーダー
-    "focus:outline-none",  // フォーカス
-  )}
-/>
-```
-
-**メリット**:
-- 可読性の向上
-- クラスの競合解決
-- 条件付きクラスの管理
-
-### レスポンシブ対応
-
-現時点ではモバイルファーストで実装。必要に応じてブレークポイントを追加：
-
-```tsx
-className={cn(
-  "flex flex-col",     // モバイル: 縦並び
-  "md:flex-row",       // タブレット以上: 横並び
 )}
 ```
 
@@ -390,10 +319,3 @@ UIの実装は反復的なプロセスです。最初の実装が完璧なこと
 - グループセクションにはヘッダーがあるのに、上部ナビゲーションにはない
 - 機能的には問題ないが、視覚的にアンバランス
 - 「マイページ」セクションヘッダーを追加することで統一感が生まれる
-
-## 今後の展開
-
-- Storybookでのコンポーネントカタログ化
-- デザイントークンの定義
-- アクセシビリティガイドラインの追加
-- ダークモード対応

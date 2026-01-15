@@ -1,5 +1,6 @@
 "use server";
 
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import { parseWithZod } from "@conform-to/zod";
 import { addMemberSchema } from "../schema";
@@ -15,8 +16,10 @@ export async function addMember(_: unknown, formData: FormData) {
 
   const { groupId, userId } = submission.value;
 
+  const token = await getAuthToken();
+
   try {
-    await apiClient.post(`/groups/${groupId}/members`, { userId });
+    await apiClient.post(`/groups/${groupId}/members`, token, { userId });
     revalidatePath(`/groups/${groupId}/settings`);
     return submission.reply({ resetForm: true });
   } catch (error) {

@@ -1,5 +1,6 @@
 "use server";
 
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
 import type { User } from "../types";
@@ -13,6 +14,8 @@ type SearchUsersParams = {
 export async function searchUsers(
   params?: SearchUsersParams,
 ): Promise<Result<User[]>> {
+  const token = await getAuthToken();
+
   try {
     const searchParams = new URLSearchParams();
     if (params?.name) searchParams.set("name", params.name);
@@ -20,7 +23,7 @@ export async function searchUsers(
     if (params?.limit) searchParams.set("limit", params.limit.toString());
 
     const url = `/users${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
-    const response = await apiClient.get<User[]>(url);
+    const response = await apiClient.get<User[]>(url, token);
 
     return {
       success: true,

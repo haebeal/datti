@@ -1,5 +1,6 @@
 "use server";
 
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import type { User } from "../types";
 
@@ -11,8 +12,10 @@ type GetMeResult =
  * 自身のユーザー情報を取得
  */
 export async function getMe(): Promise<GetMeResult> {
+  const token = await getAuthToken();
+
   try {
-    const user = await apiClient.get<User>("/users/me");
+    const user = await apiClient.get<User>("/users/me", token);
     return { success: true, user };
   } catch (error) {
     return {

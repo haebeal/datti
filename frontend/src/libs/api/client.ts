@@ -1,7 +1,3 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { getSession } from "@/libs/session/session";
-
 const API_BASE_URL = process.env.API_URL;
 
 type RequestOptions = {
@@ -10,33 +6,11 @@ type RequestOptions = {
   body?: unknown;
 };
 
-/**
- * セッションからアクセストークンを取得
- * セッションが存在しない、または無効な場合は/authにリダイレクト
- * アクセストークンが失効していれば自動リフレッシュされる
- */
-async function getAuthToken(): Promise<string> {
-  const cookieStore = await cookies();
-  const sessionId = cookieStore.get("session_id")?.value;
-
-  if (!sessionId) {
-    redirect("/auth");
-  }
-
-  const session = await getSession(sessionId);
-  if (!session) {
-    redirect("/auth");
-  }
-
-  return session.accessToken;
-}
-
 async function fetchApi<T>(
   endpoint: string,
+  token: string,
   options: RequestOptions,
 ): Promise<T> {
-  const token = await getAuthToken();
-
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
     Authorization: `Bearer ${token}`,
@@ -65,13 +39,15 @@ async function fetchApi<T>(
 }
 
 export const apiClient = {
-  get: <T>(endpoint: string) => fetchApi<T>(endpoint, { method: "GET" }),
+  get: <T>(endpoint: string, token: string) =>
+    fetchApi<T>(endpoint, token, { method: "GET" }),
 
-  post: <T>(endpoint: string, body: unknown) =>
-    fetchApi<T>(endpoint, { method: "POST", body }),
+  post: <T>(endpoint: string, token: string, body: unknown) =>
+    fetchApi<T>(endpoint, token, { method: "POST", body }),
 
-  put: <T>(endpoint: string, body: unknown) =>
-    fetchApi<T>(endpoint, { method: "PUT", body }),
+  put: <T>(endpoint: string, token: string, body: unknown) =>
+    fetchApi<T>(endpoint, token, { method: "PUT", body }),
 
-  delete: <T>(endpoint: string) => fetchApi<T>(endpoint, { method: "DELETE" }),
+  delete: <T>(endpoint: string, token: string) =>
+    fetchApi<T>(endpoint, token, { method: "DELETE" }),
 };

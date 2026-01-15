@@ -2,6 +2,7 @@
 
 import { parseWithZod } from "@conform-to/zod";
 import { revalidatePath } from "next/cache";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import { updateRepaymentSchema } from "../schema";
 import type { Repayment } from "../types";
@@ -21,8 +22,10 @@ export async function updateRepayment(
 
   const { amount } = submission.value;
 
+  const token = await getAuthToken();
+
   try {
-    await apiClient.put<Repayment>(`/repayments/${id}`, {
+    await apiClient.put<Repayment>(`/repayments/${id}`, token, {
       amount,
     });
     revalidatePath(`/repayments/${id}/edit`);

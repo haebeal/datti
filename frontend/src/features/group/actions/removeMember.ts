@@ -1,11 +1,14 @@
 "use server";
 
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import { revalidatePath } from "next/cache";
 
 export async function removeMember(groupId: string, userId: string) {
+  const token = await getAuthToken();
+
   try {
-    await apiClient.delete(`/groups/${groupId}/members/${userId}`);
+    await apiClient.delete(`/groups/${groupId}/members/${userId}`, token);
     revalidatePath(`/groups/${groupId}/settings`);
     return { success: true as const };
   } catch (error) {

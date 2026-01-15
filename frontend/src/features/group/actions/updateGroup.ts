@@ -1,5 +1,6 @@
 "use server";
 
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import { parseWithZod } from "@conform-to/zod";
 import { updateGroupSchema } from "../schema";
@@ -16,8 +17,10 @@ export async function updateGroup(_: unknown, formData: FormData) {
 
   const { id, name } = submission.value;
 
+  const token = await getAuthToken();
+
   try {
-    await apiClient.put<Group>(`/groups/${id}`, {
+    await apiClient.put<Group>(`/groups/${id}`, token, {
       name,
     });
     revalidatePath(`/groups/${id}/settings`);

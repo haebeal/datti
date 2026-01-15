@@ -1,14 +1,17 @@
 "use server";
 
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
 import type { Credit, CreditResponse } from "../types";
 import type { User } from "@/features/user/types";
 
 export async function getAllCredits(): Promise<Result<Credit[]>> {
+  const token = await getAuthToken();
+
   try {
     // Fetch all credits
-    const responses = await apiClient.get<CreditResponse[]>("/credits");
+    const responses = await apiClient.get<CreditResponse[]>("/credits", token);
 
     // Extract unique user IDs
     const userIds = new Set(responses.map((credit) => credit.userId));
@@ -16,7 +19,7 @@ export async function getAllCredits(): Promise<Result<Credit[]>> {
     // Fetch all users in parallel
     const users = await Promise.all(
       Array.from(userIds).map((userId) =>
-        apiClient.get<User>(`/users/${userId}`),
+        apiClient.get<User>(`/users/${userId}`, token),
       ),
     );
 

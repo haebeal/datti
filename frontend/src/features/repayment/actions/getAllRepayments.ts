@@ -1,5 +1,6 @@
 "use server";
 
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
 import type {
@@ -17,6 +18,8 @@ type GetAllRepaymentsParams = {
 export async function getAllRepayments(
   params?: GetAllRepaymentsParams,
 ): Promise<Result<PaginatedRepayments>> {
+  const token = await getAuthToken();
+
   try {
     // Build query string
     const searchParams = new URLSearchParams();
@@ -30,7 +33,7 @@ export async function getAllRepayments(
     const url = query ? `/repayments?${query}` : "/repayments";
 
     // Fetch repayments with pagination
-    const data = await apiClient.get<PaginatedRepaymentResponse>(url);
+    const data = await apiClient.get<PaginatedRepaymentResponse>(url, token);
 
     // Extract unique user IDs
     const userIds = new Set<string>();
@@ -42,7 +45,7 @@ export async function getAllRepayments(
     // Fetch all users in parallel
     const users = await Promise.all(
       Array.from(userIds).map((userId) =>
-        apiClient.get<User>(`/users/${userId}`),
+        apiClient.get<User>(`/users/${userId}`, token),
       ),
     );
 

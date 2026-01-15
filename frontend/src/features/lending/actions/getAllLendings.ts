@@ -1,5 +1,6 @@
 "use server";
 
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import { formatDate, type Result } from "@/schema";
 import type {
@@ -73,6 +74,8 @@ export async function getAllLendings(
 	groupId: string,
 	params?: GetAllLendingsParams,
 ): Promise<Result<PaginatedLendingItems>> {
+	const token = await getAuthToken();
+
 	try {
 		// Build query strings
 		const lendingsSearchParams = new URLSearchParams();
@@ -101,8 +104,8 @@ export async function getAllLendings(
 
 		// Fetch both in parallel
 		const [lendingsResponse, borrowingsResponse] = await Promise.all([
-			apiClient.get<PaginatedLendingResponse>(lendingsUrl),
-			apiClient.get<PaginatedBorrowingResponse>(borrowingsUrl),
+			apiClient.get<PaginatedLendingResponse>(lendingsUrl, token),
+			apiClient.get<PaginatedBorrowingResponse>(borrowingsUrl, token),
 		]);
 
 		const items = convertToLendingItems(

@@ -1,14 +1,17 @@
 "use server";
 
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
 import type { Group, GroupResponse } from "../types";
 import type { User } from "@/features/user/types";
 
 export async function getAllGroups(): Promise<Result<Group[]>> {
+  const token = await getAuthToken();
+
   try {
     // Fetch all groups
-    const responses = await apiClient.get<GroupResponse[]>("/groups");
+    const responses = await apiClient.get<GroupResponse[]>("/groups", token);
 
     // Extract unique creator IDs
     const creatorIds = new Set(responses.map((group) => group.createdBy));
@@ -16,7 +19,7 @@ export async function getAllGroups(): Promise<Result<Group[]>> {
     // Fetch all creators in parallel
     const creators = await Promise.all(
       Array.from(creatorIds).map((userId) =>
-        apiClient.get<User>(`/users/${userId}`),
+        apiClient.get<User>(`/users/${userId}`, token),
       ),
     );
 

@@ -2,6 +2,7 @@
 
 import { parseWithZod } from "@conform-to/zod";
 import { redirect } from "next/navigation";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import { createRepaymentSchema } from "../schema";
 import type { Repayment } from "../types";
@@ -17,10 +18,12 @@ export async function createRepayment(_: unknown, formData: FormData) {
 
   const { debtorId, amount } = submission.value;
 
+  const token = await getAuthToken();
+
   let response: Repayment;
 
   try {
-    response = await apiClient.post<Repayment>("/repayments", {
+    response = await apiClient.post<Repayment>("/repayments", token, {
       debtorId,
       amount,
     });

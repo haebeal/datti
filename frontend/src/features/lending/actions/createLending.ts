@@ -2,6 +2,7 @@
 
 import { parseWithZod } from "@conform-to/zod";
 import { redirect } from "next/navigation";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import { createLendingSchema } from "../schema";
 import type { Lending } from "../types";
@@ -22,11 +23,14 @@ export async function createLending(
   const { name, amount, eventDate, debts } = submission.value;
   const normalizedEventDate = normalizeEventDate(eventDate);
 
+  const token = await getAuthToken();
+
   let response: Lending;
 
   try {
     response = await apiClient.post<Lending>(
       `/groups/${groupId}/lendings`,
+      token,
       {
         name,
         amount,
@@ -41,7 +45,6 @@ export async function createLending(
     });
   }
 
-  // redirect は try ブロックの外で呼ぶ
   redirect(`/groups/${groupId}/lendings/${response.id}`);
 }
 

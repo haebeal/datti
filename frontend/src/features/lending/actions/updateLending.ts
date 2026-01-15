@@ -2,6 +2,7 @@
 
 import { parseWithZod } from "@conform-to/zod";
 import { revalidatePath } from "next/cache";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import { updateLendingSchema } from "../schema";
 import type { Lending } from "../types";
@@ -22,8 +23,10 @@ export async function updateLending(
   const { id, name, amount, eventDate, debts } = submission.value;
   const normalizedEventDate = normalizeEventDate(eventDate);
 
+  const token = await getAuthToken();
+
   try {
-    await apiClient.put<Lending>(`/groups/${groupId}/lendings/${id}`, {
+    await apiClient.put<Lending>(`/groups/${groupId}/lendings/${id}`, token, {
       name,
       amount,
       eventDate: normalizedEventDate,

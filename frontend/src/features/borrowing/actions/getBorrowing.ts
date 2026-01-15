@@ -1,5 +1,6 @@
 "use server";
 
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import type { Result } from "@/schema";
 import type { Borrowing } from "../types";
@@ -8,9 +9,12 @@ export async function getBorrowing(
   groupId: string,
   id: string,
 ): Promise<Result<Borrowing>> {
+  const token = await getAuthToken();
+
   try {
     const response = await apiClient.get<Borrowing>(
       `/groups/${groupId}/borrowings/${id}`,
+      token,
     );
     return {
       success: true,

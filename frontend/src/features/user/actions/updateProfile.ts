@@ -1,6 +1,7 @@
 "use server";
 
 import { parseWithZod } from "@conform-to/zod";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import { revalidatePath } from "next/cache";
 import { profileEditSchema } from "../schema";
@@ -20,8 +21,10 @@ export async function updateProfile(
 
   const { id, name, avatar } = submission.value;
 
+  const token = await getAuthToken();
+
   try {
-    await apiClient.put<User>(`/users/${id}`, {
+    await apiClient.put<User>(`/users/${id}`, token, {
       name,
       avatar,
     });

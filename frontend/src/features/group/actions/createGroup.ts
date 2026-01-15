@@ -3,6 +3,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { apiClient } from "@/libs/api/client";
 import { createGroupSchema } from "../schema";
 import type { Group } from "../types";
@@ -18,10 +19,12 @@ export async function createGroup(_: unknown, formData: FormData) {
 
   const { name } = submission.value;
 
+  const token = await getAuthToken();
+
   let response: Group;
 
   try {
-    response = await apiClient.post<Group>("/groups", { name });
+    response = await apiClient.post<Group>("/groups", token, { name });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
     return submission.reply({
@@ -33,6 +36,5 @@ export async function createGroup(_: unknown, formData: FormData) {
   revalidatePath("/", "layout");
   revalidatePath("/groups");
 
-  // redirect は try ブロックの外で呼ぶ
   redirect(`/groups/${response.id}/lendings`);
 }

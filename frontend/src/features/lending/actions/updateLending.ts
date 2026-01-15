@@ -21,7 +21,6 @@ export async function updateLending(
   }
 
   const { id, name, amount, eventDate, debts } = submission.value;
-  const normalizedEventDate = normalizeEventDate(eventDate);
 
   const token = await getAuthToken();
   const client = createApiClient(token);
@@ -31,7 +30,7 @@ export async function updateLending(
     body: {
       name,
       amount,
-      eventDate: normalizedEventDate,
+      eventDate: `${eventDate}T00:00:00+09:00`,
       debts,
     },
   });
@@ -46,12 +45,4 @@ export async function updateLending(
   revalidatePath(`/groups/${groupId}/lendings/${id}`);
   revalidatePath(`/groups/${groupId}/lendings`);
   redirect(`/groups/${groupId}/lendings/${id}`);
-}
-
-/**
- * yyyy-mm-dd形式の日付をJSTのISO文字列に変換
- */
-function normalizeEventDate(value: string) {
-  // yyyy-mm-dd形式を期待し、JSTの0時として扱う
-  return `${value}T00:00:00+09:00`;
 }

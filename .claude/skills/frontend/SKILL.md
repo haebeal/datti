@@ -620,9 +620,9 @@ revalidatePath("/groups");
 Server Actionで日付を送信する際は、JSTのISO形式で送信する。
 
 ```typescript
-// yyyy-mm-dd形式をJSTのISO文字列に変換
-function normalizeEventDate(value: string) {
-  return `${value}T00:00:00+09:00`;
+// yyyy-mm-dd形式をJSTのISO文字列に変換してAPIに渡す
+body: {
+  eventDate: `${eventDate}T00:00:00+09:00`,
 }
 ```
 

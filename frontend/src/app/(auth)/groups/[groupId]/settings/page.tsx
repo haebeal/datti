@@ -2,6 +2,7 @@ import { getGroup } from "@/features/group/actions/getGroup";
 import { getMembers } from "@/features/group/actions/getMembers";
 import { GroupBasicInfoForm } from "@/features/group/components/group-basic-info-form";
 import { GroupMemberManagement } from "@/features/group/components/group-member-management";
+import { getMe } from "@/features/user/actions/getMe";
 import { cn } from "@/utils/cn";
 
 type Props = {
@@ -11,17 +12,26 @@ type Props = {
 export default async function GroupSettingsPage({ params }: Props) {
   const { groupId } = await params;
 
-  const groupResult = await getGroup(groupId);
+  const [groupResult, membersResult, meResult] = await Promise.all([
+    getGroup(groupId),
+    getMembers(groupId),
+    getMe(),
+  ]);
+
   if (!groupResult.success) {
     throw new Error(groupResult.error);
   }
   const group = groupResult.result;
 
-  const membersResult = await getMembers(groupId);
   if (!membersResult.success) {
     throw new Error(membersResult.error);
   }
   const members = membersResult.result;
+
+  if (!meResult.success) {
+    throw new Error(meResult.error);
+  }
+  const currentUserId = meResult.user.id;
 
   return (
     <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
@@ -30,9 +40,13 @@ export default async function GroupSettingsPage({ params }: Props) {
         <p className={cn("text-base text-gray-500")}>{group.name}</p>
       </div>
 
-      <GroupBasicInfoForm group={group} />
+      <GroupBasicInfoForm group={group} currentUserId={currentUserId} />
 
-      <GroupMemberManagement group={group} members={members} />
+      <GroupMemberManagement
+        group={group}
+        members={members}
+        currentUserId={currentUserId}
+      />
     </div>
   );
 }

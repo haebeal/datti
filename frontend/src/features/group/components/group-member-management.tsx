@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import type { Group, GroupMember } from "@/features/group/types";
 import type { User } from "@/features/user/types";
 import { cn } from "@/utils/cn";
@@ -21,7 +22,11 @@ type Props = {
   currentUserId: string;
 };
 
-export function GroupMemberManagement({ group, members, currentUserId }: Props) {
+export function GroupMemberManagement({
+  group,
+  members,
+  currentUserId,
+}: Props) {
   const isCreator = group.creator.id === currentUserId;
   // メンバー追加の状態管理
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,7 +38,9 @@ export function GroupMemberManagement({ group, members, currentUserId }: Props) 
   const [removingUserId, setRemovingUserId] = useState<string | null>(null);
   const [removeError, setRemoveError] = useState<string | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedUserIdToRemove, setSelectedUserIdToRemove] = useState<string | null>(null);
+  const [selectedUserIdToRemove, setSelectedUserIdToRemove] = useState<
+    string | null
+  >(null);
 
   // 退出の状態管理
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = useState(false);
@@ -217,62 +224,62 @@ export function GroupMemberManagement({ group, members, currentUserId }: Props) 
           メンバーがいません
         </div>
       ) : (
-        <>
-          {members.map((member) => (
-            <div
-              key={member.id}
-              className={cn("flex items-center gap-4 p-4", "border rounded-md")}
-            >
-              {/* Member Avatar */}
-              {member.avatar ? (
-                <img
-                  src={member.avatar}
-                  alt={member.name}
-                  className={cn(
-                    "flex-shrink-0 w-10 h-10 rounded-full object-cover",
-                  )}
-                />
-              ) : (
-                <div
-                  className={cn(
-                    "flex-shrink-0 w-10 h-10 rounded-full",
-                    "bg-gradient-to-br from-primary-base to-primary-dark",
-                    "flex items-center justify-center",
-                    "text-white font-bold text-lg",
-                  )}
-                >
-                  {member.name.charAt(0).toUpperCase()}
-                </div>
-              )}
-
-              <div className={cn("flex-1 min-w-0")}>
-                <h3 className={cn("font-semibold truncate")}>
-                  {member.name}
-                  {member.id === group.creator.id && (
-                    <span className={cn("ml-2 text-xs text-gray-500")}>
-                      (作成者)
-                    </span>
-                  )}
-                </h3>
-                <p className={cn("text-sm text-gray-500 truncate")}>
-                  {member.email}
-                </p>
+        members.map((member) => (
+          <div
+            key={member.id}
+            className={cn("flex items-center gap-4 p-4", "border rounded-md")}
+          >
+            {/* Member Avatar */}
+            {member.avatar ? (
+              <Image
+                src={member.avatar}
+                alt={member.name}
+                width={40}
+                height={40}
+                className={cn(
+                  "flex-shrink-0 w-10 h-10 rounded-full object-cover",
+                )}
+              />
+            ) : (
+              <div
+                className={cn(
+                  "flex-shrink-0 w-10 h-10 rounded-full",
+                  "bg-gradient-to-br from-primary-base to-primary-dark",
+                  "flex items-center justify-center",
+                  "text-white font-bold text-lg",
+                )}
+              >
+                {member.name.charAt(0).toUpperCase()}
               </div>
+            )}
 
-              {isCreator && member.id !== group.creator.id && (
-                <Button
-                  type="button"
-                  isDisabled={removingUserId !== null}
-                  color="error"
-                  colorStyle="outline"
-                  onPress={() => handleRemoveMemberClick(member.id)}
-                >
-                  {removingUserId === member.id ? "削除中..." : "削除"}
-                </Button>
-              )}
+            <div className={cn("flex-1 min-w-0")}>
+              <h3 className={cn("font-semibold truncate")}>
+                {member.name}
+                {member.id === group.creator.id && (
+                  <span className={cn("ml-2 text-xs text-gray-500")}>
+                    (作成者)
+                  </span>
+                )}
+              </h3>
+              <p className={cn("text-sm text-gray-500 truncate")}>
+                {member.email}
+              </p>
             </div>
-          ))}
-        </>
+
+            {isCreator && member.id !== group.creator.id && (
+              <Button
+                type="button"
+                isDisabled={removingUserId !== null}
+                color="error"
+                colorStyle="outline"
+                onPress={() => handleRemoveMemberClick(member.id)}
+              >
+                {removingUserId === member.id ? "削除中..." : "削除"}
+              </Button>
+            )}
+          </div>
+        ))
       )}
 
       {!isCreator && (

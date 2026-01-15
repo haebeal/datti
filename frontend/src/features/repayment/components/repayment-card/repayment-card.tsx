@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { formatCurrency, formatDate } from "@/utils/format";
 import { cn } from "@/utils/cn";
@@ -24,9 +25,11 @@ export function RepaymentCard({ repayment }: Props) {
     >
       {/* Debtor Avatar */}
       {repayment.debtor.avatar ? (
-        <img
+        <Image
           src={repayment.debtor.avatar}
           alt={debtorName}
+          width={48}
+          height={48}
           className={cn("flex-shrink-0 w-12 h-12 rounded-full object-cover")}
         />
       ) : (

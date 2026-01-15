@@ -39,13 +39,19 @@ export async function getAllGroups(): Promise<Result<Group[]>> {
   }
 
   // Transform to frontend Group type
-  const groups: Group[] = responses.map((response) => ({
-    id: response.id,
-    name: response.name,
-    creator: creatorMap.get(response.createdBy)!,
-    createdAt: response.createdAt,
-    updatedAt: response.updatedAt,
-  }));
+  const groups: Group[] = responses
+    .map((response) => {
+      const creator = creatorMap.get(response.createdBy);
+      if (!creator) return null;
+      return {
+        id: response.id,
+        name: response.name,
+        creator,
+        createdAt: response.createdAt,
+        updatedAt: response.updatedAt,
+      };
+    })
+    .filter((group): group is Group => group !== null);
 
   return {
     success: true,

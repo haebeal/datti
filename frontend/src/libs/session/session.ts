@@ -42,7 +42,13 @@ interface FirebaseRefreshResponse {
 }
 
 type RefreshResult =
-  | { success: true; session: Pick<Session, "accessToken" | "refreshToken" | "accessTokenExpiresAt"> }
+  | {
+      success: true;
+      session: Pick<
+        Session,
+        "accessToken" | "refreshToken" | "accessTokenExpiresAt"
+      >;
+    }
   | { success: false; isPermanent: boolean };
 
 /**
@@ -51,7 +57,7 @@ type RefreshResult =
 export async function createSession(
   accessToken: string,
   refreshToken: string,
-  expiresIn: number
+  expiresIn: number,
 ): Promise<string> {
   const sessionId = nanoid(32);
   const now = Date.now();
@@ -75,9 +81,7 @@ export async function createSession(
  * セッションを取得（スライディング有効期限で自動延長）
  * アクセストークンが失効していれば自動リフレッシュ
  */
-export async function getSession(
-  sessionId: string
-): Promise<Session | null> {
+export async function getSession(sessionId: string): Promise<Session | null> {
   const data = await redis.get<string>(`${SESSION_PREFIX}${sessionId}`);
   if (!data) {
     return null;
@@ -134,7 +138,7 @@ async function refreshAccessToken(session: Session): Promise<RefreshResult> {
           refresh_token: session.refreshToken,
         }),
         cache: "no-store",
-      }
+      },
     );
 
     if (!response.ok) {
@@ -142,7 +146,7 @@ async function refreshAccessToken(session: Session): Promise<RefreshResult> {
       console.error("Failed to refresh token:", errorText);
 
       const isPermanent = PERMANENT_ERROR_CODES.some((code) =>
-        errorText.includes(code)
+        errorText.includes(code),
       );
       return { success: false, isPermanent };
     }
@@ -154,7 +158,8 @@ async function refreshAccessToken(session: Session): Promise<RefreshResult> {
       session: {
         accessToken: data.id_token,
         refreshToken: data.refresh_token,
-        accessTokenExpiresAt: Date.now() + Number.parseInt(data.expires_in) * 1000,
+        accessTokenExpiresAt:
+          Date.now() + Number.parseInt(data.expires_in, 10) * 1000,
       },
     };
   } catch (error) {

@@ -19,15 +19,21 @@ export default async function LendingDetailPage({
   ]);
 
   if (!groupResult.success) {
-    return <div className={cn("text-red-500")}>エラー: {groupResult.error}</div>;
+    return (
+      <div className={cn("text-red-500")}>エラー: {groupResult.error}</div>
+    );
   }
 
   if (!lendingResult.success) {
-    return <div className={cn("text-red-500")}>エラー: {lendingResult.error}</div>;
+    return (
+      <div className={cn("text-red-500")}>エラー: {lendingResult.error}</div>
+    );
   }
 
   if (!membersResult.success) {
-    return <div className={cn("text-red-500")}>エラー: {membersResult.error}</div>;
+    return (
+      <div className={cn("text-red-500")}>エラー: {membersResult.error}</div>
+    );
   }
 
   const group = groupResult.result;
@@ -81,7 +87,9 @@ export default async function LendingDetailPage({
                 "border rounded-md",
               )}
             >
-              <span className={cn("font-medium")}>{getUserName(debt.userId)}</span>
+              <span className={cn("font-medium")}>
+                {getUserName(debt.userId)}
+              </span>
               <span className={cn("font-semibold text-primary-base")}>
                 {formatCurrency(debt.amount)}
               </span>

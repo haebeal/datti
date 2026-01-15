@@ -51,11 +51,15 @@ export default async function RepaymentDetailPage({
         <div className={cn("flex justify-between items-center")}>
           <div>
             <p className={cn("text-sm text-gray-600")}>作成日</p>
-            <p className={cn("font-medium")}>{formatDate(repayment.createdAt)}</p>
+            <p className={cn("font-medium")}>
+              {formatDate(repayment.createdAt)}
+            </p>
           </div>
           <div className={cn("text-right")}>
             <p className={cn("text-sm text-gray-600")}>更新日</p>
-            <p className={cn("font-medium")}>{formatDate(repayment.updatedAt)}</p>
+            <p className={cn("font-medium")}>
+              {formatDate(repayment.updatedAt)}
+            </p>
           </div>
         </div>
 

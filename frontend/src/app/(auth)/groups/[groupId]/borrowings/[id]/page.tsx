@@ -15,11 +15,15 @@ export default async function BorrowingDetailPage({
   ]);
 
   if (!groupResult.success) {
-    return <div className={cn("text-red-500")}>エラー: {groupResult.error}</div>;
+    return (
+      <div className={cn("text-red-500")}>エラー: {groupResult.error}</div>
+    );
   }
 
   if (!borrowingResult.success) {
-    return <div className={cn("text-red-500")}>エラー: {borrowingResult.error}</div>;
+    return (
+      <div className={cn("text-red-500")}>エラー: {borrowingResult.error}</div>
+    );
   }
 
   const group = groupResult.result;

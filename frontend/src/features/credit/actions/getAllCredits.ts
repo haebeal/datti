@@ -40,10 +40,13 @@ export async function getAllCredits(): Promise<Result<Credit[]>> {
   }
 
   // Transform to frontend Credit type
-  const credits: Credit[] = responses.map((response) => ({
-    user: userMap.get(response.userId)!,
-    amount: response.amount,
-  }));
+  const credits: Credit[] = responses
+    .map((response) => {
+      const user = userMap.get(response.userId);
+      if (!user) return null;
+      return { user, amount: response.amount };
+    })
+    .filter((credit): credit is Credit => credit !== null);
 
   return {
     success: true,

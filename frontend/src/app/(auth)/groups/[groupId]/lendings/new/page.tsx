@@ -17,11 +17,15 @@ export default async function CreateLendingPage({
   ]);
 
   if (!groupResult.success) {
-    return <div className={cn("text-red-500")}>エラー: {groupResult.error}</div>;
+    return (
+      <div className={cn("text-red-500")}>エラー: {groupResult.error}</div>
+    );
   }
 
   if (!membersResult.success) {
-    return <div className={cn("text-red-500")}>エラー: {membersResult.error}</div>;
+    return (
+      <div className={cn("text-red-500")}>エラー: {membersResult.error}</div>
+    );
   }
 
   if (!meResult.success) {
@@ -39,7 +43,11 @@ export default async function CreateLendingPage({
         <p className={cn("text-base text-gray-500")}>{group.name}</p>
       </div>
 
-      <LendingCreateForm groupId={groupId} members={members} currentUserId={currentUserId} />
+      <LendingCreateForm
+        groupId={groupId}
+        members={members}
+        currentUserId={currentUserId}
+      />
     </div>
   );
 }

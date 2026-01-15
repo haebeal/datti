@@ -11,6 +11,8 @@ type GetAllLendingsParams = {
   limit?: number;
   lendingsCursor?: string;
   borrowingsCursor?: string;
+  lendingsHasMore?: boolean;
+  borrowingsHasMore?: boolean;
 };
 
 type RawLendingItem =
@@ -70,51 +72,60 @@ export async function getAllLendings(
   const token = await getAuthToken();
   const client = createApiClient(token);
 
-  // Fetch both in parallel
+  // Default hasMore to true for initial fetch
+  const shouldFetchLendings = params?.lendingsHasMore !== false;
+  const shouldFetchBorrowings = params?.borrowingsHasMore !== false;
+
+  // Only fetch APIs that still have more data
   const [lendingsResult, borrowingsResult] = await Promise.all([
-    client.GET("/groups/{id}/lendings", {
-      params: {
-        path: { id: groupId },
-        query: {
-          limit: params?.limit,
-          cursor: params?.lendingsCursor,
-        },
-      },
-    }),
-    client.GET("/groups/{id}/borrowings", {
-      params: {
-        path: { id: groupId },
-        query: {
-          limit: params?.limit,
-          cursor: params?.borrowingsCursor,
-        },
-      },
-    }),
+    shouldFetchLendings
+      ? client.GET("/groups/{id}/lendings", {
+          params: {
+            path: { id: groupId },
+            query: {
+              limit: params?.limit,
+              cursor: params?.lendingsCursor,
+            },
+          },
+        })
+      : null,
+    shouldFetchBorrowings
+      ? client.GET("/groups/{id}/borrowings", {
+          params: {
+            path: { id: groupId },
+            query: {
+              limit: params?.limit,
+              cursor: params?.borrowingsCursor,
+            },
+          },
+        })
+      : null,
   ]);
 
-  if (lendingsResult.error || borrowingsResult.error) {
+  if (lendingsResult?.error || borrowingsResult?.error) {
     return {
       success: false,
       result: null,
       error:
-        lendingsResult.error?.message ||
-        borrowingsResult.error?.message ||
+        lendingsResult?.error?.message ||
+        borrowingsResult?.error?.message ||
         "Unknown error",
     };
   }
 
   const items = convertToLendingItems(
-    lendingsResult.data.lendings,
-    borrowingsResult.data.borrowings,
+    lendingsResult?.data?.lendings ?? [],
+    borrowingsResult?.data?.borrowings ?? [],
   );
 
   return {
     success: true,
     result: {
       items,
-      lendingsCursor: lendingsResult.data.nextCursor ?? null,
-      borrowingsCursor: borrowingsResult.data.nextCursor ?? null,
-      hasMore: lendingsResult.data.hasMore || borrowingsResult.data.hasMore,
+      lendingsCursor: lendingsResult?.data?.nextCursor ?? null,
+      borrowingsCursor: borrowingsResult?.data?.nextCursor ?? null,
+      lendingsHasMore: lendingsResult?.data?.hasMore ?? false,
+      borrowingsHasMore: borrowingsResult?.data?.hasMore ?? false,
     },
     error: null,
   };

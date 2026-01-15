@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createSession } from "@/libs/session/session";
+import { nanoid } from "nanoid";
+import { redis } from "@/libs/session/redis";
 
 const API_BASE_URL = process.env.API_URL;
+const SESSION_PREFIX = "session:";
+const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60; // 7日間
 const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
@@ -106,10 +109,20 @@ export async function GET(request: NextRequest) {
 
     if (loginResponse.status === 200) {
       // ユーザーが既に存在: セッション作成してダッシュボードへ
-      const sessionId = await createSession(
-        firebaseIdToken,
-        firebaseData.refreshToken,
-        Number.parseInt(firebaseData.expiresIn)
+      const sessionId = nanoid(32);
+      const now = Date.now();
+      const expiresIn = Number.parseInt(firebaseData.expiresIn);
+
+      await redis.set(
+        `${SESSION_PREFIX}${sessionId}`,
+        JSON.stringify({
+          accessToken: firebaseIdToken,
+          refreshToken: firebaseData.refreshToken,
+          accessTokenExpiresAt: now + expiresIn * 1000,
+          createdAt: now,
+          lastAccessedAt: now,
+        }),
+        { ex: SESSION_TTL_SECONDS }
       );
 
       const cookieStore = await cookies();
@@ -142,10 +155,20 @@ export async function GET(request: NextRequest) {
 
       if (signupResponse.status === 201) {
         // サインアップ成功: セッション作成してダッシュボードへ
-        const sessionId = await createSession(
-          firebaseIdToken,
-          firebaseData.refreshToken,
-          Number.parseInt(firebaseData.expiresIn)
+        const sessionId = nanoid(32);
+        const now = Date.now();
+        const expiresIn = Number.parseInt(firebaseData.expiresIn);
+
+        await redis.set(
+          `${SESSION_PREFIX}${sessionId}`,
+          JSON.stringify({
+            accessToken: firebaseIdToken,
+            refreshToken: firebaseData.refreshToken,
+            accessTokenExpiresAt: now + expiresIn * 1000,
+            createdAt: now,
+            lastAccessedAt: now,
+          }),
+          { ex: SESSION_TTL_SECONDS }
         );
 
         const cookieStore = await cookies();

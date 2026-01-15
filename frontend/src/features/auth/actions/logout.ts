@@ -2,7 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
-import { deleteSession } from "@/libs/session/session";
+import { redis } from "@/libs/session/redis";
+
+const SESSION_PREFIX = "session:";
 
 /**
  * ログアウト処理
@@ -13,7 +15,7 @@ export async function logout() {
   const sessionId = cookieStore.get("session_id")?.value;
 
   if (sessionId) {
-    await deleteSession(sessionId);
+    await redis.del(`${SESSION_PREFIX}${sessionId}`);
   }
 
   cookieStore.delete("session_id");

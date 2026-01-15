@@ -1,5 +1,5 @@
 import { LinkButton } from "@/components/ui/link-button";
-import { formatCurrency } from "@/schema";
+import { formatCurrency } from "@/utils/format";
 import { cn } from "@/utils/cn";
 import type { Credit } from "../../types";
 

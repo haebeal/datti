@@ -34,7 +34,7 @@ export function DatePicker(props: Props) {
   const [isOpen, setOpen] = useState(false);
   const [value, setValue] = useState(
     typeof defaultValue === "string"
-      ? parseDate(new Date(defaultValue).toLocaleDateString("sv-SE"))
+      ? parseDate(defaultValue.split("T")[0])
       : null,
   );
 
@@ -79,7 +79,7 @@ export function DatePicker(props: Props) {
         <input
           {...rest}
           ref={ref}
-          value={value?.toDate("Asia/Tokyo").toISOString() ?? ""}
+          value={value?.toString() ?? ""}
           type="hidden"
         />
       </Group>

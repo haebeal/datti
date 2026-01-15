@@ -110,7 +110,7 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
         name={fields.eventDate.name}
         id={fields.eventDate.id}
         key={fields.eventDate.key}
-        defaultValue={fields.eventDate.initialValue || new Date().toISOString().split("T")[0]}
+        defaultValue={fields.eventDate.initialValue || new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date())}
         placeholder="日付を選択"
         className={cn("w-full")}
         isError={!!fields.eventDate.errors}

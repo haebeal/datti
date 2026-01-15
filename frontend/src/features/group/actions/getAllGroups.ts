@@ -2,7 +2,7 @@
 
 import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { createApiClient } from "@/libs/api/client";
-import type { Result } from "@/schema";
+import type { Result } from "@/utils/types";
 import type { Group } from "../types";
 import type { User } from "@/features/user/types";
 

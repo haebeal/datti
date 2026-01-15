@@ -74,11 +74,11 @@ export function GroupBasicInfoForm({ group }: Props) {
         <p className="text-sm">作成者: {group.creator.name}</p>
 
         <p className="text-sm">
-          作成日: {new Date(group.createdAt).toLocaleString("ja-JP")}
+          作成日: {new Date(group.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
         </p>
 
         <p className="text-sm">
-          更新日: {new Date(group.updatedAt).toLocaleString("ja-JP")}
+          更新日: {new Date(group.updatedAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
         </p>
 
         <div className={cn("flex justify-end gap-5")}>

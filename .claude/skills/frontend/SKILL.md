@@ -611,6 +611,58 @@ revalidatePath("/groups");
 - **手動の状態管理**: useActionState と Conform を使う
 - **HTMLルール違反**: インタラクティブ要素のネストなど、MDNで確認すること
 
+## 日付処理
+
+**全ての日付処理はJST（Asia/Tokyo）で統一する。**
+
+### 送信時
+
+Server Actionで日付を送信する際は、JSTのISO形式で送信する。
+
+```typescript
+// yyyy-mm-dd形式をJSTのISO文字列に変換してAPIに渡す
+body: {
+  eventDate: `${eventDate}T00:00:00+09:00`,
+}
+```
+
+### 表示時
+
+日付を表示する際は、必ず `timeZone: "Asia/Tokyo"` を指定する。
+
+```typescript
+// ✅OK: タイムゾーン指定あり
+new Intl.DateTimeFormat("ja-JP", {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  timeZone: "Asia/Tokyo",
+}).format(date);
+
+// ✅OK: toLocaleStringでもタイムゾーン指定
+new Date(dateString).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" });
+
+// ❌NG: タイムゾーン指定なし（サーバーのTZに依存）
+new Date(dateString).toLocaleString("ja-JP");
+```
+
+### 今日の日付を取得
+
+```typescript
+// JSTで今日の日付を取得（yyyy-mm-dd形式）
+new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date())
+```
+
+### 表示用フォーマット
+
+`@/utils/format` の `formatDate` を使用する。
+
+```typescript
+import { formatDate } from "@/utils/format";
+
+formatDate(dateString);  // "2026年1月15日"
+```
+
 ## コーディング規約
 
 - **TypeScript**: strict モードを使用

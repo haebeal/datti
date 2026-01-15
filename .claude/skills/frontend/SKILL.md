@@ -7,8 +7,6 @@ description: Dattiフロントエンド開発ガイド。Next.js App Router製�
 
 このスキルは、Datti Frontend（Next.js App Router製フロントエンド）の開発に必要な知識とワークフローを提供します。
 
-エージェントが作業を始める前に必ずこのスキルを参照し、最新の情報源として維持してください。
-
 ## 概要
 
 Dattiフロントエンドは「誰にいくら払ったか」を記録・共有するサービスのWebインターフェースです。Next.js App Router、React、TypeScript、Tailwind CSSを使用して構築されています。
@@ -24,13 +22,54 @@ Dattiフロントエンドは「誰にいくら払ったか」を記録・共有
 - **状態管理**: React hooks (useState, useTransition, useActionState)
 - **Server Actions**: Next.js Server Actions
 
+## 絶対に守るべき3つのルール
+
+### 1. HTMLセマンティックルールの厳守
+
+**CRITICAL**: 実装前に必ず[MDN](https://developer.mozilla.org/ja/)でHTML仕様を確認すること。
+
+```tsx
+// ❌NG: <a>の中に<button>を入れてはいけない
+<Link href="/groups/1">
+  <Button>開く</Button>
+</Link>
+
+// ✅OK: LinkButtonコンポーネントを使う
+<LinkButton href="/groups/1">開く</LinkButton>
+```
+
+**理由**: HTMLの仕様上、`<a>`要素はインタラクティブコンテンツ（`<button>`, `<a>`, `<input>`など）を含むことができません。
+
+### 2. `name` 属性は必須
+
+FormDataに含めたい全ての入力要素に `name` 属性を設定する。
+
+```tsx
+// ❌NG: name属性がない
+<input id={field.id} defaultValue={field.initialValue} />
+
+// ✅OK: name属性を設定
+<input name={field.name} id={field.id} defaultValue={field.initialValue} />
+```
+
+**理由**: これがないとServer ActionでFormDataを受け取れず、フォームが機能しません。
+
+### 3. UIコンポーネントを使う
+
+`Input`, `Button`, `LinkButton` コンポーネントを使用する。
+
+```tsx
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { LinkButton } from "@/components/ui/link-button";
+```
+
+**理由**: これらには重要なデフォルト設定が含まれています：
+- **Input**: `autoComplete="off"`, `data-1p-ignore`（1Password無効化）
+- **Button**: disabled状態のスタイル、React Aria対応
+- **LinkButton**: ナビゲーション用の適切なセマンティクス
+
 ## アーキテクチャ
-
-詳細は [patterns.md](patterns.md) を参照。
-
-## デザインシステム
-
-間隔、UIコンポーネント、統一デザイン原則については [design-system.md](design-system.md) を参照。
 
 ### ディレクトリ構造
 
@@ -68,32 +107,7 @@ frontend/src/
 - **Action Layer (Server Actions)**: フォーム送信とデータ更新
 - **API Layer**: バックエンドAPI呼び出し
 
-## 作業開始前の確認
-
-- **ブランチ確認**: 作業対象ブランチ（例: `feature/...`）を事前に共有し、ユーザーの合意を取ってから着手する
-- **プラン共有と承認**: これから実施するタスクを細分化して説明し、OK をもらってから実行する。途中でステップを追加する場合も再度確認する
-- **進捗の扱い**: 標準フローのどこにいるかをこまめに共有し、次へ進む前に合意を得る
-- **未確定事項の管理**: 仕様が曖昧な点は TODO やメモとして残し、AGENTS.md に反映する（解消したら速やかに削除）
-
-## デザインとコーディングの原則
-
-### コンポーネント設計
-
-- **最小限の分割**: サーバー/クライアント境界、明確な責務の分離のみ
-- **浅いJSX階層**: 不要なネストを避け、Biomeの警告に従う
-- **1ファイル完結**: 200〜300行程度なら分割不要
-
-### スタイリング
-
-- **間隔とレイアウト**: 詳細は [design-system.md](design-system.md) を参照
-- **cn()ユーティリティ**: 全てのスタイルで使用
-- **一貫性**: 同じ性質の要素には同じスタイルを適用
-
-詳細な実装パターンとベストプラクティスは [patterns.md](patterns.md) を参照してください。
-
 ## 新機能実装フロー
-
-**実装は外から内へ、以下の順序で進める**：
 
 1. **型定義とスキーマ定義**: `features/[feature]/types.ts`, `schema.ts`
 2. **Server Actions 実装**: `features/[feature]/actions/`
@@ -106,44 +120,326 @@ frontend/src/
 
 - **Server Actions**: `parseWithZod` → `submission.reply()` → `revalidatePath()`
 - **Client Components**: `useActionState` + `useForm` で状態管理
-- **name属性**: **必須**（FormDataに含まれない原因No.1）
 - **UIコンポーネント**: `Input`, `Button`, `LinkButton` を使用
 
-詳細な実装パターン、コード例、チェックリストは [patterns.md](patterns.md) を参照してください。
+## フォーム実装パターン
 
-## Server Actionでの複数エンドポイント呼び出しパターン
+### 基本構造: Conform + Zod + Server Actions
 
-バックエンドAPIが `/users/{id}` のような個別エンドポイントのみを提供している場合、Server Actionで効率的に複数のユーザー情報を取得するパターンです。
+#### Step 1: スキーマ定義
 
-### 単一データの場合
+```typescript
+// features/group/schema.ts
+import z from "zod";
 
-単一のデータ（例: 返済詳細）に関連するユーザー情報を並列取得します。
+export const updateGroupSchema = z.object({
+  id: z.string(),
+  name: z.string().min(1, "グループ名を入力してください"),
+});
+```
+
+#### Step 2: Server Action 実装
+
+```typescript
+// features/group/actions/updateGroup.ts
+"use server";
+
+import { parseWithZod } from "@conform-to/zod";
+import { updateGroupSchema } from "../schema";
+import { revalidatePath } from "next/cache";
+import { apiClient } from "@/libs/api/client";
+
+export async function updateGroup(_: unknown, formData: FormData) {
+  // 1. バリデーション
+  const submission = parseWithZod(formData, {
+    schema: updateGroupSchema,
+  });
+  if (submission.status !== "success") {
+    return submission.reply();
+  }
+
+  const { id, name } = submission.value;
+
+  // 2. API呼び出し
+  try {
+    await apiClient.put(`/groups/${id}`, { name });
+
+    // 3. キャッシュ再検証
+    revalidatePath("/groups");
+
+    // 4. 成功レスポンス
+    return submission.reply({ resetForm: true });
+  } catch (error) {
+    // 5. エラーハンドリング
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return submission.reply({
+      formErrors: [message],
+    });
+  }
+}
+```
+
+#### Step 3: Client Component 実装
+
+```typescript
+// features/group/components/group-basic-info-form.tsx
+"use client";
+
+import { useActionState } from "react";
+import { useForm } from "@conform-to/react";
+import { parseWithZod } from "@conform-to/zod";
+import { updateGroup } from "../actions/updateGroup";
+import { updateGroupSchema } from "../schema";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/utils/cn";
+import type { Group } from "../types";
+
+type Props = {
+  group: Group;
+};
+
+export function GroupBasicInfoForm({ group }: Props) {
+  const [lastResult, action, isPending] = useActionState(updateGroup, undefined);
+
+  const [form, { id, name }] = useForm({
+    lastResult,
+    defaultValue: group,
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema: updateGroupSchema });
+    },
+  });
+
+  return (
+    <form
+      id={form.id}
+      onSubmit={form.onSubmit}
+      action={action}
+      className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
+    >
+      <input type="hidden" name={id.name} value={group.id} />
+
+      <label htmlFor={name.id}>グループ名</label>
+      <Input
+        type="text"
+        name={name.name}
+        id={name.id}
+        key={name.key}
+        defaultValue={name.initialValue}
+      />
+
+      <Button type="submit" isDisabled={isPending}>
+        {isPending ? "更新中..." : "更新"}
+      </Button>
+    </form>
+  );
+}
+```
+
+### useActionState の使い方
+
+```typescript
+const [lastResult, action, isPending] = useActionState(myAction, undefined);
+```
+
+- **lastResult**: Server Actionからの最新のレスポンス（エラー情報を含む）
+- **action**: フォームのaction属性に渡す関数
+- **isPending**: フォーム送信中かどうかのBoolean値
+
+### useForm の使い方
+
+```typescript
+const [form, { field1, field2 }] = useForm({
+  lastResult,              // Server Actionからのレスポンス
+  defaultValue: initialData, // 初期値
+  onValidate({ formData }) {  // クライアント側バリデーション
+    return parseWithZod(formData, { schema: mySchema });
+  },
+});
+```
+
+- **form**: フォームのメタデータ（id, onSubmit, errors など）
+- **fields**: 各フィールドのメタデータ（name, id, key, initialValue など）
+
+### ローディング状態の管理
+
+#### フォーム送信: useActionState
+
+`isPending` を使用してボタンの disabled 状態とテキストを制御（上記「useActionState の使い方」参照）。
+
+#### その他の非同期処理: useTransition
+
+```typescript
+const [isDeleting, startTransition] = useTransition();
+const [deletingId, setDeletingId] = useState<string | null>(null);
+
+const handleDelete = (id: string) => {
+  setDeletingId(id);
+  startTransition(async () => {
+    await deleteAction(id);
+    setDeletingId(null);
+  });
+};
+
+<Button
+  onPress={() => handleDelete(item.id)}
+  isDisabled={isDeleting}
+>
+  {isDeleting && deletingId === item.id ? "削除中..." : "削除"}
+</Button>
+```
+
+### エラーハンドリング
+
+#### フォームエラー（Server Action からのエラー）
+
+```typescript
+// Server Action
+return submission.reply({
+  formErrors: ["エラーメッセージ"],
+});
+
+// Component
+{form.errors && <ErrorText>{form.errors}</ErrorText>}
+```
+
+### 実装チェックリスト
+
+#### スキーマ定義
+- [ ] `features/[feature]/schema.ts` に Zod スキーマを定義
+- [ ] エラーメッセージを日本語で記述
+
+#### Server Action
+- [ ] "use server" ディレクティブ
+- [ ] `parseWithZod` でバリデーション
+- [ ] submission.status チェック
+- [ ] try-catch でエラーハンドリング
+- [ ] submission.reply() でレスポンス
+- [ ] revalidatePath() でキャッシュ更新
+
+#### Client Component
+- [ ] "use client" ディレクティブ
+- [ ] useActionState + useForm を使用
+- [ ] field.name, field.id, field.key, field.initialValue を設定
+- [ ] isPending でローディング状態を管理
+- [ ] `Input`, `Button` コンポーネントを使用
+
+## コンポーネント設計パターン
+
+### Server Component でデータフェッチ
+
+```typescript
+// app/(auth)/groups/[groupId]/settings/page.tsx
+export default async function SettingsPage({ params }: Props) {
+  const { groupId } = await params;
+
+  const groupResult = await getGroup(groupId);
+  if (!groupResult.success) {
+    throw new Error(groupResult.error);
+  }
+
+  return (
+    <div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
+      <h1>グループ設定</h1>
+      <GroupBasicInfoForm group={groupResult.result} />
+    </div>
+  );
+}
+```
+
+### Client Component でインタラクション
+
+```typescript
+// features/group/components/group-member-management.tsx
+"use client";
+
+export function GroupMemberManagement({ groupId, members }: Props) {
+  const [lastResult, action, isAdding] = useActionState(addMember, undefined);
+  const [isDeleting, startTransition] = useTransition();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  return (
+    <div className={cn("p-6", "flex flex-col gap-6", "border rounded-lg")}>
+      {/* フォームとインタラクション */}
+    </div>
+  );
+}
+```
+
+### 1ファイルで完結
+
+- 関連する処理は1つのファイルにまとめる
+- 不要なコンポーネント分割をしない
+- 200〜300行程度なら分割不要
+
+### JSX設計パターン
+
+#### 浅い階層を維持
+
+```tsx
+// ❌NG
+<div className="container">
+  <div className="wrapper">
+    <div className="inner">
+      <label>ラベル</label>
+      <div className="input-wrapper">
+        <input />
+      </div>
+    </div>
+  </div>
+</div>
+
+// ✅OK
+<div className="container">
+  <label>ラベル</label>
+  <input />
+</div>
+```
+
+#### セマンティックな構造
+
+```tsx
+<form className={cn("p-6", "flex flex-col gap-6", "border rounded-lg")}>
+  <h2>フォームタイトル</h2>
+
+  <label htmlFor="name">名前</label>
+  <input id="name" type="text" />
+
+  <hr />
+
+  <label htmlFor="email">メール</label>
+  <input id="email" type="email" />
+
+  <div className={cn("flex justify-end gap-2")}>
+    <Button type="submit">送信</Button>
+  </div>
+</form>
+```
+
+## データ取得パターン
+
+### Server Actionでの複数エンドポイント呼び出し
+
+バックエンドAPIが `/users/{id}` のような個別エンドポイントのみを提供している場合のパターン。
+
+#### 単一データの場合
 
 ```typescript
 export async function getRepayment(id: string): Promise<Result<Repayment>> {
   try {
-    // 1. メインデータを取得
-    const response = await apiClient.get<RepaymentResponse>(
-      `/repayments/${id}`,
-    );
+    const response = await apiClient.get<RepaymentResponse>(`/repayments/${id}`);
 
-    // 2. 関連ユーザーを並列取得（Promise.all）
+    // 関連ユーザーを並列取得
     const [payer, debtor] = await Promise.all([
       apiClient.get<User>(`/users/${response.payerId}`),
       apiClient.get<User>(`/users/${response.debtorId}`),
     ]);
 
-    // 3. 拡張データを返す
-    const repayment: Repayment = {
-      id: response.id,
-      payer,
-      debtor,
-      amount: response.amount,
-      createdAt: response.createdAt,
-      updatedAt: response.updatedAt,
+    return {
+      success: true,
+      result: { ...response, payer, debtor },
+      error: null,
     };
-
-    return { success: true, result: repayment, error: null };
   } catch (error) {
     return {
       success: false,
@@ -154,41 +450,32 @@ export async function getRepayment(id: string): Promise<Result<Repayment>> {
 }
 ```
 
-### 複数データの場合（重複排除とバルク取得）
-
-複数のデータ（例: 返済一覧）に関連するユーザー情報を効率的に取得します。
+#### 複数データの場合（重複排除）
 
 ```typescript
 export async function getAllRepayments(): Promise<Result<Repayment[]>> {
   try {
-    // 1. メインデータを取得
     const responses = await apiClient.get<RepaymentResponse[]>("/repayments");
 
-    // 2. 重複を排除したユーザーIDリストを作成（Set）
+    // 重複を排除したユーザーIDリスト
     const userIds = new Set<string>();
-    responses.forEach((repayment) => {
-      userIds.add(repayment.payerId);
-      userIds.add(repayment.debtorId);
+    responses.forEach((r) => {
+      userIds.add(r.payerId);
+      userIds.add(r.debtorId);
     });
 
-    // 3. 全ユーザー情報を並列取得（Promise.all）
+    // 全ユーザー情報を並列取得
     const users = await Promise.all(
-      Array.from(userIds).map((userId) =>
-        apiClient.get<User>(`/users/${userId}`),
-      ),
+      Array.from(userIds).map((id) => apiClient.get<User>(`/users/${id}`))
     );
 
-    // 4. O(1)検索用のマップを作成（Map）
+    // O(1)検索用のマップ
     const userMap = new Map(users.map((user) => [user.id, user]));
 
-    // 5. 各データにユーザー情報を付加
-    const repayments: Repayment[] = responses.map((response) => ({
-      id: response.id,
-      payer: userMap.get(response.payerId)!,
-      debtor: userMap.get(response.debtorId)!,
-      amount: response.amount,
-      createdAt: response.createdAt,
-      updatedAt: response.updatedAt,
+    const repayments = responses.map((r) => ({
+      ...r,
+      payer: userMap.get(r.payerId)!,
+      debtor: userMap.get(r.debtorId)!,
     }));
 
     return { success: true, result: repayments, error: null };
@@ -202,32 +489,16 @@ export async function getAllRepayments(): Promise<Result<Repayment[]>> {
 }
 ```
 
-### パフォーマンス最適化のポイント
-
-- **`Promise.all`**: 並列リクエストでレスポンス時間を短縮
-- **`Set`**: ユーザーIDの重複を自動的に排除（例: 10件の返済に登場するユーザーが5人なら5回だけリクエスト）
-- **`Map`**: O(1)の検索速度で大量データでも高速
-
-### エラーハンドリング
-
-いずれかのユーザー取得が失敗した場合、操作全体をエラーとして扱います。これによりデータ一貫性を保ち、デバッグを容易にします。
-
-## 型設計パターン（Response型とフロントエンド型の分離）
-
-バックエンドAPIのレスポンス型とフロントエンドで使用する型を明確に分離するパターンです。
-
-### 基本パターン
+### 型設計パターン（Response型とフロントエンド型の分離）
 
 ```typescript
 // features/repayment/types.ts
 
-import type { User } from "@/features/user/types";
-
 // バックエンドAPIのレスポンス型（IDのみ）
 export type RepaymentResponse = {
   id: string;
-  payerId: string; // IDのみ
-  debtorId: string; // IDのみ
+  payerId: string;
+  debtorId: string;
   amount: number;
   createdAt: string;
   updatedAt: string;
@@ -236,136 +507,100 @@ export type RepaymentResponse = {
 // フロントエンド型（完全なユーザーオブジェクト）
 export type Repayment = {
   id: string;
-  payer: User; // Userオブジェクト
-  debtor: User; // Userオブジェクト
+  payer: User;
+  debtor: User;
   amount: number;
   createdAt: string;
   updatedAt: string;
 };
 ```
 
-### なぜ分離するのか
+**メリット**:
+- Server Actionでの変換が明示的
+- 型安全性の向上（IDの誤使用を防ぐ）
+- UIコンポーネントが常に完全なオブジェクトを前提にできる
 
-1. **Server Actionでの変換を明示**: APIレスポンス → フロントエンド型の変換がコード上で明確
-2. **型安全性の向上**: `userId`のような文字列IDを誤って使用することを防ぐ
-3. **UIコンポーネントの簡潔化**: コンポーネント側では常に完全なユーザーオブジェクトがあることを前提にできる
-
-### UIコンポーネントでの利用
-
-```typescript
-// components/repayment-card.tsx
-
-type Props = {
-  repayment: Repayment;  // フロントエンド型のみを受け取る
-};
-
-export function RepaymentCard({ repayment }: Props) {
-  // payer/debtorは常にUserオブジェクト（IDではない）
-  const payerName = repayment.payer.name;
-  const debtorAvatar = repayment.debtor.avatar;
-
-  return (
-    <div>
-      {debtorAvatar && <img src={debtorAvatar} alt={payerName} />}
-      <p>{payerName}</p>
-    </div>
-  );
-}
-```
-
-### 他のエンティティでの例
-
-```typescript
-// features/group/types.ts
-
-export type GroupResponse = {
-  id: string;
-  name: string;
-  createdBy: string; // IDのみ
-  createdAt: string;
-  updatedAt: string;
-};
-
-export type Group = {
-  id: string;
-  name: string;
-  creator: User; // Userオブジェクト
-  createdAt: string;
-  updatedAt: string;
-};
-```
-
-```typescript
-// features/credit/types.ts
-
-export type CreditResponse = {
-  userId: string; // IDのみ
-  amount: number;
-};
-
-export type Credit = {
-  user: User; // Userオブジェクト
-  amount: number;
-};
-```
-
-### 重要な注意点
-
-- **既存の型を変更する場合**: すべての利用箇所を一度に更新する必要があります（段階的な移行は型エラーで困難）
-- **バックエンドAPIは変更不要**: この変更はフロントエンド内部のみで完結します
-
-## よくあるエラーと対処法（最重要3つ）
-
-以下は最も頻繁に遭遇するエラーです。より詳細なトラブルシューティングは [patterns.md](patterns.md) を参照してください。
+## トラブルシューティング
 
 ### 1. FormDataが空になる
 
-**症状**: Server Actionでフォームデータを受け取れない
+**原因**: `name` 属性の欠落
 
-**原因**: `name` 属性の欠落（最も多いエラー）
+**デバッグ**:
+```typescript
+export async function myAction(_: unknown, formData: FormData) {
+  console.log("FormData entries:", Array.from(formData.entries()));
+}
+```
+
+### 2. APIが空レスポンスを返す（204 No Content）
+
+**症状**: `Unexpected end of JSON input` エラー
 
 **解決策**:
+```typescript
+const text = await response.text();
+if (!text) {
+  return null as T;
+}
+return JSON.parse(text) as T;
+```
+
+### 3. revalidatePathで画面が更新されない
+
+**解決策**: 関連するパスを全て revalidate
+```typescript
+revalidatePath(`/groups/${id}/settings`);
+revalidatePath("/groups");
+```
+
+### 4. Conformのフィールドが更新されない
+
+**原因**: `key` 属性の欠落
+
+```tsx
+// ✅OK: keyを設定
+<Input
+  name={field.name}
+  id={field.id}
+  key={field.key}
+  defaultValue={field.initialValue}
+/>
+```
+
+### 5. useActionStateのisPendingが動作しない
+
+**原因**: `action`属性に渡していない
+
+```tsx
+<form action={action} onSubmit={form.onSubmit}>
+  <Button type="submit" isDisabled={isPending}>
+    {isPending ? "送信中..." : "送信"}
+  </Button>
+</form>
+```
+
+### 6. 配列フィールドの追加・削除が動作しない（React Aria + Conform）
+
+**原因**: Conformの`getButtonProps()`はReact Aria Buttonと互換性がない
 
 ```tsx
 // ❌NG
-<input id={field.id} defaultValue={field.defaultValue} />
+<Button {...form.insert.getButtonProps({ name: fields.debts.name })}>
 
-// ✅OK
-<input name={field.name} id={field.id} defaultValue={field.defaultValue} />
+// ✅OK: onPressで直接呼び出す
+<Button
+  type="button"
+  onPress={() => {
+    form.insert({
+      name: fields.debts.name,
+      defaultValue: { userId: "", amount: 0 }
+    });
+  }}
+>
+  追加
+</Button>
 ```
-
-### 2. HTMLセマンティックエラー
-
-**症状**: `<a>` の中に `<button>` を入れてしまう
-
-**解決策**: `LinkButton` コンポーネントを使用
-
-```tsx
-// ❌NG
-<Link href="/groups/1">
-  <Button>開く</Button>
-</Link>
-
-// ✅OK
-<LinkButton href="/groups/1">開く</LinkButton>
-```
-
-### 3. 1Password拡張機能の補完が邪魔
-
-**症状**: フォーム入力時に1Passwordの候補が表示される
-
-**解決策**: `Input` コンポーネントを使用（自動的に対応される）
-
-```tsx
-<Input type="text" name={field.name} />
-// autoComplete="off" と data-1p-ignore が自動適用される
-```
-
-## コミットとログ
-
-- **コミットメッセージは日本語・命令形で一意に作成**
-- コミット前に AGENTS.md の該当セクション（特に「作業開始前の確認」や TODO）を最新化し、差分を残す
-- **コミットは各タスクごとに後でリバートしやすい単位で細かく作成する**
 
 ## 避けるべきこと
 
@@ -376,33 +611,7 @@ export type Credit = {
 - **手動の状態管理**: useActionState と Conform を使う
 - **HTMLルール違反**: インタラクティブ要素のネストなど、MDNで確認すること
 
-## 重要な実務ルール
-
-### 実装の順序
-
-1. 型定義とスキーマ定義
-2. Server Actions 実装
-3. Page 実装 (Server Component)
-4. Component 実装 (Client Component)
-5. スタイリング調整
-6. 動作確認
-
-**実装は外から内へ進める**: Page → Component → Actions の順を守る。
-
-### フォーム実装の必須事項
-
-- [ ] schema.ts に Zod スキーマを定義
-- [ ] Server Action で parseWithZod を使用
-- [ ] submission.reply() でエラーハンドリング
-- [ ] revalidatePath() で関連する全てのパスをキャッシュ更新
-- [ ] useActionState + useForm を使用
-- [ ] **`name` 属性を全ての入力要素に設定**（最重要）
-- [ ] field.id, field.key, field.defaultValue を設定
-- [ ] isPending でローディング状態を管理
-- [ ] `Input` コンポーネントを使用
-- [ ] `Button` / `LinkButton` を適切に使い分け
-
-### コーディング規約
+## コーディング規約
 
 - **TypeScript**: strict モードを使用
 - **フォーマット**: Biome でフォーマット
@@ -413,62 +622,23 @@ export type Credit = {
 - **エラーハンドリング**: 明示的なエラー表示
 - **バリデーション**: Zod スキーマで定義
 
-## 絶対に守るべき3つのルール
-
-### 1. **HTMLセマンティックルールの厳守**
-
-**CRITICAL**: 実装前に必ず[MDN](https://developer.mozilla.org/ja/)でHTML仕様を確認すること。
-
-#### インタラクティブ要素のネスト禁止
-
-```tsx
-// ❌NG: <a>の中に<button>を入れてはいけない
-<Link href="/groups/1">
-  <Button>開く</Button>
-</Link>
-
-// ✅OK: LinkButtonコンポーネントを使う
-<LinkButton href="/groups/1">開く</LinkButton>
-```
-
-**理由**: HTMLの仕様上、`<a>`要素はインタラクティブコンテンツ（`<button>`, `<a>`, `<input>`など）を含むことができません。
-
-### 2. **`name` 属性は必須**
-
-FormDataに含めたい全ての入力要素に `name` 属性を設定する。
-
-```tsx
-// ❌NG: name属性がない
-<input id={field.id} defaultValue={field.defaultValue} />
-
-// ✅OK: name属性を設定
-<input name={field.name} id={field.id} defaultValue={field.defaultValue} />
-```
-
-**理由**: これがないとServer ActionでFormDataを受け取れず、フォームが機能しません。
-
-### 3. **UIコンポーネントを使う**
-
-`Input`, `Button`, `LinkButton` コンポーネントを使用する。
-
-```tsx
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { LinkButton } from "@/components/ui/link-button";
-```
-
-**理由**: これらには重要なデフォルト設定が含まれています：
-
-- **Input**: `autoComplete="off"`, `data-1p-ignore`（1Password無効化）
-- **Button**: disabled状態のスタイル、React Aria対応
-- **LinkButton**: ナビゲーション用の適切なセマンティクス
-
 ## 参考資料
 
-- [patterns.md](patterns.md) - 実装パターンの詳細
-- [design-system.md](design-system.md) - デザインシステムとUIコンポーネント
+### Context7 で最新ドキュメントを参照
+
+ライブラリのAPIを確認する際は `use context7` を使用すること。LLMの学習データより新しい情報を取得できる。
+
+対象ライブラリ:
+- **Conform** - フォームAPI（field.initialValue等）
+- **Zod** - バリデーションスキーマ
+- **Next.js** - App Router、Server Actions
+- **React Aria Components** - データ属性、アクセシビリティ
+- **Tailwind CSS** - ユーティリティクラス
+
+### その他の参考資料
+
 - [MDN Web Docs](https://developer.mozilla.org/ja/) - HTML仕様の確認
-- [Conform公式ドキュメント](https://ja.conform.guide/) - フォームライブラリの最新API（バージョンアップで変わるため常に確認）
+- [Design System Skill](.claude/skills/design-system/SKILL.md) - 間隔、UIコンポーネント仕様、スタイリング原則
 - `frontend/src/features/group/components/group-basic-info-form.tsx` - フォーム実装の参考例
 - `frontend/src/features/group/components/group-member-management.tsx` - 複雑なフォームの参考例
 - `frontend/src/features/lending/components/lending-create-form.tsx` - 動的配列フォームの参考例

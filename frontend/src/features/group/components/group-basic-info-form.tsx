@@ -17,9 +17,11 @@ import { updateGroupSchema } from "../schema";
 
 type Props = {
   group: Group;
+  currentUserId: string;
 };
 
-export function GroupBasicInfoForm({ group }: Props) {
+export function GroupBasicInfoForm({ group, currentUserId }: Props) {
+  const isCreator = group.creator.id === currentUserId;
   const [lastResult, action, isUpdating] = useActionState(
     updateGroup,
     undefined,
@@ -67,6 +69,7 @@ export function GroupBasicInfoForm({ group }: Props) {
           key={name.key}
           defaultValue={name.defaultValue}
           className={cn("w-full")}
+          disabled={!isCreator}
         />
 
         <hr />
@@ -81,20 +84,22 @@ export function GroupBasicInfoForm({ group }: Props) {
           更新日: {new Date(group.updatedAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
         </p>
 
-        <div className={cn("flex justify-end gap-5")}>
-          <Button
-            type="button"
-            isDisabled={isDeleting}
-            color="error"
-            colorStyle="outline"
-            onPress={() => setIsDialogOpen(true)}
-          >
-            グループ削除
-          </Button>
-          <Button type="submit" isDisabled={isUpdating}>
-            {isUpdating ? "更新中..." : "更新"}
-          </Button>
-        </div>
+        {isCreator && (
+          <div className={cn("flex justify-end gap-5")}>
+            <Button
+              type="button"
+              isDisabled={isDeleting}
+              color="error"
+              colorStyle="outline"
+              onPress={() => setIsDialogOpen(true)}
+            >
+              グループ削除
+            </Button>
+            <Button type="submit" isDisabled={isUpdating}>
+              {isUpdating ? "更新中..." : "更新"}
+            </Button>
+          </div>
+        )}
       </form>
 
       <form ref={deleteFormRef} action={deleteAction} className="hidden">

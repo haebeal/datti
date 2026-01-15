@@ -15,20 +15,14 @@ Dattiは割り勘・立て替え管理アプリです。誰にいくら払った
 
 **バックエンドタスクを実行する際は、バックエンドスキルが自動的に適用されます。**
 
-詳細なアーキテクチャ、実装フロー、テスト方針については以下を参照：
-
-- 📚 **[Backend Skill](.claude/skills/backend/SKILL.md)** - 新機能実装フロー、開発ルール、コマンド、テスト方針
-- 🏗️ **[Architecture](.claude/skills/backend/architecture.md)** - アーキテクチャ詳細
+- 📚 **[Backend Skill](.claude/skills/backend/SKILL.md)** - アーキテクチャ、実装フロー、開発ルール、コマンド
 
 ## フロントエンド開発
 
 **フロントエンドタスクを実行する際は、フロントエンドスキルが自動的に適用されます。**
 
-詳細な実装パターン、デザインシステムについては以下を参照：
-
-- 📚 **[Frontend Skill](.claude/skills/frontend/SKILL.md)** - 新機能実装フロー、開発ルール
-- 🎨 **[Design System](.claude/skills/frontend/design-system.md)** - UIコンポーネント、スタイリング
-- 📝 **[Patterns](.claude/skills/frontend/patterns.md)** - 実装パターン、ベストプラクティス
+- 📚 **[Frontend Skill](.claude/skills/frontend/SKILL.md)** - 実装フロー、フォームパターン、開発ルール
+- 🎨 **[Design System](.claude/skills/design-system/SKILL.md)** - UIコンポーネント、スタイリング原則
 
 ## プロジェクト管理（Linear）
 
@@ -62,9 +56,11 @@ Dattiは割り勘・立て替え管理アプリです。誰にいくら払った
 ### PR作成の手順（チェックリスト）
 
 - [ ] **Linearチケットの確認**: MCP経由でチケット内容を確認（推測や省略は不可）
-- [ ] **PRタイトル**: `[DATTI-xxx] 簡潔な変更内容の説明` 形式にする（LinearとGitHubが自動連携）
+- [ ] **PRタイトル**: `[DATTI-xxx] 簡潔な変更内容の説明` 形式（LinearとGitHubが自動連携）
 - [ ] **背景・実施内容**: 明確に記載されている
 - [ ] **ローカル確認**: 動作確認済み、コンパイルエラーなし
+
+**チケットがない場合**: ドキュメント整理やリファクタリングなど、チケットに紐づかない作業の場合はタイトルにチケット番号を含めなくてよい。
 
 ### PR本文のフォーマット
 

@@ -12,9 +12,12 @@ export async function getLending(
   const token = await getAuthToken();
   const client = createApiClient(token);
 
-  const { data, error } = await client.GET("/groups/{id}/lendings/{lendingId}", {
-    params: { path: { id: groupId, lendingId: id } },
-  });
+  const { data, error } = await client.GET(
+    "/groups/{id}/lendings/{lendingId}",
+    {
+      params: { path: { id: groupId, lendingId: id } },
+    },
+  );
 
   if (error) {
     return {

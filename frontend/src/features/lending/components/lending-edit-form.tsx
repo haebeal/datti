@@ -21,7 +21,12 @@ type Props = {
   currentUserId: string;
 };
 
-export function LendingEditForm({ groupId, lending, members, currentUserId }: Props) {
+export function LendingEditForm({
+  groupId,
+  lending,
+  members,
+  currentUserId,
+}: Props) {
   const [lastResult, action, isUpdating] = useActionState(
     updateLending.bind(null, groupId),
     undefined,
@@ -47,23 +52,32 @@ export function LendingEditForm({ groupId, lending, members, currentUserId }: Pr
 
   // 各行で選択可能なメンバーを取得（既に選択されているメンバーと自分自身を除外）
   const getAvailableMembers = (currentIndex: number) => {
-    const selectedUserIds = debtsList.map((debt, idx) => {
-      if (idx === currentIndex) return null;
-      const debtFields = debt.getFieldset();
-      return debtFields.userId.initialValue;
-    }).filter((id): id is string => id !== null && id !== "");
+    const selectedUserIds = debtsList
+      .map((debt, idx) => {
+        if (idx === currentIndex) return null;
+        const debtFields = debt.getFieldset();
+        return debtFields.userId.initialValue;
+      })
+      .filter((id): id is string => id !== null && id !== "");
 
-    return members.filter((member) => !selectedUserIds.includes(member.id) && member.id !== currentUserId);
+    return members.filter(
+      (member) =>
+        !selectedUserIds.includes(member.id) && member.id !== currentUserId,
+    );
   };
 
   // 新しいメンバーを追加可能かチェック
   const canAddMoreMembers = () => {
-    const selectedUserIds = debtsList.map((debt) => {
-      const debtFields = debt.getFieldset();
-      return debtFields.userId.initialValue;
-    }).filter((id) => id !== "");
+    const selectedUserIds = debtsList
+      .map((debt) => {
+        const debtFields = debt.getFieldset();
+        return debtFields.userId.initialValue;
+      })
+      .filter((id) => id !== "");
     // 自分自身を除いたメンバー数と比較
-    const availableMembersCount = members.filter(m => m.id !== currentUserId).length;
+    const availableMembersCount = members.filter(
+      (m) => m.id !== currentUserId,
+    ).length;
     return selectedUserIds.length < availableMembersCount;
   };
 
@@ -124,18 +138,18 @@ export function LendingEditForm({ groupId, lending, members, currentUserId }: Pr
         isError={!!fields.eventDate.errors}
       />
 
-      {fields.eventDate.errors && <ErrorText>{fields.eventDate.errors}</ErrorText>}
+      {fields.eventDate.errors && (
+        <ErrorText>{fields.eventDate.errors}</ErrorText>
+      )}
 
       <div className={cn("flex justify-between items-center")}>
-        <label className={cn("text-sm font-semibold")}>
-          支払い詳細
-        </label>
+        <span className={cn("text-sm font-semibold")}>支払い詳細</span>
         <Button
           type="button"
           onPress={() => {
             form.insert({
               name: fields.debts.name,
-              defaultValue: { userId: "", amount: 0 }
+              defaultValue: { userId: "", amount: 0 },
             });
           }}
           isDisabled={!canAddMoreMembers()}
@@ -168,7 +182,9 @@ export function LendingEditForm({ groupId, lending, members, currentUserId }: Pr
                   className={cn("w-full")}
                   required
                 />
-                {debtFields.userId.errors && <ErrorText>{debtFields.userId.errors}</ErrorText>}
+                {debtFields.userId.errors && (
+                  <ErrorText>{debtFields.userId.errors}</ErrorText>
+                )}
               </div>
 
               <div className={cn("w-32")}>
@@ -181,7 +197,9 @@ export function LendingEditForm({ groupId, lending, members, currentUserId }: Pr
                   placeholder="金額"
                   className={cn("w-full")}
                 />
-                {debtFields.amount.errors && <ErrorText>{debtFields.amount.errors}</ErrorText>}
+                {debtFields.amount.errors && (
+                  <ErrorText>{debtFields.amount.errors}</ErrorText>
+                )}
               </div>
 
               {debtsList.length > 1 && (

@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useTransition, useEffect } from "react";
+import { use, useState, useTransition, useEffect, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
 import { RepaymentCard } from "../repayment-card";
 import { LinkButton } from "@/components/ui/link-button";
@@ -27,7 +27,7 @@ export function RepaymentList({ initialDataPromise }: Props) {
     rootMargin: "100px",
   });
 
-  const loadMore = () => {
+  const loadMore = useCallback(() => {
     if (!hasMore || isPending) return;
 
     startTransition(async () => {
@@ -40,13 +40,13 @@ export function RepaymentList({ initialDataPromise }: Props) {
         setHasMore(result.result.hasMore);
       }
     });
-  };
+  }, [hasMore, isPending, cursor]);
 
   useEffect(() => {
     if (inView && hasMore && !isPending) {
       loadMore();
     }
-  }, [inView, hasMore, isPending]);
+  }, [inView, hasMore, isPending, loadMore]);
 
   if (repayments.length === 0) {
     return (

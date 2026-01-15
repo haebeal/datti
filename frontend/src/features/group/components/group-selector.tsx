@@ -174,7 +174,9 @@ export function GroupSelector({ groups }: Props) {
       ))}
 
       {/* グループ管理・作成リンク */}
-      <div className={cn("flex flex-col gap-1 mt-2 pt-2 border-t border-gray-200")}>
+      <div
+        className={cn("flex flex-col gap-1 mt-2 pt-2 border-t border-gray-200")}
+      >
         <Link
           href="/groups"
           className={cn(

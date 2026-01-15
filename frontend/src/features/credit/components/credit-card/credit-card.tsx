@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { LinkButton } from "@/components/ui/link-button";
 import { formatCurrency } from "@/utils/format";
 import { cn } from "@/utils/cn";
@@ -31,9 +32,11 @@ export function CreditCard({ credit }: Props) {
       <div className={cn("flex items-center gap-3 md:flex-1 md:gap-5")}>
         {/* User Avatar */}
         {credit.user.avatar ? (
-          <img
+          <Image
             src={credit.user.avatar}
             alt={userName}
+            width={48}
+            height={48}
             className={cn("flex-shrink-0 w-12 h-12 rounded-full object-cover")}
           />
         ) : (

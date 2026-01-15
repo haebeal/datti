@@ -58,14 +58,21 @@ export async function getAllRepayments(
   }
 
   // Transform to frontend Repayment type
-  const repayments: Repayment[] = data.repayments.map((response) => ({
-    id: response.id,
-    payer: userMap.get(response.payerId)!,
-    debtor: userMap.get(response.debtorId)!,
-    amount: response.amount,
-    createdAt: response.createdAt,
-    updatedAt: response.updatedAt,
-  }));
+  const repayments: Repayment[] = data.repayments
+    .map((response) => {
+      const payer = userMap.get(response.payerId);
+      const debtor = userMap.get(response.debtorId);
+      if (!payer || !debtor) return null;
+      return {
+        id: response.id,
+        payer,
+        debtor,
+        amount: response.amount,
+        createdAt: response.createdAt,
+        updatedAt: response.updatedAt,
+      };
+    })
+    .filter((repayment): repayment is Repayment => repayment !== null);
 
   return {
     success: true,

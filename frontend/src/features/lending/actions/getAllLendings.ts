@@ -96,7 +96,10 @@ export async function getAllLendings(
     return {
       success: false,
       result: null,
-      error: lendingsResult.error?.message || borrowingsResult.error?.message || "Unknown error",
+      error:
+        lendingsResult.error?.message ||
+        borrowingsResult.error?.message ||
+        "Unknown error",
     };
   }
 

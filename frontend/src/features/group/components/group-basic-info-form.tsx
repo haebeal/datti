@@ -36,11 +36,10 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const deleteFormRef = useRef<HTMLFormElement>(null);
-  const [_deleteState, deleteAction, isDeleting] =
-    useActionState<DeleteGroupState, FormData>(
-      deleteGroup.bind(null, group.id),
-      undefined,
-    );
+  const [_deleteState, deleteAction, isDeleting] = useActionState<
+    DeleteGroupState,
+    FormData
+  >(deleteGroup.bind(null, group.id), undefined);
 
   const handleDeleteConfirm = () => {
     deleteFormRef.current?.requestSubmit();
@@ -77,11 +76,17 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
         <p className="text-sm">作成者: {group.creator.name}</p>
 
         <p className="text-sm">
-          作成日: {new Date(group.createdAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
+          作成日:{" "}
+          {new Date(group.createdAt).toLocaleString("ja-JP", {
+            timeZone: "Asia/Tokyo",
+          })}
         </p>
 
         <p className="text-sm">
-          更新日: {new Date(group.updatedAt).toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" })}
+          更新日:{" "}
+          {new Date(group.updatedAt).toLocaleString("ja-JP", {
+            timeZone: "Asia/Tokyo",
+          })}
         </p>
 
         {isCreator && (

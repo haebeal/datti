@@ -5,7 +5,6 @@ import {
   DialogTrigger,
   Modal,
   ModalOverlay,
-  type DialogProps as AriaDialogProps,
 } from "react-aria-components";
 import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
@@ -52,7 +51,9 @@ export function ConfirmDialog({
           "outline-none",
         )}
       >
-        <AriaDialog className={cn("p-6", "flex flex-col gap-4", "outline-none")}>
+        <AriaDialog
+          className={cn("p-6", "flex flex-col gap-4", "outline-none")}
+        >
           {({ close }) => (
             <>
               <h2 className={cn("text-xl font-bold")}>{title}</h2>

@@ -12,6 +12,7 @@ export function Header({ onMenuClick }: HeaderProps) {
     <header className={cn("bg-white shadow-sm", "lg:hidden")}>
       <div className={cn("flex h-16 items-center justify-between px-4")}>
         <button
+          type="button"
           onClick={onMenuClick}
           className={cn("p-2 rounded-md", "hover:bg-gray-100")}
           aria-label="メニューを開く"

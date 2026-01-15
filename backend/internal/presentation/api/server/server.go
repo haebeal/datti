@@ -19,7 +19,7 @@ type BorrowingHandler interface {
 }
 
 type CreditHandler interface {
-	List(c echo.Context) error
+	List(c echo.Context, params api.CreditsListParams) error
 }
 
 type HealthHandler interface {
@@ -110,8 +110,8 @@ func (s *Server) BorrowingGet(ctx echo.Context, id string, borrowingId string) e
 	return s.bh.Get(ctx, id, borrowingId)
 }
 
-func (s *Server) CreditsList(ctx echo.Context) error {
-	return s.ch.List(ctx)
+func (s *Server) CreditsList(ctx echo.Context, params api.CreditsListParams) error {
+	return s.ch.List(ctx, params)
 }
 
 func (s *Server) HealthCheck(ctx echo.Context) error {

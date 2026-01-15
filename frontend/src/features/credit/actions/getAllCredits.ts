@@ -10,8 +10,10 @@ export async function getAllCredits(): Promise<Result<Credit[]>> {
   const token = await getAuthToken();
   const client = createApiClient(token);
 
-  // Fetch all credits
-  const { data: responses, error } = await client.GET("/credits");
+  // Fetch all credits (sorted by amount ascending: negative first)
+  const { data: responses, error } = await client.GET("/credits", {
+    params: { query: { order_by: "asc" } },
+  });
 
   if (error) {
     return {

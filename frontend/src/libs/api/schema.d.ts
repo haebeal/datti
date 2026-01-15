@@ -678,7 +678,10 @@ export interface operations {
     };
     Credits_list: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description ソート順を指定（asc: 金額昇順、desc: 金額降順） */
+                order_by?: "asc" | "desc";
+            };
             header?: never;
             path?: never;
             cookie?: never;

@@ -2,6 +2,7 @@
 
 import { parseWithZod } from "@conform-to/zod";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { createApiClient } from "@/libs/api/client";
 import { updateRepaymentSchema } from "../schema";
@@ -38,5 +39,5 @@ export async function updateRepayment(
   revalidatePath(`/repayments/${id}/edit`);
   revalidatePath(`/repayments/${id}`);
   revalidatePath("/repayments");
-  return submission.reply({ resetForm: true });
+  redirect(`/repayments/${id}`);
 }

@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { nanoid } from "nanoid";
-import { redis } from "@/libs/session/redis";
+import { Redis } from "@upstash/redis";
+
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 
 const API_BASE_URL = process.env.API_URL;
 const SESSION_PREFIX = "session:";

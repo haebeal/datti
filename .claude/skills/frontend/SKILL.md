@@ -624,8 +624,20 @@ revalidatePath("/groups");
 
 ## 参考資料
 
+### Context7 で最新ドキュメントを参照
+
+ライブラリのAPIを確認する際は `use context7` を使用すること。LLMの学習データより新しい情報を取得できる。
+
+対象ライブラリ:
+- **Conform** - フォームAPI（field.initialValue等）
+- **Zod** - バリデーションスキーマ
+- **Next.js** - App Router、Server Actions
+- **React Aria Components** - データ属性、アクセシビリティ
+- **Tailwind CSS** - ユーティリティクラス
+
+### その他の参考資料
+
 - [MDN Web Docs](https://developer.mozilla.org/ja/) - HTML仕様の確認
-- [Conform公式ドキュメント](https://ja.conform.guide/) - フォームライブラリの最新API
 - [Design System Skill](.claude/skills/design-system/SKILL.md) - 間隔、UIコンポーネント仕様、スタイリング原則
 - `frontend/src/features/group/components/group-basic-info-form.tsx` - フォーム実装の参考例
 - `frontend/src/features/group/components/group-member-management.tsx` - 複雑なフォームの参考例

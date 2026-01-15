@@ -117,3 +117,14 @@ task test          # go test -race ./...
 - **通貨**: すべて円（整数）
 - **環境変数**: `backend/.env` 参照
 
+## 参考資料
+
+### Context7 で最新ドキュメントを参照
+
+ライブラリのAPIを確認する際は `use context7` を使用すること。LLMの学習データより新しい情報を取得できる。
+
+対象ライブラリ:
+- **sqlc** - クエリ構文、設定オプション
+- **oapi-codegen** - OpenAPI生成設定
+- **OpenTelemetry** - Go SDK トレースAPI
+

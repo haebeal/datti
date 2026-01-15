@@ -84,6 +84,26 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
     }
   };
 
+  // 自分の負担額を計算
+  const calculateMyShare = () => {
+    const totalAmount = Number(form.value?.amount) || 0;
+    const debtsValues = form.value?.debts;
+    if (!Array.isArray(debtsValues)) {
+      return totalAmount;
+    }
+    const othersTotal = debtsValues.reduce(
+      (sum: number, debt: { amount?: string } | undefined) => {
+        return sum + (Number(debt?.amount) || 0);
+      },
+      0,
+    );
+    return totalAmount - othersTotal;
+  };
+
+  const myShare = calculateMyShare();
+  const currentUserName =
+    members.find((m) => m.id === currentUserId)?.name || "自分";
+
   return (
     <form
       id={form.id}
@@ -179,6 +199,34 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
         </div>
       </div>
 
+      {/* 自分の負担額（読み取り専用） */}
+      <div className={cn("flex gap-5 items-center")}>
+        <div className={cn("flex-1")}>
+          <div className={cn("px-3 py-2")}>{currentUserName}</div>
+        </div>
+        <div className={cn("w-32")}>
+          <div className={cn("relative")}>
+            <span
+              className={cn(
+                "absolute left-3 top-1/2 -translate-y-1/2",
+                "pointer-events-none",
+              )}
+            >
+              ¥
+            </span>
+            <div
+              className={cn(
+                "px-3 py-2 pl-7",
+                myShare < 0 && "text-red-500",
+              )}
+            >
+              {myShare}
+            </div>
+          </div>
+        </div>
+        {debtsList.length > 1 && <div className={cn("px-3 py-2 invisible")}>削除</div>}
+      </div>
+
       <div className={cn("flex flex-col gap-3")}>
         {debtsList.map((debt, index) => {
           const debtFields = debt.getFieldset();
@@ -206,15 +254,25 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
               </div>
 
               <div className={cn("w-32")}>
-                <Input
-                  type="number"
-                  name={debtFields.amount.name}
-                  id={debtFields.amount.id}
-                  key={debtFields.amount.key}
-                  defaultValue={debtFields.amount.initialValue}
-                  placeholder="金額"
-                  className={cn("w-full")}
-                />
+                <div className={cn("relative")}>
+                  <span
+                    className={cn(
+                      "absolute left-3 top-1/2 -translate-y-1/2",
+                      "pointer-events-none",
+                    )}
+                  >
+                    ¥
+                  </span>
+                  <Input
+                    type="number"
+                    name={debtFields.amount.name}
+                    id={debtFields.amount.id}
+                    key={debtFields.amount.key}
+                    defaultValue={debtFields.amount.initialValue}
+                    placeholder="金額"
+                    className={cn("w-full pl-7")}
+                  />
+                </div>
                 {debtFields.amount.errors && (
                   <ErrorText>{debtFields.amount.errors}</ErrorText>
                 )}

@@ -2,6 +2,7 @@
 
 import { parseWithZod } from "@conform-to/zod";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { createApiClient } from "@/libs/api/client";
 import { updateLendingSchema } from "../schema";
@@ -44,13 +45,13 @@ export async function updateLending(
   revalidatePath(`/groups/${groupId}/lendings/${id}/edit`);
   revalidatePath(`/groups/${groupId}/lendings/${id}`);
   revalidatePath(`/groups/${groupId}/lendings`);
-  return submission.reply();
+  redirect(`/groups/${groupId}/lendings/${id}`);
 }
 
+/**
+ * yyyy-mm-dd形式の日付をUTCのISO文字列に変換
+ */
 function normalizeEventDate(value: string) {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-  return parsed.toISOString();
+  // yyyy-mm-dd形式を期待し、UTCの0時として扱う
+  return `${value}T00:00:00.000Z`;
 }

@@ -44,10 +44,10 @@ export async function createLending(
   redirect(`/groups/${groupId}/lendings/${data.id}`);
 }
 
+/**
+ * yyyy-mm-dd形式の日付をUTCのISO文字列に変換
+ */
 function normalizeEventDate(value: string) {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-  return parsed.toISOString();
+  // yyyy-mm-dd形式を期待し、UTCの0時として扱う
+  return `${value}T00:00:00.000Z`;
 }

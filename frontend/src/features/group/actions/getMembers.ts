@@ -2,7 +2,7 @@
 
 import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { createApiClient } from "@/libs/api/client";
-import type { Result } from "@/schema";
+import type { Result } from "@/utils";
 import type { GroupMember } from "../types";
 
 export async function getMembers(

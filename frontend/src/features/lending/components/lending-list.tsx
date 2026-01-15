@@ -4,7 +4,7 @@ import { use, useState, useTransition, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 import { cn } from "@/utils/cn";
-import { formatCurrency } from "@/schema";
+import { formatCurrency } from "@/utils";
 import { LinkButton } from "@/components/ui/link-button";
 import type { LendingItem, PaginatedLendingItems } from "../types";
 import { getAllLendings } from "../actions/getAllLendings";

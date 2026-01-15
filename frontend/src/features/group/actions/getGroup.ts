@@ -2,7 +2,7 @@
 
 import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { createApiClient } from "@/libs/api/client";
-import type { Result } from "@/schema";
+import type { Result } from "@/utils";
 import type { Group } from "../types";
 
 export async function getGroup(id: string): Promise<Result<Group>> {

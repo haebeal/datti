@@ -1,6 +1,8 @@
 /**
- * Common schemas and types used across the application
+ * Common utilities used across the application
  */
+
+export { cn } from "./cn";
 
 /**
  * Generic Result type for server actions

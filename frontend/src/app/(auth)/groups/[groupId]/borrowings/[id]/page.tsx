@@ -1,6 +1,6 @@
 import { getBorrowing } from "@/features/borrowing/actions/getBorrowing";
 import { getGroup } from "@/features/group/actions/getGroup";
-import { formatCurrency, formatDate } from "@/schema";
+import { formatCurrency, formatDate } from "@/utils";
 import { cn } from "@/utils/cn";
 
 export default async function BorrowingDetailPage({

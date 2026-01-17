@@ -18,9 +18,6 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
   const initialData = use(initialDataPromise);
 
 	const [items, setItems] = useState<LendingItem[]>(initialData.items);
-	const [lendingsCursor, setLendingsCursor] = useState<string | null>(
-		initialData.nextCursor,
-	);
   const [cursor, setCursor] = useState<string | null>(initialData.nextCursor);
   const [hasMore, setHasMore] = useState(initialData.hasMore)
 	const [isPending, startTransition] = useTransition();

@@ -17,10 +17,10 @@ type Props = {
 export function RepaymentDeleteForm({ repaymentId }: Props) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-  const [state, action, isDeleting] = useActionState<DeleteRepaymentState, FormData>(
-    deleteRepayment.bind(null, repaymentId),
-    undefined,
-  );
+  const [state, action, isDeleting] = useActionState<
+    DeleteRepaymentState,
+    FormData
+  >(deleteRepayment.bind(null, repaymentId), undefined);
 
   const handleConfirm = () => {
     formRef.current?.requestSubmit();
@@ -34,9 +34,7 @@ export function RepaymentDeleteForm({ repaymentId }: Props) {
         className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
       >
         <h2 className={cn("text-lg font-semibold")}>返済を削除</h2>
-        <p className={cn("text-sm text-gray-600")}>
-          削除すると元に戻せません
-        </p>
+        <p className={cn("text-sm text-gray-600")}>削除すると元に戻せません</p>
 
         {state?.error && <ErrorText>{state.error}</ErrorText>}
 

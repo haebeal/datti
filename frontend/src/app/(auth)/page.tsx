@@ -8,9 +8,7 @@ export default async function CreditPage() {
   const { success, result, error } = creditsResponse;
 
   return (
-    <div
-      className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}
-    >
+    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
       <h1 className={cn("text-2xl font-bold")}>立て替え一覧</h1>
 
       {error && (

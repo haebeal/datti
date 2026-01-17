@@ -21,7 +21,7 @@ type ServerInterface interface {
 	AuthSignup(ctx echo.Context) error
 	// 債権一覧の取得
 	// (GET /credits)
-	CreditsList(ctx echo.Context) error
+	CreditsList(ctx echo.Context, params CreditsListParams) error
 	// グループ一覧の取得
 	// (GET /groups)
 	GroupGetAll(ctx echo.Context) error
@@ -126,8 +126,17 @@ func (w *ServerInterfaceWrapper) CreditsList(ctx echo.Context) error {
 
 	ctx.Set(BearerAuthScopes, []string{})
 
+	// Parameter object where we will unmarshal all parameters from the context
+	var params CreditsListParams
+	// ------------- Optional query parameter "order_by" -------------
+
+	err = runtime.BindQueryParameter("form", true, false, "order_by", ctx.QueryParams(), &params.OrderBy)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter order_by: %s", err))
+	}
+
 	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.CreditsList(ctx)
+	err = w.Handler.CreditsList(ctx, params)
 	return err
 }
 

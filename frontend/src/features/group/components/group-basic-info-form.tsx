@@ -17,9 +17,11 @@ import { updateGroupSchema } from "../schema";
 
 type Props = {
   group: Group;
+  currentUserId: string;
 };
 
-export function GroupBasicInfoForm({ group }: Props) {
+export function GroupBasicInfoForm({ group, currentUserId }: Props) {
+  const isCreator = group.creator.id === currentUserId;
   const [lastResult, action, isUpdating] = useActionState(
     updateGroup,
     undefined,
@@ -34,11 +36,10 @@ export function GroupBasicInfoForm({ group }: Props) {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const deleteFormRef = useRef<HTMLFormElement>(null);
-  const [_deleteState, deleteAction, isDeleting] =
-    useActionState<DeleteGroupState, FormData>(
-      deleteGroup.bind(null, group.id),
-      undefined,
-    );
+  const [_deleteState, deleteAction, isDeleting] = useActionState<
+    DeleteGroupState,
+    FormData
+  >(deleteGroup.bind(null, group.id), undefined);
 
   const handleDeleteConfirm = () => {
     deleteFormRef.current?.requestSubmit();
@@ -67,6 +68,7 @@ export function GroupBasicInfoForm({ group }: Props) {
           key={name.key}
           defaultValue={name.defaultValue}
           className={cn("w-full")}
+          disabled={!isCreator}
         />
 
         <hr />
@@ -74,27 +76,35 @@ export function GroupBasicInfoForm({ group }: Props) {
         <p className="text-sm">作成者: {group.creator.name}</p>
 
         <p className="text-sm">
-          作成日: {new Date(group.createdAt).toLocaleString("ja-JP")}
+          作成日:{" "}
+          {new Date(group.createdAt).toLocaleString("ja-JP", {
+            timeZone: "Asia/Tokyo",
+          })}
         </p>
 
         <p className="text-sm">
-          更新日: {new Date(group.updatedAt).toLocaleString("ja-JP")}
+          更新日:{" "}
+          {new Date(group.updatedAt).toLocaleString("ja-JP", {
+            timeZone: "Asia/Tokyo",
+          })}
         </p>
 
-        <div className={cn("flex justify-end gap-5")}>
-          <Button
-            type="button"
-            isDisabled={isDeleting}
-            color="error"
-            colorStyle="outline"
-            onPress={() => setIsDialogOpen(true)}
-          >
-            グループ削除
-          </Button>
-          <Button type="submit" isDisabled={isUpdating}>
-            {isUpdating ? "更新中..." : "更新"}
-          </Button>
-        </div>
+        {isCreator && (
+          <div className={cn("flex justify-end gap-5")}>
+            <Button
+              type="button"
+              isDisabled={isDeleting}
+              color="error"
+              colorStyle="outline"
+              onPress={() => setIsDialogOpen(true)}
+            >
+              グループ削除
+            </Button>
+            <Button type="submit" isDisabled={isUpdating}>
+              {isUpdating ? "更新中..." : "更新"}
+            </Button>
+          </div>
+        )}
       </form>
 
       <form ref={deleteFormRef} action={deleteAction} className="hidden">

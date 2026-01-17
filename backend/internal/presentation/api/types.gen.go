@@ -28,6 +28,12 @@ const (
 	LendingGetResponseRolePayer  LendingGetResponseRole = "payer"
 )
 
+// Defines values for CreditsListParamsOrderBy.
+const (
+	Asc  CreditsListParamsOrderBy = "asc"
+	Desc CreditsListParamsOrderBy = "desc"
+)
+
 // AuthSignupRequest defines model for Auth.SignupRequest.
 type AuthSignupRequest struct {
 	Avatar string `json:"avatar"`
@@ -298,6 +304,15 @@ type UserUpdateRequest struct {
 	Avatar string `json:"avatar"`
 	Name   string `json:"name"`
 }
+
+// CreditsListParams defines parameters for CreditsList.
+type CreditsListParams struct {
+	// OrderBy ソート順を指定（asc: 金額昇順、desc: 金額降順）
+	OrderBy *CreditsListParamsOrderBy `form:"order_by,omitempty" json:"order_by,omitempty"`
+}
+
+// CreditsListParamsOrderBy defines parameters for CreditsList.
+type CreditsListParamsOrderBy string
 
 // LendingGetAllParams defines parameters for LendingGetAll.
 type LendingGetAllParams struct {

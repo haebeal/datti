@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { GroupSelector } from "@/features/group/components/group-selector";
@@ -143,10 +144,12 @@ export function Sidebar({ groups, user }: SidebarProps) {
           <div className={cn("flex flex-col gap-3")}>
             <div className={cn("flex items-center gap-3", "px-2")}>
               {user.avatar ? (
-                <img
+                <Image
                   src={user.avatar}
                   alt={user.name}
-                  className={cn("w-10 h-10 rounded-full")}
+                  width={40}
+                  height={40}
+                  className={cn("w-10 h-10 rounded-full object-cover")}
                 />
               ) : (
                 <div

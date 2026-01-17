@@ -1,26 +1,31 @@
 "use server";
 
-import { apiClient } from "@/libs/api/client";
-import type { Result } from "@/schema";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
+import { createApiClient } from "@/libs/api/client";
+import type { Result } from "@/utils/types";
 import type { GroupMember } from "../types";
 
 export async function getMembers(
   groupId: string,
 ): Promise<Result<GroupMember[]>> {
-  try {
-    const response = await apiClient.get<GroupMember[]>(
-      `/groups/${groupId}/members`,
-    );
-    return {
-      success: true,
-      result: response,
-      error: null,
-    };
-  } catch (error) {
+  const token = await getAuthToken();
+  const client = createApiClient(token);
+
+  const { data, error } = await client.GET("/groups/{id}/members", {
+    params: { path: { id: groupId } },
+  });
+
+  if (error) {
     return {
       success: false,
       result: null,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error.message,
     };
   }
+
+  return {
+    success: true,
+    result: data,
+    error: null,
+  };
 }

@@ -14,7 +14,7 @@ type LendingHandler interface {
 }
 
 type CreditHandler interface {
-	List(c echo.Context) error
+	List(c echo.Context, params api.CreditsListParams) error
 }
 
 type HealthHandler interface {
@@ -95,8 +95,8 @@ func (s *Server) LendingDelete(ctx echo.Context, id string, lendingId string) er
 	return s.lh.Delete(ctx, id, lendingId)
 }
 
-func (s *Server) CreditsList(ctx echo.Context) error {
-	return s.ch.List(ctx)
+func (s *Server) CreditsList(ctx echo.Context, params api.CreditsListParams) error {
+	return s.ch.List(ctx, params)
 }
 
 func (s *Server) HealthCheck(ctx echo.Context) error {

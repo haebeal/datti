@@ -1,13 +1,20 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { deleteSession } from "@/libs/session/session";
 
 /**
  * ログアウトエンドポイント
- * Cookieからトークンを削除
+ * Redisからセッションを削除し、Cookieを削除
  */
 export async function POST() {
   const cookieStore = await cookies();
-  cookieStore.delete("firebase_token");
+  const sessionId = cookieStore.get("session_id")?.value;
+
+  if (sessionId) {
+    await deleteSession(sessionId);
+  }
+
+  cookieStore.delete("session_id");
 
   return NextResponse.json({ success: true });
 }

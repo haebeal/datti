@@ -32,7 +32,7 @@ export function Select<T>(props: Props<T>) {
     required,
     disabled,
     autoComplete,
-    form
+    form,
   } = props;
 
   const [selectedKey, setSelectedKey] = useState<string | null>(

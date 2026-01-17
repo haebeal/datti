@@ -1,6 +1,6 @@
 import { CreditCard } from "../credit-card";
 import { cn } from "@/utils/cn";
-import { formatCurrency } from "@/schema";
+import { formatCurrency } from "@/utils/format";
 import type { Credit } from "../../types";
 
 type Props = {

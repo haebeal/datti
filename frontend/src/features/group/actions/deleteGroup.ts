@@ -2,7 +2,8 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { apiClient } from "@/libs/api/client";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
+import { createApiClient } from "@/libs/api/client";
 
 export type DeleteGroupState =
   | {
@@ -15,12 +16,15 @@ export async function deleteGroup(
   _: DeleteGroupState,
   _formData: FormData,
 ): Promise<DeleteGroupState> {
-  try {
-    await apiClient.delete(`/groups/${groupId}`);
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
+  const token = await getAuthToken();
+  const client = createApiClient(token);
+
+  const { error } = await client.DELETE("/groups/{id}", {
+    params: { path: { id: groupId } },
+  });
+
+  if (error) {
+    return { error: error.message };
   }
 
   // グループ一覧とレイアウトを再検証

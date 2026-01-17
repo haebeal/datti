@@ -82,7 +82,17 @@ paths:
     get:
       operationId: Credits_list
       summary: 債権一覧の取得
-      parameters: []
+      parameters:
+        - name: order_by
+          in: query
+          required: false
+          description: "ソート順を指定（asc: 金額昇順、desc: 金額降順）"
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: asc
       responses:
         '200':
           description: The request has succeeded.

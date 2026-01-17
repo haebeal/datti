@@ -34,7 +34,7 @@ export function DatePicker(props: Props) {
   const [isOpen, setOpen] = useState(false);
   const [value, setValue] = useState(
     typeof defaultValue === "string"
-      ? parseDate(new Date(defaultValue).toLocaleDateString("sv-SE"))
+      ? parseDate(defaultValue.split("T")[0])
       : null,
   );
 
@@ -49,7 +49,8 @@ export function DatePicker(props: Props) {
       }}
     >
       <Group>
-        <div
+        <button
+          type="button"
           onClick={(e) => {
             setOpen(true);
             e.currentTarget.blur();
@@ -60,26 +61,24 @@ export function DatePicker(props: Props) {
             else if (e.code === "Escape") e.currentTarget.blur();
           }}
           className={cn(
-            "flex items-center justify-between",
+            "flex items-center justify-between w-full text-left",
             "px-3 py-2",
             "border rounded-md",
             "focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
             "hover:cursor-text",
             isError && "border-red-500",
           )}
-          // biome-ignore lint/a11y/noNoninteractiveTabindex: <explanation>
-          tabIndex={0}
         >
           {value ? (
             <p>{value.toString()}</p>
           ) : (
             <p className="text-gray-400">{placeholder}</p>
           )}
-        </div>
+        </button>
         <input
           {...rest}
           ref={ref}
-          value={value?.toDate("Asia/Tokyo").toISOString() ?? ""}
+          value={value?.toString() ?? ""}
           type="hidden"
         />
       </Group>

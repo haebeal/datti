@@ -1,13 +1,11 @@
 "use server";
 
-import { apiClient } from "@/libs/api/client";
-import { formatDate, type Result } from "@/schema";
-import type {
-	Lending,
-	LendingItem,
-	PaginatedLendingItems,
-	PaginatedLendingResponse,
-} from "../types";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
+import { createApiClient } from "@/libs/api/client";
+import { formatDate } from "@/utils/format";
+import type { Result } from "@/utils/types";
+import type { Lending, LendingItem, PaginatedLendingItems } from "../types";
+import type { Borrowing } from "@/features/borrowing/types";
 
 type GetAllLendingsParams = {
 	limit?: number;
@@ -36,27 +34,27 @@ function convertToLendingItems(lendings: Lending[]): LendingItem[] {
 }
 
 export async function getAllLendings(
-	groupId: string,
-	params?: GetAllLendingsParams,
+  groupId: string,
+  params?: GetAllLendingsParams,
 ): Promise<Result<PaginatedLendingItems>> {
 	try {
-		const searchParams = new URLSearchParams();
+    const token = await getAuthToken();
+    const client = createApiClient(token);
 
-		if (params?.limit) {
-			searchParams.set("limit", params.limit.toString());
-		}
-		if (params?.cursor) {
-			searchParams.set("cursor", params.cursor);
-		}
+		const response = await client.GET("/groups/{id}/lendings", {
+          params: {
+            path: { id: groupId },
+            query: {
+              limit: params?.limit,
+              cursor: params?.cursor,
+            },
+          },
+        })
+;
 
-		const query = searchParams.toString();
-		const url = query
-			? `/groups/${groupId}/lendings?${query}`
-			: `/groups/${groupId}/lendings`;
-
-		const response = await apiClient.get<PaginatedLendingResponse>(url);
-
-		const items = convertToLendingItems(response.lendings);
+		const items = convertToLendingItems(
+			response.lendings,
+		);
 
 		return {
 			success: true,

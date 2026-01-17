@@ -2,9 +2,9 @@
 
 import { parseWithZod } from "@conform-to/zod";
 import { redirect } from "next/navigation";
-import { apiClient } from "@/libs/api/client";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
+import { createApiClient } from "@/libs/api/client";
 import { createRepaymentSchema } from "../schema";
-import type { Repayment } from "../types";
 
 export async function createRepayment(_: unknown, formData: FormData) {
   const submission = parseWithZod(formData, {
@@ -17,19 +17,18 @@ export async function createRepayment(_: unknown, formData: FormData) {
 
   const { debtorId, amount } = submission.value;
 
-  let response: Repayment;
+  const token = await getAuthToken();
+  const client = createApiClient(token);
 
-  try {
-    response = await apiClient.post<Repayment>("/repayments", {
-      debtorId,
-      amount,
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+  const { data, error } = await client.POST("/repayments", {
+    body: { debtorId, amount },
+  });
+
+  if (error) {
     return submission.reply({
-      formErrors: [message],
+      formErrors: [error.message],
     });
   }
 
-  redirect(`/repayments/${response.id}`);
+  redirect(`/repayments/${data.id}`);
 }

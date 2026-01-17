@@ -19,10 +19,7 @@ function LendingListSkeleton() {
   return (
     <div className={cn("flex flex-col gap-4")}>
       {[...Array(3)].map((_, i) => (
-        <div
-          key={i}
-          className={cn("p-4 border rounded-lg animate-pulse")}
-        >
+        <div key={i} className={cn("p-4 border rounded-lg animate-pulse")}>
           <div className={cn("flex justify-between items-start")}>
             <div className={cn("space-y-2")}>
               <div className={cn("h-5 w-32 bg-gray-200 rounded")} />

@@ -1,34 +1,37 @@
 "use client";
 
-import { use, useState, useTransition, useEffect } from "react";
+import { use, useState, useTransition, useEffect, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
 import { cn } from "@/utils/cn";
-import { formatCurrency } from "@/schema";
+import { formatCurrency } from "@/utils/format";
 import { LinkButton } from "@/components/ui/link-button";
 import type { LendingItem, PaginatedLendingItems } from "../types";
 import { getAllLendings } from "../actions/getAllLendings";
 
 type Props = {
-	groupId: string;
-	initialDataPromise: Promise<PaginatedLendingItems>;
+  groupId: string;
+  initialDataPromise: Promise<PaginatedLendingItems>;
 };
 
 export function LendingList({ groupId, initialDataPromise }: Props) {
-	const initialData = use(initialDataPromise);
+  const initialData = use(initialDataPromise);
 
 	const [items, setItems] = useState<LendingItem[]>(initialData.items);
-	const [cursor, setCursor] = useState<string | null>(initialData.nextCursor);
-	const [hasMore, setHasMore] = useState(initialData.hasMore);
+	const [lendingsCursor, setLendingsCursor] = useState<string | null>(
+		initialData.nextCursor,
+	);
+  const [cursor, setCursor] = useState<string | null>(initialData.nextCursor);
+  const [hasMore, setHasMore] = useState(initialData.hasMore)
 	const [isPending, startTransition] = useTransition();
 
-	const { ref, inView } = useInView({
-		threshold: 0,
-		rootMargin: "100px",
-	});
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "100px",
+  });
 
-	const loadMore = () => {
-		if (!hasMore || isPending) return;
+  const loadMore = useCallback(() => {
+    if (!hasMore || isPending) return;
 
 		startTransition(async () => {
 			const result = await getAllLendings(groupId, {
@@ -40,33 +43,39 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
 				setHasMore(result.result.hasMore);
 			}
 		});
-	};
+    
+	},[
+    hasMore,
+    isPending,
+    groupId,
+    cursor,
+  ]);
 
-	useEffect(() => {
-		if (inView && hasMore && !isPending) {
-			loadMore();
-		}
-	}, [inView, hasMore, isPending]);
+  useEffect(() => {
+    if (inView && hasMore && !isPending) {
+      loadMore();
+    }
+  }, [inView, hasMore, isPending, loadMore]);
 
-	if (items.length === 0) {
-		return (
-			<div className={cn("p-4", "flex flex-col gap-3", "border rounded-lg")}>
-				<p className={cn("text-center text-gray-500")}>
-					イベントがまだありません
-				</p>
-				<div className={cn("flex justify-center")}>
-					<LinkButton href={`/groups/${groupId}/lendings/new`}>
-						新規作成
-					</LinkButton>
-				</div>
-			</div>
-		);
-	}
+  if (items.length === 0) {
+    return (
+      <div className={cn("p-4", "flex flex-col gap-3", "border rounded-lg")}>
+        <p className={cn("text-center text-gray-500")}>
+          イベントがまだありません
+        </p>
+        <div className={cn("flex justify-center")}>
+          <LinkButton href={`/groups/${groupId}/lendings/new`}>
+            新規作成
+          </LinkButton>
+        </div>
+      </div>
+    );
+  }
 
-	return (
-		<div className={cn("flex flex-col gap-4")}>
-			{items.map((item) => {
-				const isPositive = item.amount >= 0;
+  return (
+    <div className={cn("flex flex-col gap-4")}>
+      {items.map((item) => {
+        const isPositive = item.amount >= 0;
 
 				return (
 					<Link
@@ -108,18 +117,18 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
 				);
 			})}
 
-			{/* Sentinel element for infinite scroll */}
-			<div ref={ref} className={cn("h-4")} />
+      {/* Sentinel element for infinite scroll */}
+      <div ref={ref} className={cn("h-4")} />
 
-			{isPending && (
-				<div className={cn("flex justify-center py-4")}>
-					<div
-						className={cn(
-							"w-6 h-6 border-2 border-primary-base border-t-transparent rounded-full animate-spin",
-						)}
-					/>
-				</div>
-			)}
-		</div>
-	);
+      {isPending && (
+        <div className={cn("flex justify-center py-4")}>
+          <div
+            className={cn(
+              "w-6 h-6 border-2 border-primary-base border-t-transparent rounded-full animate-spin",
+            )}
+          />
+        </div>
+      )}
+    </div>
+  );
 }

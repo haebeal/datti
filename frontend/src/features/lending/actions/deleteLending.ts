@@ -1,7 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { apiClient } from "@/libs/api/client";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
+import { createApiClient } from "@/libs/api/client";
 
 export type DeleteLendingState =
   | {
@@ -15,12 +16,15 @@ export async function deleteLending(
   _: DeleteLendingState,
   _formData: FormData,
 ): Promise<DeleteLendingState> {
-  try {
-    await apiClient.delete(`/groups/${groupId}/lendings/${lendingId}`);
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : "Unknown error",
-    };
+  const token = await getAuthToken();
+  const client = createApiClient(token);
+
+  const { error } = await client.DELETE("/groups/{id}/lendings/{lendingId}", {
+    params: { path: { id: groupId, lendingId } },
+  });
+
+  if (error) {
+    return { error: error.message };
   }
 
   redirect(`/groups/${groupId}/lendings`);

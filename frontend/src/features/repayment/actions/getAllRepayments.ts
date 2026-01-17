@@ -1,12 +1,9 @@
 "use server";
 
-import { apiClient } from "@/libs/api/client";
-import type { Result } from "@/schema";
-import type {
-  Repayment,
-  PaginatedRepaymentResponse,
-  PaginatedRepayments,
-} from "../types";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
+import { createApiClient } from "@/libs/api/client";
+import type { Result } from "@/utils/types";
+import type { Repayment, PaginatedRepayments } from "../types";
 import type { User } from "@/features/user/types";
 
 type GetAllRepaymentsParams = {
@@ -17,62 +14,73 @@ type GetAllRepaymentsParams = {
 export async function getAllRepayments(
   params?: GetAllRepaymentsParams,
 ): Promise<Result<PaginatedRepayments>> {
-  try {
-    // Build query string
-    const searchParams = new URLSearchParams();
-    if (params?.limit) {
-      searchParams.set("limit", params.limit.toString());
-    }
-    if (params?.cursor) {
-      searchParams.set("cursor", params.cursor);
-    }
-    const query = searchParams.toString();
-    const url = query ? `/repayments?${query}` : "/repayments";
+  const token = await getAuthToken();
+  const client = createApiClient(token);
 
-    // Fetch repayments with pagination
-    const data = await apiClient.get<PaginatedRepaymentResponse>(url);
-
-    // Extract unique user IDs
-    const userIds = new Set<string>();
-    data.repayments.forEach((repayment) => {
-      userIds.add(repayment.payerId);
-      userIds.add(repayment.debtorId);
-    });
-
-    // Fetch all users in parallel
-    const users = await Promise.all(
-      Array.from(userIds).map((userId) =>
-        apiClient.get<User>(`/users/${userId}`),
-      ),
-    );
-
-    // Create user map for O(1) lookup
-    const userMap = new Map(users.map((user) => [user.id, user]));
-
-    // Transform to frontend Repayment type
-    const repayments: Repayment[] = data.repayments.map((response) => ({
-      id: response.id,
-      payer: userMap.get(response.payerId)!,
-      debtor: userMap.get(response.debtorId)!,
-      amount: response.amount,
-      createdAt: response.createdAt,
-      updatedAt: response.updatedAt,
-    }));
-
-    return {
-      success: true,
-      result: {
-        repayments,
-        nextCursor: data.nextCursor,
-        hasMore: data.hasMore,
+  // Fetch repayments with pagination
+  const { data, error } = await client.GET("/repayments", {
+    params: {
+      query: {
+        limit: params?.limit,
+        cursor: params?.cursor,
       },
-      error: null,
-    };
-  } catch (error) {
+    },
+  });
+
+  if (error) {
     return {
       success: false,
       result: null,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error.message,
     };
   }
+
+  // Extract unique user IDs
+  const userIds = new Set<string>();
+  for (const repayment of data.repayments) {
+    userIds.add(repayment.payerId);
+    userIds.add(repayment.debtorId);
+  }
+
+  // Fetch all users in parallel
+  const userResults = await Promise.all(
+    Array.from(userIds).map((userId) =>
+      client.GET("/users/{id}", { params: { path: { id: userId } } }),
+    ),
+  );
+
+  // Create user map for O(1) lookup
+  const userMap = new Map<string, User>();
+  for (const result of userResults) {
+    if (result.data) {
+      userMap.set(result.data.id, result.data);
+    }
+  }
+
+  // Transform to frontend Repayment type
+  const repayments: Repayment[] = data.repayments
+    .map((response) => {
+      const payer = userMap.get(response.payerId);
+      const debtor = userMap.get(response.debtorId);
+      if (!payer || !debtor) return null;
+      return {
+        id: response.id,
+        payer,
+        debtor,
+        amount: response.amount,
+        createdAt: response.createdAt,
+        updatedAt: response.updatedAt,
+      };
+    })
+    .filter((repayment): repayment is Repayment => repayment !== null);
+
+  return {
+    success: true,
+    result: {
+      repayments,
+      nextCursor: data.nextCursor ?? null,
+      hasMore: data.hasMore,
+    },
+    error: null,
+  };
 }

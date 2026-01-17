@@ -23,7 +23,6 @@ export function Button(props: Props) {
       switch (color) {
         case "error":
           return "border border-error-base hover:bg-error-base hover:text-white disabled:hover:bg-transparent disabled:hover:text-error-base text-error-base focus:ring-error-base";
-        case "primary":
         default:
           return "border border-primary-base hover:bg-primary-base hover:text-white disabled:hover:bg-transparent disabled:hover:text-primary-base text-primary-base focus:ring-primary-base";
       }
@@ -32,7 +31,6 @@ export function Button(props: Props) {
       switch (color) {
         case "error":
           return "border border-error-base bg-error-base hover:bg-transparent hover:text-error-base hover:ring-error-base disabled:hover:bg-error-base disabled:hover:text-white disabled:hover:ring-transparent active:bg-error-active text-white focus:ring-error-base";
-        case "primary":
         default:
           return "border border-primary-base bg-primary-base hover:bg-transparent hover:text-primary-base hover:ring-primary-base disabled:hover:bg-primary-base disabled:hover:text-white disabled:hover:ring-transparent active:bg-primary-active text-white focus:ring-primary-base";
       }

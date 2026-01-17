@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { createSession } from "@/libs/session/session";
 
@@ -31,6 +31,9 @@ interface FirebaseSignInResponse {
  * ログイン試行 → 失敗したら自動登録
  */
 export async function GET(request: NextRequest) {
+  // cookies() はリクエストスコープ内で最初に呼び出す必要がある
+  const cookieStore = await cookies();
+
   const searchParams = request.nextUrl.searchParams;
   const code = searchParams.get("code");
   const error = searchParams.get("error");
@@ -53,8 +56,8 @@ export async function GET(request: NextRequest) {
       },
       body: new URLSearchParams({
         code,
-        client_id: GOOGLE_CLIENT_ID!,
-        client_secret: GOOGLE_CLIENT_SECRET!,
+        client_id: GOOGLE_CLIENT_ID,
+        client_secret: GOOGLE_CLIENT_SECRET,
         redirect_uri: `${APP_URL}/api/auth/google/callback`,
         grant_type: "authorization_code",
       }),
@@ -109,10 +112,9 @@ export async function GET(request: NextRequest) {
       const sessionId = await createSession(
         firebaseIdToken,
         firebaseData.refreshToken,
-        Number.parseInt(firebaseData.expiresIn)
+        Number.parseInt(firebaseData.expiresIn, 10),
       );
 
-      const cookieStore = await cookies();
       cookieStore.set("session_id", sessionId, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -145,10 +147,9 @@ export async function GET(request: NextRequest) {
         const sessionId = await createSession(
           firebaseIdToken,
           firebaseData.refreshToken,
-          Number.parseInt(firebaseData.expiresIn)
+          Number.parseInt(firebaseData.expiresIn, 10),
         );
 
-        const cookieStore = await cookies();
         cookieStore.set("session_id", sessionId, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
@@ -163,7 +164,9 @@ export async function GET(request: NextRequest) {
       // サインアップ失敗
       const errorData = await signupResponse.text();
       console.error("Signup failed:", signupResponse.status, errorData);
-      return NextResponse.redirect(new URL("/auth?error=signup_failed", APP_URL));
+      return NextResponse.redirect(
+        new URL("/auth?error=signup_failed", APP_URL),
+      );
     }
 
     // その他のエラー

@@ -2,9 +2,9 @@
 
 import { parseWithZod } from "@conform-to/zod";
 import { redirect } from "next/navigation";
-import { apiClient } from "@/libs/api/client";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
+import { createApiClient } from "@/libs/api/client";
 import { createLendingSchema } from "../schema";
-import type { Lending } from "../types";
 
 export async function createLending(
   groupId: string,
@@ -20,35 +20,25 @@ export async function createLending(
   }
 
   const { name, amount, eventDate, debts } = submission.value;
-  const normalizedEventDate = normalizeEventDate(eventDate);
 
-  let response: Lending;
+  const token = await getAuthToken();
+  const client = createApiClient(token);
 
-  try {
-    response = await apiClient.post<Lending>(
-      `/groups/${groupId}/lendings`,
-      {
-        name,
-        amount,
-        eventDate: normalizedEventDate,
-        debts,
-      },
-    );
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+  const { data, error } = await client.POST("/groups/{id}/lendings", {
+    params: { path: { id: groupId } },
+    body: {
+      name,
+      amount,
+      eventDate: `${eventDate}T00:00:00+09:00`,
+      debts,
+    },
+  });
+
+  if (error) {
     return submission.reply({
-      formErrors: [message],
+      formErrors: [error.message],
     });
   }
 
-  // redirect は try ブロックの外で呼ぶ
-  redirect(`/groups/${groupId}/lendings/${response.id}`);
-}
-
-function normalizeEventDate(value: string) {
-  const parsed = new Date(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return value;
-  }
-  return parsed.toISOString();
+  redirect(`/groups/${groupId}/lendings/${data.id}`);
 }

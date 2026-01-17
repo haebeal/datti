@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"sort"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
@@ -37,7 +38,7 @@ func NewCreditHandler(u CreditUseCase) creditHandler {
 	}
 }
 
-func (h creditHandler) List(c echo.Context) error {
+func (h creditHandler) List(c echo.Context, params api.CreditsListParams) error {
 	ctx, span := tracer.Start(c.Request().Context(), "credit.List")
 	defer span.End()
 
@@ -79,6 +80,19 @@ func (h creditHandler) List(c echo.Context) error {
 			Amount: amount,
 		})
 	}
+
+	// ソート: デフォルトは昇順（asc）
+	orderBy := api.Asc
+	if params.OrderBy != nil {
+		orderBy = *params.OrderBy
+	}
+
+	sort.Slice(summaries, func(i, j int) bool {
+		if orderBy == api.Desc {
+			return summaries[i].Amount > summaries[j].Amount
+		}
+		return summaries[i].Amount < summaries[j].Amount
+	})
 
 	return c.JSON(http.StatusOK, summaries)
 }

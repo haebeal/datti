@@ -2,9 +2,10 @@
 
 import { parseWithZod } from "@conform-to/zod";
 import { revalidatePath } from "next/cache";
-import { apiClient } from "@/libs/api/client";
+import { redirect } from "next/navigation";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
+import { createApiClient } from "@/libs/api/client";
 import { updateRepaymentSchema } from "../schema";
-import type { Repayment } from "../types";
 
 export async function updateRepayment(
   id: string,
@@ -21,18 +22,22 @@ export async function updateRepayment(
 
   const { amount } = submission.value;
 
-  try {
-    await apiClient.put<Repayment>(`/repayments/${id}`, {
-      amount,
-    });
-    revalidatePath(`/repayments/${id}/edit`);
-    revalidatePath(`/repayments/${id}`);
-    revalidatePath("/repayments");
-    return submission.reply({ resetForm: true });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
+  const token = await getAuthToken();
+  const client = createApiClient(token);
+
+  const { error } = await client.PUT("/repayments/{id}", {
+    params: { path: { id } },
+    body: { amount },
+  });
+
+  if (error) {
     return submission.reply({
-      formErrors: [message],
+      formErrors: [error.message],
     });
   }
+
+  revalidatePath(`/repayments/${id}/edit`);
+  revalidatePath(`/repayments/${id}`);
+  revalidatePath("/repayments");
+  redirect(`/repayments/${id}`);
 }

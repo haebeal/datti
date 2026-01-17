@@ -1,7 +1,8 @@
 "use server";
 
-import { apiClient } from "@/libs/api/client";
-import type { Result } from "@/schema";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
+import { createApiClient } from "@/libs/api/client";
+import type { Result } from "@/utils/types";
 import type { User } from "../types";
 
 type SearchUsersParams = {
@@ -13,25 +14,30 @@ type SearchUsersParams = {
 export async function searchUsers(
   params?: SearchUsersParams,
 ): Promise<Result<User[]>> {
-  try {
-    const searchParams = new URLSearchParams();
-    if (params?.name) searchParams.set("name", params.name);
-    if (params?.email) searchParams.set("email", params.email);
-    if (params?.limit) searchParams.set("limit", params.limit.toString());
+  const token = await getAuthToken();
+  const client = createApiClient(token);
 
-    const url = `/users${searchParams.toString() ? `?${searchParams.toString()}` : ""}`;
-    const response = await apiClient.get<User[]>(url);
+  const { data, error } = await client.GET("/users", {
+    params: {
+      query: {
+        name: params?.name,
+        email: params?.email,
+        limit: params?.limit,
+      },
+    },
+  });
 
-    return {
-      success: true,
-      result: response,
-      error: null,
-    };
-  } catch (error) {
+  if (error) {
     return {
       success: false,
       result: null,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error.message,
     };
   }
+
+  return {
+    success: true,
+    result: data,
+    error: null,
+  };
 }

@@ -5,37 +5,37 @@
 export type LendingRole = "payer" | "debtor";
 
 export type Lending = {
-	id: string;
-	name: string;
-	amount: number;
-	eventDate: string;
-	debts: Debt[];
+  id: string;
+  name: string;
+  amount: number;
+  eventDate: string;
+  debts: Debt[];
 	role: LendingRole;
 	payerId: string;
-	createdAt: string;
-	updatedAt: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Debt = {
-	userId: string;
-	amount: number;
+  userId: string;
+  amount: number;
 };
 
 export type CreateLendingRequest = {
-	name: string;
-	amount: number;
-	eventDate: Date;
-	debts: Debt[];
+  name: string;
+  amount: number;
+  eventDate: Date;
+  debts: Debt[];
 };
 
 export type UpdateLendingRequest = CreateLendingRequest & {
-	id: string;
+  id: string;
 };
 
 export type PaginatedLendingResponse = {
-	lendings: Lending[];
-	nextCursor: string | null;
-	hasMore: boolean;
+  lendings: Lending[];
+  nextCursor: string | null;
+  hasMore: boolean;
 };
 
 /**

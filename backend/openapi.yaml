@@ -1399,8 +1399,7 @@ components:
         - amount
         - eventDate
         - debts
-        - role
-        - payerId
+        - createdBy
         - createdAt
         - updatedAt
       properties:
@@ -1418,15 +1417,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Lending.DebtParmam'
-        role:
+        createdBy:
           type: string
-          enum:
-            - payer
-            - debtor
-          description: "ユーザーの役割（payer: 支払者、debtor: 債務者）"
-        payerId:
-          type: string
-          description: "支払者のユーザーID"
+          description: "イベント作成者のユーザーID（Firebase UID）"
         createdAt:
           type: string
           format: date-time
@@ -1441,8 +1434,7 @@ components:
         - amount
         - eventDate
         - debts
-        - role
-        - payerId
+        - createdBy
         - createdAt
         - updatedAt
       properties:
@@ -1460,15 +1452,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Lending.DebtParmam'
-        role:
+        createdBy:
           type: string
-          enum:
-            - payer
-            - debtor
-          description: "ユーザーの役割（payer: 支払者、debtor: 債務者）"
-        payerId:
-          type: string
-          description: "支払者のユーザーID"
+          description: "イベント作成者のユーザーID（Firebase UID）"
         createdAt:
           type: string
           format: date-time

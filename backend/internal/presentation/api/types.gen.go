@@ -16,18 +16,6 @@ const (
 	Ok HealthCheckResponseStatus = "ok"
 )
 
-// Defines values for LendingGetAllResponseRole.
-const (
-	LendingGetAllResponseRoleDebtor LendingGetAllResponseRole = "debtor"
-	LendingGetAllResponseRolePayer  LendingGetAllResponseRole = "payer"
-)
-
-// Defines values for LendingGetResponseRole.
-const (
-	LendingGetResponseRoleDebtor LendingGetResponseRole = "debtor"
-	LendingGetResponseRolePayer  LendingGetResponseRole = "payer"
-)
-
 // Defines values for CreditsListParamsOrderBy.
 const (
 	Asc  CreditsListParamsOrderBy = "asc"
@@ -155,43 +143,31 @@ type LendingDebtParmam struct {
 
 // LendingGetAllResponse defines model for Lending.GetAllResponse.
 type LendingGetAllResponse struct {
-	Amount    uint64              `json:"amount"`
-	CreatedAt time.Time           `json:"createdAt"`
+	Amount    uint64    `json:"amount"`
+	CreatedAt time.Time `json:"createdAt"`
+
+	// CreatedBy イベント作成者のユーザーID（Firebase UID）
+	CreatedBy string              `json:"createdBy"`
 	Debts     []LendingDebtParmam `json:"debts"`
 	EventDate time.Time           `json:"eventDate"`
 	Id        string              `json:"id"`
 	Name      string              `json:"name"`
-
-	// PayerId 支払者のユーザーID
-	PayerId string `json:"payerId"`
-
-	// Role ユーザーの役割（payer: 支払者、debtor: 債務者）
-	Role      LendingGetAllResponseRole `json:"role"`
-	UpdatedAt time.Time                 `json:"updatedAt"`
+	UpdatedAt time.Time           `json:"updatedAt"`
 }
-
-// LendingGetAllResponseRole ユーザーの役割（payer: 支払者、debtor: 債務者）
-type LendingGetAllResponseRole string
 
 // LendingGetResponse defines model for Lending.GetResponse.
 type LendingGetResponse struct {
-	Amount    uint64              `json:"amount"`
-	CreatedAt time.Time           `json:"createdAt"`
+	Amount    uint64    `json:"amount"`
+	CreatedAt time.Time `json:"createdAt"`
+
+	// CreatedBy イベント作成者のユーザーID（Firebase UID）
+	CreatedBy string              `json:"createdBy"`
 	Debts     []LendingDebtParmam `json:"debts"`
 	EventDate time.Time           `json:"eventDate"`
 	Id        string              `json:"id"`
 	Name      string              `json:"name"`
-
-	// PayerId 支払者のユーザーID
-	PayerId string `json:"payerId"`
-
-	// Role ユーザーの役割（payer: 支払者、debtor: 債務者）
-	Role      LendingGetResponseRole `json:"role"`
-	UpdatedAt time.Time              `json:"updatedAt"`
+	UpdatedAt time.Time           `json:"updatedAt"`
 }
-
-// LendingGetResponseRole ユーザーの役割（payer: 支払者、debtor: 債務者）
-type LendingGetResponseRole string
 
 // LendingPaginatedResponse defines model for Lending.PaginatedResponse.
 type LendingPaginatedResponse struct {

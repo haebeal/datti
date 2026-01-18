@@ -135,26 +135,19 @@ func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserIDWithPagination(
 			span.RecordError(err)
 			return nil, err
 		}
-		payerID, err := ulid.Parse(l.PayerID)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
 		amount, err := domain.NewAmount(int64(l.Amount))
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
 			return nil, err
 		}
-		// Convert role string to LendingRole
-		var role domain.LendingRole
-		if l.Role == "payer" {
-			role = domain.LendingRolePayer
-		} else {
-			role = domain.LendingRoleDebtor
+		createdBy, err := domain.NewUID(l.CreatedBy)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
 		}
-		lending, err := domain.NewLendingWithRole(eventID, eventGroupID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt, role, payerID)
+		lending, err := domain.NewLendingWithCreatedBy(eventID, eventGroupID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt, createdBy)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)

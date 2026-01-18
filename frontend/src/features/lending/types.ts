@@ -8,6 +8,7 @@ export type Lending = {
   amount: number;
   eventDate: string;
   debts: Debt[];
+  createdBy: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -35,29 +36,19 @@ export type PaginatedLendingResponse = {
 };
 
 /**
- * Discriminated union for lending items (includes borrowings)
+ * Lending item for list display
  */
-export type LendingItem =
-  | {
-      type: "lending";
-      id: string;
-      name: string;
-      amount: number;
-      eventDate: string;
-      debtsCount: number;
-    }
-  | {
-      type: "borrowing";
-      id: string;
-      name: string;
-      amount: number;
-      eventDate: string;
-    };
+export type LendingItem = {
+  id: string;
+  name: string;
+  amount: number;
+  eventDate: string;
+  createdBy: string;
+  debtsCount: number;
+};
 
 export type PaginatedLendingItems = {
   items: LendingItem[];
-  lendingsCursor: string | null;
-  borrowingsCursor: string | null;
-  lendingsHasMore: boolean;
-  borrowingsHasMore: boolean;
+  nextCursor: string | null;
+  hasMore: boolean;
 };

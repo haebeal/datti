@@ -270,40 +270,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/groups/{id}/borrowings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** グループ内の借り一覧取得 */
-        get: operations["Borrowing_getAll"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/groups/{id}/borrowings/{borrowingId}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** グループ内の借り取得 */
-        get: operations["Borrowing_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -318,37 +284,6 @@ export interface components {
             name: string;
             email: string;
             avatar: string;
-        };
-        "Borrowing.GetAllResponse": {
-            id: string;
-            name: string;
-            /** Format: uint64 */
-            amount: number;
-            /** Format: date-time */
-            eventDate: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        "Borrowing.GetResponse": {
-            id: string;
-            name: string;
-            /** Format: uint64 */
-            amount: number;
-            /** Format: date-time */
-            eventDate: string;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        "Borrowing.PaginatedResponse": {
-            borrowings: components["schemas"]["Borrowing.GetAllResponse"][];
-            /** @description 次ページ用カーソル（次ページがない場合はnull） */
-            nextCursor?: string | null;
-            /** @description 次ページが存在するかどうか */
-            hasMore: boolean;
         };
         Credit: {
             userId: string;
@@ -465,6 +400,8 @@ export interface components {
             /** Format: date-time */
             eventDate: string;
             debts: components["schemas"]["Lending.DebtParmam"][];
+            /** @description イベント作成者のユーザーID（Firebase UID） */
+            createdBy: string;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -478,6 +415,8 @@ export interface components {
             /** Format: date-time */
             eventDate: string;
             debts: components["schemas"]["Lending.DebtParmam"][];
+            /** @description イベント作成者のユーザーID（Firebase UID） */
+            createdBy: string;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -1969,119 +1908,6 @@ export interface operations {
             };
             /** @description The server cannot find the requested resource. */
             404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    Borrowing_getAll: {
-        parameters: {
-            query?: {
-                /** @description 取得件数（デフォルト: 20、最大: 100） */
-                limit?: number;
-                /** @description 次ページ用カーソル（前回レスポンスの最後のID） */
-                cursor?: string;
-            };
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Borrowing.PaginatedResponse"];
-                };
-            };
-            /** @description Access is unauthorized. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Access is forbidden. */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Server error */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    Borrowing_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-                borrowingId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The request has succeeded. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["Borrowing.GetResponse"];
-                };
-            };
-            /** @description The server could not understand the request due to invalid syntax. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Access is unauthorized. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description Access is forbidden. */
-            403: {
                 headers: {
                     [name: string]: unknown;
                 };

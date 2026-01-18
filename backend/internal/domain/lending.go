@@ -8,7 +8,7 @@ import (
 	"github.com/oklog/ulid/v2"
 )
 
-// 貸したイベント
+// Lending は立て替えイベントを表す
 type Lending struct {
 	id        ulid.ULID
 	groupID   ulid.ULID
@@ -17,6 +17,7 @@ type Lending struct {
 	eventDate time.Time
 	createdAt time.Time
 	updatedAt time.Time
+	createdBy UID // イベント作成者（支払者）
 }
 
 func NewLending(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, eventDate time.Time, createdAt time.Time, updatedAt time.Time) (*Lending, error) {
@@ -39,6 +40,31 @@ func NewLending(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, ev
 		eventDate: eventDate,
 		createdAt: createdAt,
 		updatedAt: updatedAt,
+		createdBy: UID{},
+	}, nil
+}
+
+func NewLendingWithCreatedBy(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, eventDate time.Time, createdAt time.Time, updatedAt time.Time, createdBy UID) (*Lending, error) {
+	if len(name) < 1 {
+		return nil, fmt.Errorf("イベント名は1文字以上である必要があります: %v", name)
+	}
+	if groupID == (ulid.ULID{}) {
+		return nil, fmt.Errorf("groupID must not be nil")
+	}
+
+	if createdAt.After(updatedAt) {
+		return nil, fmt.Errorf("作成日は更新日より前である必要があります: %v", updatedAt)
+	}
+
+	return &Lending{
+		id:        id,
+		groupID:   groupID,
+		name:      name,
+		amount:    amount,
+		eventDate: eventDate,
+		createdAt: createdAt,
+		updatedAt: updatedAt,
+		createdBy: createdBy,
 	}, nil
 }
 
@@ -52,7 +78,12 @@ func CreateLending(groupID ulid.ULID, name string, amount *Amount, eventDate tim
 func (le *Lending) Update(name string, amount *Amount, eventDate time.Time) (*Lending, error) {
 	now := time.Now()
 
-	return NewLending(le.id, le.groupID, name, amount, eventDate, le.createdAt, now)
+	lending, err := NewLending(le.id, le.groupID, name, amount, eventDate, le.createdAt, now)
+	if err != nil {
+		return nil, err
+	}
+	lending.createdBy = le.createdBy
+	return lending, nil
 }
 
 // ID returns the ID of the lending event
@@ -86,6 +117,16 @@ func (le *Lending) CreatedAt() time.Time {
 // UpdatedAt returns the last update time of the lending event
 func (le *Lending) UpdatedAt() time.Time {
 	return le.updatedAt
+}
+
+// CreatedBy returns the creator's Firebase UID
+func (le *Lending) CreatedBy() UID {
+	return le.createdBy
+}
+
+// SetCreatedBy sets the creator's Firebase UID
+func (le *Lending) SetCreatedBy(createdBy UID) {
+	le.createdBy = createdBy
 }
 
 // LendingPaginationParams holds cursor-based pagination parameters

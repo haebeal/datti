@@ -17,22 +17,10 @@ type Props = {
 export function LendingList({ groupId, initialDataPromise }: Props) {
   const initialData = use(initialDataPromise);
 
-  const [items, setItems] = useState<LendingItem[]>(initialData.items);
-  const [lendingsCursor, setLendingsCursor] = useState<string | null>(
-    initialData.lendingsCursor,
-  );
-  const [borrowingsCursor, setBorrowingsCursor] = useState<string | null>(
-    initialData.borrowingsCursor,
-  );
-  const [lendingsHasMore, setLendingsHasMore] = useState(
-    initialData.lendingsHasMore,
-  );
-  const [borrowingsHasMore, setBorrowingsHasMore] = useState(
-    initialData.borrowingsHasMore,
-  );
-  const [isPending, startTransition] = useTransition();
-
-  const hasMore = lendingsHasMore || borrowingsHasMore;
+	const [items, setItems] = useState<LendingItem[]>(initialData.items);
+  const [cursor, setCursor] = useState<string | null>(initialData.nextCursor);
+  const [hasMore, setHasMore] = useState(initialData.hasMore)
+	const [isPending, startTransition] = useTransition();
 
   const { ref, inView } = useInView({
     threshold: 0,
@@ -42,29 +30,22 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
   const loadMore = useCallback(() => {
     if (!hasMore || isPending) return;
 
-    startTransition(async () => {
-      const result = await getAllLendings(groupId, {
-        lendingsCursor: lendingsCursor ?? undefined,
-        borrowingsCursor: borrowingsCursor ?? undefined,
-        lendingsHasMore,
-        borrowingsHasMore,
-      });
-      if (result.success) {
-        setItems((prev) => [...prev, ...result.result.items]);
-        setLendingsCursor(result.result.lendingsCursor);
-        setBorrowingsCursor(result.result.borrowingsCursor);
-        setLendingsHasMore(result.result.lendingsHasMore);
-        setBorrowingsHasMore(result.result.borrowingsHasMore);
-      }
-    });
-  }, [
-    groupId,
+		startTransition(async () => {
+			const result = await getAllLendings(groupId, {
+				cursor: cursor ?? undefined,
+			});
+			if (result.success) {
+				setItems((prev) => [...prev, ...result.result.items]);
+				setCursor(result.result.nextCursor);
+				setHasMore(result.result.hasMore);
+			}
+		});
+    
+	},[
     hasMore,
     isPending,
-    lendingsCursor,
-    borrowingsCursor,
-    lendingsHasMore,
-    borrowingsHasMore,
+    groupId,
+    cursor,
   ]);
 
   useEffect(() => {
@@ -93,45 +74,45 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
       {items.map((item) => {
         const isPositive = item.amount >= 0;
 
-        return (
-          <Link
-            key={`${item.type}-${item.id}`}
-            href={`/groups/${groupId}/${item.type === "lending" ? "lendings" : "borrowings"}/${item.id}`}
-            className={cn(
-              "block p-4",
-              "flex flex-col gap-2",
-              "border rounded-lg",
-              "hover:bg-gray-50 transition-colors",
-            )}
-          >
-            <div className={cn("flex justify-between items-start")}>
-              <div>
-                <h3 className={cn("text-lg font-semibold")}>{item.name}</h3>
-                <p className={cn("text-sm text-gray-600")}>{item.eventDate}</p>
-              </div>
-              <div className={cn("text-right")}>
-                <p
-                  className={cn(
-                    "text-2xl font-bold",
-                    isPositive ? "text-primary-base" : "text-red-600",
-                  )}
-                >
-                  {isPositive ? "+" : ""}
-                  {formatCurrency(item.amount)}
-                </p>
-                {item.type === "lending" && item.debtsCount > 0 && (
-                  <p className={cn("text-sm text-gray-500")}>
-                    {item.debtsCount}人から回収予定
-                  </p>
-                )}
-                {item.type === "borrowing" && (
-                  <p className={cn("text-sm text-gray-500")}>支払い予定</p>
-                )}
-              </div>
-            </div>
-          </Link>
-        );
-      })}
+				return (
+					<Link
+						key={item.id}
+						href={`/groups/${groupId}/lendings/${item.id}`}
+						className={cn(
+							"block p-4",
+							"flex flex-col gap-2",
+							"border rounded-lg",
+							"hover:bg-gray-50 transition-colors",
+						)}
+					>
+						<div className={cn("flex justify-between items-start")}>
+							<div>
+								<h3 className={cn("text-lg font-semibold")}>{item.name}</h3>
+								<p className={cn("text-sm text-gray-600")}>{item.eventDate}</p>
+							</div>
+							<div className={cn("text-right")}>
+								<p
+									className={cn(
+										"text-2xl font-bold",
+										isPositive ? "text-primary-base" : "text-red-600",
+									)}
+								>
+									{isPositive ? "+" : ""}
+									{formatCurrency(item.amount)}
+								</p>
+								{isPositive && item.debtsCount > 0 && (
+									<p className={cn("text-sm text-gray-500")}>
+										{item.debtsCount}人から回収予定
+									</p>
+								)}
+								{!isPositive && (
+									<p className={cn("text-sm text-gray-500")}>支払い予定</p>
+								)}
+							</div>
+						</div>
+					</Link>
+				);
+			})}
 
       {/* Sentinel element for infinite scroll */}
       <div ref={ref} className={cn("h-4")} />

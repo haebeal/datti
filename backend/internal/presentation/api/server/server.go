@@ -13,11 +13,6 @@ type LendingHandler interface {
 	Delete(c echo.Context, id string, lendingId string) error
 }
 
-type BorrowingHandler interface {
-	Get(c echo.Context, id string, borrowingId string) error
-	GetByQuery(c echo.Context, id string, params api.BorrowingGetAllParams) error
-}
-
 type CreditHandler interface {
 	List(c echo.Context, params api.CreditsListParams) error
 }
@@ -59,7 +54,6 @@ type AuthHandler interface {
 
 type Server struct {
 	lh LendingHandler
-	bh BorrowingHandler
 	ch CreditHandler
 	hh HealthHandler
 	rh RepaymentHandler
@@ -68,10 +62,9 @@ type Server struct {
 	ah AuthHandler
 }
 
-func NewServer(lh LendingHandler, bh BorrowingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler, uh UserHandler, ah AuthHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler, uh UserHandler, ah AuthHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
-		bh: bh,
 		ch: ch,
 		hh: hh,
 		rh: rh,
@@ -100,14 +93,6 @@ func (s *Server) LendingUpdate(ctx echo.Context, id string, lendingId string) er
 
 func (s *Server) LendingDelete(ctx echo.Context, id string, lendingId string) error {
 	return s.lh.Delete(ctx, id, lendingId)
-}
-
-func (s *Server) BorrowingGetAll(ctx echo.Context, id string, params api.BorrowingGetAllParams) error {
-	return s.bh.GetByQuery(ctx, id, params)
-}
-
-func (s *Server) BorrowingGet(ctx echo.Context, id string, borrowingId string) error {
-	return s.bh.Get(ctx, id, borrowingId)
 }
 
 func (s *Server) CreditsList(ctx echo.Context, params api.CreditsListParams) error {

@@ -126,17 +126,6 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 		return nil, err
 	}
 
-	payer, err := u.pr.FindByEventID(ctx, i.EventID)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-
-	if payer.ID() != i.UserID {
-		return nil, fmt.Errorf("lendingEventが存在しません")
-	}
-
 	event, err := u.lr.FindByID(ctx, i.EventID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
@@ -147,12 +136,41 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 		return nil, fmt.Errorf("forbidden Error")
 	}
 
+	payer, err := u.pr.FindByEventID(ctx, i.EventID)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
 	debtors, err := u.dr.FindByEventID(ctx, i.EventID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
+
+	// Check access: user must be payer or debtor
+	isPayer := payer.ID() == i.UserID
+	isDebtor := false
+	for _, d := range debtors {
+		if d.ID() == i.UserID {
+			isDebtor = true
+			break
+		}
+	}
+	if !isPayer && !isDebtor {
+		return nil, fmt.Errorf("lendingEventが存在しません")
+	}
+
+	// Set createdBy on the lending
+	createdBy, err := domain.NewUID(payer.ID())
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+	event.SetCreatedBy(createdBy)
 
 	output := &handler.GetOutput{
 		Lending: event,
@@ -179,10 +197,24 @@ func (u LendingUseCaseImpl) GetByQuery(ctx context.Context, i handler.GetAllInpu
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
-		return nil, fmt.Errorf("lendingEventが存在しません")
+		return nil, err
 	}
 
 	lendings := paginatedLendings.Lendings
+
+	output := handler.GetAllOutput{
+		NextCursor: paginatedLendings.NextCursor,
+		HasMore:    paginatedLendings.HasMore,
+		Lendings: make([]struct {
+			Lending *domain.Lending
+			Debtors []*domain.Debtor
+		}, 0),
+	}
+
+	// Return early if no lendings
+	if len(lendings) == 0 {
+		return &output, nil
+	}
 
 	// Collect all event IDs for batch fetching
 	eventIDs := make([]ulid.ULID, len(lendings))
@@ -198,10 +230,6 @@ func (u LendingUseCaseImpl) GetByQuery(ctx context.Context, i handler.GetAllInpu
 		return nil, err
 	}
 
-	output := handler.GetAllOutput{
-		NextCursor: paginatedLendings.NextCursor,
-		HasMore:    paginatedLendings.HasMore,
-	}
 	for _, l := range lendings {
 		debtors := debtorsMap[l.ID()]
 		if debtors == nil {

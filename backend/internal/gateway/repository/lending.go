@@ -100,9 +100,9 @@ func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserIDWithPagination(
 	fetchLimit := params.Limit + 1
 
 	ctx, querySpan := tracer.Start(ctx, "SELECT DISTINCT * FROM events WITH CURSOR")
-	lendingEvents, err := lr.queries.FindLendingsByGroupIDAndUserIDWithCursor(ctx, postgres.FindLendingsByGroupIDAndUserIDWithCursorParams{
+	lendingEvents, err := lr.queries.FindAllLendingsByGroupIDAndUserIDWithCursor(ctx, postgres.FindAllLendingsByGroupIDAndUserIDWithCursorParams{
 		GroupID: groupID.String(),
-		PayerID: userID,
+		UserID:  userID,
 		Cursor:  params.Cursor,
 		Limit:   fetchLimit,
 	})
@@ -141,7 +141,13 @@ func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserIDWithPagination(
 			span.RecordError(err)
 			return nil, err
 		}
-		lending, err := domain.NewLending(eventID, eventGroupID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt)
+		createdBy, err := domain.NewUID(l.CreatedBy)
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+		lending, err := domain.NewLendingWithCreatedBy(eventID, eventGroupID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt, createdBy)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)

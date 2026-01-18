@@ -6,7 +6,6 @@ info:
 tags:
   - name: Auth
   - name: Lendings
-  - name: Borrowings
   - name: Credits
   - name: Repayments
   - name: Groups
@@ -1103,107 +1102,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       tags:
         - Lendings
-  /groups/{id}/borrowings:
-    get:
-      operationId: Borrowing_getAll
-      summary: グループ内の借り一覧取得
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: limit
-          in: query
-          required: false
-          description: "取得件数（デフォルト: 20、最大: 100）"
-          schema:
-            type: integer
-            format: int32
-            default: 20
-            minimum: 1
-            maximum: 100
-        - name: cursor
-          in: query
-          required: false
-          description: "次ページ用カーソル（前回レスポンスの最後のID）"
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Borrowing.PaginatedResponse'
-        '401':
-          description: Access is unauthorized.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Access is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-        - Borrowings
-  /groups/{id}/borrowings/{borrowingId}:
-    get:
-      operationId: Borrowing_get
-      summary: グループ内の借り取得
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: borrowingId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The request has succeeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Borrowing.GetResponse'
-        '400':
-          description: The server could not understand the request due to invalid syntax.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Access is unauthorized.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '403':
-          description: Access is forbidden.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-        - Borrowings
 security:
   - BearerAuth: []
 components:
@@ -1237,75 +1135,6 @@ components:
           type: string
         avatar:
           type: string
-    Borrowing.GetAllResponse:
-      type: object
-      required:
-        - id
-        - name
-        - amount
-        - eventDate
-        - createdAt
-        - updatedAt
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        amount:
-          type: integer
-          format: uint64
-        eventDate:
-          type: string
-          format: date-time
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-    Borrowing.GetResponse:
-      type: object
-      required:
-        - id
-        - name
-        - amount
-        - eventDate
-        - createdAt
-        - updatedAt
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        amount:
-          type: integer
-          format: uint64
-        eventDate:
-          type: string
-          format: date-time
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-    Borrowing.PaginatedResponse:
-      type: object
-      required:
-        - borrowings
-        - hasMore
-      properties:
-        borrowings:
-          type: array
-          items:
-            $ref: '#/components/schemas/Borrowing.GetAllResponse'
-        nextCursor:
-          type: string
-          nullable: true
-          description: "次ページ用カーソル（次ページがない場合はnull）"
-        hasMore:
-          type: boolean
-          description: "次ページが存在するかどうか"
     Credit:
       type: object
       required:
@@ -1570,6 +1399,7 @@ components:
         - amount
         - eventDate
         - debts
+        - createdBy
         - createdAt
         - updatedAt
       properties:
@@ -1587,6 +1417,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Lending.DebtParmam'
+        createdBy:
+          type: string
+          description: "イベント作成者のユーザーID（Firebase UID）"
         createdAt:
           type: string
           format: date-time
@@ -1601,6 +1434,7 @@ components:
         - amount
         - eventDate
         - debts
+        - createdBy
         - createdAt
         - updatedAt
       properties:
@@ -1618,6 +1452,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Lending.DebtParmam'
+        createdBy:
+          type: string
+          description: "イベント作成者のユーザーID（Firebase UID）"
         createdAt:
           type: string
           format: date-time

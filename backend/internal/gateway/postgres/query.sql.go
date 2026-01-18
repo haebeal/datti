@@ -306,24 +306,20 @@ SELECT DISTINCT ON (e.id)
   e.event_date,
   e.created_at,
   e.updated_at,
-  p.payer_id,
-  CASE
-    WHEN p.payer_id = $1 THEN 'payer'
-    ELSE 'debtor'
-  END AS role
+  p.payer_id AS created_by
 FROM events e
 INNER JOIN event_payments ep ON e.id = ep.event_id
 INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = $2
-  AND (p.payer_id = $1 OR p.debtor_id = $1)
+WHERE e.group_id = $1
+  AND (p.payer_id = $2 OR p.debtor_id = $2)
   AND ($3::text IS NULL OR e.id < $3)
 ORDER BY e.id DESC
 LIMIT $4
 `
 
 type FindAllLendingsByGroupIDAndUserIDWithCursorParams struct {
-	UserID  string
 	GroupID string
+	UserID  string
 	Cursor  *string
 	Limit   int32
 }
@@ -336,14 +332,13 @@ type FindAllLendingsByGroupIDAndUserIDWithCursorRow struct {
 	EventDate time.Time
 	CreatedAt time.Time
 	UpdatedAt time.Time
-	PayerID   string
-	Role      string
+	CreatedBy string
 }
 
 func (q *Queries) FindAllLendingsByGroupIDAndUserIDWithCursor(ctx context.Context, arg FindAllLendingsByGroupIDAndUserIDWithCursorParams) ([]FindAllLendingsByGroupIDAndUserIDWithCursorRow, error) {
 	rows, err := q.db.Query(ctx, findAllLendingsByGroupIDAndUserIDWithCursor,
-		arg.UserID,
 		arg.GroupID,
+		arg.UserID,
 		arg.Cursor,
 		arg.Limit,
 	)
@@ -362,8 +357,7 @@ func (q *Queries) FindAllLendingsByGroupIDAndUserIDWithCursor(ctx context.Contex
 			&i.EventDate,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.PayerID,
-			&i.Role,
+			&i.CreatedBy,
 		); err != nil {
 			return nil, err
 		}

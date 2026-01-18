@@ -41,11 +41,7 @@ SELECT DISTINCT ON (e.id)
   e.event_date,
   e.created_at,
   e.updated_at,
-  p.payer_id,
-  CASE
-    WHEN p.payer_id = sqlc.arg('user_id') THEN 'payer'
-    ELSE 'debtor'
-  END AS role
+  p.payer_id AS created_by
 FROM events e
 INNER JOIN event_payments ep ON e.id = ep.event_id
 INNER JOIN payments p ON ep.payment_id = p.id

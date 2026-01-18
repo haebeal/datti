@@ -100,12 +100,12 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
 									{isPositive ? "+" : ""}
 									{formatCurrency(item.amount)}
 								</p>
-								{item.role === "payer" && item.debtsCount > 0 && (
+								{isPositive && item.debtsCount > 0 && (
 									<p className={cn("text-sm text-gray-500")}>
 										{item.debtsCount}人から回収予定
 									</p>
 								)}
-								{item.role === "debtor" && (
+								{!isPositive && (
 									<p className={cn("text-sm text-gray-500")}>支払い予定</p>
 								)}
 							</div>

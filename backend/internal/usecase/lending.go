@@ -150,33 +150,27 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handl
 		return nil, err
 	}
 
-	// Determine role: payer or debtor
-	var role domain.LendingRole
-	if payer.ID() == i.UserID {
-		role = domain.LendingRolePayer
-	} else {
-		// Check if user is a debtor
-		isDebtor := false
-		for _, d := range debtors {
-			if d.ID() == i.UserID {
-				isDebtor = true
-				break
-			}
+	// Check access: user must be payer or debtor
+	isPayer := payer.ID() == i.UserID
+	isDebtor := false
+	for _, d := range debtors {
+		if d.ID() == i.UserID {
+			isDebtor = true
+			break
 		}
-		if !isDebtor {
-			return nil, fmt.Errorf("lendingEventが存在しません")
-		}
-		role = domain.LendingRoleDebtor
+	}
+	if !isPayer && !isDebtor {
+		return nil, fmt.Errorf("lendingEventが存在しません")
 	}
 
-	// Set role and payerID on the lending
-	payerULID, err := ulid.Parse(payer.ID())
+	// Set createdBy on the lending
+	createdBy, err := domain.NewUID(payer.ID())
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
 	}
-	event.SetRole(role, payerULID)
+	event.SetCreatedBy(createdBy)
 
 	output := &handler.GetOutput{
 		Lending: event,
@@ -203,10 +197,24 @@ func (u LendingUseCaseImpl) GetByQuery(ctx context.Context, i handler.GetAllInpu
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
-		return nil, fmt.Errorf("lendingEventが存在しません")
+		return nil, err
 	}
 
 	lendings := paginatedLendings.Lendings
+
+	output := handler.GetAllOutput{
+		NextCursor: paginatedLendings.NextCursor,
+		HasMore:    paginatedLendings.HasMore,
+		Lendings: make([]struct {
+			Lending *domain.Lending
+			Debtors []*domain.Debtor
+		}, 0),
+	}
+
+	// Return early if no lendings
+	if len(lendings) == 0 {
+		return &output, nil
+	}
 
 	// Collect all event IDs for batch fetching
 	eventIDs := make([]ulid.ULID, len(lendings))
@@ -222,10 +230,6 @@ func (u LendingUseCaseImpl) GetByQuery(ctx context.Context, i handler.GetAllInpu
 		return nil, err
 	}
 
-	output := handler.GetAllOutput{
-		NextCursor: paginatedLendings.NextCursor,
-		HasMore:    paginatedLendings.HasMore,
-	}
 	for _, l := range lendings {
 		debtors := debtorsMap[l.ID()]
 		if debtors == nil {

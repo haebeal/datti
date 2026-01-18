@@ -2,6 +2,7 @@
 
 import { getAuthToken } from "@/libs/auth/getAuthToken";
 import { createApiClient } from "@/libs/api/client";
+import { getMe } from "@/features/user/actions/getMe";
 import { formatDate } from "@/utils/format";
 import type { Result } from "@/utils/types";
 import type { Lending, LendingItem, PaginatedLendingItems } from "../types";
@@ -11,21 +12,23 @@ type GetAllLendingsParams = {
 	cursor?: string;
 };
 
-function convertToLendingItems(lendings: Lending[]): LendingItem[] {
+function convertToLendingItems(lendings: Lending[], currentUserId: string): LendingItem[] {
 	return lendings
-		.map((lending) => ({
-			id: lending.id,
-			name: lending.name,
-			// payer の場合は debts の合計、debtor の場合は負の金額
-			amount:
-				lending.role === "payer"
-					? lending.debts.reduce((sum, debt) => sum + debt.amount, 0)
-					: -lending.debts.reduce((sum, debt) => sum + debt.amount, 0),
-			eventDate: formatDate(lending.eventDate),
-			role: lending.role,
-			payerId: lending.payerId,
-			debtsCount: lending.debts.length,
-		}))
+		.map((lending) => {
+			// createdBy が自分の場合は payer、そうでなければ debtor
+			const isPayer = lending.createdBy === currentUserId;
+			const totalDebtAmount = lending.debts.reduce((sum, debt) => sum + debt.amount, 0);
+
+			return {
+				id: lending.id,
+				name: lending.name,
+				// payer の場合は正の金額、debtor の場合は負の金額
+				amount: isPayer ? totalDebtAmount : -totalDebtAmount,
+				eventDate: formatDate(lending.eventDate),
+				createdBy: lending.createdBy,
+				debtsCount: lending.debts.length,
+			};
+		})
 		.sort(
 			(a, b) =>
 				new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime(),
@@ -40,6 +43,17 @@ export async function getAllLendings(
     const token = await getAuthToken();
     const client = createApiClient(token);
 
+		// 現在のユーザーIDを取得
+		const meResult = await getMe();
+		if (!meResult.success) {
+			return {
+				success: false,
+				result: null,
+				error: meResult.error,
+			};
+		}
+		const currentUserId = meResult.user.id;
+
 		const response = await client.GET("/groups/{id}/lendings", {
           params: {
             path: { id: groupId },
@@ -48,19 +62,19 @@ export async function getAllLendings(
               cursor: params?.cursor,
             },
           },
-        })
-;
+        });
 
 		const items = convertToLendingItems(
-			response.lendings,
+			response.data?.lendings || [],
+			currentUserId,
 		);
 
 		return {
 			success: true,
 			result: {
 				items,
-				nextCursor: response.nextCursor,
-				hasMore: response.hasMore,
+				nextCursor: response.data?.nextCursor ?? null,
+				hasMore: response.data?.hasMore ?? false,
 			},
 			error: null,
 		};

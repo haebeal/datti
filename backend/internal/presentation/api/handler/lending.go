@@ -197,8 +197,7 @@ func (h lendingHandler) Get(c echo.Context, id string, lendingId string) error {
 		Amount:    uint64(output.Lending.Amount().Value()),
 		EventDate: output.Lending.EventDate(),
 		Debts:     debts,
-		Role:      api.LendingGetResponseRole(output.Lending.Role()),
-		PayerId:   output.Lending.PayerID().String(),
+		CreatedBy: output.Lending.CreatedBy().String(),
 		CreatedAt: output.Lending.CreatedAt(),
 		UpdatedAt: output.Lending.UpdatedAt(),
 	}
@@ -272,8 +271,7 @@ func (h lendingHandler) GetByQuery(c echo.Context, id string, params api.Lending
 			Amount:    uint64(l.Lending.Amount().Value()),
 			Name:      l.Lending.Name(),
 			EventDate: l.Lending.EventDate(),
-			Role:      api.LendingGetAllResponseRole(l.Lending.Role()),
-			PayerId:   l.Lending.PayerID().String(),
+			CreatedBy: l.Lending.CreatedBy().String(),
 			UpdatedAt: l.Lending.UpdatedAt(),
 		})
 	}

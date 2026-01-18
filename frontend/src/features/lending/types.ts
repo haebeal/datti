@@ -2,16 +2,13 @@
  * Lending feature types
  */
 
-export type LendingRole = "payer" | "debtor";
-
 export type Lending = {
   id: string;
   name: string;
   amount: number;
   eventDate: string;
   debts: Debt[];
-	role: LendingRole;
-	payerId: string;
+  createdBy: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -42,17 +39,16 @@ export type PaginatedLendingResponse = {
  * Lending item for list display
  */
 export type LendingItem = {
-	id: string;
-	name: string;
-	amount: number;
-	eventDate: string;
-	role: LendingRole;
-	payerId: string;
-	debtsCount: number;
+  id: string;
+  name: string;
+  amount: number;
+  eventDate: string;
+  createdBy: string;
+  debtsCount: number;
 };
 
 export type PaginatedLendingItems = {
-	items: LendingItem[];
-	nextCursor: string | null;
-	hasMore: boolean;
+  items: LendingItem[];
+  nextCursor: string | null;
+  hasMore: boolean;
 };

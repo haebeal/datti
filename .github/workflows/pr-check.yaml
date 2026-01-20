@@ -102,8 +102,8 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: "stable"
-          working-directory: infra
       - run: go mod download
+        working-directory: infra
       - uses: pulumi/actions@v6
         with:
           command: preview

@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ec2"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ecr"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/iam"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -110,6 +111,75 @@ func createAWSResources(ctx *pulumi.Context) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	// ECS Instance(EC2) ロール
+	ec2AssumeRolePolicy := `{
+		"Version": "2012-10-17",
+		"Statement": [
+			{
+				"Effect": "Allow",
+				"Principal": {
+					"Service": "ec2.amazonaws.com"
+				},
+				"Action": "sts:AssumeRole"
+			}
+		]
+	}`
+	instanceRole, err := iam.NewRole(ctx, "datti-ecs-instance-role", &iam.RoleArgs{
+		Name:             pulumi.String("datti-ecs-instance-role"),
+		AssumeRolePolicy: pulumi.String(ec2AssumeRolePolicy),
+	})
+	if err != nil {
+		return err
+	}
+
+	// ECS InstanceロールにECSマネージドポリシーをアタッチ
+	_, err = iam.NewRolePolicyAttachment(ctx, "datti-ecs-instance-policy", &iam.RolePolicyAttachmentArgs{
+		Role:      instanceRole.Name,
+		PolicyArn: pulumi.String("arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"),
+	})
+	if err != nil {
+		return err
+	}
+
+	// ECS Task ロール
+	ecsAssumeRolePolicy := `{
+		"Version": "2012-10-17",
+		"Statement": [
+			{
+				"Effect": "Allow",
+				"Principal": {
+					"Service": "ecs-tasks.amazonaws.com"
+				},
+				"Action": "sts:AssumeRole"
+			}
+		]
+	}`
+	executionRole, err := iam.NewRole(ctx, "datti-ecs-execution-role", &iam.RoleArgs{
+		Name:             pulumi.String("datti-ecs-execution-role"),
+		AssumeRolePolicy: pulumi.String(ecsAssumeRolePolicy),
+	})
+	if err != nil {
+		return err
+	}
+
+	// ECS TaskExecutionマネジードポリシーをアタッチ
+	_, err = iam.NewRolePolicyAttachment(ctx, "datti-ecs-execution-policy", &iam.RolePolicyAttachmentArgs{
+		Role:      executionRole.Name,
+		PolicyArn: pulumi.String("arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"),
+	})
+	if err != nil {
+		return err
+	}
+
+	// SSM Parameter Storeの読み取りポリシーをアタッチ
+	_, err = iam.NewRolePolicyAttachment(ctx, "datti-ecs-execution-ssm-policy", &iam.RolePolicyAttachmentArgs{
+		Role:      executionRole.Name,
+		PolicyArn: pulumi.String("arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"),
+	})
+	if err != nil {
+		return err
 	}
 
 	return nil

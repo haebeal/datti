@@ -1,4 +1,5 @@
 import { cn } from "@/utils/cn";
+import { useIsTouchDevice } from "@/hooks/useIsTouchDevice";
 import { parseDate } from "@internationalized/date";
 import { type ComponentPropsWithRef, useState } from "react";
 import {
@@ -31,6 +32,8 @@ export function DatePicker(props: Props) {
     ...rest
   } = props;
 
+  const isTouchDevice = useIsTouchDevice();
+
   const [isOpen, setOpen] = useState(false);
   const [value, setValue] = useState(
     typeof defaultValue === "string"
@@ -38,6 +41,32 @@ export function DatePicker(props: Props) {
       : null,
   );
 
+  // モバイル: ネイティブのdate inputを使用
+  if (isTouchDevice) {
+    return (
+      <input
+        {...rest}
+        ref={ref}
+        type="date"
+        defaultValue={
+          typeof defaultValue === "string"
+            ? defaultValue.split("T")[0]
+            : undefined
+        }
+        placeholder={placeholder}
+        className={cn(
+          "w-full",
+          "px-3 py-2",
+          "border rounded-md",
+          "focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
+          isError && "border-red-500",
+          className,
+        )}
+      />
+    );
+  }
+
+  // PC: カスタムUIを使用
   return (
     <AriaDatePicker
       className={className}

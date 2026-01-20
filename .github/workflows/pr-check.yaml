@@ -11,6 +11,7 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       openapi: ${{ steps.filter.outputs.openapi }}
+      infra: ${{ steps.filter.outputs.infra }}
     steps:
       - uses: actions/checkout@v5
       - uses: dorny/paths-filter@v3
@@ -21,6 +22,8 @@ jobs:
               - 'frontend/**'
             openapi:
               - 'backend/openapi.yaml'
+            infra:
+              - 'infra/**'
 
   frontend-lint:
     needs: detect-changes
@@ -89,3 +92,22 @@ jobs:
         run: pnpm gen:api
       - name: Check for uncommitted changes
         run: git diff --exit-code src/libs/api/
+
+  preview-infra:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.infra == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "stable"
+      - run: go mod download
+        working-directory: infra
+      - uses: pulumi/actions@v6
+        with:
+          command: preview
+          stack-name: narebas/datti/default
+          work-dir: infra
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

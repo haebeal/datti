@@ -97,17 +97,17 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: infra
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v3
         with:
           go-version: "stable"
+        working-directory: infra
       - run: go mod download
       - uses: pulumi/actions@v6
         with:
           command: preview
+          stack-name: narebas/datti/default
+          work-dir: infra
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

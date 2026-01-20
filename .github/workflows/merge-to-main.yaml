@@ -54,13 +54,16 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy _site --project-name=datti-dev-openapi
 
-  provision:
+  provision-infra:
     needs: detect-changes
     if: needs.detect-changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: "read"
       id-token: "write"
+    defaults:
+      run:
+        working-directory: infra
     environment:
       name: dev
     steps:
@@ -78,7 +81,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - name: Terraform Init
         run: |
-          terraform -chdir=infra init \
+          terraform init \
             -input=false \
             -backend-config="bucket=${{ vars.GOOGLE_BUCKET_NAME }}"
       - name: Terraform Apply

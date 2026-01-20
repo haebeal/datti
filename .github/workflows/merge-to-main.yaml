@@ -59,18 +59,22 @@ jobs:
     if: needs.detect-changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: "read"
+      id-token: "write"
     environment:
       name: dev
     steps:
       - uses: actions/checkout@v5
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "stable"
+      - run: go mod download
       - uses: google-github-actions/auth@v3
         id: auth
         with:
           token_format: access_token
-          workload_identity_provider: '${{ secrets.GOOGLE_WIF_PROVIDER }}'
-          service_account: '${{ secrets.GOOGLE_WIF_SERVICE_ACCOUNT }}'
+          workload_identity_provider: "${{ secrets.GOOGLE_WIF_PROVIDER }}"
+          service_account: "${{ secrets.GOOGLE_WIF_SERVICE_ACCOUNT }}"
       - uses: hashicorp/setup-terraform@v3
       - name: Terraform Init
         run: |
@@ -83,6 +87,12 @@ jobs:
           TF_VAR_project_id: ${{ vars.GOOGLE_PROJECT_ID }}
           TF_VAR_bucket_name: ${{ vars.GOOGLE_BUCKET_NAME }}
           TF_VAR_frontend_domain: ${{ vars.FRONTEND_DOMAIN }}
+      - uses: pulumi/actions@v6
+        with:
+          command: up
+          stack-name: datti/default
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
   apply-schema:
     needs: [detect-changes, provision]
     if: |
@@ -98,8 +108,8 @@ jobs:
       - uses: ariga/atlas-action/schema/apply@v1
         with:
           url: ${{ secrets.DSN }}
-          to: 'file://backend/sql/schema.sql'
-          dev-url: 'docker://postgres'
+          to: "file://backend/sql/schema.sql"
+          dev-url: "docker://postgres"
           auto-approve: true
   deploy-backend:
     needs: [detect-changes, apply-schema]
@@ -109,8 +119,8 @@ jobs:
       (needs.apply-schema.result == 'success' || needs.apply-schema.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: "read"
+      id-token: "write"
     environment:
       name: dev
     steps:
@@ -119,8 +129,8 @@ jobs:
         id: auth
         with:
           token_format: access_token
-          workload_identity_provider: '${{ secrets.GOOGLE_WIF_PROVIDER }}'
-          service_account: '${{ secrets.GOOGLE_WIF_SERVICE_ACCOUNT }}'
+          workload_identity_provider: "${{ secrets.GOOGLE_WIF_PROVIDER }}"
+          service_account: "${{ secrets.GOOGLE_WIF_SERVICE_ACCOUNT }}"
       - uses: docker/login-action@v3
         with:
           registry: asia-northeast1-docker.pkg.dev
@@ -136,7 +146,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=backend
       - uses: google-github-actions/deploy-cloudrun@v3
         with:
-          service: 'backend'
+          service: "backend"
           region: asia-northeast1
           image: asia-northeast1-docker.pkg.dev/${{ vars.GOOGLE_PROJECT_ID }}/app/backend:latest
   deploy-frontend:
@@ -147,8 +157,8 @@ jobs:
       (needs.provision.result == 'success' || needs.provision.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: "read"
+      id-token: "write"
     environment:
       name: dev
       url: https://${{ vars.FRONTEND_DOMAIN }}
@@ -158,8 +168,8 @@ jobs:
         id: auth
         with:
           token_format: access_token
-          workload_identity_provider: '${{ secrets.GOOGLE_WIF_PROVIDER }}'
-          service_account: '${{ secrets.GOOGLE_WIF_SERVICE_ACCOUNT }}'
+          workload_identity_provider: "${{ secrets.GOOGLE_WIF_PROVIDER }}"
+          service_account: "${{ secrets.GOOGLE_WIF_SERVICE_ACCOUNT }}"
       - uses: docker/login-action@v3
         with:
           registry: asia-northeast1-docker.pkg.dev
@@ -175,6 +185,6 @@ jobs:
           cache-to: type=gha,mode=max,scope=frontend
       - uses: google-github-actions/deploy-cloudrun@v3
         with:
-          service: 'frontend'
+          service: "frontend"
           region: asia-northeast1
           image: asia-northeast1-docker.pkg.dev/${{ vars.GOOGLE_PROJECT_ID }}/app/frontend:latest

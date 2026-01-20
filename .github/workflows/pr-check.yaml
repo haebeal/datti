@@ -89,3 +89,19 @@ jobs:
         run: pnpm gen:api
       - name: Check for uncommitted changes
         run: git diff --exit-code src/libs/api/
+
+  preview:
+    name: Preview
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v3
+        with:
+          go-version: "stable"
+      - run: go mod download
+      - uses: pulumi/actions@v6
+        with:
+          command: preview
+          stack-name: datti/default
+        env:
+          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

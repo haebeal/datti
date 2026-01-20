@@ -10,6 +10,7 @@ import { ErrorText } from "@/components/ui/error-text";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { addMember } from "../actions/addMember";
 import { removeMember } from "../actions/removeMember";
+import { leaveGroup } from "../actions/leaveGroup";
 import { searchUsers } from "@/features/user/actions/searchUsers";
 import { useActionState, useState, useRef } from "react";
 import { useForm } from "@conform-to/react";
@@ -108,7 +109,7 @@ export function GroupMemberManagement({
     setIsLeaving(true);
     setRemoveError(null);
 
-    const result = await removeMember(group.id, currentUserId);
+    const result = await leaveGroup(group.id);
 
     if (!result.success) {
       setRemoveError(result.error);

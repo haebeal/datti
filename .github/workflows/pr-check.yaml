@@ -93,7 +93,7 @@ jobs:
       - name: Check for uncommitted changes
         run: git diff --exit-code src/libs/api/
 
-  infra-preview:
+  preview-infra:
     needs: detect-changes
     if: needs.detect-changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
@@ -109,6 +109,6 @@ jobs:
       - uses: pulumi/actions@v6
         with:
           command: preview
-          stack-name: datti/default
+          stack-name: narebas/datti/default
         env:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}

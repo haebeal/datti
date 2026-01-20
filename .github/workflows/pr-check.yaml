@@ -94,7 +94,7 @@ jobs:
         run: git diff --exit-code src/libs/api/
 
   infra-preview:
-    name: infra-preview
+    needs: detect-changes
     if: needs.detect-changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
     defaults:

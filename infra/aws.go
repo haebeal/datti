@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ec2"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ecr"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ecs"
@@ -226,7 +227,7 @@ func createAWSResources(ctx *pulumi.Context) error {
 	}
 
 	// ECS最適化AMIを取得
-	// NOTE: AWSはSSM Parameter Storeに最新AMIのIDを後悔している
+	// NOTE: AWSはSSM Parameter Storeに最新AMIのIDを公開している
 	ecsAmi, err := ssm.LookupParameter(ctx, &ssm.LookupParameterArgs{
 		Name: "/aws/service/ecs/optimized-ami/amazon-linux-2023/arm64/recommended/image_id",
 	})
@@ -256,6 +257,75 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 	})
 	if err != nil {
 		return err
+	}
+
+	callerIdentity, err := aws.GetCallerIdentity(ctx, nil)
+	if err != nil {
+		return err
+	}
+	accountID := callerIdentity.AccountId
+	region := "ap-northeast-1"
+
+	type ServiceConfig struct {
+		Name   string
+		Image  string
+		Port   int
+		CPU    string
+		Memory string
+	}
+	services := []ServiceConfig{
+		// FIXME: イメージPush後にコメントアウトを解除
+		// {Name: "backend-dev", Image: "datti-backend:dev", Port: 8080, CPU: "128", Memory: "256"},
+		// {Name: "frontend-dev", Image: "datti-frontend:dev", Port: 3000, CPU: "128", Memory: "256"},
+	}
+	for _, svc := range services {
+		containerDef := fmt.Sprintf(`[
+			{
+				"name": "%s",
+				"image": "%s.dkr.ecr.%s.amazonaws.com/%s",
+				"cpu": %s,
+				"memory": %s,
+				"essential": true,
+				"portMappings": [
+					{
+						"containerPort": %d,
+						"hostPort": 0,
+						"protocol": "tcp"
+					}
+				],
+				"logConfiguration": {
+					"logDriver": "awslogs",
+					"options": {
+						"awslogs-group": "/ecs/%s",
+						"awslogs-region": "%s",
+						"awslogs-stream-prefix": "ecs"
+					}
+				}
+			}
+		]`, svc.Name, accountID, region, svc.Image, svc.CPU, svc.Memory, svc.Port, svc.Name, region)
+
+		taskDef, err := ecs.NewTaskDefinition(ctx, svc.Name+"-task", &ecs.TaskDefinitionArgs{
+			Family:                  pulumi.String(svc.Name),
+			NetworkMode:             pulumi.String("bridge"), // ポートマッピングで外部公開
+			RequiresCompatibilities: pulumi.StringArray{pulumi.String("EC2")},
+			ExecutionRoleArn:        executionRole.Arn,
+			ContainerDefinitions:    pulumi.String(containerDef),
+		})
+		if err != nil {
+			return err
+		}
+
+		// ECS Service
+		_, err = ecs.NewService(ctx, svc.Name+"-service", &ecs.ServiceArgs{
+			Name:           pulumi.String(svc.Name),
+			Cluster:        cluster.Arn,
+			TaskDefinition: taskDef.Arn,
+			DesiredCount:   pulumi.Int(1),
+			LaunchType:     pulumi.String("EC2"),
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	ctx.Export("ecsClusterName", cluster.Name)

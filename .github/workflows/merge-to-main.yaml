@@ -61,9 +61,6 @@ jobs:
     permissions:
       contents: "read"
       id-token: "write"
-    defaults:
-      run:
-        working-directory: infra
     environment:
       name: dev
     steps:
@@ -72,6 +69,7 @@ jobs:
         with:
           go-version: "stable"
       - run: go mod download
+        working-directory: infra
       - uses: google-github-actions/auth@v3
         id: auth
         with:
@@ -81,7 +79,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
       - name: Terraform Init
         run: |
-          terraform init \
+          terraform init -chdir=infra \
             -input=false \
             -backend-config="bucket=${{ vars.GOOGLE_BUCKET_NAME }}"
       - name: Terraform Apply

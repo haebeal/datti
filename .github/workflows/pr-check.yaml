@@ -102,7 +102,7 @@ jobs:
       - uses: actions/setup-go@v3
         with:
           go-version: "stable"
-        working-directory: infra
+          working-directory: infra
       - run: go mod download
       - uses: pulumi/actions@v6
         with:

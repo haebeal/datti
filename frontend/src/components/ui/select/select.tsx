@@ -1,4 +1,5 @@
 import { cn } from "@/utils/cn";
+import { useIsTouchDevice } from "@/hooks/useIsTouchDevice";
 import { type ComponentPropsWithRef, useEffect, useState } from "react";
 import {
   Select as AriaSelect,
@@ -35,6 +36,8 @@ export function Select<T>(props: Props<T>) {
     form,
   } = props;
 
+  const isTouchDevice = useIsTouchDevice();
+
   const [selectedKey, setSelectedKey] = useState<string | null>(
     defaultValue ?? null,
   );
@@ -47,6 +50,40 @@ export function Select<T>(props: Props<T>) {
     (option) => getOptionValue(option) === selectedKey,
   );
 
+  // モバイル: ネイティブのselectを使用
+  if (isTouchDevice) {
+    return (
+      <select
+        id={id}
+        name={name}
+        required={required}
+        disabled={disabled}
+        autoComplete={autoComplete}
+        form={form}
+        defaultValue={defaultValue ?? ""}
+        className={cn(
+          "w-full",
+          "px-3 py-2",
+          "border rounded-md",
+          "focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
+          isError && "border-red-500",
+          className,
+        )}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+        {options.map((option) => (
+          <option key={getOptionValue(option)} value={getOptionValue(option)}>
+            {getOptionLabel(option)}
+          </option>
+        ))}
+      </select>
+    );
+  }
+
+  // PC: カスタムUIを使用
   return (
     <AriaSelect
       className={className}

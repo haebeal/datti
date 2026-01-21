@@ -4,6 +4,7 @@ go 1.24.0
 
 require (
 	github.com/pulumi/pulumi-aws/sdk/v7 v7.16.0
+	github.com/pulumi/pulumi-terraform-provider/sdks/go/neon v0.0.0
 	github.com/pulumi/pulumi/sdk/v3 v3.216.0
 	github.com/upstash/pulumi-upstash/sdk v0.5.0
 )
@@ -90,3 +91,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/frand v1.4.2 // indirect
 )
+
+replace github.com/pulumi/pulumi-terraform-provider/sdks/go/neon => ./sdks/neon

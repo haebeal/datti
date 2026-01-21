@@ -5,7 +5,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func createNeon(ctx *pulumi.Context) error {
+func createNeonResources(ctx *pulumi.Context) error {
 	_, err := neon.NewProject(ctx, "datti", &neon.ProjectArgs{
 		Branch: &neon.ProjectBranchArgs{
 			DatabaseName: pulumi.String("neondb"),

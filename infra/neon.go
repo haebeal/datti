@@ -25,7 +25,7 @@ func createNeonResources(ctx *pulumi.Context) error {
 				pulumi.Float64(2),
 			},
 		},
-		Name:          pulumi.String("Datti"),
+		Name:          pulumi.String("Datti-dev"),
 		OrgId:         pulumi.String("org-frosty-mountain-46580130"),
 		PgVersion:     pulumi.Float64(17),
 		RegionId:      pulumi.String("aws-ap-southeast-1"),
@@ -36,11 +36,9 @@ func createNeonResources(ctx *pulumi.Context) error {
 	}
 
 	_, err = neon.NewBranch(ctx, "neon-branch-dev", &neon.BranchArgs{
-		Name:            pulumi.String("dev"),
-		ParentId:        pulumi.String("br-polished-bonus-a10yscty"),
-		ParentLsn:       pulumi.String("0/1F79328"),
-		ParentTimestamp: pulumi.Float64(1755787436),
-		ProjectId:       pulumi.String("quiet-wildflower-78644609"),
+		Name:      pulumi.String("dev"),
+		ParentId:  pulumi.String("br-polished-bonus-a10yscty"),
+		ProjectId: pulumi.String("quiet-wildflower-78644609"),
 	}, pulumi.Protect(true))
 	if err != nil {
 		return err

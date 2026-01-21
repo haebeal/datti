@@ -6,7 +6,7 @@ import (
 )
 
 func createNeonResources(ctx *pulumi.Context) error {
-	_, err := neon.NewProject(ctx, "datti", &neon.ProjectArgs{
+	_, err := neon.NewProject(ctx, "datti-neon-project", &neon.ProjectArgs{
 		Branch: &neon.ProjectBranchArgs{
 			DatabaseName: pulumi.String("neondb"),
 			Name:         pulumi.String("prod"),

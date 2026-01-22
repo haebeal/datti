@@ -14,6 +14,10 @@ func main() {
 			return err
 		}
 
+		if err := createCloudflareResources(ctx); err != nil {
+			return err
+		}
+
 		if err := createAWSResources(ctx); err != nil {
 			return err
 		}

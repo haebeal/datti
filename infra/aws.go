@@ -161,7 +161,7 @@ func createAWSResources(ctx *pulumi.Context) error {
 	// ECS InstanceロールにSSM読み取りポリシーをアタッチ
 	_, err = iam.NewRolePolicyAttachment(ctx, "datti-ecs-instance-ssm-policy", &iam.RolePolicyAttachmentArgs{
 		Role:      instanceRole.Name,
-		PolicyArn: pulumi.String("arn:aws:iam:aws:policy/AmazonSSMReadonlyAccess"),
+		PolicyArn: pulumi.String("arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess"),
 	})
 	if err != nil {
 		return err
@@ -350,7 +350,7 @@ cloudflared service install $TOKEN
 			CPU:           "128",
 			Memory:        "256",
 			EnvVars: []EnvVar{
-				{Name: "API_URL", Value: "http://localhost:8081"},
+				{Name: "API_URL", Value: "http://172.17.0.1:8081"},
 				{Name: "APP_URL", Value: "https://dev.datti.app"},
 			},
 			Secrets: []Secret{
@@ -391,7 +391,8 @@ cloudflared service install $TOKEN
 					"options": {
 						"awslogs-group": "/ecs/%s",
 						"awslogs-region": "%s",
-						"awslogs-stream-prefix": "ecs"
+						"awslogs-stream-prefix": "ecs",
+						"awslogs-create-group": "true"
 					}
 				},
 				"environment": %s,
@@ -401,7 +402,7 @@ cloudflared service install $TOKEN
 
 		taskDef, err := ecs.NewTaskDefinition(ctx, svc.Name+"-task", &ecs.TaskDefinitionArgs{
 			Family:                  pulumi.String(svc.Name),
-			NetworkMode:             pulumi.String("host"),
+			NetworkMode:             pulumi.String("bridge"),
 			RequiresCompatibilities: pulumi.StringArray{pulumi.String("EC2")},
 			ExecutionRoleArn:        executionRole.Arn,
 			ContainerDefinitions:    pulumi.String(containerDef),

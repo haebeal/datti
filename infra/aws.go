@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws"
@@ -266,19 +267,93 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 	accountID := callerIdentity.AccountId
 	region := "ap-northeast-1"
 
+	manualParams := []struct {
+		Name string
+		Type string
+	}{
+		{Name: "/datti/dev/backend/FIREBASE_PROJECT_ID", Type: "String"},
+		{Name: "/datti/dev/frontend/GOOGLE_CLIENT_ID", Type: "String"},
+		{Name: "/datti/dev/frontend/GOOGLE_CLIENT_SECRET", Type: "SecureString"},
+		{Name: "/datti/dev/frontend/FIREBASE_API_KEY", Type: "SecureString"},
+	}
+	for _, p := range manualParams {
+		_, err := ssm.NewParameter(ctx, p.Name, &ssm.ParameterArgs{
+			Name:  pulumi.String(p.Name),
+			Type:  pulumi.String(p.Type),
+			Value: pulumi.String("PLACEHOLDER"),
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	type EnvVar struct {
+		Name  string `json:"name"`
+		Value string `json:"value"`
+	}
+
+	type Secret struct {
+		Name      string `json:"name"`
+		ValueFrom string `json:"valueFrom"`
+	}
+
 	type ServiceConfig struct {
-		Name   string
-		Image  string
-		Port   int
-		CPU    string
-		Memory string
+		Name          string
+		Image         string
+		ContainerPort int
+		HostPort      int
+		CPU           string
+		Memory        string
+		EnvVars       []EnvVar
+		Secrets       []Secret
 	}
 	services := []ServiceConfig{
 		// FIXME: イメージPush後にコメントアウトを解除
-		// {Name: "backend-dev", Image: "datti-backend:dev", Port: 8080, CPU: "128", Memory: "256"},
-		// {Name: "frontend-dev", Image: "datti-frontend:dev", Port: 3000, CPU: "128", Memory: "256"},
+		{
+			Name:          "backend-dev",
+			Image:         "datti-backend:dev",
+			ContainerPort: 8080,
+			HostPort:      8081,
+			CPU:           "128",
+			Memory:        "256",
+			EnvVars: []EnvVar{
+				{Name: "APP_ENV", Value: "production"},
+			},
+			Secrets: []Secret{
+				{Name: "DSN", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/backend/DSN")},
+				{Name: "FIREBASE_PROJECT_ID", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/backend/FIREBASE_PROJECT_ID", region, accountID)},
+			},
+		},
+		{
+			Name:          "frontend-dev",
+			Image:         "datti-frontend:dev",
+			ContainerPort: 3000,
+			HostPort:      3001,
+			CPU:           "128",
+			Memory:        "256",
+			EnvVars: []EnvVar{
+				{Name: "API_URL", Value: "http://localhost:8080"},
+				{Name: "APP_URL", Value: "https://dev.datti.app"},
+			},
+			Secrets: []Secret{
+				{Name: "GOOGLE_CLIENT_ID", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/frontend/GOOGLE_CLIENT_ID", region, accountID)},
+				{Name: "GOOGLE_CLIENT_SECRET", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/frontend/GOOGLE_CLIENT_SECRET", region, accountID)},
+				{Name: "FIREBASE_API_KEY", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/frontend/FIREBASE_API_KEY", region, accountID)},
+				{Name: "UPSTASH_REDIS_REST_URL", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/frontend/UPSTASH_REDIS_REST_URL", region, accountID)},
+				{Name: "UPSTASH_REDIS_REST_TOKEN", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/frontend/UPSTASH_REDIS_REST_TOKEN", region, accountID)},
+			},
+		},
 	}
 	for _, svc := range services {
+		envVarsJson, err := json.Marshal(svc.EnvVars)
+		if err != nil {
+			return err
+		}
+		secretsJson, err := json.Marshal(svc.Secrets)
+		if err != nil {
+			return err
+		}
+
 		containerDef := fmt.Sprintf(`[
 			{
 				"name": "%s",
@@ -289,7 +364,7 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 				"portMappings": [
 					{
 						"containerPort": %d,
-						"hostPort": 0,
+						"hostPort": %d,
 						"protocol": "tcp"
 					}
 				],
@@ -300,13 +375,15 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 						"awslogs-region": "%s",
 						"awslogs-stream-prefix": "ecs"
 					}
-				}
+				},
+				"environment": %s,
+				"secrets": %s
 			}
-		]`, svc.Name, accountID, region, svc.Image, svc.CPU, svc.Memory, svc.Port, svc.Name, region)
+		]`, svc.Name, accountID, region, svc.Image, svc.CPU, svc.Memory, svc.ContainerPort, svc.HostPort, svc.Name, region, string(envVarsJson), string(secretsJson))
 
 		taskDef, err := ecs.NewTaskDefinition(ctx, svc.Name+"-task", &ecs.TaskDefinitionArgs{
 			Family:                  pulumi.String(svc.Name),
-			NetworkMode:             pulumi.String("bridge"), // ポートマッピングで外部公開
+			NetworkMode:             pulumi.String("host"),
 			RequiresCompatibilities: pulumi.StringArray{pulumi.String("EC2")},
 			ExecutionRoleArn:        executionRole.Arn,
 			ContainerDefinitions:    pulumi.String(containerDef),

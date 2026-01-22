@@ -158,6 +158,15 @@ func createAWSResources(ctx *pulumi.Context) error {
 		return err
 	}
 
+	// ECS InstanceロールにSSM読み取りポリシーをアタッチ
+	_, err = iam.NewRolePolicyAttachment(ctx, "datti-ecs-instance-ssm-policy", &iam.RolePolicyAttachmentArgs{
+		Role:      instanceRole.Name,
+		PolicyArn: pulumi.String("arn:aws:iam:aws:policy/AmazonSSMReadonlyAccess"),
+	})
+	if err != nil {
+		return err
+	}
+
 	// ECS Task ロール
 	ecsAssumeRolePolicy := `{
 		"Version": "2012-10-17",
@@ -237,10 +246,19 @@ func createAWSResources(ctx *pulumi.Context) error {
 	}
 
 	// クラスタ名が設定される
-	// TODO: ここの理解をしたい
 	userData := cluster.Name.ApplyT(func(name string) string {
 		return fmt.Sprintf(`#!/bin/bash
 echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
+
+# cloudflaredインストール (ARM64)
+curl -L \
+	https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-arm64 \
+	-o /usr/local/bin/cloudflared
+chmod +x /usr/local/bin/cloudflared
+
+# Tunnel認証
+TOKEN=$(aws ssm get-parameter --name /datti/cloudflared/token --with-decryption --query Parameter.Value --output text --region ap-northeast-1)
+cloudflared service install $TOKEN
 `, name)
 	}).(pulumi.StringOutput)
 
@@ -320,8 +338,8 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 				{Name: "APP_ENV", Value: "production"},
 			},
 			Secrets: []Secret{
-				{Name: "DSN", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/backend/DSN")},
-				{Name: "FIREBASE_PROJECT_ID", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/backend/FIREBASE_PROJECT_ID", region, accountID)},
+				{Name: "DSN", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/backend/DSN", region, accountID)},
+				{Name: "FIREBASE_PROJECT_ID", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/backend/FIREBASE_PROJECT_ID", region, accountID)},
 			},
 		},
 		{
@@ -332,24 +350,24 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 			CPU:           "128",
 			Memory:        "256",
 			EnvVars: []EnvVar{
-				{Name: "API_URL", Value: "http://localhost:8080"},
+				{Name: "API_URL", Value: "http://localhost:8081"},
 				{Name: "APP_URL", Value: "https://dev.datti.app"},
 			},
 			Secrets: []Secret{
-				{Name: "GOOGLE_CLIENT_ID", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/frontend/GOOGLE_CLIENT_ID", region, accountID)},
-				{Name: "GOOGLE_CLIENT_SECRET", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/frontend/GOOGLE_CLIENT_SECRET", region, accountID)},
-				{Name: "FIREBASE_API_KEY", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/frontend/FIREBASE_API_KEY", region, accountID)},
-				{Name: "UPSTASH_REDIS_REST_URL", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/frontend/UPSTASH_REDIS_REST_URL", region, accountID)},
-				{Name: "UPSTASH_REDIS_REST_TOKEN", ValueFrom: fmt.Sprintf("arn:aws:%s:%s:parameter/datti/dev/frontend/UPSTASH_REDIS_REST_TOKEN", region, accountID)},
+				{Name: "GOOGLE_CLIENT_ID", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/GOOGLE_CLIENT_ID", region, accountID)},
+				{Name: "GOOGLE_CLIENT_SECRET", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/GOOGLE_CLIENT_SECRET", region, accountID)},
+				{Name: "FIREBASE_API_KEY", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/FIREBASE_API_KEY", region, accountID)},
+				{Name: "UPSTASH_REDIS_REST_URL", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/UPSTASH_REDIS_REST_URL", region, accountID)},
+				{Name: "UPSTASH_REDIS_REST_TOKEN", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/UPSTASH_REDIS_REST_TOKEN", region, accountID)},
 			},
 		},
 	}
 	for _, svc := range services {
-		envVarsJson, err := json.Marshal(svc.EnvVars)
+		envVarsJSON, err := json.Marshal(svc.EnvVars)
 		if err != nil {
 			return err
 		}
-		secretsJson, err := json.Marshal(svc.Secrets)
+		secretsJSON, err := json.Marshal(svc.Secrets)
 		if err != nil {
 			return err
 		}
@@ -379,7 +397,7 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 				"environment": %s,
 				"secrets": %s
 			}
-		]`, svc.Name, accountID, region, svc.Image, svc.CPU, svc.Memory, svc.ContainerPort, svc.HostPort, svc.Name, region, string(envVarsJson), string(secretsJson))
+		]`, svc.Name, accountID, region, svc.Image, svc.CPU, svc.Memory, svc.ContainerPort, svc.HostPort, svc.Name, region, string(envVarsJSON), string(secretsJSON))
 
 		taskDef, err := ecs.NewTaskDefinition(ctx, svc.Name+"-task", &ecs.TaskDefinitionArgs{
 			Family:                  pulumi.String(svc.Name),

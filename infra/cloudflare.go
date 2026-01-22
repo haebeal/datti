@@ -37,7 +37,7 @@ func createCloudflareResources(ctx *pulumi.Context) error {
 			IngressRules: cloudflare.ZeroTrustTunnelCloudflaredConfigConfigIngressRuleArray{
 				&cloudflare.ZeroTrustTunnelCloudflaredConfigConfigIngressRuleArgs{
 					Hostname: pulumi.String("dev.datti.app"),
-					Service:  pulumi.String("http://localhost:3000"),
+					Service:  pulumi.String("http://localhost:3001"),
 				},
 				&cloudflare.ZeroTrustTunnelCloudflaredConfigConfigIngressRuleArgs{
 					Service: pulumi.String("http_status:404"),

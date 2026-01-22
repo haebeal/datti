@@ -22,7 +22,7 @@ func createUpstashResources(ctx *pulumi.Context) error {
 	_, err = ssm.NewParameter(ctx, "datti-dev-upstash-url", &ssm.ParameterArgs{
 		Name:  pulumi.String("/datti/dev/frontend/UPSTASH_REDIS_REST_URL"),
 		Type:  pulumi.String("String"),
-		Value: redisDev.Endpoint,
+		Value: pulumi.Sprintf("https://%s", redisDev.Endpoint),
 	})
 	if err != nil {
 		return err

@@ -1,6 +1,8 @@
 package main
 
 import (
+	"datti-infra/internal/aws"
+
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -18,7 +20,7 @@ func main() {
 			return err
 		}
 
-		if err := createAWSResources(ctx); err != nil {
+		if err := aws.CreateAWSResources(ctx); err != nil {
 			return err
 		}
 

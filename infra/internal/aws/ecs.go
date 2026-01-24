@@ -157,6 +157,15 @@ cloudflared service install $TOKEN
 		return err
 	}
 
+	// X-Ray書き込み権限
+	_, err = iam.NewRolePolicyAttachment(ctx, "datti-ecs-execution-xray-policy", &iam.RolePolicyAttachmentArgs{
+		Role:      executionRole.Name,
+		PolicyArn: pulumi.String("arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"),
+	})
+	if err != nil {
+		return err
+	}
+
 	////////////////////////////////
 	// ECC サービス
 	////////////////////////////////
@@ -209,7 +218,8 @@ cloudflared service install $TOKEN
 			CPU:           "128",
 			Memory:        "256",
 			EnvVars: []EnvVar{
-				{Name: "APP_ENV", Value: "production"},
+				{Name: "PORT", Value: "8080"},
+				{Name: "OTEL_EXPORTER_OTLP_ENDPOINT", Value: "http://localhost:4318"},
 			},
 			Secrets: []Secret{
 				{Name: "DSN", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/backend/DSN", region, accountID)},
@@ -271,6 +281,14 @@ cloudflared service install $TOKEN
 				},
 				"environment": %s,
 				"secrets": %s
+			},
+			{
+				"name": "aws-otel-collector",
+				"image": "amazon/aws-otel-collector:latest",
+				"cpu": 64,
+				"memory": 128,
+				"essential": false,
+				"command": ["--config=/etc/ecs/ecs-default-config.yaml"]
 			}
 		]`, svc.Name, accountID, region, svc.Image, svc.CPU, svc.Memory, svc.ContainerPort, svc.HostPort, svc.Name, region, string(envVarsJSON), string(secretsJSON))
 

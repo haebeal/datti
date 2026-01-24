@@ -4,7 +4,6 @@ go 1.25.1
 
 require (
 	firebase.google.com/go/v4 v4.18.0
-	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/trace v1.30.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/labstack/echo/v4 v4.13.4
@@ -29,11 +28,11 @@ require (
 	cloud.google.com/go/longrunning v0.6.7 // indirect
 	cloud.google.com/go/monitoring v1.24.2 // indirect
 	cloud.google.com/go/storage v1.55.0 // indirect
-	cloud.google.com/go/trace v1.11.6 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/detectors/gcp v1.29.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/exporter/metric v0.53.0 // indirect
+	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/cloudmock v0.54.0 // indirect
 	github.com/GoogleCloudPlatform/opentelemetry-operations-go/internal/resourcemapping v0.54.0 // indirect
 	github.com/MicahParks/keyfunc v1.9.0 // indirect
 	github.com/air-verse/air v1.63.0 // indirect

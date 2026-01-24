@@ -18,13 +18,15 @@ func CreateAWSResources(ctx *pulumi.Context) error {
 		return err
 	}
 
-	err = createECR(ctx)
-	if err != nil {
+	if err := createECR(ctx); err != nil {
 		return err
 	}
 
-	err = createECS(ctx, network.subnetID, network.sgID, region, accountID)
-	if err != nil {
+	if err = createCognito(ctx); err != nil {
+		return err
+	}
+
+	if err = createECS(ctx, network.subnetID, network.sgID, region, accountID); err != nil {
 		return err
 	}
 

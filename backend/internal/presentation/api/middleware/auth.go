@@ -11,7 +11,8 @@ import (
 )
 
 type AuthMiddlewareConfig struct {
-	SkipPaths []string
+	CognitoClient *cognitoidentityprovider.Client
+	SkipPaths     []string
 }
 
 // AuthMiddleware creates an authentication middleware
@@ -41,15 +42,7 @@ func AuthMiddleware(cfg AuthMiddlewareConfig) echo.MiddlewareFunc {
 			}
 			accessToken := parts[1]
 
-			cfg, err := config.LoadDefaultConfig(c.Request().Context())
-			if err != nil {
-				return c.JSON(http.StatusUnauthorized, api.ErrorResponse{
-					Message: "AWSへの認証に失敗しました",
-				})
-			}
-			cognitoClient := cognitoidentityprovider.NewFromConfig(cfg)
-
-			user, err := cognitoClient.GetUser(c.Request().Context(), &cognitoidentityprovider.GetUserInput{
+			user, err := cfg.CognitoClient.GetUser(c.Request().Context(), &cognitoidentityprovider.GetUserInput{
 				AccessToken: &accessToken,
 			})
 			if err != nil {
@@ -58,7 +51,7 @@ func AuthMiddleware(cfg AuthMiddlewareConfig) echo.MiddlewareFunc {
 				})
 			}
 
-			c.Set("uid", user.Username)
+			c.Set("uid", *user.Username)
 
 			return next(c)
 		}

@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/haebeal/datti/internal/gateway/repository"
 	"github.com/haebeal/datti/internal/presentation/api"
@@ -128,11 +130,17 @@ func main() {
 
 	e.Use(otelecho.Middleware("github.com/haebeal/datti"))
 
-	authConfig := middleware.AuthMiddlewareConfig{
-		SkipPaths: []string{"/health"},
+	awsCfg, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"))
+	if err != nil {
+		log.Fatal("AWSへの認証に失敗しました")
 	}
+	cognitoClient := cognitoidentityprovider.NewFromConfig(awsCfg)
 
-	e.Use(middleware.AuthMiddleware(authConfig))
+	e.Use(middleware.AuthMiddleware(middleware.AuthMiddlewareConfig{
+		SkipPaths:     []string{"/health"},
+		CognitoClient: cognitoClient,
+	}))
+
 	api.RegisterHandlers(e, server)
 
 	if err = errors.Join(e.Start(fmt.Sprintf(":%s", port)), shutdown(ctx)); err != nil {

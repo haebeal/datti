@@ -4,9 +4,12 @@ import (
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cognito"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ssm"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
 func createCognito(ctx *pulumi.Context) error {
+	conf := config.New(ctx, "")
+
 	////////////////////////////////
 	// User Pool
 	////////////////////////////////
@@ -55,28 +58,16 @@ func createCognito(ctx *pulumi.Context) error {
 	////////////////////////////////
 	// Google Identity Provider
 	////////////////////////////////
-	googleClientID, err := ssm.LookupParameter(ctx, &ssm.LookupParameterArgs{
-		Name: "/datti/dev/frontend/GOOGLE_CLIENT_ID",
-	})
-	if err != nil {
-		return err
-	}
-
-	googleClientSecret, err := ssm.LookupParameter(ctx, &ssm.LookupParameterArgs{
-		Name:           "/datti/dev/frontend/GOOGLE_CLIENT_SECRET",
-		WithDecryption: pulumi.BoolRef(true),
-	})
-	if err != nil {
-		return err
-	}
+	googleClientID := conf.Require("googleClientId")
+	googleClientSecret := conf.RequireSecret("googleClientSecret")
 
 	googleIdp, err := cognito.NewIdentityProvider(ctx, "datti-google-idp", &cognito.IdentityProviderArgs{
 		UserPoolId:   userPool.ID(),
 		ProviderName: pulumi.String("Google"),
 		ProviderType: pulumi.String("Google"),
 		ProviderDetails: pulumi.StringMap{
-			"client_id":        pulumi.String(googleClientID.Value),
-			"client_secret":    pulumi.String(googleClientSecret.Value),
+			"client_id":        pulumi.String(googleClientID),
+			"client_secret":    googleClientSecret.ToStringOutput(),
 			"authorize_scopes": pulumi.String("openid email profile"),
 		},
 		AttributeMapping: pulumi.StringMap{

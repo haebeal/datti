@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/cloudwatch"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ec2"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ecs"
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/iam"
@@ -236,8 +237,8 @@ cloudflared service install $TOKEN
 				{Name: "APP_URL", Value: "https://dev.datti.app"},
 			},
 			Secrets: []Secret{
-				{Name: "COGNITO_DOMAIN", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/COGNITO_DOMAIN", region, accountID)},
-				{Name: "COGNITO_CLIENT_ID", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/COGNITO_CLIENT_ID", region, accountID)},
+				{Name: "COGNITO_DOMAIN", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/COGNITO_DOMAIN", region, accountID)},
+				{Name: "COGNITO_CLIENT_ID", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/COGNITO_CLIENT_ID", region, accountID)},
 				{Name: "UPSTASH_REDIS_REST_URL", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/UPSTASH_REDIS_REST_URL", region, accountID)},
 				{Name: "UPSTASH_REDIS_REST_TOKEN", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/UPSTASH_REDIS_REST_TOKEN", region, accountID)},
 			},
@@ -249,6 +250,15 @@ cloudflared service install $TOKEN
 			return err
 		}
 		secretsJSON, err := json.Marshal(svc.Secrets)
+		if err != nil {
+			return err
+		}
+
+		logGroupName := fmt.Sprintf("/ecs/%s", svc.Name)
+		_, err = cloudwatch.NewLogGroup(ctx, logGroupName, &cloudwatch.LogGroupArgs{
+			Name:            pulumi.String(logGroupName),
+			RetentionInDays: pulumi.Int(7),
+		})
 		if err != nil {
 			return err
 		}
@@ -270,7 +280,7 @@ cloudflared service install $TOKEN
 				"logConfiguration": {
 					"logDriver": "awslogs",
 					"options": {
-						"awslogs-group": "/ecs/%s",
+						"awslogs-group": "%s",
 						"awslogs-region": "%s",
 						"awslogs-stream-prefix": "ecs",
 						"awslogs-create-group": "true"
@@ -287,7 +297,7 @@ cloudflared service install $TOKEN
 				"essential": false,
 				"command": ["--config=/etc/ecs/ecs-default-config.yaml"]
 			}
-		]`, svc.Name, accountID, region, svc.Image, svc.CPU, svc.Memory, svc.ContainerPort, svc.HostPort, svc.Name, region, string(envVarsJSON), string(secretsJSON))
+		]`, svc.Name, accountID, region, svc.Image, svc.CPU, svc.Memory, svc.ContainerPort, svc.HostPort, logGroupName, region, string(envVarsJSON), string(secretsJSON))
 
 		taskDef, err := ecs.NewTaskDefinition(ctx, svc.Name+"-task", &ecs.TaskDefinitionArgs{
 			Family:                  pulumi.String(svc.Name),

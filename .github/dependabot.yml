@@ -1,0 +1,126 @@
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "00:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      all-actions:
+        patterns:
+          - "*"
+
+  # npm (frontend)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "00:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "npm"
+    groups:
+      patch-minor:
+        update-types:
+          - "patch"
+          - "minor"
+        exclude-patterns:
+          - "*"
+        applies-to: version-updates
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "patch"
+          - "minor"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # npm major updates (monthly)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "monthly"
+      time: "00:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "major"
+    open-pull-requests-limit: 5
+    allow:
+      - dependency-type: "all"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-patch"
+          - "version-update:semver-minor"
+
+  # gomod (backend)
+  - package-ecosystem: "gomod"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "00:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "go"
+    groups:
+      google-cloud:
+        patterns:
+          - "cloud.google.com/*"
+          - "google.golang.org/*"
+      opentelemetry:
+        patterns:
+          - "go.opentelemetry.io/*"
+      patch-minor:
+        update-types:
+          - "patch"
+          - "minor"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # gomod backend major updates (monthly)
+  - package-ecosystem: "gomod"
+    directory: "/backend"
+    schedule:
+      interval: "monthly"
+      time: "00:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "go"
+      - "major"
+    open-pull-requests-limit: 5
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-patch"
+          - "version-update:semver-minor"
+
+  # gomod (infra)
+  - package-ecosystem: "gomod"
+    directory: "/infra"
+    schedule:
+      interval: "monthly"
+      time: "00:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "go"
+      - "infra"
+    groups:
+      pulumi:
+        patterns:
+          - "github.com/pulumi/*"

@@ -32,37 +32,12 @@ updates:
         update-types:
           - "patch"
           - "minor"
-        exclude-patterns:
-          - "*"
-        applies-to: version-updates
       dev-dependencies:
         dependency-type: "development"
         update-types:
           - "patch"
           - "minor"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-
-  # npm major updates (monthly)
-  - package-ecosystem: "npm"
-    directory: "/frontend"
-    schedule:
-      interval: "monthly"
-      time: "10:00"
-      timezone: "Asia/Tokyo"
-    labels:
-      - "dependencies"
-      - "npm"
-      - "major"
-    open-pull-requests-limit: 5
-    allow:
-      - dependency-type: "all"
-    ignore:
-      - dependency-name: "*"
-        update-types:
-          - "version-update:semver-patch"
-          - "version-update:semver-minor"
+    # メジャーバージョンは個別PRとして作成（auto-mergeされず手動マージ）
 
   # gomod (backend)
   - package-ecosystem: "gomod"
@@ -87,27 +62,7 @@ updates:
         update-types:
           - "patch"
           - "minor"
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-
-  # gomod backend major updates (monthly)
-  - package-ecosystem: "gomod"
-    directory: "/backend"
-    schedule:
-      interval: "monthly"
-      time: "10:00"
-      timezone: "Asia/Tokyo"
-    labels:
-      - "dependencies"
-      - "go"
-      - "major"
-    open-pull-requests-limit: 5
-    ignore:
-      - dependency-name: "*"
-        update-types:
-          - "version-update:semver-patch"
-          - "version-update:semver-minor"
+    # メジャーバージョンは個別PRとして作成（auto-mergeされず手動マージ）
 
   # gomod (infra)
   - package-ecosystem: "gomod"

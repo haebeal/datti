@@ -70,7 +70,7 @@ func createCognito(ctx *pulumi.Context) error {
 		return err
 	}
 
-	_, err = cognito.NewIdentityProvider(ctx, "datti-google-idp", &cognito.IdentityProviderArgs{
+	googleIdp, err := cognito.NewIdentityProvider(ctx, "datti-google-idp", &cognito.IdentityProviderArgs{
 		UserPoolId:   userPool.ID(),
 		ProviderName: pulumi.String("Google"),
 		ProviderType: pulumi.String("Google"),
@@ -89,7 +89,6 @@ func createCognito(ctx *pulumi.Context) error {
 	if err != nil {
 		return err
 	}
-
 	////////////////////////////////
 	// User Pool Client
 	////////////////////////////////
@@ -125,7 +124,7 @@ func createCognito(ctx *pulumi.Context) error {
 		ExplicitAuthFlows: pulumi.StringArray{
 			pulumi.String("ALLOW_REFRESH_TOKEN_AUTH"),
 		},
-	})
+	}, pulumi.DependsOn([]pulumi.Resource{googleIdp}))
 	if err != nil {
 		return err
 	}

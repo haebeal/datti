@@ -118,7 +118,7 @@ cloudflared service install $TOKEN
 	////////////////////////////////
 	// ECC タスク
 	////////////////////////////////
-	// ECS タスク ロール
+	// ECSタスクからAssumeRoleできるようにするポリシー
 	ecsAssumeRolePolicy := `{
 		"Version": "2012-10-17",
 		"Statement": [
@@ -131,6 +131,8 @@ cloudflared service install $TOKEN
 			}
 		]
 	}`
+
+	// execution ロール
 	executionRole, err := iam.NewRole(ctx, "datti-ecs-execution-role", &iam.RoleArgs{
 		Name:             pulumi.String("datti-ecs-execution-role"),
 		AssumeRolePolicy: pulumi.String(ecsAssumeRolePolicy),
@@ -157,9 +159,26 @@ cloudflared service install $TOKEN
 		return err
 	}
 
+	taskRole, err := iam.NewRole(ctx, "datti-ecs-task-role", &iam.RoleArgs{
+		Name:             pulumi.String("datti-ecs-task-role"),
+		AssumeRolePolicy: pulumi.String(ecsAssumeRolePolicy),
+	})
+	if err != nil {
+		return err
+	}
+
+	// Cognito読み取り権限
+	_, err = iam.NewRolePolicyAttachment(ctx, "datti-ecs-task-cognito-policy", &iam.RolePolicyAttachmentArgs{
+		Role:      taskRole.Name,
+		PolicyArn: pulumi.String("arn:aws:iam::aws:policy/AmazonCognitoReadOnly"),
+	})
+	if err != nil {
+		return err
+	}
+
 	// X-Ray書き込み権限
 	_, err = iam.NewRolePolicyAttachment(ctx, "datti-ecs-execution-xray-policy", &iam.RolePolicyAttachmentArgs{
-		Role:      executionRole.Name,
+		Role:      taskRole.Name,
 		PolicyArn: pulumi.String("arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"),
 	})
 	if err != nil {
@@ -169,26 +188,6 @@ cloudflared service install $TOKEN
 	////////////////////////////////
 	// ECC サービス
 	////////////////////////////////
-	manualParams := []struct {
-		Name string
-		Type string
-	}{
-		{Name: "/datti/dev/backend/FIREBASE_PROJECT_ID", Type: "String"},
-		{Name: "/datti/dev/frontend/GOOGLE_CLIENT_ID", Type: "String"},
-		{Name: "/datti/dev/frontend/GOOGLE_CLIENT_SECRET", Type: "SecureString"},
-		{Name: "/datti/dev/frontend/FIREBASE_API_KEY", Type: "SecureString"},
-	}
-	for _, p := range manualParams {
-		_, err := ssm.NewParameter(ctx, p.Name, &ssm.ParameterArgs{
-			Name:  pulumi.String(p.Name),
-			Type:  pulumi.String(p.Type),
-			Value: pulumi.String("PLACEHOLDER"),
-		})
-		if err != nil {
-			return err
-		}
-	}
-
 	type EnvVar struct {
 		Name  string `json:"name"`
 		Value string `json:"value"`
@@ -223,7 +222,6 @@ cloudflared service install $TOKEN
 			},
 			Secrets: []Secret{
 				{Name: "DSN", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/backend/DSN", region, accountID)},
-				{Name: "FIREBASE_PROJECT_ID", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/backend/FIREBASE_PROJECT_ID", region, accountID)},
 			},
 		},
 		{
@@ -238,9 +236,8 @@ cloudflared service install $TOKEN
 				{Name: "APP_URL", Value: "https://dev.datti.app"},
 			},
 			Secrets: []Secret{
-				{Name: "GOOGLE_CLIENT_ID", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/GOOGLE_CLIENT_ID", region, accountID)},
-				{Name: "GOOGLE_CLIENT_SECRET", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/GOOGLE_CLIENT_SECRET", region, accountID)},
-				{Name: "FIREBASE_API_KEY", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/FIREBASE_API_KEY", region, accountID)},
+				{Name: "COGNITO_DOMAIN", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/COGNITO_DOMAIN", region, accountID)},
+				{Name: "COGNITO_CLIENT_ID", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/COGNITO_CLIENT_ID", region, accountID)},
 				{Name: "UPSTASH_REDIS_REST_URL", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/UPSTASH_REDIS_REST_URL", region, accountID)},
 				{Name: "UPSTASH_REDIS_REST_TOKEN", ValueFrom: fmt.Sprintf("arn:aws:ssm:%s:%s:parameter/datti/dev/frontend/UPSTASH_REDIS_REST_TOKEN", region, accountID)},
 			},
@@ -297,6 +294,7 @@ cloudflared service install $TOKEN
 			NetworkMode:             pulumi.String("bridge"),
 			RequiresCompatibilities: pulumi.StringArray{pulumi.String("EC2")},
 			ExecutionRoleArn:        executionRole.Arn,
+			TaskRoleArn:             taskRole.Arn,
 			ContainerDefinitions:    pulumi.String(containerDef),
 		})
 		if err != nil {

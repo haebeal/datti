@@ -1,6 +1,55 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:recommended"
+  "extends": ["config:recommended"],
+  "timezone": "Asia/Tokyo",
+  "schedule": ["before 10am on monday"],
+  "labels": ["dependencies"],
+  "automerge": false,
+  "packageRules": [
+    {
+      "description": "Automerge patch updates",
+      "matchUpdateTypes": ["patch"],
+      "automerge": true
+    },
+    {
+      "description": "Group all GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "description": "Group npm non-major updates",
+      "matchManagers": ["npm"],
+      "matchFileNames": ["frontend/**"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "npm (non-major)"
+    },
+    {
+      "description": "Group npm dev dependencies",
+      "matchManagers": ["npm"],
+      "matchFileNames": ["frontend/**"],
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "npm (dev dependencies)"
+    },
+    {
+      "description": "Group Google Cloud Go packages",
+      "matchManagers": ["gomod"],
+      "matchFileNames": ["backend/**"],
+      "matchPackagePrefixes": ["cloud.google.com/go", "google.golang.org/"],
+      "groupName": "Google Cloud (backend)"
+    },
+    {
+      "description": "Group OpenTelemetry Go packages",
+      "matchManagers": ["gomod"],
+      "matchFileNames": ["backend/**"],
+      "matchPackagePrefixes": ["go.opentelemetry.io/"],
+      "groupName": "OpenTelemetry (backend)"
+    },
+    {
+      "description": "Group Pulumi packages",
+      "matchManagers": ["gomod"],
+      "matchFileNames": ["infra/**"],
+      "matchPackagePrefixes": ["github.com/pulumi/"],
+      "groupName": "Pulumi (infra)"
+    }
   ]
 }

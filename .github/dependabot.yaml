@@ -1,0 +1,81 @@
+version: 2
+updates:
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    groups:
+      all-actions:
+        patterns:
+          - "*"
+
+  # npm (frontend)
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "npm"
+    groups:
+      patch-minor:
+        update-types:
+          - "patch"
+          - "minor"
+      dev-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "patch"
+          - "minor"
+    # メジャーバージョンは個別PRとして作成（auto-mergeされず手動マージ）
+
+  # gomod (backend)
+  - package-ecosystem: "gomod"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "go"
+    groups:
+      google-cloud:
+        patterns:
+          - "cloud.google.com/*"
+          - "google.golang.org/*"
+      opentelemetry:
+        patterns:
+          - "go.opentelemetry.io/*"
+      patch-minor:
+        update-types:
+          - "patch"
+          - "minor"
+    # メジャーバージョンは個別PRとして作成（auto-mergeされず手動マージ）
+
+  # gomod (infra)
+  - package-ecosystem: "gomod"
+    directory: "/infra"
+    schedule:
+      interval: "monthly"
+      time: "10:00"
+      timezone: "Asia/Tokyo"
+    labels:
+      - "dependencies"
+      - "go"
+      - "infra"
+    groups:
+      pulumi:
+        patterns:
+          - "github.com/pulumi/*"

@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "00:00"
+      time: "10:00"
       timezone: "Asia/Tokyo"
     labels:
       - "dependencies"
@@ -22,7 +22,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "00:00"
+      time: "10:00"
       timezone: "Asia/Tokyo"
     labels:
       - "dependencies"
@@ -49,7 +49,7 @@ updates:
     directory: "/frontend"
     schedule:
       interval: "monthly"
-      time: "00:00"
+      time: "10:00"
       timezone: "Asia/Tokyo"
     labels:
       - "dependencies"
@@ -70,7 +70,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      time: "00:00"
+      time: "10:00"
       timezone: "Asia/Tokyo"
     labels:
       - "dependencies"
@@ -96,7 +96,7 @@ updates:
     directory: "/backend"
     schedule:
       interval: "monthly"
-      time: "00:00"
+      time: "10:00"
       timezone: "Asia/Tokyo"
     labels:
       - "dependencies"
@@ -114,7 +114,7 @@ updates:
     directory: "/infra"
     schedule:
       interval: "monthly"
-      time: "00:00"
+      time: "10:00"
       timezone: "Asia/Tokyo"
     labels:
       - "dependencies"

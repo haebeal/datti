@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/haebeal/datti/internal/gateway/firebase"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/haebeal/datti/internal/gateway/repository"
 	"github.com/haebeal/datti/internal/presentation/api"
@@ -129,23 +128,8 @@ func main() {
 
 	e.Use(otelecho.Middleware("github.com/haebeal/datti"))
 
-	// Configure auth middleware
-	// Firebase Emulatorを使用するため、常にFirebase認証を有効化
-	firebaseProjectID := os.Getenv("FIREBASE_PROJECT_ID")
-	if firebaseProjectID == "" {
-		log.Fatal("FIREBASE_PROJECT_ID environment variable is required")
-	}
-
-	firebaseClient, err := firebase.NewClient(ctx, firebaseProjectID)
-	if err != nil {
-		log.Fatalf("Firebase認証の初期化に失敗しました: %v", err)
-	}
-
 	authConfig := middleware.AuthMiddlewareConfig{
-		SkipPaths:      []string{"/health"},
-		FirebaseClient: firebaseClient,
-		DevMode:        false, // Emulatorを使用するのでDevモードは無効
-		DevUserID:      "",
+		SkipPaths: []string{"/health"},
 	}
 
 	e.Use(middleware.AuthMiddleware(authConfig))

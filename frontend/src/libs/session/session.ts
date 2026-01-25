@@ -11,35 +11,23 @@ const redis = new Redis({
 const SESSION_PREFIX = "session:";
 const SESSION_TTL_SECONDS = 7 * 24 * 60 * 60; // 7日間
 const TOKEN_REFRESH_BUFFER_MS = 5 * 60 * 1000; // 5分前にリフレッシュ
-const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 const MAX_REFRESH_RETRIES = 3;
 const INITIAL_RETRY_DELAY_MS = 1000;
 
-// リフレッシュ失敗時にセッション削除すべき永続的エラー
-const PERMANENT_ERROR_CODES = [
-  "INVALID_REFRESH_TOKEN",
-  "TOKEN_EXPIRED",
-  "USER_DISABLED",
-  "USER_NOT_FOUND",
-];
-
-export interface Session {
+export type Session = {
   accessToken: string;
   refreshToken: string;
   accessTokenExpiresAt: number;
   createdAt: number;
   lastAccessedAt: number;
-}
+};
 
-interface FirebaseRefreshResponse {
+type CognitoRefreshResponse = {
   access_token: string;
+  id_token: string;
   expires_in: string;
   token_type: string;
-  refresh_token: string;
-  id_token: string;
-  user_id: string;
-  project_id: string;
-}
+};
 
 type RefreshResult =
   | {
@@ -122,42 +110,40 @@ export async function deleteSession(sessionId: string): Promise<void> {
 }
 
 /**
- * Firebase Refresh Token を使ってアクセストークンを更新
+ * Cognito Refresh Token を使ってアクセストークンを更新
  */
 async function refreshAccessToken(session: Session): Promise<RefreshResult> {
   try {
-    const response = await fetch(
-      `https://securetoken.googleapis.com/v1/token?key=${FIREBASE_API_KEY}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams({
-          grant_type: "refresh_token",
-          refresh_token: session.refreshToken,
-        }),
-        cache: "no-store",
+    const response = await fetch(`${process.env.COGNITO_DOMAIN}/oauth2/token`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-    );
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        client_id: process.env.COGNITO_CLIENT_ID,
+        refresh_token: session.refreshToken,
+      }),
+      cache: "no-store",
+    });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Failed to refresh token:", errorText);
 
-      const isPermanent = PERMANENT_ERROR_CODES.some((code) =>
-        errorText.includes(code),
-      );
+      const isPermanent =
+        errorText.includes("invalid_grant") ||
+        errorText.includes("invalid_request");
       return { success: false, isPermanent };
     }
 
-    const data: FirebaseRefreshResponse = await response.json();
+    const data: CognitoRefreshResponse = await response.json();
 
     return {
       success: true,
       session: {
-        accessToken: data.id_token,
-        refreshToken: data.refresh_token,
+        accessToken: data.access_token,
+        refreshToken: session.refreshToken,
         accessTokenExpiresAt:
           Date.now() + Number.parseInt(data.expires_in, 10) * 1000,
       },

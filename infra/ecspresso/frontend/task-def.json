@@ -1,0 +1,71 @@
+{
+  "family": "dev-datti-frontend",
+  "networkMode": "bridge",
+  "executionRoleArn": "arn:aws:iam::{{ must_env `AWS_ACCOUNT_ID` }}:role/dev-datti-ecs-execution-role",
+  "taskRoleArn": "arn:aws:iam::{{ must_env `AWS_ACCOUNT_ID` }}:role/dev-datti-ecs-task-role",
+  "containerDefinitions": [
+    {
+      "name": "dev-datti-frontend",
+      "image": "{{ must_env `AWS_ACCOUNT_ID` }}.dkr.ecr.ap-northeast-1.amazonaws.com/dev-datti-frontend:{{ must_env `IMAGE_TAG` }}",
+      "cpu": 128,
+      "memory": 256,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3001,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        { "name": "API_URL", "value": "http://172.17.0.1:8081" },
+        { "name": "APP_URL", "value": "https://dev.datti.app" },
+        { "name": "DYNAMODB_SESSIONS_TABLE", "value": "dev-datti-sessions" },
+        { "name": "AWS_REGION", "value": "ap-northeast-1" }
+      ],
+      "secrets": [
+        {
+          "name": "COGNITO_DOMAIN",
+          "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/dev/COGNITO_DOMAIN"
+        },
+        {
+          "name": "COGNITO_CLIENT_ID",
+          "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/dev/COGNITO_CLIENT_ID"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/dev-datti-frontend",
+          "awslogs-region": "ap-northeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    },
+    {
+      "name": "aws-otel-collector",
+      "image": "amazon/aws-otel-collector:latest",
+      "cpu": 64,
+      "memory": 128,
+      "essential": false,
+      "command": ["--config=/etc/ecs/ecs-default-config.yaml"]
+    },
+    {
+      "name": "cloudflared",
+      "image": "cloudflare/cloudflared:latest",
+      "cpu": 64,
+      "memory": 128,
+      "essential": true,
+      "command": ["tunnel", "--no-autoupdate", "run"],
+      "secrets": [
+        {
+          "name": "TUNNEL_TOKEN",
+          "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/dev/cloudflared/token"
+        }
+      ]
+    }
+  ],
+  "requiresCompatibilities": ["EC2"],
+  "cpu": "512",
+  "memory": "768"
+}

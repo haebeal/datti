@@ -41,10 +41,37 @@ func (a AuthUseCaseImpl) Signup(ctx context.Context, input handler.AuthSignupInp
 	ctx, span := tracer.Start(ctx, "auth.Signup")
 	defer span.End()
 
-	// Check if user already exists
+	// Check if user already exists by UID
 	_, err := a.ur.FindByID(ctx, input.UID)
 	if err == nil {
 		return nil, handler.ErrUserAlreadyExists
+	}
+	if !errors.Is(err, pgx.ErrNoRows) {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	// Check if user exists by email (for Firebase → Cognito migration)
+	existingUser, err := a.ur.FindByEmail(ctx, input.Email)
+	if err == nil {
+		// Found existing user with same email - migrate ID
+		if err := a.ur.UpdateID(ctx, existingUser.ID(), input.UID); err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+
+		// Return migrated user with new ID
+		migratedUser, err := domain.NewUser(input.UID, existingUser.Name(), existingUser.Avatar(), existingUser.Email())
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+			return nil, err
+		}
+		return &handler.AuthSignupOutput{
+			User: migratedUser,
+		}, nil
 	}
 	if !errors.Is(err, pgx.ErrNoRows) {
 		span.SetStatus(codes.Error, err.Error())

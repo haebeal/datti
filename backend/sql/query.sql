@@ -12,6 +12,12 @@ LIMIT sqlc.arg('limit');
 -- name: FindUserByID :one
 SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1;
 
+-- name: FindUserByEmail :one
+SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE email = $1 LIMIT 1;
+
+-- name: UpdateUserID :exec
+UPDATE users SET id = $2, updated_at = current_timestamp WHERE id = $1;
+
 -- name: CreateUser :exec
 INSERT INTO users (id, name, avatar, email, created_at, updated_at)
 VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp);

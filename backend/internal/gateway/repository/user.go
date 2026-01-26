@@ -116,3 +116,47 @@ func (ur *UserRepositoryImpl) Update(ctx context.Context, user *domain.User) err
 
 	return nil
 }
+
+func (ur *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
+	ctx, span := tracer.Start(ctx, "user.FindByEmail")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM users WHERE email = $1 LIMIT 1")
+	row, err := ur.queries.FindUserByEmail(ctx, email)
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return nil, err
+	}
+	querySpan.End()
+
+	user, err := domain.NewUser(row.ID, row.Name, row.Avatar, row.Email)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		return nil, err
+	}
+
+	return user, nil
+}
+
+func (ur *UserRepositoryImpl) UpdateID(ctx context.Context, oldID, newID string) error {
+	ctx, span := tracer.Start(ctx, "user.UpdateID")
+	defer span.End()
+
+	ctx, querySpan := tracer.Start(ctx, "UPDATE users SET id = $2 WHERE id = $1")
+	err := ur.queries.UpdateUserID(ctx, postgres.UpdateUserIDParams{
+		ID:   oldID,
+		ID_2: newID,
+	})
+	if err != nil {
+		querySpan.SetStatus(codes.Error, err.Error())
+		querySpan.RecordError(err)
+		querySpan.End()
+		return err
+	}
+	querySpan.End()
+
+	return nil
+}

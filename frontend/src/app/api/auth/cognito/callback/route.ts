@@ -62,8 +62,8 @@ export async function GET(request: NextRequest) {
     const client = createApiClient(access_token);
     const loginResponse = await client.GET("/auth/login");
 
-    if (loginResponse.data) {
-      // ログイン成功時
+    // ログイン成功（200 OK、ボディが空でも成功）
+    if (loginResponse.response.ok && loginResponse.response.status === 200) {
       const sessionId = await createSession(
         access_token,
         refresh_token,

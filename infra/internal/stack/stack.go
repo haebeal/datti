@@ -47,12 +47,12 @@ func NewDattiStack(scope constructs.Construct, id string, props *DattiStackProps
 		StringValue:   cognito.UserPool.UserPoolId(),
 	})
 
-	cognitoClientIDParam := awsssm.NewStringParameter(stack, jsii.String("DattiCognitoClientIdParam"), &awsssm.StringParameterProps{
+	awsssm.NewStringParameter(stack, jsii.String("DattiCognitoClientIdParam"), &awsssm.StringParameterProps{
 		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/COGNITO_CLIENT_ID", env)),
 		StringValue:   cognito.UserPoolClient.UserPoolClientId(),
 	})
 
-	cognitoDomainParam := awsssm.NewStringParameter(stack, jsii.String("DattiCognitoDomainParam"), &awsssm.StringParameterProps{
+	awsssm.NewStringParameter(stack, jsii.String("DattiCognitoDomainParam"), &awsssm.StringParameterProps{
 		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/COGNITO_DOMAIN", env)),
 		StringValue:   jsii.String(cognitoDomainURL),
 	})
@@ -62,28 +62,24 @@ func NewDattiStack(scope constructs.Construct, id string, props *DattiStackProps
 		StringValue:   jsii.String(fmt.Sprintf("https://cognito-idp.ap-northeast-1.amazonaws.com/%s", *cognito.UserPool.UserPoolId())),
 	})
 
-	dsnParam := awsssm.NewStringParameter(stack, jsii.String("DattiDsnParam"), &awsssm.StringParameterProps{
+	awsssm.NewStringParameter(stack, jsii.String("DattiDsnParam"), &awsssm.StringParameterProps{
 		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/backend/DSN", env)),
 		StringValue:   jsii.String("CHANGE_ME"),
 	})
 
-	cloudflaredTokenParam := awsssm.NewStringParameter(stack, jsii.String("DattiCloudflaredTokenParam"), &awsssm.StringParameterProps{
+	awsssm.NewStringParameter(stack, jsii.String("DattiCloudflaredTokenParam"), &awsssm.StringParameterProps{
 		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/cloudflared/token", env)),
 		StringValue:   jsii.String("CHANGE_ME"),
 	})
 
-	// ECS
-	newECS(stack, env, &ecsProps{
-		Vpc:                   network.Vpc,
-		SecurityGroup:         network.SecurityGroup,
-		BackendRepo:           ecr.BackendRepo,
-		FrontendRepo:          ecr.FrontendRepo,
-		SessionsTable:         dynamoDB.SessionsTable,
-		DsnParam:              dsnParam,
-		CognitoDomainParam:    cognitoDomainParam,
-		CognitoClientIDParam:  cognitoClientIDParam,
-		CloudflaredTokenParam: cloudflaredTokenParam,
+	// ECS (Cluster, Capacity, Roles only - services managed by ecspresso)
+	ecs := newECS(stack, env, &ecsProps{
+		Vpc:           network.Vpc,
+		SecurityGroup: network.SecurityGroup,
 	})
+
+	// Grant DynamoDB access to task role
+	dynamoDB.SessionsTable.GrantReadWriteData(ecs.TaskRole)
 
 	// GitHub Actions Role
 	githubRole := newGitHubActionsRole(stack, env)
@@ -97,6 +93,15 @@ func NewDattiStack(scope constructs.Construct, id string, props *DattiStackProps
 	})
 	awscdk.NewCfnOutput(stack, jsii.String("DattiGitHubActionsRoleArn"), &awscdk.CfnOutputProps{
 		Value: githubRole.RoleArn(),
+	})
+	awscdk.NewCfnOutput(stack, jsii.String("DattiEcsClusterName"), &awscdk.CfnOutputProps{
+		Value: ecs.Cluster.ClusterName(),
+	})
+	awscdk.NewCfnOutput(stack, jsii.String("DattiExecutionRoleArn"), &awscdk.CfnOutputProps{
+		Value: ecs.ExecutionRole.RoleArn(),
+	})
+	awscdk.NewCfnOutput(stack, jsii.String("DattiTaskRoleArn"), &awscdk.CfnOutputProps{
+		Value: ecs.TaskRole.RoleArn(),
 	})
 
 	return stack

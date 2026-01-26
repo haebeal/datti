@@ -8,10 +8,6 @@ import (
 
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
-		if err := createUpstashResources(ctx); err != nil {
-			return err
-		}
-
 		if err := createCloudflareResources(ctx); err != nil {
 			return err
 		}

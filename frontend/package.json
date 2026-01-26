@@ -12,10 +12,11 @@
     "gen:api": "openapi-typescript ../backend/openapi.yaml -o ./src/libs/api/schema.d.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.975.0",
+    "@aws-sdk/lib-dynamodb": "^3.975.0",
     "@conform-to/react": "^1.15.1",
     "@conform-to/zod": "^1.15.1",
     "@internationalized/date": "^3.10.1",
-    "@upstash/redis": "^1.36.1",
     "lucide-react": "^0.562.0",
     "nanoid": "^5.1.6",
     "next": "16.1.1",

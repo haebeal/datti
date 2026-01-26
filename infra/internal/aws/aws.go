@@ -36,6 +36,11 @@ func CreateAWSResources(ctx *pulumi.Context) error {
 		return err
 	}
 
+	dynamoDB, err := createDynamoDB(ctx)
+	if err != nil {
+		return err
+	}
+
 	// DSN用のSSMパラメータ（値は手動で設定）
 	_, err = ssm.NewParameter(ctx, "datti-dev-dsn", &ssm.ParameterArgs{
 		Name:  pulumi.String("/datti/dev/backend/DSN"),
@@ -47,16 +52,16 @@ func CreateAWSResources(ctx *pulumi.Context) error {
 	}
 
 	if err = createECS(ctx, ecsConfig{
-		subnetID:             network.subnetID,
-		securityGroupID:      network.sgID,
-		backendRepoURL:       ecr.backendRepoURL,
-		frontendRepoURL:      ecr.frontendRepoURL,
-		dsnARN:               ssmARN("/datti/dev/backend/DSN"),
-		cloudflaredTokenARN:  ssmARN("/datti/cloudflared/token"),
-		cognitoDomainARN:     cognito.cognitoDomainARN,
-		cognitoClientIDARN:   cognito.cognitoClientIDARN,
-		upstashRedisURLARN:   ssmARN("/datti/dev/frontend/UPSTASH_REDIS_REST_URL"),
-		upstashRedisTokenARN: ssmARN("/datti/dev/frontend/UPSTASH_REDIS_REST_TOKEN"),
+		subnetID:            network.subnetID,
+		securityGroupID:     network.sgID,
+		backendRepoURL:      ecr.backendRepoURL,
+		frontendRepoURL:     ecr.frontendRepoURL,
+		dsnARN:              ssmARN("/datti/dev/backend/DSN"),
+		cloudflaredTokenARN: ssmARN("/datti/cloudflared/token"),
+		cognitoDomainARN:    cognito.cognitoDomainARN,
+		cognitoClientIDARN:  cognito.cognitoClientIDARN,
+		sessionsTableName:   dynamoDB.sessionsTableName,
+		sessionsTableARN:    dynamoDB.sessionsTableARN,
 	}); err != nil {
 		return err
 	}

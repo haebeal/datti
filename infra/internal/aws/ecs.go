@@ -12,16 +12,16 @@ import (
 )
 
 type ecsConfig struct {
-	subnetID             pulumi.StringInput
-	securityGroupID      pulumi.StringInput
-	backendRepoURL       pulumi.StringInput
-	frontendRepoURL      pulumi.StringInput
-	dsnARN               pulumi.StringInput
-	cloudflaredTokenARN  pulumi.StringInput
-	cognitoDomainARN     pulumi.StringInput
-	cognitoClientIDARN   pulumi.StringInput
-	upstashRedisURLARN   pulumi.StringInput
-	upstashRedisTokenARN pulumi.StringInput
+	subnetID              pulumi.StringInput
+	securityGroupID       pulumi.StringInput
+	backendRepoURL        pulumi.StringInput
+	frontendRepoURL       pulumi.StringInput
+	dsnARN                pulumi.StringInput
+	cloudflaredTokenARN   pulumi.StringInput
+	cognitoDomainARN      pulumi.StringInput
+	cognitoClientIDARN    pulumi.StringInput
+	sessionsTableName     pulumi.StringInput
+	sessionsTableARN      pulumi.StringInput
 }
 
 func createECS(ctx *pulumi.Context, cfg ecsConfig) error {
@@ -188,6 +188,38 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 		return err
 	}
 
+	// DynamoDB セッション管理権限（最小権限）
+	dynamoDBPolicy, err := iam.NewPolicy(ctx, "datti-ecs-task-dynamodb-policy", &iam.PolicyArgs{
+		Name: pulumi.String("datti-ecs-task-dynamodb-policy"),
+		Policy: cfg.sessionsTableARN.ToStringOutput().ApplyT(func(tableARN string) string {
+			return fmt.Sprintf(`{
+				"Version": "2012-10-17",
+				"Statement": [
+					{
+						"Effect": "Allow",
+						"Action": [
+							"dynamodb:GetItem",
+							"dynamodb:PutItem",
+							"dynamodb:DeleteItem"
+						],
+						"Resource": "%s"
+					}
+				]
+			}`, tableARN)
+		}).(pulumi.StringOutput),
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = iam.NewRolePolicyAttachment(ctx, "datti-ecs-task-dynamodb-policy-attachment", &iam.RolePolicyAttachmentArgs{
+		Role:      taskRole.Name,
+		PolicyArn: dynamoDBPolicy.Arn,
+	})
+	if err != nil {
+		return err
+	}
+
 	////////////////////////////////
 	// Backend サービス
 	////////////////////////////////
@@ -290,17 +322,15 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 		cfg.frontendRepoURL,
 		cfg.cognitoDomainARN,
 		cfg.cognitoClientIDARN,
-		cfg.upstashRedisURLARN,
-		cfg.upstashRedisTokenARN,
+		cfg.sessionsTableName,
 		cfg.cloudflaredTokenARN,
 	).ApplyT(
 		func(args []any) string {
 			repoURL := args[0].(string)
 			cognitoDomainARN := args[1].(string)
 			cognitoClientIDARN := args[2].(string)
-			upstashURLARN := args[3].(string)
-			upstashTokenARN := args[4].(string)
-			cloudflaredTokenARN := args[5].(string)
+			sessionsTableName := args[3].(string)
+			cloudflaredTokenARN := args[4].(string)
 
 			return fmt.Sprintf(`[
 		{
@@ -322,13 +352,13 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 			},
 			"environment": [
 				{"name": "API_URL", "value": "http://172.17.0.1:8081"},
-				{"name": "APP_URL", "value": "https://dev.datti.app"}
+				{"name": "APP_URL", "value": "https://dev.datti.app"},
+				{"name": "DYNAMODB_SESSIONS_TABLE", "value": "%s"},
+				{"name": "AWS_REGION", "value": "ap-northeast-1"}
 			],
 			"secrets": [
 				{"name": "COGNITO_DOMAIN", "valueFrom": "%s"},
-				{"name": "COGNITO_CLIENT_ID", "valueFrom": "%s"},
-				{"name": "UPSTASH_REDIS_REST_URL", "valueFrom": "%s"},
-				{"name": "UPSTASH_REDIS_REST_TOKEN", "valueFrom": "%s"}
+				{"name": "COGNITO_CLIENT_ID", "valueFrom": "%s"}
 			]
 		},
 		{
@@ -350,7 +380,7 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 				{"name": "TUNNEL_TOKEN", "valueFrom": "%s"}
 			]
 		}
-	]`, repoURL, cognitoDomainARN, cognitoClientIDARN, upstashURLARN, upstashTokenARN, cloudflaredTokenARN)
+	]`, repoURL, sessionsTableName, cognitoDomainARN, cognitoClientIDARN, cloudflaredTokenARN)
 		},
 	).(pulumi.StringOutput)
 

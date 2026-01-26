@@ -8,8 +8,8 @@ declare namespace NodeJS {
     readonly APP_URL: string;
     readonly API_URL: string;
 
-    // Redis (Session Storage)
-    readonly UPSTASH_REDIS_REST_URL: string;
-    readonly UPSTASH_REDIS_REST_TOKEN: string;
+    // DynamoDB (Session Storage)
+    readonly DYNAMODB_SESSIONS_TABLE: string;
+    readonly AWS_REGION: string;
   }
 }

@@ -99,6 +99,7 @@ func createCognito(ctx *pulumi.Context) (*cognitoOutput, error) {
 			pulumi.String("openid"),
 			pulumi.String("email"),
 			pulumi.String("profile"),
+			pulumi.String("aws.cognito.signin.user.admin"),
 		},
 		CallbackUrls: pulumi.StringArray{
 			pulumi.String("https://dev.datti.app/api/auth/cognito/callback"),

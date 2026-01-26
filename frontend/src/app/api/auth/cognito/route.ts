@@ -20,7 +20,7 @@ export async function GET() {
   authUrl.searchParams.set("client_id", clientId);
   authUrl.searchParams.set("redirect_uri", redirectUri);
   authUrl.searchParams.set("response_type", "code");
-  authUrl.searchParams.set("scope", "openid email profile");
+  authUrl.searchParams.set("scope", "openid email profile aws.cognito.signin.user.admin");
   authUrl.searchParams.set("state", encodedState);
   authUrl.searchParams.set("identity_provider", "Google");
 

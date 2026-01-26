@@ -1,10 +1,10 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 	"strings"
 
-	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
@@ -46,12 +46,26 @@ func AuthMiddleware(cfg AuthMiddlewareConfig) echo.MiddlewareFunc {
 				AccessToken: &accessToken,
 			})
 			if err != nil {
+				log.Printf("Cognito GetUser error: %v", err)
 				return c.JSON(http.StatusUnauthorized, api.ErrorResponse{
 					Message: "アクセストークンの検証に失敗しました",
 				})
 			}
 
-			c.Set("uid", *user.Username)
+			var uid string
+			for _, attr := range user.UserAttributes {
+				if *attr.Name == "sub" {
+					uid = *attr.Value
+					break
+				}
+			}
+			if uid == "" {
+				return c.JSON(http.StatusUnauthorized, api.ErrorResponse{
+					Message: "ユーザーIDの取得に失敗しました",
+				})
+			}
+
+			c.Set("uid", uid)
 
 			return next(c)
 		}

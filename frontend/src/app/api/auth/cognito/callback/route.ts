@@ -28,6 +28,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    console.log("Starting Cognito token exchange...");
+    console.log("COGNITO_DOMAIN:", process.env.COGNITO_DOMAIN);
+    console.log("COGNITO_CLIENT_ID:", process.env.COGNITO_CLIENT_ID);
+    console.log("APP_URL:", process.env.APP_URL);
+
     const tokenResponse = await fetch(
       `${process.env.COGNITO_DOMAIN}/oauth2/token`,
       {
@@ -108,8 +113,10 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    console.error("Login/Signup failed, loginResponse:", loginResponse);
     return redirect("/auth?error=signup_failed");
-  } catch {
+  } catch (error) {
+    console.error("Auth callback error:", error);
     return redirect("/auth?error=server_error");
   }
 }

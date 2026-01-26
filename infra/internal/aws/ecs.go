@@ -309,6 +309,9 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 			"cpu": 128,
 			"memory": 256,
 			"essential": true,
+			"portMappings": [
+				{"containerPort": 3000, "hostPort": 3001, "protocol": "tcp"}
+			],
 			"logConfiguration": {
 				"logDriver": "awslogs",
 				"options": {
@@ -343,9 +346,6 @@ echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
 			"memory": 128,
 			"essential": true,
 			"command": ["tunnel", "--no-autoupdate", "run"],
-			"environment": [
-				{"name": "TUNNEL_URL", "value": "http://localhost:3000"}
-			],
 			"secrets": [
 				{"name": "TUNNEL_TOKEN", "valueFrom": "%s"}
 			]

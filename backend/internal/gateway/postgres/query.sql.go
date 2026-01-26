@@ -754,6 +754,24 @@ func (q *Queries) FindRepaymentsByPayerIDWithCursor(ctx context.Context, arg Fin
 	return items, nil
 }
 
+const findUserByEmail = `-- name: FindUserByEmail :one
+SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE email = $1 LIMIT 1
+`
+
+func (q *Queries) FindUserByEmail(ctx context.Context, email string) (User, error) {
+	row := q.db.QueryRow(ctx, findUserByEmail, email)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Avatar,
+		&i.Email,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const findUserByID = `-- name: FindUserByID :one
 SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1
 `
@@ -976,5 +994,19 @@ type UpdateUserParams struct {
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
 	_, err := q.db.Exec(ctx, updateUser, arg.ID, arg.Name, arg.Avatar)
+	return err
+}
+
+const updateUserID = `-- name: UpdateUserID :exec
+UPDATE users SET id = $2, updated_at = current_timestamp WHERE id = $1
+`
+
+type UpdateUserIDParams struct {
+	ID   string
+	ID_2 string
+}
+
+func (q *Queries) UpdateUserID(ctx context.Context, arg UpdateUserIDParams) error {
+	_, err := q.db.Exec(ctx, updateUserID, arg.ID, arg.ID_2)
 	return err
 }

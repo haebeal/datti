@@ -84,7 +84,9 @@ func (u *User) WithUpdatedProfile(name string, avatar string) (*User, error) {
 
 type UserRepository interface {
 	FindByID(context.Context, string) (*User, error)
+	FindByEmail(context.Context, string) (*User, error)
 	FindBySearch(context.Context, *string, *string, int32) ([]*User, error)
 	Create(context.Context, *User) error
 	Update(context.Context, *User) error
+	UpdateID(ctx context.Context, oldID, newID string) error
 }

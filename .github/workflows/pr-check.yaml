@@ -101,20 +101,31 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.infra == 'true'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: dev
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
         with:
-          go-version: "stable"
-      - run: go mod download
-        working-directory: infra
-      - uses: pulumi/actions@v6
+          go-version: stable
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
-          command: preview
-          stack-name: narebas/datti/default
-          work-dir: infra
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ap-northeast-1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install CDK
+        run: npm install -g aws-cdk
+      - name: CDK Diff
+        working-directory: infra
+        run: cdk diff DevDattiStack
         env:
-          PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
   backend-lint:
     needs: detect-changes

@@ -6,7 +6,6 @@ require (
 	github.com/pulumi/pulumi-aws/sdk/v7 v7.16.0
 	github.com/pulumi/pulumi-cloudflare/sdk/v5 v5.49.1
 	github.com/pulumi/pulumi-random/sdk/v4 v4.19.0
-	github.com/pulumi/pulumi-terraform-provider/sdks/go/neon v0.0.0
 	github.com/pulumi/pulumi/sdk/v3 v3.216.0
 	github.com/upstash/pulumi-upstash/sdk v0.5.0
 )

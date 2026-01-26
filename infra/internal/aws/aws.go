@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws"
+	"github.com/pulumi/pulumi-aws/sdk/v7/go/aws/ssm"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -31,6 +32,16 @@ func CreateAWSResources(ctx *pulumi.Context) error {
 	}
 
 	cognito, err := createCognito(ctx)
+	if err != nil {
+		return err
+	}
+
+	// DSN用のSSMパラメータ（値は手動で設定）
+	_, err = ssm.NewParameter(ctx, "datti-dev-dsn", &ssm.ParameterArgs{
+		Name:  pulumi.String("/datti/dev/backend/DSN"),
+		Type:  pulumi.String("SecureString"),
+		Value: pulumi.String("CHANGE_ME"),
+	}, pulumi.IgnoreChanges([]string{"value"}))
 	if err != nil {
 		return err
 	}

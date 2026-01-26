@@ -14,7 +14,11 @@ func createDynamoDB(ctx *pulumi.Context) (*dynamoDBOutput, error) {
 	// セッション管理用DynamoDBテーブル
 	sessionsTable, err := dynamodb.NewTable(ctx, "datti-sessions-dev", &dynamodb.TableArgs{
 		Name:        pulumi.String("datti-sessions-dev"),
-		BillingMode: pulumi.String("PAY_PER_REQUEST"),
+		BillingMode: pulumi.String("PROVISIONED"),
+
+		// 無料枠内で設定（25 RCU/WCU まで無料）
+		ReadCapacity:  pulumi.Int(5),
+		WriteCapacity: pulumi.Int(5),
 
 		// パーティションキー
 		HashKey: pulumi.String("sessionId"),

@@ -18,7 +18,7 @@ env:
 jobs:
   deploy-backend:
     if: github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'backend'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       id-token: write
@@ -62,7 +62,7 @@ jobs:
 
   deploy-frontend:
     if: github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'frontend'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
       id-token: write

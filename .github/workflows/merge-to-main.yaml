@@ -14,6 +14,7 @@ jobs:
     outputs:
       openapi: ${{ steps.filter.outputs.openapi }}
       schema: ${{ steps.filter.outputs.schema }}
+      infra: ${{ steps.filter.outputs.infra }}
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
@@ -26,6 +27,9 @@ jobs:
               - 'backend/openapi.yaml'
             schema:
               - 'backend/sql/**'
+            infra:
+              - 'infra/cmd/**'
+              - 'infra/internal/**'
             backend:
               - 'backend/**'
               - 'infra/ecspresso/backend/**'
@@ -56,6 +60,42 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy _site --project-name=datti-dev-openapi
 
+  provision-infra:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.infra == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: dev
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install CDK
+        run: npm install -g aws-cdk
+
+      - name: CDK Deploy
+        working-directory: infra
+        run: cdk deploy DevDattiStack --require-approval never
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+
   apply-schema:
     needs: detect-changes
     if: needs.detect-changes.outputs.schema == 'true'
@@ -73,10 +113,11 @@ jobs:
           auto-approve: true
 
   deploy-backend:
-    needs: [detect-changes, apply-schema]
+    needs: [detect-changes, provision-infra, apply-schema]
     if: |
       always() &&
       needs.detect-changes.outputs.backend == 'true' &&
+      (needs.provision-infra.result == 'success' || needs.provision-infra.result == 'skipped') &&
       (needs.apply-schema.result == 'success' || needs.apply-schema.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
@@ -121,8 +162,11 @@ jobs:
           IMAGE_TAG: dev
 
   deploy-frontend:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
+    needs: [detect-changes, provision-infra]
+    if: |
+      always() &&
+      needs.detect-changes.outputs.frontend == 'true' &&
+      (needs.provision-infra.result == 'success' || needs.provision-infra.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: read

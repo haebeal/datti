@@ -5,12 +5,12 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-type output struct {
+type networkOutput struct {
 	subnetID pulumi.IDOutput
 	sgID     pulumi.IDOutput
 }
 
-func createNetworkResources(ctx *pulumi.Context) (*output, error) {
+func createNetworkResources(ctx *pulumi.Context) (*networkOutput, error) {
 	////////////////////////////////
 	// VPC
 	////////////////////////////////
@@ -109,7 +109,7 @@ func createNetworkResources(ctx *pulumi.Context) (*output, error) {
 		return nil, err
 	}
 
-	return &output{
+	return &networkOutput{
 		subnetID: subnet.ID(),
 		sgID:     sg.ID(),
 	}, nil

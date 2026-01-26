@@ -5,7 +5,12 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func createECR(ctx *pulumi.Context) error {
+type ecrOutput struct {
+	backendRepoURL  pulumi.StringOutput
+	frontendRepoURL pulumi.StringOutput
+}
+
+func createECR(ctx *pulumi.Context) (*ecrOutput, error) {
 	////////////////////////////////
 	// ECR ライフサイクルポリシー
 	// NOTE: コスト削減のためuntaggedになってから一日経ったイメージを全て削除
@@ -29,27 +34,47 @@ func createECR(ctx *pulumi.Context) error {
 	}`
 
 	////////////////////////////////
-	// ECRリポジトリ
+	// Backend ECRリポジトリ
 	////////////////////////////////
-	ecrRepos := []string{"datti-backend", "datti-frontend"}
-	for _, name := range ecrRepos {
-		repo, err := ecr.NewRepository(ctx, name, &ecr.RepositoryArgs{
-			Name:               pulumi.String(name),
-			ImageTagMutability: pulumi.String("MUTABLE"),
-			ForceDelete:        pulumi.Bool(true),
-		})
-		if err != nil {
-			return err
-		}
-
-		_, err = ecr.NewLifecyclePolicy(ctx, name+"-lifecycle", &ecr.LifecyclePolicyArgs{
-			Repository: repo.Name,
-			Policy:     pulumi.String(ecrLifecyclePolicy),
-		})
-		if err != nil {
-			return err
-		}
+	backendRepo, err := ecr.NewRepository(ctx, "datti-backend", &ecr.RepositoryArgs{
+		Name:               pulumi.String("datti-backend"),
+		ImageTagMutability: pulumi.String("MUTABLE"),
+		ForceDelete:        pulumi.Bool(true),
+	})
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	_, err = ecr.NewLifecyclePolicy(ctx, "datti-backend-lifecycle", &ecr.LifecyclePolicyArgs{
+		Repository: backendRepo.Name,
+		Policy:     pulumi.String(ecrLifecyclePolicy),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	////////////////////////////////
+	// Frontend ECRリポジトリ
+	////////////////////////////////
+	frontendRepo, err := ecr.NewRepository(ctx, "datti-frontend", &ecr.RepositoryArgs{
+		Name:               pulumi.String("datti-frontend"),
+		ImageTagMutability: pulumi.String("MUTABLE"),
+		ForceDelete:        pulumi.Bool(true),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = ecr.NewLifecyclePolicy(ctx, "datti-frontend-lifecycle", &ecr.LifecyclePolicyArgs{
+		Repository: frontendRepo.Name,
+		Policy:     pulumi.String(ecrLifecyclePolicy),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &ecrOutput{
+		backendRepoURL:  backendRepo.RepositoryUrl,
+		frontendRepoURL: frontendRepo.RepositoryUrl,
+	}, nil
 }

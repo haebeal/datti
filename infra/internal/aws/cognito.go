@@ -7,7 +7,12 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 )
 
-func createCognito(ctx *pulumi.Context) error {
+type cognitoOutput struct {
+	cognitoDomainARN   pulumi.StringOutput
+	cognitoClientIDARN pulumi.StringOutput
+}
+
+func createCognito(ctx *pulumi.Context) (*cognitoOutput, error) {
 	conf := config.New(ctx, "")
 
 	////////////////////////////////
@@ -41,7 +46,7 @@ func createCognito(ctx *pulumi.Context) error {
 		},
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	////////////////////////////////
@@ -52,7 +57,7 @@ func createCognito(ctx *pulumi.Context) error {
 		UserPoolId: userPool.ID(),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	////////////////////////////////
@@ -78,7 +83,7 @@ func createCognito(ctx *pulumi.Context) error {
 		},
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 	////////////////////////////////
 	// User Pool Client
@@ -117,7 +122,7 @@ func createCognito(ctx *pulumi.Context) error {
 		},
 	}, pulumi.DependsOn([]pulumi.Resource{googleIdp}))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	////////////////////////////////
@@ -129,25 +134,25 @@ func createCognito(ctx *pulumi.Context) error {
 		Value: userPool.ID(),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	_, err = ssm.NewParameter(ctx, "datti-cognito-client-id", &ssm.ParameterArgs{
+	cognitoClientIDParam, err := ssm.NewParameter(ctx, "datti-cognito-client-id", &ssm.ParameterArgs{
 		Name:  pulumi.String("/datti/dev/COGNITO_CLIENT_ID"),
 		Type:  pulumi.String("String"),
 		Value: client.ID(),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	_, err = ssm.NewParameter(ctx, "datti-cognito-domain", &ssm.ParameterArgs{
+	cognitoDomainParam, err := ssm.NewParameter(ctx, "datti-cognito-domain", &ssm.ParameterArgs{
 		Name:  pulumi.String("/datti/dev/COGNITO_DOMAIN"),
 		Type:  pulumi.String("String"),
 		Value: pulumi.Sprintf("https://%s.auth.ap-northeast-1.amazoncognito.com", domain.Domain),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	_, err = ssm.NewParameter(ctx, "datti-cognito-issuer", &ssm.ParameterArgs{
@@ -156,8 +161,11 @@ func createCognito(ctx *pulumi.Context) error {
 		Value: pulumi.Sprintf("https://cognito-idp.ap-northeast-1.amazonaws.com/%s", userPool.ID()),
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return &cognitoOutput{
+		cognitoDomainARN:   cognitoDomainParam.Arn,
+		cognitoClientIDARN: cognitoClientIDParam.Arn,
+	}, nil
 }

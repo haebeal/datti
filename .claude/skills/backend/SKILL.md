@@ -96,6 +96,82 @@ task gen-mocks     # モック生成
 task test          # go test -race ./...
 ```
 
+## ローカルデバッグ
+
+### 前提条件
+
+| ツール | 用途 | インストール |
+|--------|------|--------------|
+| Docker | PostgreSQL, Redis, Jaeger | `brew install --cask docker` |
+| gcloud CLI | Firebase認証用ADC | `brew install --cask google-cloud-sdk` |
+
+### 環境構築手順
+
+```bash
+# 1. コンテナ起動（リポジトリルートで実行）
+docker compose up -d
+
+# 2. GCP認証（初回のみ、ブラウザが開く）
+gcloud auth application-default login
+
+# 3. DBマイグレーション
+cd backend
+task db-migrate
+
+# 4. 開発サーバー起動
+air
+```
+
+### 起動後のポート
+
+| サービス | ポート | 用途 |
+|----------|--------|------|
+| Echo API | :7070 | APIサーバー |
+| Delve | :2345 | デバッガー接続 |
+| PostgreSQL | :5432 | データベース |
+| Jaeger UI | :16686 | 分散トレース |
+
+### デバッグ手法
+
+**1. ログベースデバッグ**
+
+コードに `log.Printf` を追加 → air が自動リビルド → ターミナルでログ確認
+
+```go
+log.Printf("Debug: userID=%s, amount=%d", userID, amount)
+```
+
+**2. APIテスト**
+
+```bash
+# ヘルスチェック
+curl http://localhost:7070/health
+
+# 認証が必要なエンドポイント（401が返る）
+curl http://localhost:7070/v1/users/me
+
+# レスポンスとステータスコード確認
+curl -s -w "\nHTTP Status: %{http_code}" http://localhost:7070/v1/groups
+```
+
+**3. 静的解析**
+
+```bash
+go vet ./...
+```
+
+**4. トレース確認**
+
+ブラウザで `http://localhost:16686` を開き、Jaeger UIでリクエストのトレースを確認。
+
+### トラブルシューティング
+
+| エラー | 原因 | 対処 |
+|--------|------|------|
+| `missing scheme` | `.env` が存在しない | 1Password Environmentsで同期 |
+| `could not find default credentials` | GCP認証未実施 | `gcloud auth application-default login` |
+| `bind: address already in use` | ポート競合 | `lsof -ti:2345 \| xargs kill -9` |
+
 ## 重要な実務ルール
 
 ### コード生成の管理

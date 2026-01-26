@@ -51,6 +51,16 @@ func CreateAWSResources(ctx *pulumi.Context) error {
 		return err
 	}
 
+	// Cloudflaredトークン用のSSMパラメータ（値は手動で設定）
+	_, err = ssm.NewParameter(ctx, "datti-cloudflared-token", &ssm.ParameterArgs{
+		Name:  pulumi.String("/datti/cloudflared/token"),
+		Type:  pulumi.String("SecureString"),
+		Value: pulumi.String("CHANGE_ME"),
+	}, pulumi.IgnoreChanges([]string{"value"}))
+	if err != nil {
+		return err
+	}
+
 	if err = createECS(ctx, ecsConfig{
 		subnetID:            network.subnetID,
 		securityGroupID:     network.sgID,

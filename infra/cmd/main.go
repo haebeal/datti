@@ -21,13 +21,13 @@ func main() {
 		panic("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are required")
 	}
 
-	stack.NewDattiStack(app, "DattiProdStack", &stack.DattiStackProps{
+	stack.NewDattiStack(app, "DevDattiStack", &stack.DattiStackProps{
 		StackProps: awscdk.StackProps{
 			Env: &awscdk.Environment{
 				Region: jsii.String("ap-northeast-1"),
 			},
 		},
-		Env:                "prod",
+		Env:                "dev",
 		GoogleClientID:     googleClientID,
 		GoogleClientSecret: googleClientSecret,
 	})

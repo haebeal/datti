@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"slices"
 
 	"github.com/haebeal/datti/internal/domain"
@@ -105,7 +104,7 @@ func (u GroupUseCaseImpl) Get(ctx context.Context, input handler.GroupGetInput) 
 	if !slices.ContainsFunc(members, func(m *domain.User) bool {
 		return m.ID() == input.UserID
 	}) {
-		return nil, fmt.Errorf("forbidden Error")
+		return nil, NewForbiddenError("グループのメンバーではありません")
 	}
 
 	return &handler.GroupGetOutput{
@@ -130,7 +129,7 @@ func (u GroupUseCaseImpl) Update(ctx context.Context, input handler.GroupUpdateI
 	}
 
 	if input.UserID != group.CreatedBy() {
-		return nil, fmt.Errorf("forbidden Error")
+		return nil, NewForbiddenError("グループの更新権限がありません")
 	}
 
 	updatedGroup, err := group.Update(ctx, input.Name)
@@ -165,7 +164,7 @@ func (u GroupUseCaseImpl) AddMember(ctx context.Context, input handler.GroupAddM
 	}
 
 	if input.UserID != group.CreatedBy() {
-		return fmt.Errorf("forbidden Error")
+		return NewForbiddenError("メンバーの追加権限がありません")
 	}
 
 	members, err := u.gr.FindMembersByID(ctx, input.GroupID)
@@ -176,7 +175,7 @@ func (u GroupUseCaseImpl) AddMember(ctx context.Context, input handler.GroupAddM
 	if slices.ContainsFunc(members, func(m *domain.User) bool {
 		return m.ID() == input.MemberID
 	}) {
-		return fmt.Errorf("member already exists")
+		return NewConflictError("member", "既にメンバーに追加されています")
 	}
 
 	member, err := u.ur.FindByID(ctx, input.MemberID)
@@ -211,7 +210,7 @@ func (u GroupUseCaseImpl) ListMembers(ctx context.Context, input handler.GroupLi
 	if !slices.ContainsFunc(members, func(m *domain.User) bool {
 		return m.ID() == input.UserID
 	}) {
-		return nil, fmt.Errorf("forbidden Error")
+		return nil, NewForbiddenError("グループのメンバーではありません")
 	}
 
 	return &handler.GroupListMembersOutput{
@@ -237,7 +236,7 @@ func (u GroupUseCaseImpl) Delete(ctx context.Context, input handler.GroupDeleteI
 
 	// グループ作成者のみ削除可能
 	if input.UserID != group.CreatedBy() {
-		return fmt.Errorf("forbidden Error")
+		return NewForbiddenError("グループの削除権限がありません")
 	}
 
 	err = u.gr.Delete(ctx, group)
@@ -266,12 +265,12 @@ func (u GroupUseCaseImpl) RemoveMember(ctx context.Context, input handler.GroupR
 
 	// グループ作成者は退出できない
 	if input.MemberID == group.CreatedBy() {
-		return fmt.Errorf("forbidden Error")
+		return NewForbiddenError("グループ作成者は退出できません")
 	}
 
 	// グループ作成者は誰でも削除可能、メンバーは自身のみ退出可能
 	if input.UserID != group.CreatedBy() && input.UserID != input.MemberID {
-		return fmt.Errorf("forbidden Error")
+		return NewForbiddenError("メンバーの削除権限がありません")
 	}
 
 	member, err := u.ur.FindByID(ctx, input.MemberID)

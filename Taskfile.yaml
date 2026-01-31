@@ -1,8 +1,9 @@
 version: "3"
-dotenv:
-  - "backend/.env"
+
 tasks:
   db:migrate:
+    dotenv:
+      - "backend/.env"
     dir: backend
     cmds:
       - |
@@ -11,6 +12,8 @@ tasks:
           --dev-url "docker://postgres" \
           --to "file://sql/schema.sql"
   db:seed:
+    dotenv:
+      - "backend/.env"
     dir: backend
     cmds:
       - |
@@ -67,6 +70,8 @@ tasks:
           -package=handler_test
   api:dev:
     desc: "Start development server with hot reload"
+    dotenv:
+      - "backend/.env"
     dir: backend
     cmds:
       - air
@@ -75,3 +80,8 @@ tasks:
     dir: backend
     cmds:
       - npx @redocly/cli@latest preview --product redoc -p 8080
+  web:dev:
+    desc: "Webの開発サーバーを起動します"
+    dir: frontend
+    cmds:
+      - pnpm dev

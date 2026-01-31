@@ -10,11 +10,13 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// GroupUseCaseImpl グループに関するユースケースの実装
 type GroupUseCaseImpl struct {
 	ur domain.UserRepository
 	gr domain.GroupRepository
 }
 
+// NewGroupUseCase GroupUseCaseImplのファクトリ関数
 func NewGroupUseCase(ur domain.UserRepository, gr domain.GroupRepository) GroupUseCaseImpl {
 	return GroupUseCaseImpl{
 		ur: ur,
@@ -22,6 +24,7 @@ func NewGroupUseCase(ur domain.UserRepository, gr domain.GroupRepository) GroupU
 	}
 }
 
+// Create グループを作成し、作成者をメンバーに追加する
 func (u GroupUseCaseImpl) Create(ctx context.Context, input handler.GroupCreateInput) (output *handler.GroupCreateOutput, err error) {
 	ctx, span := tracer.Start(ctx, "usecase.Group.Create")
 	defer func() {
@@ -57,6 +60,7 @@ func (u GroupUseCaseImpl) Create(ctx context.Context, input handler.GroupCreateI
 	}, nil
 }
 
+// GetAll ユーザーが所属する全グループを取得する
 func (u GroupUseCaseImpl) GetAll(ctx context.Context, input handler.GroupGetAllInput) (output *handler.GroupGetAllOutput, err error) {
 	ctx, span := tracer.Start(ctx, "usecase.Group.GetAll")
 	defer func() {
@@ -77,6 +81,7 @@ func (u GroupUseCaseImpl) GetAll(ctx context.Context, input handler.GroupGetAllI
 	}, nil
 }
 
+// Get グループを取得する (メンバーのみアクセス可能)
 func (u GroupUseCaseImpl) Get(ctx context.Context, input handler.GroupGetInput) (output *handler.GroupGetOutput, err error) {
 	ctx, span := tracer.Start(ctx, "usecase.Group.Get")
 	defer func() {
@@ -108,6 +113,7 @@ func (u GroupUseCaseImpl) Get(ctx context.Context, input handler.GroupGetInput) 
 	}, nil
 }
 
+// Update グループ情報を更新する (作成者のみ実行可能)
 func (u GroupUseCaseImpl) Update(ctx context.Context, input handler.GroupUpdateInput) (output *handler.GroupUpdateOutput, err error) {
 	ctx, span := tracer.Start(ctx, "usecase.Group.Update")
 	defer func() {
@@ -142,6 +148,7 @@ func (u GroupUseCaseImpl) Update(ctx context.Context, input handler.GroupUpdateI
 	}, nil
 }
 
+// AddMember グループにメンバーを追加する (作成者のみ実行可能)
 func (u GroupUseCaseImpl) AddMember(ctx context.Context, input handler.GroupAddMemberInput) (err error) {
 	ctx, span := tracer.Start(ctx, "usecase.Group.AddMember")
 	defer func() {
@@ -185,6 +192,7 @@ func (u GroupUseCaseImpl) AddMember(ctx context.Context, input handler.GroupAddM
 	return nil
 }
 
+// ListMembers グループのメンバー一覧を取得する (メンバーのみアクセス可能)
 func (u GroupUseCaseImpl) ListMembers(ctx context.Context, input handler.GroupListMembersInput) (output *handler.GroupListMembersOutput, err error) {
 	ctx, span := tracer.Start(ctx, "usecase.Group.ListMembers")
 	defer func() {
@@ -211,6 +219,7 @@ func (u GroupUseCaseImpl) ListMembers(ctx context.Context, input handler.GroupLi
 	}, nil
 }
 
+// Delete グループを削除する (作成者のみ実行可能)
 func (u GroupUseCaseImpl) Delete(ctx context.Context, input handler.GroupDeleteInput) (err error) {
 	ctx, span := tracer.Start(ctx, "usecase.Group.Delete")
 	defer func() {
@@ -239,6 +248,7 @@ func (u GroupUseCaseImpl) Delete(ctx context.Context, input handler.GroupDeleteI
 	return nil
 }
 
+// RemoveMember グループからメンバーを削除する (作成者は誰でも削除可能、メンバーは自身のみ退出可能)
 func (u GroupUseCaseImpl) RemoveMember(ctx context.Context, input handler.GroupRemoveMemberInput) (err error) {
 	ctx, span := tracer.Start(ctx, "usecase.Group.RemoveMember")
 	defer func() {

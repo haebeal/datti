@@ -61,11 +61,32 @@ func NewLending(ctx context.Context, id ulid.ULID, name string, amount int64, ev
 }
 
 // CreateLending 新規Lendingを作成するファクトリ関数
-func CreateLending(ctx context.Context, name string, amount int64, eventDate time.Time, payer *Payer, debtors map[string]*Debtor) (*Lending, error) {
+// debtorsは空で作成し、AddDebtorメソッドで追加する
+func CreateLending(ctx context.Context, name string, amount int64, eventDate time.Time, payer *Payer) (*Lending, error) {
+	_, span := tracer.Start(ctx, "domain.Lending.Create")
+	defer span.End()
+
+	if utf8.RuneCountInString(name) < 1 {
+		return nil, NewValidationError("name", "イベント名は1文字以上である必要があります")
+	}
+
+	if payer == nil {
+		return nil, NewValidationError("payer", "支払い者は必須です")
+	}
+
 	id := ulid.Make()
 	now := time.Now()
 
-	return NewLending(ctx, id, name, amount, eventDate, payer, debtors, now, now)
+	return &Lending{
+		id:        id,
+		name:      name,
+		amount:    amount,
+		eventDate: eventDate,
+		payer:     payer,
+		debtors:   make(map[string]*Debtor),
+		createdAt: now,
+		updatedAt: now,
+	}, nil
 }
 
 // Update Lendingの基本情報を更新する

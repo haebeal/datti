@@ -84,11 +84,18 @@ func (u *User) Email() string {
 	return u.email
 }
 
+// UserSearchQuery ユーザー検索クエリ
+type UserSearchQuery struct {
+	Name  *string
+	Email *string
+}
+
+// UserRepository ユーザーリポジトリのインターフェース
 type UserRepository interface {
 	Create(ctx context.Context, u *User) error
 	FindByID(ctx context.Context, id string) (*User, error)
 	FindByEmail(ctx context.Context, email string) (*User, error)
-	FindByQuery(ctx context.Context, q *string, cursor *string, limit int32) ([]*User, error)
+	FindByQuery(ctx context.Context, query UserSearchQuery) ([]*User, error)
 	Update(ctx context.Context, u *User) error
 	UpdateID(ctx context.Context, oldID, newID string) error
 }

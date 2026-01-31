@@ -9,38 +9,35 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// RepaymentUseCaseImpl 返済に関するユースケースの実装
 type RepaymentUseCaseImpl struct {
 	rr domain.RepaymentRepository
 }
 
+// NewRepaymentUseCase RepaymentUseCaseImplのファクトリ関数
 func NewRepaymentUseCase(rr domain.RepaymentRepository) RepaymentUseCaseImpl {
 	return RepaymentUseCaseImpl{
 		rr: rr,
 	}
 }
 
-func (u RepaymentUseCaseImpl) Create(ctx context.Context, i handler.RepaymentCreateInput) (*handler.RepaymentCreateOutput, error) {
-	ctx, span := tracer.Start(ctx, "repayment.Create")
-	defer span.End()
+// Create 返済を作成する
+func (u RepaymentUseCaseImpl) Create(ctx context.Context, i handler.RepaymentCreateInput) (output *handler.RepaymentCreateOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.Repayment.Create")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	amount, err := domain.NewAmount(i.Amount)
+	repayment, err := domain.CreateRepayment(ctx, i.PayerID, i.DebtorID, i.Amount)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	repayment, err := domain.CreateRepayment(i.PayerID, i.DebtorID, amount)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-
-	err = u.rr.Create(ctx, repayment)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
+	if err := u.rr.Create(ctx, repayment); err != nil {
 		return nil, err
 	}
 
@@ -49,44 +46,24 @@ func (u RepaymentUseCaseImpl) Create(ctx context.Context, i handler.RepaymentCre
 	}, nil
 }
 
-func (u RepaymentUseCaseImpl) GetByQuery(ctx context.Context, i handler.RepaymentGetByQueryInput) (*handler.RepaymentGetByQueryOutput, error) {
-	ctx, span := tracer.Start(ctx, "repayment.GetByQuery")
-	defer span.End()
-
-	params := domain.RepaymentPaginationParams{
-		Limit:  i.Limit,
-		Cursor: i.Cursor,
-	}
-
-	result, err := u.rr.FindByPayerIDWithPagination(ctx, i.UserID, params)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-
-	return &handler.RepaymentGetByQueryOutput{
-		Repayments: result.Repayments,
-		NextCursor: result.NextCursor,
-		HasMore:    result.HasMore,
-	}, nil
-}
-
-func (u RepaymentUseCaseImpl) Get(ctx context.Context, i handler.RepaymentGetInput) (*handler.RepaymentGetOutput, error) {
-	ctx, span := tracer.Start(ctx, "repayment.Get")
-	defer span.End()
+// Get 返済を取得する
+func (u RepaymentUseCaseImpl) Get(ctx context.Context, i handler.RepaymentGetInput) (output *handler.RepaymentGetOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.Repayment.Get")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
 	id, err := ulid.Parse(i.ID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
 	repayment, err := u.rr.FindByID(ctx, id)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
@@ -95,67 +72,87 @@ func (u RepaymentUseCaseImpl) Get(ctx context.Context, i handler.RepaymentGetInp
 	}, nil
 }
 
-func (u RepaymentUseCaseImpl) Update(ctx context.Context, i handler.RepaymentUpdateInput) (*handler.RepaymentUpdateOutput, error) {
-	ctx, span := tracer.Start(ctx, "repayment.Update")
-	defer span.End()
+// GetByQuery 返済一覧を取得する
+func (u RepaymentUseCaseImpl) GetByQuery(ctx context.Context, i handler.RepaymentGetByQueryInput) (output *handler.RepaymentGetByQueryOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.Repayment.GetByQuery")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
+
+	limit := i.Limit
+	repayments, err := u.rr.FindByPayerID(ctx, i.UserID, i.Cursor, &limit)
+	if err != nil {
+		return nil, err
+	}
+
+	result := handler.RepaymentGetByQueryOutput{
+		Repayments: repayments,
+	}
+
+	// ページネーション情報の設定
+	if len(repayments) > 0 && int32(len(repayments)) >= limit {
+		lastID := repayments[len(repayments)-1].ID().String()
+		result.NextCursor = &lastID
+		result.HasMore = true
+	}
+
+	return &result, nil
+}
+
+// Update 返済を更新する
+func (u RepaymentUseCaseImpl) Update(ctx context.Context, i handler.RepaymentUpdateInput) (output *handler.RepaymentUpdateOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.Repayment.Update")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
 	id, err := ulid.Parse(i.ID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
 	repayment, err := u.rr.FindByID(ctx, id)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	amount, err := domain.NewAmount(i.Amount)
+	updatedRepayment, err := repayment.Update(ctx, i.Amount)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	err = repayment.UpdateAmount(amount)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-
-	err = u.rr.Update(ctx, repayment)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
+	if err := u.rr.Update(ctx, updatedRepayment); err != nil {
 		return nil, err
 	}
 
 	return &handler.RepaymentUpdateOutput{
-		Repayment: repayment,
+		Repayment: updatedRepayment,
 	}, nil
 }
 
-func (u RepaymentUseCaseImpl) Delete(ctx context.Context, i handler.RepaymentDeleteInput) error {
-	ctx, span := tracer.Start(ctx, "repayment.Delete")
-	defer span.End()
+// Delete 返済を削除する
+func (u RepaymentUseCaseImpl) Delete(ctx context.Context, i handler.RepaymentDeleteInput) (err error) {
+	ctx, span := tracer.Start(ctx, "usecase.Repayment.Delete")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
 	id, err := ulid.Parse(i.ID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return err
 	}
 
-	err = u.rr.Delete(ctx, id)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return err
-	}
-
-	return nil
+	return u.rr.Delete(ctx, id)
 }

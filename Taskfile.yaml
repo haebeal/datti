@@ -2,6 +2,7 @@ version: "3"
 
 tasks:
   db:migrate:
+    desc: "データベースマイグレーションを実行"
     dotenv:
       - "backend/.env"
     dir: backend
@@ -12,6 +13,7 @@ tasks:
           --dev-url "docker://postgres" \
           --to "file://sql/schema.sql"
   db:seed:
+    desc: "シードデータを投入"
     dotenv:
       - "backend/.env"
     dir: backend
@@ -20,11 +22,12 @@ tasks:
         psql $DSN \
           -f sql/init.sql
   sqlc:gen:
+    desc: "sqlcでクエリコードを生成"
     dir: backend
     cmds:
       - sqlc generate
   api:gen:
-    desc: "Generate types and server from OpenAPI"
+    desc: "OpenAPIから型とサーバーコードを生成"
     dir: backend
     cmds:
       - |
@@ -36,12 +39,13 @@ tasks:
         oapi-codegen -generate "server" \
           -package api ./openapi.yaml \
           > ./internal/presentation/api/server.gen.go
-  test:
+  api:test:
+    desc: "テストを実行"
     dir: backend
     cmds:
       - go test -race ./...
   mock:gen:
-    desc: "Generate mocks using mockgen"
+    desc: "mockgenでモックを生成"
     dir: backend
     cmds:
       - |
@@ -69,19 +73,19 @@ tasks:
           -destination=internal/presentation/api/handler/test/mockCreditUseCase.gen.go \
           -package=handler_test
   api:dev:
-    desc: "Start development server with hot reload"
+    desc: "APIサーバーを起動(ホットリロード)"
     dotenv:
       - "backend/.env"
     dir: backend
     cmds:
       - air
   api:docs:
-    desc: "Preview OpenAPI documentation with hot reload"
+    desc: "OpenAPIドキュメントをプレビュー"
     dir: backend
     cmds:
       - npx @redocly/cli@latest preview --product redoc -p 8080
   web:dev:
-    desc: "Webの開発サーバーを起動します"
+    desc: "Webサーバーを起動(ホットリロード)"
     dir: frontend
     cmds:
       - pnpm dev

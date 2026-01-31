@@ -12,12 +12,14 @@ import (
 // RepaymentUseCaseImpl 返済に関するユースケースの実装
 type RepaymentUseCaseImpl struct {
 	rr domain.RepaymentRepository
+	cr domain.CreditRepository
 }
 
 // NewRepaymentUseCase RepaymentUseCaseImplのファクトリ関数
-func NewRepaymentUseCase(rr domain.RepaymentRepository) RepaymentUseCaseImpl {
+func NewRepaymentUseCase(rr domain.RepaymentRepository, cr domain.CreditRepository) RepaymentUseCaseImpl {
 	return RepaymentUseCaseImpl{
 		rr: rr,
+		cr: cr,
 	}
 }
 
@@ -32,11 +34,32 @@ func (u RepaymentUseCaseImpl) Create(ctx context.Context, i handler.RepaymentCre
 		span.End()
 	}()
 
-	repayment, err := domain.CreateRepayment(ctx, i.PayerID, i.DebtorID, i.Amount)
+	// 借りている一覧を取得
+	borrowings, err := u.cr.ListBorrowingsByUserID(ctx, i.PayerID)
 	if err != nil {
 		return nil, err
 	}
 
+	// 対象の債権者（貸してくれている人）を探す
+	var credit *domain.Credit
+	for _, c := range borrowings {
+		if c.UserID() == i.DebtorID {
+			credit = c
+			break
+		}
+	}
+
+	if credit == nil {
+		return nil, domain.NewNotFoundError("credit", i.DebtorID)
+	}
+
+	// CreditからRepaymentを作成
+	repayment, err := credit.CreateRepayment(ctx, i.PayerID, i.Amount)
+	if err != nil {
+		return nil, err
+	}
+
+	// Repaymentを保存
 	if err := u.rr.Create(ctx, repayment); err != nil {
 		return nil, err
 	}

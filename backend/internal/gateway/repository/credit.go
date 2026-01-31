@@ -8,76 +8,68 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// CreditRepositoryImpl 債権/債務リポジトリの実装
 type CreditRepositoryImpl struct {
 	queries *postgres.Queries
 }
 
+// NewCreditRepository CreditRepositoryImplのファクトリ関数
 func NewCreditRepository(queries *postgres.Queries) *CreditRepositoryImpl {
 	return &CreditRepositoryImpl{
 		queries: queries,
 	}
 }
 
-func (r *CreditRepositoryImpl) ListLendingCreditsByUserID(ctx context.Context, userID string) ([]*domain.Credit, error) {
-	ctx, span := tracer.Start(ctx, "credit.ListLendingCreditsByUserID")
-	defer span.End()
+// ListLendingsByUserID 自分が貸している一覧を取得
+func (r *CreditRepositoryImpl) ListLendingsByUserID(ctx context.Context, userID string) (credits []*domain.Credit, err error) {
+	ctx, span := tracer.Start(ctx, "repository.Credit.ListLendingsByUserID")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
 	rows, err := r.queries.ListLendingCreditAmountsByUserID(ctx, userID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	credits := make([]*domain.Credit, 0, len(rows))
+	credits = make([]*domain.Credit, 0, len(rows))
 	for _, row := range rows {
-		amount, err := domain.NewAmount(row.Amount)
+		credit, err := domain.NewCredit(row.UserID, row.Amount)
 		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
 			return nil, err
 		}
-
-		credit, err := domain.NewCredit(row.UserID, amount)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
-
 		credits = append(credits, credit)
 	}
 
 	return credits, nil
 }
 
-func (r *CreditRepositoryImpl) ListBorrowingCreditsByUserID(ctx context.Context, userID string) ([]*domain.Credit, error) {
-	ctx, span := tracer.Start(ctx, "credit.ListBorrowingCreditsByUserID")
-	defer span.End()
+// ListBorrowingsByUserID 自分が借りている一覧を取得
+func (r *CreditRepositoryImpl) ListBorrowingsByUserID(ctx context.Context, userID string) (credits []*domain.Credit, err error) {
+	ctx, span := tracer.Start(ctx, "repository.Credit.ListBorrowingsByUserID")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
 	rows, err := r.queries.ListBorrowingCreditAmountsByUserID(ctx, userID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	credits := make([]*domain.Credit, 0, len(rows))
+	credits = make([]*domain.Credit, 0, len(rows))
 	for _, row := range rows {
-		amount, err := domain.NewAmount(row.Amount)
+		credit, err := domain.NewCredit(row.UserID, row.Amount)
 		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
 			return nil, err
 		}
-
-		credit, err := domain.NewCredit(row.UserID, amount)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
-
 		credits = append(credits, credit)
 	}
 

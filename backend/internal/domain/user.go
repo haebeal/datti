@@ -92,10 +92,16 @@ type UserSearchQuery struct {
 
 // UserRepository ユーザーリポジトリのインターフェース
 type UserRepository interface {
+	// Create ユーザーを作成する
 	Create(ctx context.Context, u *User) error
+	// FindByID IDでユーザーを取得する
 	FindByID(ctx context.Context, id string) (*User, error)
+	// FindByEmail メールアドレスでユーザーを取得する
 	FindByEmail(ctx context.Context, email string) (*User, error)
+	// FindByQuery 検索条件でユーザー一覧を取得する
 	FindByQuery(ctx context.Context, query UserSearchQuery) ([]*User, error)
+	// Update ユーザーを更新する
 	Update(ctx context.Context, u *User) error
+	// UpdateID ユーザーIDを更新する(認証プロバイダ移行用)
 	UpdateID(ctx context.Context, oldID, newID string) error
 }

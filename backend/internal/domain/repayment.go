@@ -106,9 +106,14 @@ func (r *Repayment) UpdatedAt() time.Time {
 
 // RepaymentRepository 返済リポジトリのインターフェース
 type RepaymentRepository interface {
+	// Create 返済を作成する
 	Create(ctx context.Context, r *Repayment) error
+	// FindByID IDで返済を取得する
 	FindByID(ctx context.Context, id ulid.ULID) (*Repayment, error)
+	// FindByPayerID 支払い者IDで返済一覧を取得する
 	FindByPayerID(ctx context.Context, payerID string, cursor *string, limit *int32) ([]*Repayment, error)
+	// Update 返済を更新する
 	Update(ctx context.Context, r *Repayment) error
+	// Delete 返済を削除する
 	Delete(ctx context.Context, id ulid.ULID) error
 }

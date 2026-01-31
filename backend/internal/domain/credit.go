@@ -39,7 +39,7 @@ func (c *Credit) UserID() string {
 	return c.userID
 }
 
-// Amount 金額（正=貸している、負=借りている）
+// Amount 金額(正=貸している、負=借りている)
 func (c *Credit) Amount() int64 {
 	return c.amount
 }
@@ -55,7 +55,7 @@ func (c *Credit) IsBorrowing() bool {
 }
 
 // CreateRepayment この借りに対する返済を作成する
-// payerIDには返済する人（自分）のIDを渡す
+// payerIDには返済する人(自分)のIDを渡す
 func (c *Credit) CreateRepayment(ctx context.Context, payerID string, amount int64) (r *Repayment, err error) {
 	_, span := tracer.Start(ctx, "domain.Credit.CreateRepayment")
 	defer func() {
@@ -71,7 +71,7 @@ func (c *Credit) CreateRepayment(ctx context.Context, payerID string, amount int
 		return nil, NewValidationError("credit", "借りがないため返済できません")
 	}
 
-	// c.userID = 貸してくれている人（返済の受取人）
+	// c.userID = 貸してくれている人(返済の受取人)
 	return CreateRepayment(ctx, payerID, c.userID, amount)
 }
 

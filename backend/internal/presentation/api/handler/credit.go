@@ -22,10 +22,9 @@ type CreditListInput struct {
 	UserID string
 }
 
-// CreditListOutput aggregates lending and borrowing credits for the caller.
+// CreditListOutput 債権/債務の一覧を返す
 type CreditListOutput struct {
-	Lendings   []*domain.Credit
-	Borrowings []*domain.Credit
+	Credits []*domain.Credit
 }
 
 type creditHandler struct {
@@ -60,24 +59,12 @@ func (h creditHandler) List(c echo.Context, params api.CreditsListParams) error 
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 
-	balances := make(map[string]int64, len(output.Lendings)+len(output.Borrowings))
-	for _, credit := range output.Lendings {
-		userID := credit.UserID()
-		balances[userID] += credit.Amount().Value()
-	}
-	for _, credit := range output.Borrowings {
-		userID := credit.UserID()
-		balances[userID] -= credit.Amount().Value()
-	}
-
-	summaries := make([]api.Credit, 0, len(balances))
-	for userID, amount := range balances {
-		if amount == 0 {
-			continue
-		}
+	// リポジトリで残高計算済みなのでそのまま変換
+	summaries := make([]api.Credit, 0, len(output.Credits))
+	for _, credit := range output.Credits {
 		summaries = append(summaries, api.Credit{
-			UserId: userID,
-			Amount: amount,
+			UserId: credit.UserID(),
+			Amount: credit.Amount(),
 		})
 	}
 

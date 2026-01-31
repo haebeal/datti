@@ -186,9 +186,14 @@ type PaginatedLendings struct {
 
 // LendingRepository 立て替えイベントリポジトリのインターフェース
 type LendingRepository interface {
+	// Create 立て替えを作成する
 	Create(ctx context.Context, g *Group, l *Lending) error
+	// FindByID IDで立て替えを取得する
 	FindByID(ctx context.Context, id ulid.ULID) (*Lending, error)
+	// FindByGroupAndUserID グループとユーザーIDで立て替え一覧を取得する
 	FindByGroupAndUserID(ctx context.Context, g *Group, userID string, cursor *string, limit *int32) ([]*Lending, error)
+	// Update 立て替えを更新する
 	Update(ctx context.Context, l *Lending) error
+	// Delete 立て替えを削除する
 	Delete(ctx context.Context, id ulid.ULID) error
 }

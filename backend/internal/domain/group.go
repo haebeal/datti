@@ -101,14 +101,22 @@ func (g *Group) UpdatedAt() time.Time {
 	return g.updatedAt
 }
 
+// GroupRepository グループリポジトリのインターフェース
 type GroupRepository interface {
+	// Create グループを作成する
 	Create(ctx context.Context, g *Group) error
+	// FindByMemberUserID ユーザーが所属するグループ一覧を取得する
 	FindByMemberUserID(ctx context.Context, userID string) ([]*Group, error)
+	// FindByID IDでグループを取得する
 	FindByID(ctx context.Context, id ulid.ULID) (*Group, error)
+	// Update グループを更新する
 	Update(ctx context.Context, g *Group) error
+	// Delete グループを削除する
 	Delete(ctx context.Context, g *Group) error
-
+	// AddMember グループにメンバーを追加する
 	AddMember(ctx context.Context, g *Group, u *User) error
+	// FindMembersByID グループのメンバー一覧を取得する
 	FindMembersByID(ctx context.Context, id ulid.ULID) ([]*User, error)
+	// RemoveMember グループからメンバーを削除する
 	RemoveMember(ctx context.Context, g *Group, u *User) error
 }

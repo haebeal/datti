@@ -2,209 +2,298 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
+	"github.com/jackc/pgx/v5"
 	"github.com/oklog/ulid/v2"
 	"go.opentelemetry.io/otel/codes"
 )
 
-type LendingEventRepositoryImpl struct {
+// LendingRepositoryImpl 立て替えリポジトリの実装
+type LendingRepositoryImpl struct {
 	queries *postgres.Queries
 }
 
-func NewLendingEventRepository(queries *postgres.Queries) *LendingEventRepositoryImpl {
-	return &LendingEventRepositoryImpl{
+// NewLendingRepository LendingRepositoryImplのファクトリ関数
+func NewLendingRepository(queries *postgres.Queries) *LendingRepositoryImpl {
+	return &LendingRepositoryImpl{
 		queries: queries,
 	}
 }
 
-func (lr *LendingEventRepositoryImpl) Create(ctx context.Context, e *domain.Lending) error {
-	_, span := tracer.Start(ctx, "lendingEvent.Create")
-	defer span.End()
+// Create 立て替えを作成する
+func (lr *LendingRepositoryImpl) Create(ctx context.Context, g *domain.Group, l *domain.Lending) (err error) {
+	ctx, span := tracer.Start(ctx, "repository.Lending.Create")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	err := lr.queries.CreateEvent(ctx, postgres.CreateEventParams{
-		ID:        e.ID().String(),
-		GroupID:   e.GroupID().String(),
-		Name:      e.Name(),
-		Amount:    int32(e.Amount().Value()),
-		EventDate: e.EventDate(),
-		CreatedAt: e.CreatedAt(),
-		UpdatedAt: e.UpdatedAt(),
+	// イベントを作成
+	err = lr.queries.CreateEvent(ctx, postgres.CreateEventParams{
+		ID:        l.ID().String(),
+		GroupID:   g.ID().String(),
+		Name:      l.Name(),
+		Amount:    int32(l.Amount()),
+		EventDate: l.EventDate(),
+		CreatedAt: l.CreatedAt(),
+		UpdatedAt: l.UpdatedAt(),
 	})
-
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return err
+	}
+
+	// 各債務者に対して支払いを作成
+	for _, debtor := range l.Debtors() {
+		paymentID := ulid.Make()
+
+		err = lr.queries.CreatePayment(ctx, postgres.CreatePaymentParams{
+			ID:       paymentID.String(),
+			PayerID:  l.Payer().ID(),
+			DebtorID: debtor.ID(),
+			Amount:   int32(debtor.Amount()),
+		})
+		if err != nil {
+			return err
+		}
+
+		err = lr.queries.CreateEventPayment(ctx, postgres.CreateEventPaymentParams{
+			EventID:   l.ID().String(),
+			PaymentID: paymentID.String(),
+		})
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-func (lr *LendingEventRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID) (*domain.Lending, error) {
-	ctx, span := tracer.Start(ctx, "lendingEvent.FindByID")
-	defer span.End()
+// FindByID 立て替えをIDで取得する
+func (lr *LendingRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID) (l *domain.Lending, err error) {
+	ctx, span := tracer.Start(ctx, "repository.Lending.FindByID")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	_, querySpan := tracer.Start(ctx, "SELECT * FROM events WHERE id = $1 LIMIT 1")
+	// イベントを取得
 	event, err := lr.queries.FindEventById(ctx, id.String())
 	if err != nil {
-		querySpan.SetStatus(codes.Error, err.Error())
-		querySpan.RecordError(err)
-		querySpan.End()
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.NewNotFoundError("lending", id.String())
+		}
 		return nil, err
 	}
-	querySpan.End()
 
+	// 支払い情報を取得（Payer/Debtor情報含む）
+	payments, err := lr.queries.FindPaymentsByEventId(ctx, id.String())
+	if err != nil {
+		return nil, err
+	}
+
+	if len(payments) == 0 {
+		return nil, domain.NewNotFoundError("lending payments", id.String())
+	}
+
+	// Payerを取得
+	payerUser, err := lr.queries.FindUserByID(ctx, payments[0].PayerID)
+	if err != nil {
+		return nil, err
+	}
+	payer, err := domain.NewPayer(payerUser.ID, payerUser.Name, payerUser.Avatar, payerUser.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	// Debtorsを取得
+	debtors := make(map[string]*domain.Debtor, len(payments))
+	for _, p := range payments {
+		debtorUser, err := lr.queries.FindUserByID(ctx, p.DebtorID)
+		if err != nil {
+			return nil, err
+		}
+		debtor, err := domain.NewDebtor(debtorUser.ID, debtorUser.Name, debtorUser.Avatar, debtorUser.Email, int64(p.Amount))
+		if err != nil {
+			return nil, err
+		}
+		debtors[debtor.ID()] = debtor
+	}
+
+	// Lending集約を再構築
 	eventID, err := ulid.Parse(event.ID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	groupID, err := ulid.Parse(event.GroupID)
+	l, err = domain.NewLending(ctx, eventID, event.Name, int64(event.Amount), event.EventDate, payer, debtors, event.CreatedAt, event.UpdatedAt)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	amount, err := domain.NewAmount(int64(event.Amount))
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-
-	lendingEvent, err := domain.NewLending(eventID, groupID, event.Name, amount, event.EventDate, event.CreatedAt, event.UpdatedAt)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-
-	return lendingEvent, nil
+	return l, nil
 }
 
-func (lr *LendingEventRepositoryImpl) FindByGroupIDAndUserIDWithPagination(
-	ctx context.Context,
-	groupID ulid.ULID,
-	userID string,
-	params domain.LendingPaginationParams,
-) (*domain.PaginatedLendings, error) {
-	ctx, span := tracer.Start(ctx, "lendingEvent.FindByGroupIDAndUserIDWithPagination")
-	defer span.End()
+// FindByGroupAndUserID グループとユーザーIDで立て替え一覧を取得する
+func (lr *LendingRepositoryImpl) FindByGroupAndUserID(ctx context.Context, g *domain.Group, userID string, cursor *string, limit *int32) (lendings []*domain.Lending, err error) {
+	ctx, span := tracer.Start(ctx, "repository.Lending.FindByGroupAndUserID")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	// Fetch limit + 1 to determine hasMore
-	fetchLimit := params.Limit + 1
-
-	ctx, querySpan := tracer.Start(ctx, "SELECT DISTINCT * FROM events WITH CURSOR")
-	lendingEvents, err := lr.queries.FindAllLendingsByGroupIDAndUserIDWithCursor(ctx, postgres.FindAllLendingsByGroupIDAndUserIDWithCursorParams{
-		GroupID: groupID.String(),
+	// イベント一覧を取得
+	events, err := lr.queries.FindAllLendingsByGroupIDAndUserIDWithCursor(ctx, postgres.FindAllLendingsByGroupIDAndUserIDWithCursorParams{
+		GroupID: g.ID().String(),
 		UserID:  userID,
-		Cursor:  params.Cursor,
-		Limit:   fetchLimit,
+		Cursor:  cursor,
+		Limit:   *limit,
 	})
 	if err != nil {
-		querySpan.SetStatus(codes.Error, err.Error())
-		querySpan.RecordError(err)
-		querySpan.End()
 		return nil, err
 	}
-	querySpan.End()
 
-	hasMore := len(lendingEvents) > int(params.Limit)
-	if hasMore {
-		lendingEvents = lendingEvents[:params.Limit]
-	}
+	lendings = make([]*domain.Lending, 0, len(events))
 
-	lendings := make([]*domain.Lending, 0, len(lendingEvents))
-	var nextCursor *string
+	for _, event := range events {
+		eventID, err := ulid.Parse(event.ID)
+		if err != nil {
+			return nil, err
+		}
 
-	for _, l := range lendingEvents {
-		eventID, err := ulid.Parse(l.ID)
+		// 各イベントのLending集約を取得
+		lending, err := lr.FindByID(ctx, eventID)
 		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
 			return nil, err
 		}
-		eventGroupID, err := ulid.Parse(l.GroupID)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
-		amount, err := domain.NewAmount(int64(l.Amount))
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
-		createdBy, err := domain.NewUID(l.CreatedBy)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
-		lending, err := domain.NewLendingWithCreatedBy(eventID, eventGroupID, l.Name, amount, l.EventDate, l.CreatedAt, l.UpdatedAt, createdBy)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
+
 		lendings = append(lendings, lending)
 	}
 
-	// Set nextCursor to the ID of the last item if there are more items
-	if hasMore && len(lendings) > 0 {
-		lastID := lendings[len(lendings)-1].ID().String()
-		nextCursor = &lastID
-	}
-
-	return &domain.PaginatedLendings{
-		Lendings:   lendings,
-		NextCursor: nextCursor,
-		HasMore:    hasMore,
-	}, nil
+	return lendings, nil
 }
 
-func (lr *LendingEventRepositoryImpl) Update(ctx context.Context, e *domain.Lending) error {
-	ctx, span := tracer.Start(ctx, "lendingEvent.Update")
-	defer span.End()
+// Update 立て替えを更新する
+func (lr *LendingRepositoryImpl) Update(ctx context.Context, l *domain.Lending) (err error) {
+	ctx, span := tracer.Start(ctx, "repository.Lending.Update")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	ctx, querySpan := tracer.Start(ctx, "UPDATE events SET name = $2, amount = $3, event_date = $4, updated_at = $5 WHERE id = $1")
-	err := lr.queries.UpdateEvent(ctx, postgres.UpdateEventParams{
-		ID:        e.ID().String(),
-		Name:      e.Name(),
-		Amount:    int32(e.Amount().Value()),
-		EventDate: e.EventDate(),
-		UpdatedAt: e.UpdatedAt(),
+	// イベント情報を更新
+	err = lr.queries.UpdateEvent(ctx, postgres.UpdateEventParams{
+		ID:        l.ID().String(),
+		Name:      l.Name(),
+		Amount:    int32(l.Amount()),
+		EventDate: l.EventDate(),
+		UpdatedAt: l.UpdatedAt(),
 	})
 	if err != nil {
-		querySpan.SetStatus(codes.Error, err.Error())
-		querySpan.RecordError(err)
-		querySpan.End()
 		return err
 	}
-	querySpan.End()
+
+	// 既存の支払い情報を取得
+	existingPayments, err := lr.queries.FindPaymentsByEventId(ctx, l.ID().String())
+	if err != nil {
+		return err
+	}
+
+	// 既存の債務者IDセットを作成
+	existingDebtorIDs := make(map[string]string) // debtorID -> paymentID
+	for _, p := range existingPayments {
+		existingDebtorIDs[p.DebtorID] = p.ID
+	}
+
+	// 新しい債務者を追加、既存の債務者を更新
+	for _, debtor := range l.Debtors() {
+		if paymentID, exists := existingDebtorIDs[debtor.ID()]; exists {
+			// 既存の債務者を更新
+			err = lr.queries.UpdatePaymentAmount(ctx, postgres.UpdatePaymentAmountParams{
+				ID:     paymentID,
+				Amount: int32(debtor.Amount()),
+			})
+			if err != nil {
+				return err
+			}
+			delete(existingDebtorIDs, debtor.ID())
+		} else {
+			// 新しい債務者を追加
+			paymentID := ulid.Make()
+			err = lr.queries.CreatePayment(ctx, postgres.CreatePaymentParams{
+				ID:       paymentID.String(),
+				PayerID:  l.Payer().ID(),
+				DebtorID: debtor.ID(),
+				Amount:   int32(debtor.Amount()),
+			})
+			if err != nil {
+				return err
+			}
+
+			err = lr.queries.CreateEventPayment(ctx, postgres.CreateEventPaymentParams{
+				EventID:   l.ID().String(),
+				PaymentID: paymentID.String(),
+			})
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// 削除された債務者の支払いを削除
+	for _, paymentID := range existingDebtorIDs {
+		err = lr.queries.DeletePayment(ctx, paymentID)
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
 
-func (lr *LendingEventRepositoryImpl) Delete(ctx context.Context, id ulid.ULID) error {
-	ctx, span := tracer.Start(ctx, "lendingEvent.Delete")
-	defer span.End()
+// Delete 立て替えを削除する
+func (lr *LendingRepositoryImpl) Delete(ctx context.Context, id ulid.ULID) (err error) {
+	ctx, span := tracer.Start(ctx, "repository.Lending.Delete")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	ctx, querySpan := tracer.Start(ctx, "DELETE FROM events WHERE id = $1")
-	err := lr.queries.DeleteEvent(ctx, id.String())
+	// 関連する支払いを取得して削除
+	payments, err := lr.queries.FindPaymentsByEventId(ctx, id.String())
 	if err != nil {
-		querySpan.SetStatus(codes.Error, err.Error())
-		querySpan.RecordError(err)
-		querySpan.End()
 		return err
 	}
-	querySpan.End()
+
+	for _, p := range payments {
+		err = lr.queries.DeletePayment(ctx, p.ID)
+		if err != nil {
+			return err
+		}
+	}
+
+	// イベントを削除
+	err = lr.queries.DeleteEvent(ctx, id.String())
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

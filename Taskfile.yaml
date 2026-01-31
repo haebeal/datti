@@ -70,3 +70,8 @@ tasks:
     dir: backend
     cmds:
       - air
+  api:docs:
+    desc: "Preview OpenAPI documentation with hot reload"
+    dir: backend
+    cmds:
+      - npx @redocly/cli@latest preview --product redoc -p 8080

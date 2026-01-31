@@ -195,7 +195,7 @@ func (h userHandler) GetMe(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (h userHandler) Update(c echo.Context, id string) error {
+func (h userHandler) Update(c echo.Context, _ string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.Update")
 	defer span.End()
 
@@ -209,14 +209,6 @@ func (h userHandler) Update(c echo.Context, id string) error {
 		return c.JSON(http.StatusUnauthorized, res)
 	}
 
-	// Only allow updating own profile
-	if uid != id {
-		res := &api.ErrorResponse{
-			Message: "Cannot update other user's profile",
-		}
-		return c.JSON(http.StatusForbidden, res)
-	}
-
 	var req api.UserUpdateRequest
 	if err := c.Bind(&req); err != nil {
 		message := fmt.Sprintf("Invalid request body: %v", err)
@@ -228,7 +220,7 @@ func (h userHandler) Update(c echo.Context, id string) error {
 	}
 
 	input := UserUpdateInput{
-		ID:     id,
+		UID:    uid,
 		Name:   req.Name,
 		Avatar: req.Avatar,
 	}
@@ -277,7 +269,7 @@ type UserGetMeOutput struct {
 }
 
 type UserUpdateInput struct {
-	ID     string
+	UID    string
 	Name   string
 	Avatar string
 }

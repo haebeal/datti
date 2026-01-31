@@ -110,15 +110,15 @@ func (u UserUseCaseImpl) Update(ctx context.Context, input handler.UserUpdateInp
 		span.End()
 	}()
 
-	existingUser, err := u.ur.FindByID(ctx, input.ID)
+	existingUser, err := u.ur.FindByID(ctx, input.UID)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, NewNotFoundError("user", input.ID)
+			return nil, NewNotFoundError("user", input.UID)
 		}
 		return nil, err
 	}
 
-	updatedUser, err := existingUser.WithUpdatedProfile(input.Name, input.Avatar)
+	updatedUser, err := existingUser.UpdateProfile(ctx, input.Name, input.Avatar)
 	if err != nil {
 		return nil, err
 	}

@@ -2,11 +2,9 @@ package usecase
 
 import (
 	"context"
-	"errors"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
-	"github.com/jackc/pgx/v5"
 	"go.opentelemetry.io/otel/codes"
 )
 
@@ -64,9 +62,6 @@ func (u UserUseCaseImpl) Get(ctx context.Context, input handler.UserGetInput) (o
 
 	user, err := u.ur.FindByID(ctx, input.ID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, NewNotFoundError("user", input.ID)
-		}
 		return nil, err
 	}
 
@@ -88,9 +83,6 @@ func (u UserUseCaseImpl) GetMe(ctx context.Context, input handler.UserGetMeInput
 
 	user, err := u.ur.FindByID(ctx, input.UID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, NewNotFoundError("user", input.UID)
-		}
 		return nil, err
 	}
 
@@ -112,9 +104,6 @@ func (u UserUseCaseImpl) UpdateMe(ctx context.Context, input handler.UserUpdateM
 
 	user, err := u.ur.FindByID(ctx, input.UID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, NewNotFoundError("user", input.UID)
-		}
 		return nil, err
 	}
 

@@ -2,9 +2,11 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
+	"github.com/jackc/pgx/v5"
 	"go.opentelemetry.io/otel/codes"
 )
 
@@ -28,11 +30,14 @@ func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id string) (*domain.
 		querySpan.SetStatus(codes.Error, err.Error())
 		querySpan.RecordError(err)
 		querySpan.End()
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.NewNotFoundError("user", id)
+		}
 		return nil, err
 	}
 	querySpan.End()
 
-	user, err := domain.NewUser(row.ID, row.Name, row.Avatar, row.Email)
+	user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -42,15 +47,14 @@ func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id string) (*domain.
 	return user, nil
 }
 
-func (ur *UserRepositoryImpl) FindBySearch(ctx context.Context, name *string, email *string, limit int32) ([]*domain.User, error) {
-	ctx, span := tracer.Start(ctx, "user.FindBySearch")
+func (ur *UserRepositoryImpl) FindByQuery(ctx context.Context, query domain.UserSearchQuery) ([]*domain.User, error) {
+	ctx, span := tracer.Start(ctx, "user.FindByQuery")
 	defer span.End()
 
 	ctx, querySpan := tracer.Start(ctx, "SELECT * FROM users WHERE name ILIKE $1 OR email ILIKE $2")
 	rows, err := ur.queries.FindUsersBySearch(ctx, postgres.FindUsersBySearchParams{
-		Name:  name,
-		Email: email,
-		Limit: limit,
+		Name:  query.Name,
+		Email: query.Email,
 	})
 	if err != nil {
 		querySpan.SetStatus(codes.Error, err.Error())
@@ -62,7 +66,7 @@ func (ur *UserRepositoryImpl) FindBySearch(ctx context.Context, name *string, em
 
 	users := make([]*domain.User, 0, len(rows))
 	for _, row := range rows {
-		user, err := domain.NewUser(row.ID, row.Name, row.Avatar, row.Email)
+		user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
@@ -127,11 +131,14 @@ func (ur *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*d
 		querySpan.SetStatus(codes.Error, err.Error())
 		querySpan.RecordError(err)
 		querySpan.End()
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, domain.NewNotFoundError("user", email)
+		}
 		return nil, err
 	}
 	querySpan.End()
 
-	user, err := domain.NewUser(row.ID, row.Name, row.Avatar, row.Email)
+	user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)

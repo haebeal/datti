@@ -17,7 +17,7 @@ type UserUseCase interface {
 	Search(context.Context, UserSearchInput) (*UserSearchOutput, error)
 	Get(context.Context, UserGetInput) (*UserGetOutput, error)
 	GetMe(context.Context, UserGetMeInput) (*UserGetMeOutput, error)
-	Update(context.Context, UserUpdateInput) (*UserUpdateOutput, error)
+	UpdateMe(context.Context, UserUpdateMeInput) (*UserUpdateMeOutput, error)
 }
 
 type userHandler struct {
@@ -219,13 +219,13 @@ func (h userHandler) Update(c echo.Context, _ string) error {
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
-	input := UserUpdateInput{
+	input := UserUpdateMeInput{
 		UID:    uid,
 		Name:   req.Name,
 		Avatar: req.Avatar,
 	}
 
-	output, err := h.u.Update(ctx, input)
+	output, err := h.u.UpdateMe(ctx, input)
 	if err != nil {
 		if errors.Is(err, ErrUserNotFound) {
 			res := &api.ErrorResponse{
@@ -268,12 +268,12 @@ type UserGetMeOutput struct {
 	User *domain.User
 }
 
-type UserUpdateInput struct {
+type UserUpdateMeInput struct {
 	UID    string
 	Name   string
 	Avatar string
 }
 
-type UserUpdateOutput struct {
+type UserUpdateMeOutput struct {
 	User *domain.User
 }

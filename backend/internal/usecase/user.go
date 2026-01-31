@@ -99,9 +99,9 @@ func (u UserUseCaseImpl) GetMe(ctx context.Context, input handler.UserGetMeInput
 	}, nil
 }
 
-// Update ユーザー情報を更新する
-func (u UserUseCaseImpl) Update(ctx context.Context, input handler.UserUpdateInput) (output *handler.UserUpdateOutput, err error) {
-	ctx, span := tracer.Start(ctx, "usecase.User.Update")
+// UpdateMe 自分のプロフィールを更新する
+func (u UserUseCaseImpl) UpdateMe(ctx context.Context, input handler.UserUpdateMeInput) (output *handler.UserUpdateMeOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.User.UpdateMe")
 	defer func() {
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
@@ -128,7 +128,7 @@ func (u UserUseCaseImpl) Update(ctx context.Context, input handler.UserUpdateInp
 		return nil, err
 	}
 
-	return &handler.UserUpdateOutput{
+	return &handler.UserUpdateMeOutput{
 		User: updatedUser,
 	}, nil
 }

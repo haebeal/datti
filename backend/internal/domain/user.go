@@ -38,10 +38,10 @@ func NewUser(ctx context.Context, id string, name string, avatar string, email s
 
 	parsedURL, err := url.Parse(avatar)
 	if err != nil {
-		return nil, NewValidationError("avatar", "アバターURLの形式が不正です")
+		return nil, NewValidationError("avatar", "アバターURLが不正です")
 	}
 	if parsedURL.Scheme == "" || parsedURL.Host == "" {
-		return nil, NewValidationError("avatar", "アバターURLにはスキームとホストが必要です")
+		return nil, NewValidationError("avatar", "アバターURLが不正です")
 	}
 
 	if _, err := mail.ParseAddress(email); err != nil {

@@ -13,14 +13,14 @@ type Lending struct {
 	id        ulid.ULID
 	groupID   ulid.ULID
 	name      string
-	amount    *Amount
+	amount    int64
 	eventDate time.Time
 	createdAt time.Time
 	updatedAt time.Time
 	createdBy UID // イベント作成者（支払者）
 }
 
-func NewLending(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, eventDate time.Time, createdAt time.Time, updatedAt time.Time) (*Lending, error) {
+func NewLending(id ulid.ULID, groupID ulid.ULID, name string, amount int64, eventDate time.Time, createdAt time.Time, updatedAt time.Time) (*Lending, error) {
 	if len(name) < 1 {
 		return nil, fmt.Errorf("イベント名は1文字以上である必要があります: %v", name)
 	}
@@ -44,7 +44,7 @@ func NewLending(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, ev
 	}, nil
 }
 
-func NewLendingWithCreatedBy(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, eventDate time.Time, createdAt time.Time, updatedAt time.Time, createdBy UID) (*Lending, error) {
+func NewLendingWithCreatedBy(id ulid.ULID, groupID ulid.ULID, name string, amount int64, eventDate time.Time, createdAt time.Time, updatedAt time.Time, createdBy UID) (*Lending, error) {
 	if len(name) < 1 {
 		return nil, fmt.Errorf("イベント名は1文字以上である必要があります: %v", name)
 	}
@@ -68,14 +68,14 @@ func NewLendingWithCreatedBy(id ulid.ULID, groupID ulid.ULID, name string, amoun
 	}, nil
 }
 
-func CreateLending(groupID ulid.ULID, name string, amount *Amount, eventDate time.Time) (*Lending, error) {
+func CreateLending(groupID ulid.ULID, name string, amount int64, eventDate time.Time) (*Lending, error) {
 	id := ulid.Make()
 	now := time.Now()
 
 	return NewLending(id, groupID, name, amount, eventDate, now, now)
 }
 
-func (le *Lending) Update(name string, amount *Amount, eventDate time.Time) (*Lending, error) {
+func (le *Lending) Update(name string, amount int64, eventDate time.Time) (*Lending, error) {
 	now := time.Now()
 
 	lending, err := NewLending(le.id, le.groupID, name, amount, eventDate, le.createdAt, now)
@@ -100,7 +100,7 @@ func (le *Lending) Name() string {
 	return le.name
 }
 
-func (le *Lending) Amount() *Amount {
+func (le *Lending) Amount() int64 {
 	return le.amount
 }
 

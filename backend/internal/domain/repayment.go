@@ -13,12 +13,12 @@ type Repayment struct {
 	id        ulid.ULID
 	payerID   string
 	debtorID  string
-	amount    *Amount
+	amount    int64
 	createdAt time.Time
 	updatedAt time.Time
 }
 
-func NewRepayment(id ulid.ULID, payerID string, debtorID string, amount *Amount, createdAt time.Time, updatedAt time.Time) (*Repayment, error) {
+func NewRepayment(id ulid.ULID, payerID string, debtorID string, amount int64, createdAt time.Time, updatedAt time.Time) (*Repayment, error) {
 	if payerID == "" {
 		return nil, fmt.Errorf("payerIDは必須です")
 	}
@@ -31,11 +31,7 @@ func NewRepayment(id ulid.ULID, payerID string, debtorID string, amount *Amount,
 		return nil, fmt.Errorf("payerIDとdebtorIDは異なる必要があります")
 	}
 
-	if amount == nil {
-		return nil, fmt.Errorf("amountは必須です")
-	}
-
-	if amount.Value() <= 0 {
+	if amount <= 0 {
 		return nil, fmt.Errorf("amountは正の値である必要があります")
 	}
 
@@ -53,7 +49,7 @@ func NewRepayment(id ulid.ULID, payerID string, debtorID string, amount *Amount,
 	}, nil
 }
 
-func CreateRepayment(payerID string, debtorID string, amount *Amount) (*Repayment, error) {
+func CreateRepayment(payerID string, debtorID string, amount int64) (*Repayment, error) {
 	id := ulid.Make()
 	now := time.Now()
 
@@ -72,7 +68,7 @@ func (r *Repayment) DebtorID() string {
 	return r.debtorID
 }
 
-func (r *Repayment) Amount() *Amount {
+func (r *Repayment) Amount() int64 {
 	return r.amount
 }
 
@@ -84,12 +80,8 @@ func (r *Repayment) UpdatedAt() time.Time {
 	return r.updatedAt
 }
 
-func (r *Repayment) UpdateAmount(amount *Amount) error {
-	if amount == nil {
-		return fmt.Errorf("amountは必須です")
-	}
-
-	if amount.Value() <= 0 {
+func (r *Repayment) UpdateAmount(amount int64) error {
+	if amount <= 0 {
 		return fmt.Errorf("amountは正の値である必要があります")
 	}
 

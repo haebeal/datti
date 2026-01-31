@@ -101,18 +101,12 @@ func (l *Lending) RemoveDebtor(debtorID string) error {
 	return nil
 }
 
-// UpdateDebtor 債務者の金額を更新する
-func (l *Lending) UpdateDebtor(debtorID string, amount int64) error {
-	d, exists := l.debtors[debtorID]
-	if !exists {
+// UpdateDebtor 債務者を更新する
+func (l *Lending) UpdateDebtor(debtor *Debtor) error {
+	if _, exists := l.debtors[debtor.ID()]; !exists {
 		return NewValidationError("debtor", "債務者が見つかりません")
 	}
-
-	updated, err := d.Update(amount)
-	if err != nil {
-		return err
-	}
-	l.debtors[debtorID] = updated
+	l.debtors[debtor.ID()] = debtor
 	return nil
 }
 

@@ -31,18 +31,12 @@ func (u CreditUseCaseImpl) List(ctx context.Context, input handler.CreditListInp
 		span.End()
 	}()
 
-	lendings, err := u.cr.ListLendingsByUserID(ctx, input.UserID)
-	if err != nil {
-		return nil, err
-	}
-
-	borrowings, err := u.cr.ListBorrowingsByUserID(ctx, input.UserID)
+	credits, err := u.cr.FindByUserID(ctx, input.UserID)
 	if err != nil {
 		return nil, err
 	}
 
 	return &handler.CreditListOutput{
-		Lendings:   lendings,
-		Borrowings: borrowings,
+		Credits: credits,
 	}, nil
 }

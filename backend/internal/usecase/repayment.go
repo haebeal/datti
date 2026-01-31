@@ -34,26 +34,13 @@ func (u RepaymentUseCaseImpl) Create(ctx context.Context, i handler.RepaymentCre
 		span.End()
 	}()
 
-	// 借りている一覧を取得
-	borrowings, err := u.cr.ListBorrowingsByUserID(ctx, i.PayerID)
+	// 対象ユーザーとの債権/債務を取得
+	credit, err := u.cr.FindByUserIDAndOtherUserID(ctx, i.PayerID, i.DebtorID)
 	if err != nil {
 		return nil, err
 	}
 
-	// 対象の債権者（貸してくれている人）を探す
-	var credit *domain.Credit
-	for _, c := range borrowings {
-		if c.UserID() == i.DebtorID {
-			credit = c
-			break
-		}
-	}
-
-	if credit == nil {
-		return nil, domain.NewNotFoundError("credit", i.DebtorID)
-	}
-
-	// CreditからRepaymentを作成
+	// CreditからRepaymentを作成（借りがない場合はエラー）
 	repayment, err := credit.CreateRepayment(ctx, i.PayerID, i.Amount)
 	if err != nil {
 		return nil, err

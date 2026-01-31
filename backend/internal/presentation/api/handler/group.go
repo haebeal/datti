@@ -346,10 +346,10 @@ func (h groupHandler) AddMember(c echo.Context, id string) error {
 		res := &api.ErrorResponse{
 			Message: message,
 		}
-		if errors.Is(err, domain.ErrGroupMemberAlreadyExists) {
+		if errors.Is(err, &domain.ConflictError{}) {
 			return c.JSON(http.StatusConflict, res)
 		}
-		if err.Error() == "forbidden Error" {
+		if errors.Is(err, &domain.ForbiddenError{}) {
 			return c.JSON(http.StatusForbidden, res)
 		}
 		return c.JSON(http.StatusInternalServerError, res)

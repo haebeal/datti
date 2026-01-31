@@ -77,7 +77,7 @@ func (h repaymentHandler) Create(c echo.Context) error {
 		Id:        output.Repayment.ID().String(),
 		PayerId:   output.Repayment.PayerID(),
 		DebtorId:  output.Repayment.DebtorID(),
-		Amount:    uint64(output.Repayment.Amount().Value()),
+		Amount:    uint64(output.Repayment.Amount()),
 		CreatedAt: output.Repayment.CreatedAt(),
 		UpdatedAt: output.Repayment.UpdatedAt(),
 	}
@@ -128,7 +128,7 @@ func (h repaymentHandler) GetByQuery(c echo.Context, params api.RepaymentGetAllP
 			Id:        r.ID().String(),
 			PayerId:   r.PayerID(),
 			DebtorId:  r.DebtorID(),
-			Amount:    uint64(r.Amount().Value()),
+			Amount:    uint64(r.Amount()),
 			CreatedAt: r.CreatedAt(),
 			UpdatedAt: r.UpdatedAt(),
 		})
@@ -166,7 +166,7 @@ func (h repaymentHandler) Get(c echo.Context, id string) error {
 		Id:        output.Repayment.ID().String(),
 		PayerId:   output.Repayment.PayerID(),
 		DebtorId:  output.Repayment.DebtorID(),
-		Amount:    uint64(output.Repayment.Amount().Value()),
+		Amount:    uint64(output.Repayment.Amount()),
 		CreatedAt: output.Repayment.CreatedAt(),
 		UpdatedAt: output.Repayment.UpdatedAt(),
 	}
@@ -211,7 +211,7 @@ func (h repaymentHandler) Update(c echo.Context, id string) error {
 		Id:        output.Repayment.ID().String(),
 		PayerId:   output.Repayment.PayerID(),
 		DebtorId:  output.Repayment.DebtorID(),
-		Amount:    uint64(output.Repayment.Amount().Value()),
+		Amount:    uint64(output.Repayment.Amount()),
 		CreatedAt: output.Repayment.CreatedAt(),
 		UpdatedAt: output.Repayment.UpdatedAt(),
 	}

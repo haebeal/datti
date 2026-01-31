@@ -49,7 +49,7 @@ func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (
 	if !slices.ContainsFunc(members, func(m *domain.User) bool {
 		return m.ID() == i.UserID
 	}) {
-		return nil, NewForbiddenError("グループのメンバーではありません")
+		return nil, domain.NewForbiddenError("グループのメンバーではありません")
 	}
 
 	// 支払い者の作成
@@ -126,7 +126,7 @@ func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (output
 	if !slices.ContainsFunc(members, func(m *domain.User) bool {
 		return m.ID() == i.UserID
 	}) {
-		return nil, NewForbiddenError("グループのメンバーではありません")
+		return nil, domain.NewForbiddenError("グループのメンバーではありません")
 	}
 
 	// Lending取得
@@ -178,7 +178,7 @@ func (u LendingUseCaseImpl) GetByQuery(ctx context.Context, i handler.GetAllInpu
 	if !slices.ContainsFunc(members, func(m *domain.User) bool {
 		return m.ID() == i.UserID
 	}) {
-		return nil, NewForbiddenError("グループのメンバーではありません")
+		return nil, domain.NewForbiddenError("グループのメンバーではありません")
 	}
 
 	// Lending一覧取得
@@ -240,7 +240,7 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 	if !slices.ContainsFunc(members, func(m *domain.User) bool {
 		return m.ID() == i.UserID
 	}) {
-		return nil, NewForbiddenError("グループのメンバーではありません")
+		return nil, domain.NewForbiddenError("グループのメンバーではありません")
 	}
 
 	// Lending取得
@@ -251,7 +251,7 @@ func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (
 
 	// 支払い者のみ更新可能
 	if lending.Payer().ID() != i.UserID {
-		return nil, NewForbiddenError("支払い者のみ更新できます")
+		return nil, domain.NewForbiddenError("支払い者のみ更新できます")
 	}
 
 	// 債務者がいない場合はエラー
@@ -350,7 +350,7 @@ func (u LendingUseCaseImpl) Delete(ctx context.Context, i handler.DeleteInput) (
 	if !slices.ContainsFunc(members, func(m *domain.User) bool {
 		return m.ID() == i.UserID
 	}) {
-		return NewForbiddenError("グループのメンバーではありません")
+		return domain.NewForbiddenError("グループのメンバーではありません")
 	}
 
 	// Lending取得
@@ -361,7 +361,7 @@ func (u LendingUseCaseImpl) Delete(ctx context.Context, i handler.DeleteInput) (
 
 	// 支払い者のみ削除可能
 	if lending.Payer().ID() != i.UserID {
-		return NewForbiddenError("支払い者のみ削除できます")
+		return domain.NewForbiddenError("支払い者のみ削除できます")
 	}
 
 	// リポジトリから削除

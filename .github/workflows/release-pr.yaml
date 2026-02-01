@@ -1,0 +1,156 @@
+name: Release PR
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-northeast-1
+
+jobs:
+  validate-version:
+    if: startsWith(github.head_ref, 'release/')
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from branch name
+        id: extract
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          VERSION="${BRANCH#release/}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Extracted version: $VERSION"
+
+      - name: Validate SemVer format
+        run: |
+          VERSION="${{ steps.extract.outputs.version }}"
+          if [[ ! "$VERSION" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "::error::Invalid SemVer format: $VERSION"
+            echo "Expected format: vX.Y.Z (e.g., v0.1.0, v1.2.3)"
+            exit 1
+          fi
+          echo "✅ Valid SemVer format: $VERSION"
+
+      - name: Validate version is greater than latest tag
+        run: |
+          VERSION="${{ steps.extract.outputs.version }}"
+          LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n1 || echo "")
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No existing tags found. First release!"
+            exit 0
+          fi
+
+          echo "Latest tag: $LATEST_TAG"
+          echo "New version: $VERSION"
+
+          # Compare versions using sort -V
+          HIGHER=$(echo -e "$LATEST_TAG\n$VERSION" | sort -V | tail -n1)
+
+          if [ "$HIGHER" = "$LATEST_TAG" ]; then
+            echo "::error::Version $VERSION is not greater than latest tag $LATEST_TAG"
+            exit 1
+          fi
+
+          if [ "$HIGHER" = "$VERSION" ] && [ "$VERSION" != "$LATEST_TAG" ]; then
+            echo "✅ Version $VERSION is greater than $LATEST_TAG"
+          fi
+
+  deploy-backend:
+    needs: validate-version
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: dev
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: backend
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/datti-backend:dev
+          platforms: linux/arm64
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Setup ecspresso
+        uses: kayac/ecspresso@v2
+        with:
+          version: latest
+
+      - name: Deploy to ECS
+        working-directory: backend
+        run: ecspresso deploy --config ecspresso.yaml
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          IMAGE_TAG: dev
+          ENV: dev
+
+  deploy-frontend:
+    needs: validate-version
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: dev
+      url: https://dev.datti.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/datti-frontend:dev
+          platforms: linux/arm64
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+
+      - name: Setup ecspresso
+        uses: kayac/ecspresso@v2
+        with:
+          version: latest
+
+      - name: Deploy to ECS
+        working-directory: frontend
+        run: ecspresso deploy --config ecspresso.yaml
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          IMAGE_TAG: dev
+          ENV: dev
+          APP_URL: https://dev.datti.app

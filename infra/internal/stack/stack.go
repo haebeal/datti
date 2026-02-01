@@ -39,6 +39,9 @@ func NewDattiStack(scope constructs.Construct, id string, props *DattiStackProps
 	// DynamoDB
 	dynamoDB := newDynamoDB(stack, env)
 
+	// S3 + CloudFront
+	s3 := newS3(stack, env)
+
 	// SSM Parameters
 	cognitoDomainURL := fmt.Sprintf("https://%s.auth.ap-northeast-1.amazoncognito.com", *cognito.UserPoolDomain.DomainName())
 
@@ -72,6 +75,16 @@ func NewDattiStack(scope constructs.Construct, id string, props *DattiStackProps
 		StringValue:   jsii.String("CHANGE_ME"),
 	})
 
+	awsssm.NewStringParameter(stack, jsii.String("DattiS3AvatarBucketParam"), &awsssm.StringParameterProps{
+		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/S3_AVATAR_BUCKET", env)),
+		StringValue:   s3.AvatarBucket.BucketName(),
+	})
+
+	awsssm.NewStringParameter(stack, jsii.String("DattiAvatarBaseUrlParam"), &awsssm.StringParameterProps{
+		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/AVATAR_BASE_URL", env)),
+		StringValue:   jsii.String(fmt.Sprintf("https://%s", *s3.AvatarDistribution.DistributionDomainName())),
+	})
+
 	// ECS (Cluster, Capacity, Roles only - services managed by ecspresso)
 	ecs := newECS(stack, env, &ecsProps{
 		Vpc:           network.Vpc,
@@ -80,6 +93,9 @@ func NewDattiStack(scope constructs.Construct, id string, props *DattiStackProps
 
 	// Grant DynamoDB access to task role
 	dynamoDB.SessionsTable.GrantReadWriteData(ecs.TaskRole)
+
+	// Grant S3 access to task role
+	s3.AvatarBucket.GrantReadWrite(ecs.TaskRole, jsii.String("avatars/*"))
 
 	// GitHub Actions Role
 	githubRole := newGitHubActionsRole(stack, env)

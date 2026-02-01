@@ -9,7 +9,7 @@ import {
 } from "@aws-sdk/lib-dynamodb";
 import { nanoid } from "nanoid";
 
-const client = new DynamoDBClient({ region: process.env.AWS_REGION });
+const client = new DynamoDBClient({});
 const docClient = DynamoDBDocumentClient.from(client);
 
 const TABLE_NAME = process.env.DYNAMODB_SESSIONS_TABLE;

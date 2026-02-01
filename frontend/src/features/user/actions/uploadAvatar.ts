@@ -1,9 +1,12 @@
 "use server";
 
 import { cookies } from "next/headers";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
-import { s3Client, S3_BUCKET_NAME } from "@/libs/s3/client";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSession } from "@/libs/session/session";
+
+const s3Client = new S3Client({
+  forcePathStyle: process.env.NODE_ENV === "development",
+});
 
 type UploadResult =
   | { success: true; url: string }
@@ -45,22 +48,18 @@ export async function uploadAvatar(formData: FormData): Promise<UploadResult> {
     const buffer = Buffer.from(arrayBuffer);
 
     const fileId = crypto.randomUUID();
-    const extension = file.type === "image/webp" ? "webp" : "webp";
-    const key = `avatars/${fileId}.${extension}`;
+    const key = `avatars/${fileId}.webp`;
 
     await s3Client.send(
       new PutObjectCommand({
-        Bucket: S3_BUCKET_NAME,
+        Bucket: process.env.S3_AVATAR_BUCKET,
         Key: key,
         Body: buffer,
         ContentType: "image/webp",
       }),
     );
 
-    const endpoint = process.env.AWS_ENDPOINT_URL;
-    const url = endpoint
-      ? `${endpoint}/${S3_BUCKET_NAME}/${key}`
-      : `https://${S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
+    const url = `${process.env.AVATAR_BASE_URL}/${key}`;
 
     return { success: true, url };
   } catch (error) {

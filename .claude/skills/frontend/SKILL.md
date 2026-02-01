@@ -602,6 +602,28 @@ revalidatePath("/groups");
 </Button>
 ```
 
+## 環境変数の変更ルール
+
+環境変数を追加・変更する際は、以下の3ファイルを必ず確認・更新すること：
+
+1. **`src/env.d.ts`** - 型定義を追加・更新
+2. **`.env.example`** - サンプル値を追加・更新
+3. **`Taskfile.yaml`** - LocalStackリソース（DynamoDB、S3など）に関連する場合は更新
+
+### 命名規則
+
+- `_NAME` サフィックスは不要（例: `S3_AVATAR_BUCKET`、`DYNAMODB_SESSIONS_TABLE`）
+- ローカル開発用リソースは `local-` プレフィックス（例: `local-datti-avatar`）
+- AWS SDKが自動読み取りする環境変数（`AWS_REGION`, `AWS_ACCESS_KEY_ID` 等）はソースコードで明示的に使用しない
+
+```typescript
+// ❌NG: AWS SDKが自動で読み取るので不要
+const client = new S3Client({ region: process.env.AWS_REGION });
+
+// ✅OK: 空オブジェクトで初期化
+const client = new S3Client({});
+```
+
 ## 避けるべきこと
 
 - **過度な設計**: 要求された機能以外の追加や改善を避ける

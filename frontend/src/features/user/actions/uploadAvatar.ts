@@ -3,6 +3,9 @@
 import { cookies } from "next/headers";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSession } from "@/libs/session/session";
+import { getAuthToken } from "@/libs/auth/getAuthToken";
+import { createApiClient } from "@/libs/api/client";
+import { revalidatePath } from "next/cache";
 
 const s3Client = new S3Client({
   forcePathStyle: process.env.NODE_ENV === "development",
@@ -60,6 +63,28 @@ export async function uploadAvatar(formData: FormData): Promise<UploadResult> {
     );
 
     const url = `${process.env.AVATAR_BASE_URL}/${key}`;
+
+    // バックエンドAPIでプロフィールを更新
+    const token = await getAuthToken();
+    const client = createApiClient(token);
+
+    // 現在のユーザー情報を取得
+    const { data: me, error: meError } = await client.GET("/users/me");
+    if (meError || !me) {
+      return { success: false, error: "ユーザー情報の取得に失敗しました" };
+    }
+
+    // avatarを更新
+    const { error: updateError } = await client.PUT("/users/{id}", {
+      params: { path: { id: me.id } },
+      body: { name: me.name, avatar: url },
+    });
+
+    if (updateError) {
+      return { success: false, error: "プロフィールの更新に失敗しました" };
+    }
+
+    revalidatePath("/", "layout");
 
     return { success: true, url };
   } catch (error) {

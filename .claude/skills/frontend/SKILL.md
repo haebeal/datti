@@ -690,7 +690,7 @@ formatDate(dateString);  // "2026年1月15日"
 ### その他の参考資料
 
 - [MDN Web Docs](https://developer.mozilla.org/ja/) - HTML仕様の確認
-- [Design System Skill](.claude/skills/design-system/SKILL.md) - 間隔、UIコンポーネント仕様、スタイリング原則
+- [Design System Skill](../design-system/SKILL.md) - 間隔、UIコンポーネント仕様、スタイリング原則
 - `frontend/src/features/group/components/group-basic-info-form.tsx` - フォーム実装の参考例
 - `frontend/src/features/group/components/group-member-management.tsx` - 複雑なフォームの参考例
 - `frontend/src/features/lending/components/lending-create-form.tsx` - 動的配列フォームの参考例

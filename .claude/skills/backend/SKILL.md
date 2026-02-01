@@ -22,10 +22,7 @@ description: Datti APIバックエンド開発ガイド。Go製PostgreSQL APIサ
 
 ### トレース
 
-OpenTelemetryで各層にトレースを実装：
-
-- **`APP_ENV=production`**: Google Cloud Trace
-- **その他**: OTLP HTTP（ローカル: `http://localhost:4318`）
+OpenTelemetryで各層にトレースを実装。OTLP HTTPで送信（ローカル: Jaeger `http://localhost:4318`）。
 
 ## 新機能実装フロー
 
@@ -50,7 +47,7 @@ OpenTelemetryで各層にトレースを実装：
 
 - `backend/openapi.yaml` を編集
 - エンドポイント・リクエスト・レスポンスを定義
-- `task gen-api` で型とサーバースタブを生成
+- `task api:gen-interface` で型とサーバースタブを生成
 
 ### 4. ハンドラー実装
 
@@ -64,9 +61,9 @@ OpenTelemetryで各層にトレースを実装：
 
 - `backend/sql/schema.sql` にテーブル定義
 - `backend/sql/query.sql` にクエリ定義
-- `task gen-sqlc` でコード生成
+- `task sqlc:gen` でコード生成
 - `backend/internal/gateway/repository/` にリポジトリ実装
-- `task db-migrate` でスキーマ適用
+- `task postgres:migrate` でスキーマ適用
 - `backend/cmd/main.go` でDI設定を更新
 
 ### 6. ビルド確認
@@ -82,18 +79,20 @@ OpenTelemetryで各層にトレースを実装：
 
 ## 開発コマンド
 
+すべてのタスクはリポジトリルートから実行します。
+
 ```bash
 # データベース
-task db-migrate    # Atlas経由でスキーマ適用
-task db-seed       # サンプルデータ投入
+task postgres:migrate    # Atlas経由でスキーマ適用
+task postgres:seed       # サンプルデータ投入
 
 # コード生成
-task gen-sqlc      # SQLCでクエリコード生成
-task gen-api       # OpenAPIから型とサーバースタブ生成
-task gen-mocks     # モック生成
+task sqlc:gen            # SQLCでクエリコード生成
+task api:gen-interface   # OpenAPIから型とサーバースタブ生成
+task api:gen-mock        # モック生成
 
 # テスト（ユーザーから明示的な指示があった場合のみ）
-task test          # go test -race ./...
+task api:test            # go test -race ./...
 ```
 
 ## ローカルデバッグ
@@ -102,8 +101,7 @@ task test          # go test -race ./...
 
 | ツール | 用途 | インストール |
 |--------|------|--------------|
-| Docker | PostgreSQL, Redis, Jaeger | `brew install --cask docker` |
-| gcloud CLI | Firebase認証用ADC | `brew install --cask google-cloud-sdk` |
+| Docker | PostgreSQL, DynamoDB Local, Jaeger | `brew install --cask docker` |
 
 ### 環境構築手順
 
@@ -111,15 +109,12 @@ task test          # go test -race ./...
 # 1. コンテナ起動（リポジトリルートで実行）
 docker compose up -d
 
-# 2. GCP認証（初回のみ、ブラウザが開く）
-gcloud auth application-default login
+# 2. DBマイグレーション
+task postgres:migrate
+task dynamo:migrate
 
-# 3. DBマイグレーション
-cd backend
-task db-migrate
-
-# 4. 開発サーバー起動
-air
+# 3. 開発サーバー起動
+task api:dev
 ```
 
 ### 起動後のポート
@@ -129,6 +124,7 @@ air
 | Echo API | :7070 | APIサーバー |
 | Delve | :2345 | デバッガー接続 |
 | PostgreSQL | :5432 | データベース |
+| DynamoDB Local | :8000 | セッション管理（フロントエンド用） |
 | Jaeger UI | :16686 | 分散トレース |
 
 ### デバッグ手法
@@ -169,16 +165,15 @@ go vet ./...
 | エラー | 原因 | 対処 |
 |--------|------|------|
 | `missing scheme` | `.env` が存在しない | 1Password Environmentsで同期 |
-| `could not find default credentials` | GCP認証未実施 | `gcloud auth application-default login` |
 | `bind: address already in use` | ポート競合 | `lsof -ti:2345 \| xargs kill -9` |
 
 ## 重要な実務ルール
 
 ### コード生成の管理
 
-- **API定義後**: `backend/openapi.yaml` 変更 → `task gen-api`
-- **SQL定義後**: `backend/sql/schema.sql` や `backend/sql/query.sql` 変更 → `task gen-sqlc` 実行
-- **リポジトリインターフェース追加後**: `Taskfile.yaml` に mockgen 設定追加 → `task gen-mocks` 実行
+- **API定義後**: `backend/openapi.yaml` 変更 → `task api:gen-interface`
+- **SQL定義後**: `backend/sql/schema.sql` や `backend/sql/query.sql` 変更 → `task sqlc:gen` 実行
+- **リポジトリインターフェース追加後**: `Taskfile.yaml` に mockgen 設定追加 → `task api:gen-mock` 実行
 - **生成物は元データと同じコミットに含める**
 
 ### コーディング規約
@@ -237,7 +232,7 @@ go vet ./...
 
 ### 認証・環境
 
-- **認証**: Firebase Auth（`middleware.AuthMiddleware` が `uid` を注入）
+- **認証**: AWS Cognito（`middleware.AuthMiddleware` が `uid` を注入）
 - **通貨**: すべて円（整数）
 - **環境変数**: `backend/.env` 参照
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useActionState } from "react";
 import { updateProfile } from "@/features/user/actions/updateProfile";
 import type { User } from "@/features/user/types";
 import { cn } from "@/utils/cn";
@@ -9,17 +9,19 @@ import { Input } from "@/components/ui/input";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { profileEditSchema } from "../schema";
+import { AvatarPicker } from "./avatar-picker";
 
 type Props = {
   user: User;
 };
 
 export function ProfileEditForm({ user }: Props) {
+  const [avatarUrl, setAvatarUrl] = useState(user.avatar);
   const [lastResult, action, isUpdating] = useActionState(
     updateProfile,
     undefined,
   );
-  const [form, { id, name, avatar }] = useForm({
+  const [form, { name, avatar }] = useForm({
     lastResult,
     defaultValue: user,
     onValidate({ formData }) {
@@ -36,7 +38,17 @@ export function ProfileEditForm({ user }: Props) {
     >
       <h2 className={cn("text-lg font-semibold")}>プロフィール編集</h2>
 
-      <input type="hidden" name={id.name} value={user.id} readOnly />
+      <span className={cn("text-sm")}>アバター</span>
+
+      <AvatarPicker
+        currentAvatar={avatarUrl}
+        onAvatarChange={setAvatarUrl}
+        name={avatar.name}
+        id={avatar.id}
+      />
+      {avatar.errors && (
+        <p className={cn("text-sm text-red-500")}>{avatar.errors}</p>
+      )}
 
       <label htmlFor={name.id} className={cn("text-sm")}>
         名前
@@ -52,22 +64,6 @@ export function ProfileEditForm({ user }: Props) {
       />
       {name.errors && (
         <p className={cn("text-sm text-red-500")}>{name.errors}</p>
-      )}
-
-      <label htmlFor={avatar.id} className={cn("text-sm")}>
-        アバターURL
-      </label>
-
-      <Input
-        type="text"
-        name={avatar.name}
-        id={avatar.id}
-        key={avatar.key}
-        defaultValue={avatar.defaultValue}
-        className={cn("w-full")}
-      />
-      {avatar.errors && (
-        <p className={cn("text-sm text-red-500")}>{avatar.errors}</p>
       )}
 
       {form.errors && (

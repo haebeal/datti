@@ -16,9 +16,17 @@ services:
       - 4318:4318
     environment:
       - LOG_LEVEL=debug
-  dynamodb:
-    container_name: datti-dynamodb
-    image: amazon/dynamodb-local
+  localstack:
+    container_name: datti-localstack
+    image: localstack/localstack:latest
     ports:
-      - 8000:8000
-    command: -jar DynamoDBLocal.jar -sharedDb
+      - 4566:4566
+    environment:
+      - SERVICES=dynamodb,s3
+      - DEBUG=0
+      - AWS_DEFAULT_REGION=ap-northeast-1
+    volumes:
+      - localstack-data:/var/lib/localstack
+
+volumes:
+  localstack-data:

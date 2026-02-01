@@ -2,11 +2,13 @@ import Link, { type LinkProps } from "next/link";
 import { cn } from "@/utils/cn";
 
 type Color = "primary" | "error";
-type Props = LinkProps & {
+type Props = Omit<LinkProps, "href"> & {
+  href: string;
   colorStyle?: "outline" | "fill";
   color?: Color;
   className?: string;
   children: React.ReactNode;
+  external?: boolean;
 };
 
 export function LinkButton(props: Props) {
@@ -15,6 +17,7 @@ export function LinkButton(props: Props) {
     color = "primary",
     className,
     children,
+    external = false,
     ...rest
   } = props;
 
@@ -37,18 +40,25 @@ export function LinkButton(props: Props) {
     }
   };
 
+  const buttonClassName = cn(
+    "px-4 py-2",
+    "rounded-md",
+    getColorClasses(),
+    "transition-colors",
+    "focus:outline-none focus:ring-2 focus:ring-offset-4",
+    className,
+  );
+
+  if (external) {
+    return (
+      <a className={buttonClassName} href={rest.href}>
+        {children}
+      </a>
+    );
+  }
+
   return (
-    <Link
-      className={cn(
-        "px-4 py-2",
-        "rounded-md",
-        getColorClasses(),
-        "transition-colors",
-        "focus:outline-none focus:ring-2 focus:ring-offset-4",
-        className,
-      )}
-      {...rest}
-    >
+    <Link className={buttonClassName} {...rest}>
       {children}
     </Link>
   );

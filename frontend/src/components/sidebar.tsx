@@ -150,6 +150,7 @@ export function Sidebar({ groups, user }: SidebarProps) {
                   width={40}
                   height={40}
                   className={cn("w-10 h-10 rounded-full object-cover")}
+                  unoptimized={process.env.NODE_ENV === "development"}
                 />
               ) : (
                 <div

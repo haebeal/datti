@@ -10,6 +10,9 @@ declare namespace NodeJS {
 
     // DynamoDB (Session Storage)
     readonly DYNAMODB_SESSIONS_TABLE: string;
-    readonly AWS_REGION: string;
+
+    // S3 (Avatar)
+    readonly S3_AVATAR_BUCKET: string;
+    readonly AVATAR_BASE_URL: string;
   }
 }

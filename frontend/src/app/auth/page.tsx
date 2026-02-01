@@ -37,7 +37,7 @@ export default async function AuthPage({ searchParams }: Props) {
           <p className="text-gray-600">Googleアカウントで認証してください</p>
         </div>
 
-        <LinkButton href="/api/auth/cognito" color="primary" colorStyle="fill">
+        <LinkButton href="/api/auth/cognito" color="primary" colorStyle="fill" external>
           Googleで続ける
         </LinkButton>
 

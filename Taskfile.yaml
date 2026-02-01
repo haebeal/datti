@@ -23,10 +23,10 @@ tasks:
           --time-to-live-specification Enabled=true,AttributeName=expiresAt \
           --endpoint-url $AWS_ENDPOINT_URL
       # S3: Profile images bucket
-      - aws s3 mb s3://dev-datti-profile-images --endpoint-url $AWS_ENDPOINT_URL
+      - aws s3 mb s3://dev-datti-avatar --endpoint-url $AWS_ENDPOINT_URL
       - |
         aws s3api put-bucket-policy \
-          --bucket dev-datti-profile-images \
+          --bucket dev-datti-avatar \
           --endpoint-url $AWS_ENDPOINT_URL \
           --policy '{
             "Version": "2012-10-17",
@@ -36,7 +36,7 @@ tasks:
                 "Effect": "Allow",
                 "Principal": "*",
                 "Action": "s3:GetObject",
-                "Resource": "arn:aws:s3:::dev-datti-profile-images/*"
+                "Resource": "arn:aws:s3:::dev-datti-avatar/*"
               }
             ]
           }'

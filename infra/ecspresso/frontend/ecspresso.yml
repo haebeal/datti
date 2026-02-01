@@ -1,6 +1,6 @@
 region: ap-northeast-1
 cluster: dev-datti-cluster
 service: dev-datti-frontend
-service_definition: service-def.json
-task_definition: task-def.json
+service_definition: service-def.yaml
+task_definition: task-def.yaml
 timeout: 10m0s

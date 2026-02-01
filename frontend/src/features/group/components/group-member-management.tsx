@@ -65,10 +65,8 @@ export function GroupMemberManagement({
     setIsSearching(true);
     setSearchError(null);
 
-    // emailまたはnameで検索（@が含まれていればemail、そうでなければname）
-    const searchParams = searchQuery.includes("@")
-      ? { email: searchQuery }
-      : { name: searchQuery };
+    // nameとemailの両方で検索（どちらかにマッチすればヒット）
+    const searchParams = { name: searchQuery, email: searchQuery };
 
     const result = await searchUsers(searchParams);
 

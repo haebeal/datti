@@ -82,11 +82,11 @@ lefthook install
 
 ### 4. バックエンドのセットアップ
 ```bash
-cd backend
-go mod download
-task db-migrate
-task db-seed
+cd backend && go mod download
+task postgres:migrate
+task postgres:seed
 ```
+※ Task コマンドはリポジトリルートから実行します。
 
 ### 5. フロントエンドのセットアップ
 ```bash
@@ -98,28 +98,33 @@ pnpm install
 
 ### バックエンド
 ```bash
-cd backend
-air
+task api:dev
 ```
 - `.air.toml` が `godotenv` と `dlv` を介してバイナリを起動します（デバッグポート :2345）
 - ソース変更を監視し自動ビルド・再起動が行われます
 
 ### フロントエンド
 ```bash
-cd frontend
-pnpm dev
+task web:dev
 ```
 - `http://localhost:3000` で開発サーバーが起動します
 - ソース変更を監視しホットリロードが行われます
 
 ## 利用可能な Task 一覧
+
+すべてのタスクはリポジトリルートから実行します。
+
 | タスク | 内容 |
 | --- | --- |
-| `task db-migrate` | Atlas 経由で Postgres スキーマを適用 |
-| `task db-seed` | サンプルデータを投入 |
-| `task gen-sqlc` | `sql/query.sql` から `internal/gateway/postgres` のクエリコードを生成 |
-| `task gen-api` | OpenAPI から型とサーバースタブを生成（出力: `internal/presentation/api/*.gen.go`） |
-| `task gen-mocks` | モックを生成（出力: `internal/usecase/test` など） |
-| `task test` | テストの実行 |
+| `task postgres:migrate` | Atlas 経由で Postgres スキーマを適用 |
+| `task postgres:seed` | サンプルデータを投入 |
+| `task dynamo:migrate` | DynamoDB のセッションテーブルを作成 |
+| `task sqlc:gen` | `sql/query.sql` から `internal/gateway/postgres` のクエリコードを生成 |
+| `task api:gen-interface` | OpenAPI から型とサーバースタブを生成（出力: `internal/presentation/api/*.gen.go`） |
+| `task api:gen-mock` | モックを生成（出力: `internal/usecase/test` など） |
+| `task api:test` | テストの実行 |
+| `task api:dev` | バックエンド開発サーバーを起動（air 経由） |
+| `task api:docs` | OpenAPI ドキュメントをプレビュー |
+| `task web:dev` | フロントエンド開発サーバーを起動 |
 
 OpenAPI の元定義は `backend/openapi.yaml` に配置されています。

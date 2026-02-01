@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><style>
+    #light-icon {
+      display: inline;
+    }
+    #dark-icon {
+      display: none;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      #light-icon {
+        display: none;
+      }
+      #dark-icon {
+        display: inline;
+      }
+    }
+  </style><g id="light-icon"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><g><g transform="matrix(5,0,0,5,0,0)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background -->
+  <rect x="15" y="15" width="170" height="170" rx="32" ry="32" fill="#1E293B"></rect>
+  
+  <!-- D vertical stem -->
+  <rect x="55" y="42" width="20" height="116" rx="3" fill="white"></rect>
+  
+  <!-- D curve -->
+  <path d="M65 42 L95 42 A58 58 0 0 1 95 158 L65 158 L65 138 L90 138 A38 38 0 0 0 90 62 L65 62 Z" fill="white"></path>
+  
+  <!-- Yen lines extending left -->
+  <rect x="40" y="82" width="90" height="14" rx="2" fill="white"></rect>
+  <rect x="40" y="104" width="90" height="14" rx="2" fill="white"></rect>
+</svg></svg></g></g></svg></g><g id="dark-icon"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="1000"><g clip-path="url(#SvgjsClipPath1045)"><rect width="1000" height="1000" fill="#ffffff"></rect><g transform="matrix(5,0,0,5,0,0)"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Background -->
+  <rect x="15" y="15" width="170" height="170" rx="32" ry="32" fill="#1E293B"></rect>
+  
+  <!-- D vertical stem -->
+  <rect x="55" y="42" width="20" height="116" rx="3" fill="white"></rect>
+  
+  <!-- D curve -->
+  <path d="M65 42 L95 42 A58 58 0 0 1 95 158 L65 158 L65 138 L90 138 A38 38 0 0 0 90 62 L65 62 Z" fill="white"></path>
+  
+  <!-- Yen lines extending left -->
+  <rect x="40" y="82" width="90" height="14" rx="2" fill="white"></rect>
+  <rect x="40" y="104" width="90" height="14" rx="2" fill="white"></rect>
+</svg></svg></g></g><defs><clipPath id="SvgjsClipPath1045"><rect width="1000" height="1000" x="0" y="0" rx="200" ry="200"></rect></clipPath></defs></svg></g></svg>

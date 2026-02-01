@@ -74,8 +74,23 @@ jobs:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
+  apply-schema:
+    needs: create-release
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ariga/setup-atlas@v0
+      - uses: ariga/atlas-action/schema/apply@v1
+        with:
+          url: ${{ secrets.POSTGRES_DSN }}
+          to: "file://backend/sql/schema.sql"
+          dev-url: "docker://postgres"
+          auto-approve: true
+
   deploy-backend:
-    needs: [create-release, provision-infra]
+    needs: [create-release, provision-infra, apply-schema]
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read

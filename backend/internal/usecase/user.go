@@ -31,12 +31,17 @@ func (u UserUseCaseImpl) Search(ctx context.Context, input handler.UserSearchInp
 		span.End()
 	}()
 
-	query := domain.UserSearchQuery{}
+	query := domain.UserSearchQuery{
+		Limit: 20, // デフォルト値
+	}
 	if input.Name != "" {
 		query.Name = &input.Name
 	}
 	if input.Email != "" {
 		query.Email = &input.Email
+	}
+	if input.Limit > 0 {
+		query.Limit = input.Limit
 	}
 
 	users, err := u.ur.FindByQuery(ctx, query)

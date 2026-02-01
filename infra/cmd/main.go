@@ -20,7 +20,7 @@ func main() {
 	}
 
 	// 共有スタック（VPC, ECS Cluster, ECR, GitHub OIDC）
-	shared.NewStack(app, "DattiSharedStack", &shared.StackProps{
+	shared.NewStack(app, "SharedDattiStack", &shared.StackProps{
 		StackProps: awscdk.StackProps{
 			Env: region,
 		},
@@ -34,8 +34,8 @@ func main() {
 		panic("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are required")
 	}
 
-	// Dev 環境スタック
-	env.NewStack(app, "DattiDevStack", &env.StackProps{
+	// Dev 環境スタック（既存スタック名を維持）
+	env.NewStack(app, "DevDattiStack", &env.StackProps{
 		StackProps: awscdk.StackProps{
 			Env: region,
 		},

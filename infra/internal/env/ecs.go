@@ -38,13 +38,13 @@ func newECS(scope constructs.Construct, env string) *ECSResources {
 
 	// Log Groups
 	awslogs.NewLogGroup(scope, jsii.String("DattiBackendLogGroup"), &awslogs.LogGroupProps{
-		LogGroupName:  jsii.String(fmt.Sprintf("/ecs/%s-datti-backend", env)),
+		LogGroupName:  jsii.String(fmt.Sprintf("/ecs/%s/datti-backend", env)),
 		Retention:     awslogs.RetentionDays_ONE_WEEK,
 		RemovalPolicy: awscdk.RemovalPolicy_DESTROY,
 	})
 
 	awslogs.NewLogGroup(scope, jsii.String("DattiFrontendLogGroup"), &awslogs.LogGroupProps{
-		LogGroupName:  jsii.String(fmt.Sprintf("/ecs/%s-datti-frontend", env)),
+		LogGroupName:  jsii.String(fmt.Sprintf("/ecs/%s/datti-frontend", env)),
 		Retention:     awslogs.RetentionDays_ONE_WEEK,
 		RemovalPolicy: awscdk.RemovalPolicy_DESTROY,
 	})

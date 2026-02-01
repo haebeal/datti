@@ -26,7 +26,7 @@ func main() {
 		},
 	})
 
-	// Dev 環境用の環境変数
+	// 環境変数（GitHub Environmentごとに異なる値が設定される）
 	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
 	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
 
@@ -34,12 +34,22 @@ func main() {
 		panic("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are required")
 	}
 
-	// Dev 環境スタック（既存スタック名を維持）
+	// Dev 環境スタック
 	env.NewStack(app, "DevDattiStack", &env.StackProps{
 		StackProps: awscdk.StackProps{
 			Env: region,
 		},
 		Env:                "dev",
+		GoogleClientID:     googleClientID,
+		GoogleClientSecret: googleClientSecret,
+	})
+
+	// Prod 環境スタック
+	env.NewStack(app, "ProdDattiStack", &env.StackProps{
+		StackProps: awscdk.StackProps{
+			Env: region,
+		},
+		Env:                "prod",
 		GoogleClientID:     googleClientID,
 		GoogleClientSecret: googleClientSecret,
 	})

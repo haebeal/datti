@@ -39,8 +39,58 @@ jobs:
             --title "$VERSION" \
             --generate-notes
 
-  deploy-backend:
+  provision-infra:
     needs: create-release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install CDK
+        run: npm install -g aws-cdk
+
+      - name: CDK Deploy
+        working-directory: infra
+        run: cdk deploy ProdDattiStack --require-approval never
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+
+  apply-schema:
+    needs: create-release
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ariga/setup-atlas@v0
+      - uses: ariga/atlas-action/schema/apply@v1
+        with:
+          url: ${{ secrets.POSTGRES_DSN }}
+          to: "file://backend/sql/schema.sql"
+          dev-url: "docker://postgres"
+          auto-approve: true
+
+  deploy-backend:
+    needs: [create-release, provision-infra, apply-schema]
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read
@@ -85,7 +135,7 @@ jobs:
           ENV: prod
 
   deploy-frontend:
-    needs: create-release
+    needs: [create-release, provision-infra]
     runs-on: ubuntu-24.04-arm
     permissions:
       contents: read

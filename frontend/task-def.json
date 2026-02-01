@@ -13,12 +13,12 @@
       "portMappings": [
         {
           "containerPort": 3000,
-          "hostPort": 3001,
+          "hostPort": {{ if eq (must_env "ENV") "prod" }}3000{{ else }}3001{{ end }},
           "protocol": "tcp"
         }
       ],
       "environment": [
-        { "name": "API_URL", "value": "http://172.17.0.1:8081" },
+        { "name": "API_URL", "value": "http://172.17.0.1:{{ if eq (must_env "ENV") "prod" }}8080{{ else }}8081{{ end }}" },
         { "name": "APP_URL", "value": "{{ must_env `APP_URL` }}" },
         { "name": "DYNAMODB_SESSIONS_TABLE", "value": "{{ must_env `ENV` }}-datti-sessions" },
         { "name": "AWS_REGION", "value": "ap-northeast-1" }

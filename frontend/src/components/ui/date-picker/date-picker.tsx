@@ -147,7 +147,7 @@ export function DatePicker(props: Props) {
                     className={cn(
                       "p-3 rounded text-center hover:cursor-pointer",
                       "data-[outside-month]:text-gray-400 data-[outside-month]:cursor-default",
-                      "data-[selected]:bg-blue-900 data-[selected]:text-white",
+                      "data-[selected]:bg-primary-base data-[selected]:text-white",
                     )}
                   />
                 )}

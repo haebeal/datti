@@ -1,4 +1,4 @@
-package stack
+package env
 
 import (
 	"fmt"
@@ -9,11 +9,11 @@ import (
 	"github.com/aws/jsii-runtime-go"
 )
 
-type dynamoDBResources struct {
+type DynamoDBResources struct {
 	SessionsTable awsdynamodb.ITable
 }
 
-func newDynamoDB(scope constructs.Construct, env string) *dynamoDBResources {
+func newDynamoDB(scope constructs.Construct, env string) *DynamoDBResources {
 	sessionsTable := awsdynamodb.NewTable(scope, jsii.String("DattiSessionsTable"), &awsdynamodb.TableProps{
 		TableName:           jsii.String(fmt.Sprintf("%s-datti-sessions", env)),
 		PartitionKey:        &awsdynamodb.Attribute{Name: jsii.String("sessionId"), Type: awsdynamodb.AttributeType_STRING},
@@ -24,7 +24,7 @@ func newDynamoDB(scope constructs.Construct, env string) *dynamoDBResources {
 		RemovalPolicy:       awscdk.RemovalPolicy_DESTROY,
 	})
 
-	return &dynamoDBResources{
+	return &DynamoDBResources{
 		SessionsTable: sessionsTable,
 	}
 }

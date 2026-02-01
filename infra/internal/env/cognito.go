@@ -1,4 +1,4 @@
-package stack
+package env
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/aws/jsii-runtime-go"
 )
 
-type cognitoResources struct {
+type CognitoResources struct {
 	UserPool       awscognito.IUserPool
 	UserPoolClient awscognito.IUserPoolClient
 	UserPoolDomain awscognito.IUserPoolDomain
@@ -20,7 +20,7 @@ type cognitoProps struct {
 	GoogleClientSecret string
 }
 
-func newCognito(scope constructs.Construct, env string, props *cognitoProps) *cognitoResources {
+func newCognito(scope constructs.Construct, env string, props *cognitoProps) *CognitoResources {
 	userPool := awscognito.NewUserPool(scope, jsii.String("DattiUserPool"), &awscognito.UserPoolProps{
 		UserPoolName: jsii.String(fmt.Sprintf("%s-datti-user-pool", env)),
 		SignInAliases: &awscognito.SignInAliases{
@@ -92,7 +92,7 @@ func newCognito(scope constructs.Construct, env string, props *cognitoProps) *co
 	})
 	userPoolClient.Node().AddDependency(googleIdp)
 
-	return &cognitoResources{
+	return &CognitoResources{
 		UserPool:       userPool,
 		UserPoolClient: userPoolClient,
 		UserPoolDomain: userPoolDomain,

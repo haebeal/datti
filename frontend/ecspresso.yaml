@@ -1,6 +1,6 @@
 region: ap-northeast-1
-cluster: dev-datti-cluster
-service: dev-datti-frontend
+cluster: datti-cluster
+service: "{{ must_env `ENV` }}-datti-frontend"
 service_definition: service-def.json
 task_definition: task-def.json
 timeout: 10m0s

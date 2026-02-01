@@ -81,9 +81,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	dsn, ok := os.LookupEnv("DSN")
+	dsn, ok := os.LookupEnv("POSTGRES_DSN")
 	if !ok {
-		log.Fatal("環境変数DSNが設定してありません")
+		log.Fatal("環境変数POSTGRES_DSNが設定してありません")
 		os.Exit(1)
 	}
 

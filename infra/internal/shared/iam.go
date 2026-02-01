@@ -1,14 +1,12 @@
-package stack
+package shared
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsiam"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 )
 
-func newGitHubActionsRole(scope constructs.Construct, env string) awsiam.IRole {
+func newGitHubActionsRole(scope constructs.Construct) awsiam.IRole {
 	// GitHub OIDC Provider
 	oidcProvider := awsiam.NewOpenIdConnectProvider(scope, jsii.String("DattiGitHubOidcProvider"), &awsiam.OpenIdConnectProviderProps{
 		Url: jsii.String("https://token.actions.githubusercontent.com"),
@@ -37,7 +35,7 @@ func newGitHubActionsRole(scope constructs.Construct, env string) awsiam.IRole {
 
 	// IAM Role for GitHub Actions
 	role := awsiam.NewRole(scope, jsii.String("DattiGitHubActionsRole"), &awsiam.RoleProps{
-		RoleName:  jsii.String(fmt.Sprintf("%s-datti-github-actions-role", env)),
+		RoleName:  jsii.String("datti-github-actions-role"),
 		AssumedBy: principal,
 		ManagedPolicies: &[]awsiam.IManagedPolicy{
 			awsiam.ManagedPolicy_FromAwsManagedPolicyName(jsii.String("AdministratorAccess")),

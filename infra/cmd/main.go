@@ -3,7 +3,8 @@ package main
 import (
 	"os"
 
-	"cdk/internal/stack"
+	"cdk/internal/env"
+	"cdk/internal/shared"
 
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/jsii-runtime-go"
@@ -14,6 +15,18 @@ func main() {
 
 	app := awscdk.NewApp(nil)
 
+	region := &awscdk.Environment{
+		Region: jsii.String("ap-northeast-1"),
+	}
+
+	// 共有スタック（VPC, ECS Cluster, ECR, GitHub OIDC）
+	shared.NewStack(app, "SharedDattiStack", &shared.StackProps{
+		StackProps: awscdk.StackProps{
+			Env: region,
+		},
+	})
+
+	// Dev 環境用の環境変数
 	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
 	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
 
@@ -21,11 +34,10 @@ func main() {
 		panic("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are required")
 	}
 
-	stack.NewDattiStack(app, "DevDattiStack", &stack.DattiStackProps{
+	// Dev 環境スタック（既存スタック名を維持）
+	env.NewStack(app, "DevDattiStack", &env.StackProps{
 		StackProps: awscdk.StackProps{
-			Env: &awscdk.Environment{
-				Region: jsii.String("ap-northeast-1"),
-			},
+			Env: region,
 		},
 		Env:                "dev",
 		GoogleClientID:     googleClientID,

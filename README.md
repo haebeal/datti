@@ -61,6 +61,62 @@
 | Datti Backend | `backend/.env` | バックエンド API 用 |
 | Datti Frontend | `frontend/.env.local` | フロントエンド用 |
 
+## デプロイ環境変数
+
+### GitHub Actions Secrets
+
+リポジトリの Settings > Secrets and variables > Actions で設定します。
+
+| Secret | 用途 | 設定元 |
+| --- | --- | --- |
+| `AWS_ROLE_ARN` | GitHub OIDC で Assume するロール | AWS IAM（CDKで作成） |
+| `AWS_ACCOUNT_ID` | AWS アカウント ID | AWS |
+| `GOOGLE_CLIENT_ID` | Cognito Google OAuth | Google Cloud Console |
+| `GOOGLE_CLIENT_SECRET` | Cognito Google OAuth | Google Cloud Console |
+| `POSTGRES_DSN` | PostgreSQL 接続文字列 | Neon |
+| `CLOUDFLARE_API_TOKEN` | Swagger UI デプロイ | Cloudflare |
+| `CLOUDFLARE_ACCOUNT_ID` | Swagger UI デプロイ | Cloudflare |
+
+### ecspresso 環境変数
+
+GitHub Actions から ecspresso に渡す環境変数です。
+
+| 変数 | 用途 | dev | prod |
+| --- | --- | --- | --- |
+| `ENV` | 環境識別子 | `dev` | `prod` |
+| `AWS_ACCOUNT_ID` | AWS アカウント ID | Secrets から | Secrets から |
+| `IMAGE_TAG` | Docker イメージタグ | `dev` | `prod` |
+| `APP_URL` | アプリ URL（frontend のみ） | `https://dev.datti.app` | `https://datti.app` |
+
+### AWS SSM Parameter Store
+
+#### CDK が自動作成するもの
+
+| パラメータ | 用途 |
+| --- | --- |
+| `/datti/{env}/COGNITO_USER_POOL_ID` | Cognito ユーザープール ID |
+| `/datti/{env}/COGNITO_CLIENT_ID` | Cognito クライアント ID |
+| `/datti/{env}/COGNITO_DOMAIN` | Cognito ドメイン URL |
+| `/datti/{env}/COGNITO_ISSUER` | Cognito Issuer URL |
+| `/datti/{env}/S3_AVATAR_BUCKET` | アバター用 S3 バケット名 |
+| `/datti/{env}/AVATAR_BASE_URL` | CloudFront CDN URL |
+
+#### 手動設定が必要なもの
+
+CDK は `CHANGE_ME` で作成するため、デプロイ後に手動で値を設定してください。
+
+| パラメータ | 用途 | 設定元 |
+| --- | --- | --- |
+| `/datti/{env}/backend/POSTGRES_DSN` | PostgreSQL 接続文字列 | Neon |
+| `/datti/{env}/cloudflared/token` | Cloudflare トンネルトークン | Cloudflare |
+
+### 新環境追加時のチェックリスト
+
+1. GitHub Secrets に `AWS_ROLE_ARN`, `AWS_ACCOUNT_ID` 等を設定
+2. CDK デプロイで SSM パラメータが自動作成される
+3. SSM 手動設定: `/datti/{env}/backend/POSTGRES_DSN`, `/datti/{env}/cloudflared/token`
+4. GitHub Actions ワークフローに環境を追加
+
 ## セットアップ手順
 
 ### 1. コンテナ群の起動

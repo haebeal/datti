@@ -1,4 +1,4 @@
-package stack
+package env
 
 import (
 	"fmt"
@@ -11,12 +11,12 @@ import (
 	"github.com/aws/jsii-runtime-go"
 )
 
-type s3Resources struct {
-	AvatarBucket      awss3.IBucket
+type S3Resources struct {
+	AvatarBucket       awss3.IBucket
 	AvatarDistribution awscloudfront.IDistribution
 }
 
-func newS3(scope constructs.Construct, env string) *s3Resources {
+func newS3(scope constructs.Construct, env string) *S3Resources {
 	// S3 Bucket for avatar images
 	avatarBucket := awss3.NewBucket(scope, jsii.String("DattiAvatarBucket"), &awss3.BucketProps{
 		BucketName:        jsii.String(fmt.Sprintf("%s-datti-avatar", env)),
@@ -35,7 +35,7 @@ func newS3(scope constructs.Construct, env string) *s3Resources {
 		Comment: jsii.String(fmt.Sprintf("Datti Avatar CDN (%s)", env)),
 	})
 
-	return &s3Resources{
+	return &S3Resources{
 		AvatarBucket:       avatarBucket,
 		AvatarDistribution: avatarDistribution,
 	}

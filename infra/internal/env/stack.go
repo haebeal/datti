@@ -1,4 +1,4 @@
-package stack
+package env
 
 import (
 	"fmt"
@@ -9,26 +9,21 @@ import (
 	"github.com/aws/jsii-runtime-go"
 )
 
-type DattiStackProps struct {
+type StackProps struct {
 	awscdk.StackProps
 	Env                string // "dev" or "prod"
 	GoogleClientID     string
 	GoogleClientSecret string
 }
 
-func NewDattiStack(scope constructs.Construct, id string, props *DattiStackProps) awscdk.Stack {
+// NewStack は環境別リソースを持つスタックを作成
+func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.Stack {
 	var sprops awscdk.StackProps
 	if props != nil {
 		sprops = props.StackProps
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
 	env := props.Env
-
-	// Network
-	network := newNetwork(stack, env)
-
-	// ECR
-	ecr := newECR(stack, env)
 
 	// Cognito
 	cognito := newCognito(stack, env, &cognitoProps{
@@ -41,6 +36,15 @@ func NewDattiStack(scope constructs.Construct, id string, props *DattiStackProps
 
 	// S3 + CloudFront
 	s3 := newS3(stack, env)
+
+	// ECS Roles and Log Groups
+	ecs := newECS(stack, env)
+
+	// Grant DynamoDB access to task role
+	dynamoDB.SessionsTable.GrantReadWriteData(ecs.TaskRole)
+
+	// Grant S3 access to task role
+	s3.AvatarBucket.GrantReadWrite(ecs.TaskRole, jsii.String("avatars/*"))
 
 	// SSM Parameters
 	cognitoDomainURL := fmt.Sprintf("https://%s.auth.ap-northeast-1.amazoncognito.com", *cognito.UserPoolDomain.DomainName())
@@ -65,8 +69,8 @@ func NewDattiStack(scope constructs.Construct, id string, props *DattiStackProps
 		StringValue:   jsii.String(fmt.Sprintf("https://cognito-idp.ap-northeast-1.amazonaws.com/%s", *cognito.UserPool.UserPoolId())),
 	})
 
-	awsssm.NewStringParameter(stack, jsii.String("DattiDsnParam"), &awsssm.StringParameterProps{
-		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/backend/DSN", env)),
+	awsssm.NewStringParameter(stack, jsii.String("DattiPostgresDsnParam"), &awsssm.StringParameterProps{
+		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/backend/POSTGRES_DSN", env)),
 		StringValue:   jsii.String("CHANGE_ME"),
 	})
 
@@ -85,38 +89,11 @@ func NewDattiStack(scope constructs.Construct, id string, props *DattiStackProps
 		StringValue:   jsii.String(fmt.Sprintf("https://%s", *s3.AvatarDistribution.DistributionDomainName())),
 	})
 
-	// ECS (Cluster, Capacity, Roles only - services managed by ecspresso)
-	ecs := newECS(stack, env, &ecsProps{
-		Vpc:           network.Vpc,
-		SecurityGroup: network.SecurityGroup,
-	})
-
-	// Grant DynamoDB access to task role
-	dynamoDB.SessionsTable.GrantReadWriteData(ecs.TaskRole)
-
-	// Grant S3 access to task role
-	s3.AvatarBucket.GrantReadWrite(ecs.TaskRole, jsii.String("avatars/*"))
-
-	// GitHub Actions Role
-	githubRole := newGitHubActionsRole(stack, env)
-
 	// Outputs
-	awscdk.NewCfnOutput(stack, jsii.String("DattiBackendRepoUri"), &awscdk.CfnOutputProps{
-		Value: ecr.BackendRepo.RepositoryUri(),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("DattiFrontendRepoUri"), &awscdk.CfnOutputProps{
-		Value: ecr.FrontendRepo.RepositoryUri(),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("DattiGitHubActionsRoleArn"), &awscdk.CfnOutputProps{
-		Value: githubRole.RoleArn(),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("DattiEcsClusterName"), &awscdk.CfnOutputProps{
-		Value: ecs.Cluster.ClusterName(),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("DattiExecutionRoleArn"), &awscdk.CfnOutputProps{
+	awscdk.NewCfnOutput(stack, jsii.String("ExecutionRoleArn"), &awscdk.CfnOutputProps{
 		Value: ecs.ExecutionRole.RoleArn(),
 	})
-	awscdk.NewCfnOutput(stack, jsii.String("DattiTaskRoleArn"), &awscdk.CfnOutputProps{
+	awscdk.NewCfnOutput(stack, jsii.String("TaskRoleArn"), &awscdk.CfnOutputProps{
 		Value: ecs.TaskRole.RoleArn(),
 	})
 

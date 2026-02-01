@@ -21,7 +21,7 @@ export function ProfileEditForm({ user }: Props) {
     updateProfile,
     undefined,
   );
-  const [form, { id, name, avatar }] = useForm({
+  const [form, { name, avatar }] = useForm({
     lastResult,
     defaultValue: user,
     onValidate({ formData }) {
@@ -37,8 +37,6 @@ export function ProfileEditForm({ user }: Props) {
       className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
     >
       <h2 className={cn("text-lg font-semibold")}>プロフィール編集</h2>
-
-      <input type="hidden" name={id.name} value={user.id} readOnly />
 
       <span className={cn("text-sm")}>アバター</span>
 

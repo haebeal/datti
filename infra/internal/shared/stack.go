@@ -2,10 +2,6 @@ package shared
 
 import (
 	"github.com/aws/aws-cdk-go/awscdk/v2"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awsec2"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awsecr"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awsecs"
-	"github.com/aws/aws-cdk-go/awscdk/v2/awsiam"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 )
@@ -14,18 +10,8 @@ type StackProps struct {
 	awscdk.StackProps
 }
 
-// Outputs は他のスタックから参照するための出力
-type Outputs struct {
-	Vpc               awsec2.IVpc
-	SecurityGroup     awsec2.ISecurityGroup
-	EcsCluster        awsecs.ICluster
-	BackendRepo       awsecr.IRepository
-	FrontendRepo      awsecr.IRepository
-	GitHubActionsRole awsiam.IRole
-}
-
 // NewStack は共有リソースを持つスタックを作成
-func NewStack(scope constructs.Construct, id string, props *StackProps) (awscdk.Stack, *Outputs) {
+func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.Stack {
 	var sprops awscdk.StackProps
 	if props != nil {
 		sprops = props.StackProps
@@ -74,12 +60,5 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) (awscdk.
 		ExportName: jsii.String("DattiGitHubActionsRoleArn"),
 	})
 
-	return stack, &Outputs{
-		Vpc:               network.Vpc,
-		SecurityGroup:     network.SecurityGroup,
-		EcsCluster:        cluster,
-		BackendRepo:       ecr.BackendRepo,
-		FrontendRepo:      ecr.FrontendRepo,
-		GitHubActionsRole: githubRole,
-	}
+	return stack
 }

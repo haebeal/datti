@@ -12,7 +12,7 @@ import { addMember } from "../actions/addMember";
 import { removeMember } from "../actions/removeMember";
 import { leaveGroup } from "../actions/leaveGroup";
 import { searchUsers } from "@/features/user/actions/searchUsers";
-import { useActionState, useState, useRef } from "react";
+import { useActionState, useState, useRef, useEffect } from "react";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { addMemberSchema } from "../schema";
@@ -58,6 +58,16 @@ export function GroupMemberManagement({
   });
 
   const formRef = useRef<HTMLFormElement>(null);
+
+  // メンバー追加成功時に検索状態をリセット
+  useEffect(() => {
+    // lastResultが存在し、エラーがない場合にリセット
+    if (lastResult && !lastResult.error?.length) {
+      setSearchQuery("");
+      setSearchResults([]);
+      setSearchError(null);
+    }
+  }, [lastResult]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;

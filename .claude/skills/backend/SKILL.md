@@ -22,10 +22,7 @@ description: Datti APIバックエンド開発ガイド。Go製PostgreSQL APIサ
 
 ### トレース
 
-OpenTelemetryで各層にトレースを実装：
-
-- **`APP_ENV=production`**: Google Cloud Trace
-- **その他**: OTLP HTTP（ローカル: `http://localhost:4318`）
+OpenTelemetryで各層にトレースを実装。OTLP HTTPで送信（ローカル: Jaeger `http://localhost:4318`）。
 
 ## 新機能実装フロー
 
@@ -104,8 +101,7 @@ task api:test            # go test -race ./...
 
 | ツール | 用途 | インストール |
 |--------|------|--------------|
-| Docker | PostgreSQL, Redis, Jaeger | `brew install --cask docker` |
-| gcloud CLI | Firebase認証用ADC | `brew install --cask google-cloud-sdk` |
+| Docker | PostgreSQL, DynamoDB Local, Jaeger | `brew install --cask docker` |
 
 ### 環境構築手順
 
@@ -113,13 +109,11 @@ task api:test            # go test -race ./...
 # 1. コンテナ起動（リポジトリルートで実行）
 docker compose up -d
 
-# 2. GCP認証（初回のみ、ブラウザが開く）
-gcloud auth application-default login
-
-# 3. DBマイグレーション
+# 2. DBマイグレーション
 task postgres:migrate
+task dynamo:migrate
 
-# 4. 開発サーバー起動
+# 3. 開発サーバー起動
 task api:dev
 ```
 
@@ -130,6 +124,7 @@ task api:dev
 | Echo API | :7070 | APIサーバー |
 | Delve | :2345 | デバッガー接続 |
 | PostgreSQL | :5432 | データベース |
+| DynamoDB Local | :8000 | セッション管理（フロントエンド用） |
 | Jaeger UI | :16686 | 分散トレース |
 
 ### デバッグ手法
@@ -170,7 +165,6 @@ go vet ./...
 | エラー | 原因 | 対処 |
 |--------|------|------|
 | `missing scheme` | `.env` が存在しない | 1Password Environmentsで同期 |
-| `could not find default credentials` | GCP認証未実施 | `gcloud auth application-default login` |
 | `bind: address already in use` | ポート競合 | `lsof -ti:2345 \| xargs kill -9` |
 
 ## 重要な実務ルール
@@ -238,7 +232,7 @@ go vet ./...
 
 ### 認証・環境
 
-- **認証**: Firebase Auth（`middleware.AuthMiddleware` が `uid` を注入）
+- **認証**: AWS Cognito（`middleware.AuthMiddleware` が `uid` を注入）
 - **通貨**: すべて円（整数）
 - **環境変数**: `backend/.env` 参照
 

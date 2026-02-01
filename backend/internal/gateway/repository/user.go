@@ -55,6 +55,7 @@ func (ur *UserRepositoryImpl) FindByQuery(ctx context.Context, query domain.User
 	rows, err := ur.queries.FindUsersBySearch(ctx, postgres.FindUsersBySearchParams{
 		Name:  query.Name,
 		Email: query.Email,
+		Limit: query.Limit,
 	})
 	if err != nil {
 		querySpan.SetStatus(codes.Error, err.Error())

@@ -54,8 +54,8 @@ jobs:
           version: latest
 
       - name: Deploy to ECS
-        working-directory: infra/ecspresso/backend
-        run: ecspresso deploy --config ecspresso.yml
+        working-directory: backend
+        run: ecspresso deploy --config ecspresso.yaml
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           IMAGE_TAG: dev
@@ -99,8 +99,8 @@ jobs:
           version: latest
 
       - name: Deploy to ECS
-        working-directory: infra/ecspresso/frontend
-        run: ecspresso deploy --config ecspresso.yml
+        working-directory: frontend
+        run: ecspresso deploy --config ecspresso.yaml
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           IMAGE_TAG: dev

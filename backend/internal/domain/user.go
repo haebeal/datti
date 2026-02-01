@@ -88,6 +88,7 @@ func (u *User) Email() string {
 type UserSearchQuery struct {
 	Name  *string
 	Email *string
+	Limit int32
 }
 
 // UserRepository ユーザーリポジトリのインターフェース

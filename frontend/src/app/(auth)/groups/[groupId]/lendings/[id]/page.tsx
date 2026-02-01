@@ -1,6 +1,7 @@
 import { getLending } from "@/features/lending/actions/getLending";
 import { getGroup } from "@/features/group/actions/getGroup";
 import { getMembers } from "@/features/group/actions/getMembers";
+import { getMe } from "@/features/user/actions/getMe";
 import { formatCurrency, formatDate } from "@/utils/format";
 import { LinkButton } from "@/components/ui/link-button";
 import { LendingDeleteForm } from "@/features/lending/components/lending-delete-form";
@@ -12,11 +13,13 @@ export default async function LendingDetailPage({
   params: Promise<{ groupId: string; id: string }>;
 }) {
   const { groupId, id } = await params;
-  const [groupResult, lendingResult, membersResult] = await Promise.all([
-    getGroup(groupId),
-    getLending(groupId, id),
-    getMembers(groupId),
-  ]);
+  const [groupResult, lendingResult, membersResult, meResult] =
+    await Promise.all([
+      getGroup(groupId),
+      getLending(groupId, id),
+      getMembers(groupId),
+      getMe(),
+    ]);
 
   if (!groupResult.success) {
     return (
@@ -36,9 +39,14 @@ export default async function LendingDetailPage({
     );
   }
 
+  if (!meResult.success) {
+    return <div className={cn("text-red-500")}>エラー: {meResult.error}</div>;
+  }
+
   const group = groupResult.result;
   const lending = lendingResult.result;
   const members = membersResult.result;
+  const currentUserId = meResult.user.id;
 
   // ユーザーIDから名前を取得するヘルパー
   const getUserName = (userId: string) => {

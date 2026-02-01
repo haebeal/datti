@@ -30,7 +30,7 @@ export function CreditList({ credits }: Props) {
         <p
           className={cn(
             "text-2xl font-bold",
-            isPositive ? "text-primary-base" : "text-red-600",
+            isPositive ? "text-success-base" : "text-error-base",
           )}
         >
           {sign}

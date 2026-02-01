@@ -46,7 +46,7 @@ export default async function LendingPage({
 
   if (!groupResult.success) {
     return (
-      <div className={cn("text-red-500")}>エラー: {groupResult.error}</div>
+      <div className={cn("text-error-base")}>エラー: {groupResult.error}</div>
     );
   }
 

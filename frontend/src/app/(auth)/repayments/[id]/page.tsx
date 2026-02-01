@@ -13,7 +13,7 @@ export default async function RepaymentDetailPage({
 
   if (!repaymentResult.success) {
     return (
-      <div className={cn("text-red-500")}>エラー: {repaymentResult.error}</div>
+      <div className={cn("text-error-base")}>エラー: {repaymentResult.error}</div>
     );
   }
 

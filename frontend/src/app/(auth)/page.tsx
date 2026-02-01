@@ -14,7 +14,7 @@ export default async function CreditPage() {
       {error && (
         <div
           className={cn(
-            "bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded",
+            "bg-red-50 border border-red-200 text-error-base px-4 py-3 rounded",
           )}
         >
           エラー: {error}

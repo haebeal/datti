@@ -6,7 +6,7 @@ export default async function GroupsPage() {
   const result = await getAllGroups();
 
   if (!result.success) {
-    return <div className={cn("text-red-500")}>エラー: {result.error}</div>;
+    return <div className={cn("text-error-base")}>エラー: {result.error}</div>;
   }
 
   const groups = result.result;

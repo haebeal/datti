@@ -41,7 +41,7 @@ export default async function AuthPage({ searchParams }: Props) {
           Googleで続ける
         </LinkButton>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-error-base">{error}</p>}
       </div>
     </div>
   );

@@ -47,7 +47,7 @@ export function ProfileEditForm({ user }: Props) {
         id={avatar.id}
       />
       {avatar.errors && (
-        <p className={cn("text-sm text-red-500")}>{avatar.errors}</p>
+        <p className={cn("text-sm text-error-base")}>{avatar.errors}</p>
       )}
 
       <label htmlFor={name.id} className={cn("text-sm")}>
@@ -63,11 +63,11 @@ export function ProfileEditForm({ user }: Props) {
         className={cn("w-full")}
       />
       {name.errors && (
-        <p className={cn("text-sm text-red-500")}>{name.errors}</p>
+        <p className={cn("text-sm text-error-base")}>{name.errors}</p>
       )}
 
       {form.errors && (
-        <p className={cn("text-sm text-red-500")}>{form.errors}</p>
+        <p className={cn("text-sm text-error-base")}>{form.errors}</p>
       )}
 
       <div className={cn("flex justify-end")}>

@@ -7,6 +7,69 @@ description: Dattiデザインシステム。間隔、UIコンポーネント仕
 
 このスキルは、Dattiのデザインシステムを定義します。Web（Next.js）およびモバイル開発で共通して参照してください。
 
+## カラーパレット
+
+**定義ファイル**: `frontend/src/app/globals.css`
+
+### カラー一覧
+
+| カテゴリ | トークン | HEX | 用途 |
+|----------|----------|-----|------|
+| **Primary** | `primary-hover` | `#334155` | ホバー時 |
+| | `primary-base` | `#1E293B` | テキスト、ボタン、アイコン |
+| | `primary-active` | `#0F172A` | アクティブ/押下時 |
+| | `primary-surface` | `#E6F4F1` | 選択状態の背景 |
+| **Accent** | `accent-hover` | `#2A9D96` | ホバー時 |
+| | `accent-base` | `#1C857E` | アクセントカラー |
+| | `accent-active` | `#166D67` | アクティブ/押下時 |
+| **Success** | `success-hover` | `#10B981` | ホバー時 |
+| | `success-base` | `#059669` | プラス金額、成功メッセージ |
+| | `success-active` | `#047857` | アクティブ/押下時 |
+| **Error** | `error-hover` | `#EF4444` | ホバー時 |
+| | `error-base` | `#DC2626` | マイナス金額、エラーメッセージ |
+| | `error-active` | `#B91C1C` | アクティブ/押下時 |
+
+### 使用例
+
+```tsx
+// テキストカラー
+<p className="text-primary-base">メインテキスト</p>
+<p className="text-success-base">+¥10,000</p>
+<p className="text-error-base">-¥5,000</p>
+
+// 背景カラー（選択状態）
+<div className="bg-primary-surface">選択中のアイテム</div>
+
+// ボタン
+<Button className="bg-primary-base hover:bg-primary-hover">
+```
+
+### セマンティックカラーの使い分け
+
+| 状況 | カラー | 例 |
+|------|--------|-----|
+| 回収予定（+金額） | `text-success-base` | +¥47,937 |
+| 支払い予定（-金額） | `text-error-base` | -¥11,320 |
+| 成功メッセージ | `text-success-base` | 保存しました |
+| エラーメッセージ | `text-error-base` | 入力エラー |
+| 選択状態の背景 | `bg-primary-surface` | メニュー、リスト |
+
+### アバターのデフォルト背景
+
+ユーザーアバターが未設定の場合のグラデーション：
+
+```tsx
+<div className="bg-gradient-to-br from-primary-base to-primary-active">
+  {userName.charAt(0)}
+</div>
+```
+
+### 注意事項
+
+- **ハードコードの色は使わない**: `text-red-500` ではなく `text-error-base` を使用
+- **一貫性**: 同じ意味を持つ色は同じトークンを使用
+- **アクセシビリティ**: 色だけでなく、記号（+/-）も併用して情報を伝える
+
 ## 間隔（Spacing）
 
 プロジェクト全体で一貫した間隔を使用すること。

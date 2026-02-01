@@ -27,22 +27,34 @@ func main() {
 	})
 
 	// Dev 環境用の環境変数
-	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
-	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	devGoogleClientID := os.Getenv("GOOGLE_CLIENT_ID")
+	devGoogleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
 
-	if googleClientID == "" || googleClientSecret == "" {
-		panic("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are required")
+	if devGoogleClientID != "" && devGoogleClientSecret != "" {
+		env.NewStack(app, "DevDattiStack", &env.StackProps{
+			StackProps: awscdk.StackProps{
+				Env: region,
+			},
+			Env:                "dev",
+			GoogleClientID:     devGoogleClientID,
+			GoogleClientSecret: devGoogleClientSecret,
+		})
 	}
 
-	// Dev 環境スタック（既存スタック名を維持）
-	env.NewStack(app, "DevDattiStack", &env.StackProps{
-		StackProps: awscdk.StackProps{
-			Env: region,
-		},
-		Env:                "dev",
-		GoogleClientID:     googleClientID,
-		GoogleClientSecret: googleClientSecret,
-	})
+	// Prod 環境用の環境変数
+	prodGoogleClientID := os.Getenv("GOOGLE_CLIENT_ID_PROD")
+	prodGoogleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET_PROD")
+
+	if prodGoogleClientID != "" && prodGoogleClientSecret != "" {
+		env.NewStack(app, "ProdDattiStack", &env.StackProps{
+			StackProps: awscdk.StackProps{
+				Env: region,
+			},
+			Env:                "prod",
+			GoogleClientID:     prodGoogleClientID,
+			GoogleClientSecret: prodGoogleClientSecret,
+		})
+	}
 
 	app.Synth(nil)
 }

@@ -18,18 +18,18 @@ export default async function CreateLendingPage({
 
   if (!groupResult.success) {
     return (
-      <div className={cn("text-red-500")}>エラー: {groupResult.error}</div>
+      <div className={cn("text-error-base")}>エラー: {groupResult.error}</div>
     );
   }
 
   if (!membersResult.success) {
     return (
-      <div className={cn("text-red-500")}>エラー: {membersResult.error}</div>
+      <div className={cn("text-error-base")}>エラー: {membersResult.error}</div>
     );
   }
 
   if (!meResult.success) {
-    return <div className={cn("text-red-500")}>エラー: {meResult.error}</div>;
+    return <div className={cn("text-error-base")}>エラー: {meResult.error}</div>;
   }
 
   const group = groupResult.result;

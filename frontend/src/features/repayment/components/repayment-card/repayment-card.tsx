@@ -36,7 +36,7 @@ export function RepaymentCard({ repayment }: Props) {
         <div
           className={cn(
             "flex-shrink-0 w-12 h-12 rounded-full",
-            "bg-gradient-to-br from-[#0d47a1] to-[#1565c0]",
+            "bg-gradient-to-br from-primary-base to-primary-active",
             "flex items-center justify-center",
             "text-white font-bold text-xl",
           )}

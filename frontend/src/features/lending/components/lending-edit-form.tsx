@@ -199,7 +199,7 @@ export function LendingEditForm({
             <div
               className={cn(
                 "px-3 py-2 pl-7",
-                myShare < 0 && "text-red-500",
+                myShare < 0 && "text-error-base",
               )}
             >
               {myShare}

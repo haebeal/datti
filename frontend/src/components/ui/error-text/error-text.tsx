@@ -11,7 +11,7 @@ export function ErrorText(props: Props) {
   return (
     <p
       {...rest}
-      className={cn("text-sm text-red-500 mt-1", className)}
+      className={cn("text-sm text-error-base mt-1", className)}
       role="alert"
     >
       {children}

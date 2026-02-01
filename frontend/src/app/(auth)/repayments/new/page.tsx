@@ -12,7 +12,7 @@ export default async function RepaymentCreatePage({ searchParams }: Props) {
 
   if (!creditsResponse.success) {
     return (
-      <div className={cn("text-red-500")}>エラー: {creditsResponse.error}</div>
+      <div className={cn("text-error-base")}>エラー: {creditsResponse.error}</div>
     );
   }
 

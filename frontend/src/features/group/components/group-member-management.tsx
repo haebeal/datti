@@ -253,7 +253,7 @@ export function GroupMemberManagement({
               <div
                 className={cn(
                   "flex-shrink-0 w-10 h-10 rounded-full",
-                  "bg-gradient-to-br from-primary-base to-primary-dark",
+                  "bg-gradient-to-br from-primary-base to-primary-active",
                   "flex items-center justify-center",
                   "text-white font-bold text-lg",
                 )}

@@ -71,8 +71,8 @@ jobs:
         working-directory: infra
         run: cdk deploy ProdDattiStack --require-approval never
         env:
-          GOOGLE_CLIENT_ID_PROD: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET_PROD: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
   deploy-backend:
     needs: [create-release, provision-infra]

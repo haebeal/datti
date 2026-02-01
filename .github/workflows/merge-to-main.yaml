@@ -105,7 +105,7 @@ jobs:
       - uses: ariga/setup-atlas@v0
       - uses: ariga/atlas-action/schema/apply@v1
         with:
-          url: ${{ secrets.DSN }}
+          url: ${{ secrets.POSTGRES_DSN }}
           to: "file://backend/sql/schema.sql"
           dev-url: "docker://postgres"
           auto-approve: true

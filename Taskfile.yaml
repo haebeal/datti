@@ -43,12 +43,12 @@ tasks:
   postgres:migrate:
     desc: "Postgresのマイグレーションを実行"
     env:
-      DSN: postgres://postgres:password@localhost:5432/datti?sslmode=disable
+      POSTGRES_DSN: postgres://postgres:password@localhost:5432/datti?sslmode=disable
     dir: backend
     cmds:
       - |
         atlas schema apply \
-          --url $DSN \
+          --url $POSTGRES_DSN \
           --dev-url "docker://postgres" \
           --to "file://sql/schema.sql"
   postgres:seed:
@@ -57,10 +57,10 @@ tasks:
       - "backend/.env"
     dir: backend
     env:
-      DSN: postgres://postgres:password@localhost:5432/datti?sslmode=disable
+      POSTGRES_DSN: postgres://postgres:password@localhost:5432/datti?sslmode=disable
     cmds:
       - |
-        psql $DSN \
+        psql $POSTGRES_DSN \
           -f sql/init.sql
   sqlc:gen:
     desc: "sqlcでクエリコードを生成"

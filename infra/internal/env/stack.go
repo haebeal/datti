@@ -69,8 +69,8 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 		StringValue:   jsii.String(fmt.Sprintf("https://cognito-idp.ap-northeast-1.amazonaws.com/%s", *cognito.UserPool.UserPoolId())),
 	})
 
-	awsssm.NewStringParameter(stack, jsii.String("DattiDsnParam"), &awsssm.StringParameterProps{
-		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/backend/DSN", env)),
+	awsssm.NewStringParameter(stack, jsii.String("DattiPostgresDsnParam"), &awsssm.StringParameterProps{
+		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/backend/POSTGRES_DSN", env)),
 		StringValue:   jsii.String("CHANGE_ME"),
 	})
 

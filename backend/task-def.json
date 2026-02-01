@@ -23,8 +23,8 @@
       ],
       "secrets": [
         {
-          "name": "DSN",
-          "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/{{ must_env `ENV` }}/backend/DSN"
+          "name": "POSTGRES_DSN",
+          "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/{{ must_env `ENV` }}/backend/POSTGRES_DSN"
         }
       ],
       "logConfiguration": {

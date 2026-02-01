@@ -73,7 +73,7 @@
 | `AWS_ACCOUNT_ID` | AWS アカウント ID | AWS |
 | `GOOGLE_CLIENT_ID` | Cognito Google OAuth | Google Cloud Console |
 | `GOOGLE_CLIENT_SECRET` | Cognito Google OAuth | Google Cloud Console |
-| `DSN` | PostgreSQL 接続文字列 | Neon |
+| `POSTGRES_DSN` | PostgreSQL 接続文字列 | Neon |
 | `CLOUDFLARE_API_TOKEN` | Swagger UI デプロイ | Cloudflare |
 | `CLOUDFLARE_ACCOUNT_ID` | Swagger UI デプロイ | Cloudflare |
 
@@ -107,14 +107,14 @@ CDK は `CHANGE_ME` で作成するため、デプロイ後に手動で値を設
 
 | パラメータ | 用途 | 設定元 |
 | --- | --- | --- |
-| `/datti/{env}/backend/DSN` | PostgreSQL 接続文字列 | Neon |
+| `/datti/{env}/backend/POSTGRES_DSN` | PostgreSQL 接続文字列 | Neon |
 | `/datti/{env}/cloudflared/token` | Cloudflare トンネルトークン | Cloudflare |
 
 ### 新環境追加時のチェックリスト
 
 1. GitHub Secrets に `AWS_ROLE_ARN`, `AWS_ACCOUNT_ID` 等を設定
 2. CDK デプロイで SSM パラメータが自動作成される
-3. SSM 手動設定: `/datti/{env}/backend/DSN`, `/datti/{env}/cloudflared/token`
+3. SSM 手動設定: `/datti/{env}/backend/POSTGRES_DSN`, `/datti/{env}/cloudflared/token`
 4. GitHub Actions ワークフローに環境を追加
 
 ## セットアップ手順

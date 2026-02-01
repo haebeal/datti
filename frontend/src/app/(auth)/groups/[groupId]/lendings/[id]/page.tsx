@@ -61,13 +61,15 @@ export default async function LendingDetailPage({
           <h1 className={cn("text-2xl font-bold")}>イベント詳細</h1>
           <p className={cn("text-base text-gray-500")}>{group.name}</p>
         </div>
-        <LinkButton
-          href={`/groups/${groupId}/lendings/${id}/edit`}
-          color="primary"
-          colorStyle="outline"
-        >
-          編集
-        </LinkButton>
+{lending.createdBy === currentUserId && (
+          <LinkButton
+            href={`/groups/${groupId}/lendings/${id}/edit`}
+            color="primary"
+            colorStyle="outline"
+          >
+            編集
+          </LinkButton>
+        )}
       </div>
 
       <div className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}>
@@ -106,7 +108,9 @@ export default async function LendingDetailPage({
         </div>
       </div>
 
-      <LendingDeleteForm groupId={groupId} lendingId={id} />
+{lending.createdBy === currentUserId && (
+        <LendingDeleteForm groupId={groupId} lendingId={id} />
+      )}
     </div>
   );
 }

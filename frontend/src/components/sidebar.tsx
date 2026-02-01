@@ -67,15 +67,15 @@ export function Sidebar({ groups, user }: SidebarProps) {
       )}
     >
       {/* Logo */}
-      <Link
-        href="/"
-        className={cn(
-          "flex items-center",
-          "text-2xl font-bold text-primary-base",
-          "px-3 pb-4",
-        )}
-      >
-        Datti
+      <Link href="/" className={cn("flex items-center gap-1", "px-3 py-2")}>
+        <Image
+          src="/logo.svg"
+          alt="Datti"
+          width={36}
+          height={36}
+          className="w-9 h-9 shrink-0"
+        />
+        <span className="text-2xl font-bold text-primary-base">atti</span>
       </Link>
 
       <hr className={cn("border-gray-200 mb-2")} />

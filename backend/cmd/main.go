@@ -102,18 +102,15 @@ func main() {
 	queries := postgres.New(pool)
 
 	ur := repository.NewUserRepository(queries)
-	pr := repository.NewPayerRepository(queries)
-	dr := repository.NewDebtorRepository(queries)
-	lr := repository.NewLendingEventRepository(queries)
+	lr := repository.NewLendingRepository(queries)
 	cr := repository.NewCreditRepository(queries)
 	rr := repository.NewRepaymentRepository(queries)
 	gr := repository.NewGroupRepository(queries)
-	gmr := repository.NewGroupMemberRepository(queries)
 
-	lu := usecase.NewLendingUseCase(ur, pr, dr, lr, gmr)
+	lu := usecase.NewLendingUseCase(ur, gr, lr)
 	cu := usecase.NewCreditUseCase(cr)
-	ru := usecase.NewRepaymentUseCase(rr)
-	gu := usecase.NewGroupUseCase(gr, gmr)
+	ru := usecase.NewRepaymentUseCase(rr, cr)
+	gu := usecase.NewGroupUseCase(ur, gr)
 	uu := usecase.NewUserUseCase(ur)
 	au := usecase.NewAuthUseCase(ur)
 

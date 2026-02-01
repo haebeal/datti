@@ -2,473 +2,368 @@ package usecase
 
 import (
 	"context"
-	"fmt"
 	"slices"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
-	"github.com/oklog/ulid/v2"
 	"go.opentelemetry.io/otel/codes"
 )
 
+// LendingUseCaseImpl 立て替えに関するユースケースの実装
 type LendingUseCaseImpl struct {
 	ur domain.UserRepository
-	pr domain.PayerRepository
-	dr domain.DebtorRepository
-	lr domain.LendingEventRepository
-	gmr domain.GroupMemberRepository
+	gr domain.GroupRepository
+	lr domain.LendingRepository
 }
 
-func NewLendingUseCase(ur domain.UserRepository, pr domain.PayerRepository, dr domain.DebtorRepository, lr domain.LendingEventRepository, gmr domain.GroupMemberRepository) LendingUseCaseImpl {
+// NewLendingUseCase LendingUseCaseImplのファクトリ関数
+func NewLendingUseCase(ur domain.UserRepository, gr domain.GroupRepository, lr domain.LendingRepository) LendingUseCaseImpl {
 	return LendingUseCaseImpl{
 		ur: ur,
-		pr: pr,
-		dr: dr,
+		gr: gr,
 		lr: lr,
-		gmr: gmr,
 	}
 }
 
-func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (*handler.CreateOutput, error) {
-	ctx, span := tracer.Start(ctx, "lending.Create")
-	defer span.End()
+// Create 立て替えを作成する
+func (u LendingUseCaseImpl) Create(ctx context.Context, i handler.CreateInput) (output *handler.CreateOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.Lending.Create")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
-		return nil, err
-	}
-
-	eventAmount, err := domain.NewAmount(i.Amount)
+	// グループの取得とメンバーシップ確認
+	group, err := u.gr.FindByID(ctx, i.GroupID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-	event, err := domain.CreateLending(i.GroupID, i.Name, eventAmount, i.EventDate)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-	err = u.lr.Create(ctx, event)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
+	members, err := u.gr.FindMembersByID(ctx, i.GroupID)
+	if err != nil {
+		return nil, err
+	}
+	if !slices.ContainsFunc(members, func(m *domain.User) bool {
+		return m.ID() == i.UserID
+	}) {
+		return nil, domain.NewForbiddenError("グループのメンバーではありません")
+	}
+
+	// 支払い者の作成
 	paidUser, err := u.ur.FindByID(ctx, i.UserID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 	payer, err := domain.NewPayer(paidUser.ID(), paidUser.Name(), paidUser.Avatar(), paidUser.Email())
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	// 取引がないように更新しようとした時
-	if len(i.Debts) == 0 {
-		// TODO: カスタムエラー構造体が必要?
-		err = fmt.Errorf("BadRequest Error")
+	// Lending集約を作成
+	lending, err := domain.CreateLending(ctx, i.Name, i.Amount, i.EventDate, payer)
+	if err != nil {
 		return nil, err
 	}
-	debtors := make([]*domain.Debtor, 0)
+
+	// 債務者を追加（AddDebtorでバリデーション）
 	for _, d := range i.Debts {
-		// 自分自身に立て替えを作成することはできない
-		if d.UserID == i.UserID {
-			err := fmt.Errorf("自分自身に立て替えを作成することはできません")
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
-
 		user, err := u.ur.FindByID(ctx, d.UserID)
 		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
 			return nil, err
 		}
-		amount, err := domain.NewAmount(d.Amount)
+
+		debtor, err := domain.NewDebtor(user.ID(), user.Name(), user.Avatar(), user.Email(), d.Amount)
 		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
 			return nil, err
 		}
-		debtor, err := domain.NewDebtor(user.ID(), user.Name(), user.Avatar(), user.Email(), amount)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
+
+		if err := lending.AddDebtor(debtor); err != nil {
 			return nil, err
 		}
-		err = u.dr.Create(ctx, event, payer, debtor)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
-		debtors = append(debtors, debtor)
+	}
+
+	// 債務者が1人以上いることを確認
+	if len(lending.Debtors()) == 0 {
+		return nil, domain.NewValidationError("debts", "債務者は1人以上必要です")
+	}
+
+	// リポジトリに保存
+	if err := u.lr.Create(ctx, group, lending); err != nil {
+		return nil, err
+	}
+
+	// ハンドラー互換のため配列に変換
+	debtorList := make([]*domain.Debtor, 0, len(lending.Debtors()))
+	for _, d := range lending.Debtors() {
+		debtorList = append(debtorList, d)
 	}
 
 	return &handler.CreateOutput{
-		Event:   event,
-		Debtors: debtors,
+		Event:   lending,
+		Debtors: debtorList,
 	}, nil
 }
 
-func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (*handler.GetOutput, error) {
-	ctx, span := tracer.Start(ctx, "lending.Get")
-	defer span.End()
-
-	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
-		return nil, err
-	}
-
-	event, err := u.lr.FindByID(ctx, i.EventID)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-	if event.GroupID() != i.GroupID {
-		return nil, fmt.Errorf("forbidden Error")
-	}
-
-	payer, err := u.pr.FindByEventID(ctx, i.EventID)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-
-	debtors, err := u.dr.FindByEventID(ctx, i.EventID)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-
-	// Check access: user must be payer or debtor
-	isPayer := payer.ID() == i.UserID
-	isDebtor := false
-	for _, d := range debtors {
-		if d.ID() == i.UserID {
-			isDebtor = true
-			break
+// Get 立て替えを取得する
+func (u LendingUseCaseImpl) Get(ctx context.Context, i handler.GetInput) (output *handler.GetOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.Lending.Get")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
 		}
-	}
-	if !isPayer && !isDebtor {
-		return nil, fmt.Errorf("lendingEventが存在しません")
-	}
+		span.End()
+	}()
 
-	// Set createdBy on the lending
-	createdBy, err := domain.NewUID(payer.ID())
+	// メンバーシップ確認
+	members, err := u.gr.FindMembersByID(ctx, i.GroupID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
-	event.SetCreatedBy(createdBy)
-
-	output := &handler.GetOutput{
-		Lending: event,
-		Debtors: debtors,
+	if !slices.ContainsFunc(members, func(m *domain.User) bool {
+		return m.ID() == i.UserID
+	}) {
+		return nil, domain.NewForbiddenError("グループのメンバーではありません")
 	}
 
-	return output, nil
+	// Lending取得
+	lending, err := u.lr.FindByID(ctx, i.EventID)
+	if err != nil {
+		return nil, err
+	}
+
+	// アクセス権限確認: 支払い者または債務者のみ
+	isPayer := lending.Payer().ID() == i.UserID
+	_, isDebtor := lending.Debtors()[i.UserID]
+	if !isPayer && !isDebtor {
+		return nil, domain.NewNotFoundError("lending", i.EventID.String())
+	}
+
+	// ハンドラー互換のため配列に変換
+	debtorList := make([]*domain.Debtor, 0, len(lending.Debtors()))
+	for _, d := range lending.Debtors() {
+		debtorList = append(debtorList, d)
+	}
+
+	return &handler.GetOutput{
+		Lending: lending,
+		Debtors: debtorList,
+	}, nil
 }
 
-func (u LendingUseCaseImpl) GetByQuery(ctx context.Context, i handler.GetAllInput) (*handler.GetAllOutput, error) {
-	ctx, span := tracer.Start(ctx, "lending.GetByQuery")
-	defer span.End()
+// GetByQuery 立て替え一覧を取得する
+func (u LendingUseCaseImpl) GetByQuery(ctx context.Context, i handler.GetAllInput) (output *handler.GetAllOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.Lending.GetByQuery")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
-		return nil, err
-	}
-
-	params := domain.LendingPaginationParams{
-		Limit:  i.Limit,
-		Cursor: i.Cursor,
-	}
-
-	paginatedLendings, err := u.lr.FindByGroupIDAndUserIDWithPagination(ctx, i.GroupID, i.UserID, params)
+	// グループの取得とメンバーシップ確認
+	group, err := u.gr.FindByID(ctx, i.GroupID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	lendings := paginatedLendings.Lendings
+	members, err := u.gr.FindMembersByID(ctx, i.GroupID)
+	if err != nil {
+		return nil, err
+	}
+	if !slices.ContainsFunc(members, func(m *domain.User) bool {
+		return m.ID() == i.UserID
+	}) {
+		return nil, domain.NewForbiddenError("グループのメンバーではありません")
+	}
 
-	output := handler.GetAllOutput{
-		NextCursor: paginatedLendings.NextCursor,
-		HasMore:    paginatedLendings.HasMore,
+	// Lending一覧取得
+	limit := i.Limit
+	lendings, err := u.lr.FindByGroupAndUserID(ctx, group, i.UserID, i.Cursor, &limit)
+	if err != nil {
+		return nil, err
+	}
+
+	result := handler.GetAllOutput{
 		Lendings: make([]struct {
 			Lending *domain.Lending
 			Debtors []*domain.Debtor
-		}, 0),
-	}
-
-	// Return early if no lendings
-	if len(lendings) == 0 {
-		return &output, nil
-	}
-
-	// Collect all event IDs for batch fetching
-	eventIDs := make([]ulid.ULID, len(lendings))
-	for idx, l := range lendings {
-		eventIDs[idx] = l.ID()
-	}
-
-	// Batch fetch all debtors at once
-	debtorsMap, err := u.dr.FindByEventIDs(ctx, eventIDs)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
+		}, 0, len(lendings)),
 	}
 
 	for _, l := range lendings {
-		debtors := debtorsMap[l.ID()]
-		if debtors == nil {
-			debtors = []*domain.Debtor{}
+		// Debtorsをmapから配列に変換
+		debtorList := make([]*domain.Debtor, 0, len(l.Debtors()))
+		for _, d := range l.Debtors() {
+			debtorList = append(debtorList, d)
 		}
 
-		lending := struct {
+		result.Lendings = append(result.Lendings, struct {
 			Lending *domain.Lending
 			Debtors []*domain.Debtor
 		}{
 			Lending: l,
-			Debtors: debtors,
-		}
-		output.Lendings = append(output.Lendings, lending)
+			Debtors: debtorList,
+		})
 	}
 
-	return &output, nil
+	// ページネーション情報の設定
+	if len(lendings) > 0 && int32(len(lendings)) >= limit {
+		lastID := lendings[len(lendings)-1].ID().String()
+		result.NextCursor = &lastID
+		result.HasMore = true
+	}
+
+	return &result, nil
 }
 
-func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (*handler.UpdateOutput, error) {
-	ctx, span := tracer.Start(ctx, "lending.Update")
-	defer span.End()
+// Update 立て替えを更新する
+func (u LendingUseCaseImpl) Update(ctx context.Context, i handler.UpdateInput) (output *handler.UpdateOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.Lending.Update")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
-		return nil, err
-	}
-
-	payer, err := u.pr.FindByEventID(ctx, i.EventID)
+	// メンバーシップ確認
+	members, err := u.gr.FindMembersByID(ctx, i.GroupID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
-
-	if payer.ID() != i.UserID {
-		// TODO: カスタムエラー構造体が必要?
-		err = fmt.Errorf("forbidden Error")
-		// NOTE: 正常系のためスパンステータスをエラーに設定しない
-		return nil, err
+	if !slices.ContainsFunc(members, func(m *domain.User) bool {
+		return m.ID() == i.UserID
+	}) {
+		return nil, domain.NewForbiddenError("グループのメンバーではありません")
 	}
 
-	// 取引がないように更新しようとした時
-	if len(i.Debts) == 0 {
-		// TODO: カスタムエラー構造体が必要?
-		err = fmt.Errorf("BadRequest Error")
-		return nil, err
-	}
-
+	// Lending取得
 	lending, err := u.lr.FindByID(ctx, i.EventID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
-	if lending.GroupID() != i.GroupID {
-		return nil, fmt.Errorf("forbidden Error")
-	}
-
-	var updatedDebtors []*domain.Debtor
-
-	debtors, err := u.dr.FindByEventID(ctx, i.EventID)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	for _, d := range debtors {
-		idx := slices.IndexFunc(i.Debts, func(debts handler.DebtParam) bool {
-			return d.ID() == debts.UserID
-		})
+	// 支払い者のみ更新可能
+	if lending.Payer().ID() != i.UserID {
+		return nil, domain.NewForbiddenError("支払い者のみ更新できます")
+	}
 
-		// debtorの削除
-		if idx == -1 {
-			err = u.dr.Delete(ctx, lending, d)
+	// 債務者がいない場合はエラー
+	if len(i.Debts) == 0 {
+		return nil, domain.NewValidationError("debts", "債務者は1人以上必要です")
+	}
+
+	// 入力の債務者IDセットを作成
+	inputDebtorIDs := make(map[string]handler.DebtParam)
+	for _, d := range i.Debts {
+		inputDebtorIDs[d.UserID] = d
+	}
+
+	// 既存の債務者を処理（更新または削除）
+	for debtorID, existingDebtor := range lending.Debtors() {
+		if param, exists := inputDebtorIDs[debtorID]; exists {
+			// 更新
+			updatedDebtor, err := existingDebtor.Update(param.Amount)
 			if err != nil {
-				span.SetStatus(codes.Error, err.Error())
-				span.RecordError(err)
 				return nil, err
 			}
-			continue
+			if err := lending.UpdateDebtor(updatedDebtor); err != nil {
+				return nil, err
+			}
+		} else {
+			// 削除
+			if err := lending.RemoveDebtor(debtorID); err != nil {
+				return nil, err
+			}
 		}
-
-		// debtorの更新
-		amount, err := domain.NewAmount(i.Debts[idx].Amount)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
-		updatedDebtor, err := d.Update(amount)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
-		err = u.dr.Update(ctx, lending, updatedDebtor)
-		if err != nil {
-			span.SetStatus(codes.Error, err.Error())
-			span.RecordError(err)
-			return nil, err
-		}
-		updatedDebtors = append(updatedDebtors, updatedDebtor)
 	}
 
-	// debtorの作成
+	// 新規の債務者を追加
 	for _, d := range i.Debts {
-		exist := slices.ContainsFunc(debtors, func(debtor *domain.Debtor) bool {
-			return debtor.ID() == d.UserID
-		})
-		if !exist {
+		if _, exists := lending.Debtors()[d.UserID]; !exists {
 			// 自分自身に立て替えを作成することはできない
 			if d.UserID == i.UserID {
-				err := fmt.Errorf("自分自身に立て替えを作成することはできません")
-				span.SetStatus(codes.Error, err.Error())
-				span.RecordError(err)
-				return nil, err
+				return nil, domain.NewValidationError("debts", "自分自身に立て替えを作成することはできません")
 			}
 
 			user, err := u.ur.FindByID(ctx, d.UserID)
 			if err != nil {
-				span.SetStatus(codes.Error, err.Error())
-				span.RecordError(err)
 				return nil, err
 			}
-			amount, err := domain.NewAmount(d.Amount)
+
+			debtor, err := domain.NewDebtor(user.ID(), user.Name(), user.Avatar(), user.Email(), d.Amount)
 			if err != nil {
-				span.SetStatus(codes.Error, err.Error())
-				span.RecordError(err)
 				return nil, err
 			}
-			debtor, err := domain.NewDebtor(user.ID(), user.Name(), user.Avatar(), user.Email(), amount)
-			if err != nil {
-				span.SetStatus(codes.Error, err.Error())
-				span.RecordError(err)
+
+			if err := lending.AddDebtor(debtor); err != nil {
 				return nil, err
 			}
-			err = u.dr.Create(ctx, lending, payer, debtor)
-			if err != nil {
-				span.SetStatus(codes.Error, err.Error())
-				span.RecordError(err)
-				return nil, err
-			}
-			updatedDebtors = append(updatedDebtors, debtor)
-			continue
 		}
 	}
 
-	eventAmount, err := domain.NewAmount(i.Amount)
+	// 基本情報を更新
+	updatedLending, err := lending.Update(ctx, i.Name, i.Amount, i.EventDate)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
-	updatedLending, err := lending.Update(i.Name, eventAmount, i.EventDate)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
+
+	// リポジトリに保存
+	if err := u.lr.Update(ctx, updatedLending); err != nil {
 		return nil, err
 	}
-	err = u.lr.Update(ctx, updatedLending)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
+
+	// ハンドラー互換のため配列に変換
+	debtorList := make([]*domain.Debtor, 0, len(updatedLending.Debtors()))
+	for _, d := range updatedLending.Debtors() {
+		debtorList = append(debtorList, d)
 	}
 
 	return &handler.UpdateOutput{
 		Lending: updatedLending,
-		Debtors: updatedDebtors,
+		Debtors: debtorList,
 	}, nil
 }
 
-func (u LendingUseCaseImpl) Delete(ctx context.Context, i handler.DeleteInput) error {
-	ctx, span := tracer.Start(ctx, "lending.Delete")
-	defer span.End()
+// Delete 立て替えを削除する
+func (u LendingUseCaseImpl) Delete(ctx context.Context, i handler.DeleteInput) (err error) {
+	ctx, span := tracer.Start(ctx, "usecase.Lending.Delete")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	if err := u.ensureGroupMember(ctx, i.GroupID, i.UserID); err != nil {
-		return err
-	}
-
-	payer, err := u.pr.FindByEventID(ctx, i.EventID)
+	// メンバーシップ確認
+	members, err := u.gr.FindMembersByID(ctx, i.GroupID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return err
 	}
-
-	if payer.ID() != i.UserID {
-		err = fmt.Errorf("forbidden Error")
-		// NOTE: 正常系のためスパンステータスをエラーに設定しない
-		return err
+	if !slices.ContainsFunc(members, func(m *domain.User) bool {
+		return m.ID() == i.UserID
+	}) {
+		return domain.NewForbiddenError("グループのメンバーではありません")
 	}
 
+	// Lending取得
 	lending, err := u.lr.FindByID(ctx, i.EventID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return err
-	}
-	if lending.GroupID() != i.GroupID {
-		return fmt.Errorf("forbidden Error")
-	}
-
-
-	debtors, err := u.dr.FindByEventID(ctx, i.EventID)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return err
 	}
 
-	for _, debtor := range debtors {
-		err = u.dr.Delete(ctx, lending, debtor)
-		if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return err
-		}
+	// 支払い者のみ削除可能
+	if lending.Payer().ID() != i.UserID {
+		return domain.NewForbiddenError("支払い者のみ削除できます")
 	}
 
-
-	err = u.lr.Delete(ctx, i.EventID)
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return err
-	}
-
-	return nil
-}
-
-func (u LendingUseCaseImpl) ensureGroupMember(ctx context.Context, groupID ulid.ULID, userID string) error {
-	memberIDs, err := u.gmr.FindMembersByGroupID(ctx, groupID)
-	if err != nil {
-		return err
-	}
-	if !slices.Contains(memberIDs, userID) {
-		return fmt.Errorf("forbidden Error")
-	}
-	return nil
+	// リポジトリから削除
+	return u.lr.Delete(ctx, i.EventID)
 }

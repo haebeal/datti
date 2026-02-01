@@ -2,150 +2,198 @@ package domain
 
 import (
 	"context"
-	"fmt"
 	"time"
+	"unicode/utf8"
 
 	"github.com/oklog/ulid/v2"
+	"go.opentelemetry.io/otel/codes"
 )
 
-// Lending は立て替えイベントを表す
+// Lending 立て替えイベント集約
 type Lending struct {
 	id        ulid.ULID
-	groupID   ulid.ULID
 	name      string
-	amount    *Amount
+	amount    int64
 	eventDate time.Time
+	payer     *Payer
+	debtors   map[string]*Debtor
 	createdAt time.Time
 	updatedAt time.Time
-	createdBy UID // イベント作成者（支払者）
 }
 
-func NewLending(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, eventDate time.Time, createdAt time.Time, updatedAt time.Time) (*Lending, error) {
-	if len(name) < 1 {
-		return nil, fmt.Errorf("イベント名は1文字以上である必要があります: %v", name)
+// NewLending Lendingエンティティのファクトリ関数 (リポジトリからの復元用)
+func NewLending(ctx context.Context, id ulid.ULID, name string, amount int64, eventDate time.Time, payer *Payer, debtors map[string]*Debtor, createdAt time.Time, updatedAt time.Time) (l *Lending, err error) {
+	_, span := tracer.Start(ctx, "domain.Lending.New")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
+
+	if utf8.RuneCountInString(name) < 1 {
+		return nil, NewValidationError("name", "イベント名は1文字以上である必要があります")
 	}
-	if groupID == (ulid.ULID{}) {
-		return nil, fmt.Errorf("groupID must not be nil")
+
+	if payer == nil {
+		return nil, NewValidationError("payer", "支払い者は必須です")
+	}
+
+	if len(debtors) == 0 {
+		return nil, NewValidationError("debtors", "債務者は1人以上必要です")
 	}
 
 	if createdAt.After(updatedAt) {
-		return nil, fmt.Errorf("作成日は更新日より前である必要があります: %v", updatedAt)
+		return nil, NewValidationError("updatedAt", "更新日は作成日より後である必要があります")
 	}
 
 	return &Lending{
 		id:        id,
-		groupID:   groupID,
 		name:      name,
 		amount:    amount,
 		eventDate: eventDate,
+		payer:     payer,
+		debtors:   debtors,
 		createdAt: createdAt,
 		updatedAt: updatedAt,
-		createdBy: UID{},
 	}, nil
 }
 
-func NewLendingWithCreatedBy(id ulid.ULID, groupID ulid.ULID, name string, amount *Amount, eventDate time.Time, createdAt time.Time, updatedAt time.Time, createdBy UID) (*Lending, error) {
-	if len(name) < 1 {
-		return nil, fmt.Errorf("イベント名は1文字以上である必要があります: %v", name)
-	}
-	if groupID == (ulid.ULID{}) {
-		return nil, fmt.Errorf("groupID must not be nil")
-	}
+// CreateLending 新規Lendingを作成するファクトリ関数
+// debtorsは空で作成し、AddDebtorメソッドで追加する
+func CreateLending(ctx context.Context, name string, amount int64, eventDate time.Time, payer *Payer) (*Lending, error) {
+	_, span := tracer.Start(ctx, "domain.Lending.Create")
+	defer span.End()
 
-	if createdAt.After(updatedAt) {
-		return nil, fmt.Errorf("作成日は更新日より前である必要があります: %v", updatedAt)
+	if utf8.RuneCountInString(name) < 1 {
+		return nil, NewValidationError("name", "イベント名は1文字以上である必要があります")
 	}
 
-	return &Lending{
-		id:        id,
-		groupID:   groupID,
-		name:      name,
-		amount:    amount,
-		eventDate: eventDate,
-		createdAt: createdAt,
-		updatedAt: updatedAt,
-		createdBy: createdBy,
-	}, nil
-}
+	if payer == nil {
+		return nil, NewValidationError("payer", "支払い者は必須です")
+	}
 
-func CreateLending(groupID ulid.ULID, name string, amount *Amount, eventDate time.Time) (*Lending, error) {
 	id := ulid.Make()
 	now := time.Now()
 
-	return NewLending(id, groupID, name, amount, eventDate, now, now)
+	return &Lending{
+		id:        id,
+		name:      name,
+		amount:    amount,
+		eventDate: eventDate,
+		payer:     payer,
+		debtors:   make(map[string]*Debtor),
+		createdAt: now,
+		updatedAt: now,
+	}, nil
 }
 
-func (le *Lending) Update(name string, amount *Amount, eventDate time.Time) (*Lending, error) {
+// Update Lendingの基本情報を更新する
+func (l *Lending) Update(ctx context.Context, name string, amount int64, eventDate time.Time) (*Lending, error) {
 	now := time.Now()
 
-	lending, err := NewLending(le.id, le.groupID, name, amount, eventDate, le.createdAt, now)
-	if err != nil {
-		return nil, err
+	return NewLending(ctx, l.id, name, amount, eventDate, l.payer, l.debtors, l.createdAt, now)
+}
+
+// AddDebtor 債務者を追加する
+func (l *Lending) AddDebtor(debtor *Debtor) error {
+	// 自分自身への立て替えはできない
+	if debtor.ID() == l.payer.ID() {
+		return NewValidationError("debtor", "支払い者自身を債務者にすることはできません")
 	}
-	lending.createdBy = le.createdBy
-	return lending, nil
+
+	// 重複チェック
+	if _, exists := l.debtors[debtor.ID()]; exists {
+		return NewValidationError("debtor", "既に追加されている債務者です")
+	}
+
+	l.debtors[debtor.ID()] = debtor
+	return nil
 }
 
-// ID returns the ID of the lending event
-func (le *Lending) ID() ulid.ULID {
-	return le.id
+// RemoveDebtor 債務者を削除する
+func (l *Lending) RemoveDebtor(debtorID string) error {
+	if _, exists := l.debtors[debtorID]; !exists {
+		return NewValidationError("debtor", "債務者が見つかりません")
+	}
+
+	delete(l.debtors, debtorID)
+	return nil
 }
 
-func (le *Lending) GroupID() ulid.ULID {
-	return le.groupID
+// UpdateDebtor 債務者を更新する
+func (l *Lending) UpdateDebtor(debtor *Debtor) error {
+	if _, exists := l.debtors[debtor.ID()]; !exists {
+		return NewValidationError("debtor", "債務者が見つかりません")
+	}
+	l.debtors[debtor.ID()] = debtor
+	return nil
 }
 
-// Name returns the name of the lending event
-func (le *Lending) Name() string {
-	return le.name
+// ID イベントID
+func (l *Lending) ID() ulid.ULID {
+	return l.id
 }
 
-func (le *Lending) Amount() *Amount {
-	return le.amount
+// Name イベント名
+func (l *Lending) Name() string {
+	return l.name
 }
 
-// EventDate returns the event date of the lending event
-func (le *Lending) EventDate() time.Time {
-	return le.eventDate
+// Amount 金額
+func (l *Lending) Amount() int64 {
+	return l.amount
 }
 
-// CreatedAt returns the creation time of the lending event
-func (le *Lending) CreatedAt() time.Time {
-	return le.createdAt
+// EventDate イベント日
+func (l *Lending) EventDate() time.Time {
+	return l.eventDate
 }
 
-// UpdatedAt returns the last update time of the lending event
-func (le *Lending) UpdatedAt() time.Time {
-	return le.updatedAt
+// CreatedAt 作成日時
+func (l *Lending) CreatedAt() time.Time {
+	return l.createdAt
 }
 
-// CreatedBy returns the creator's Firebase UID
-func (le *Lending) CreatedBy() UID {
-	return le.createdBy
+// UpdatedAt 更新日時
+func (l *Lending) UpdatedAt() time.Time {
+	return l.updatedAt
 }
 
-// SetCreatedBy sets the creator's Firebase UID
-func (le *Lending) SetCreatedBy(createdBy UID) {
-	le.createdBy = createdBy
+// Payer 支払い者
+func (l *Lending) Payer() *Payer {
+	return l.payer
 }
 
-// LendingPaginationParams holds cursor-based pagination parameters
+// Debtors 債務者一覧
+func (l *Lending) Debtors() map[string]*Debtor {
+	return l.debtors
+}
+
+// LendingPaginationParams ページネーションパラメータ
 type LendingPaginationParams struct {
 	Limit  int32
 	Cursor *string
 }
 
-// PaginatedLendings holds paginated results
+// PaginatedLendings ページネーション結果
 type PaginatedLendings struct {
 	Lendings   []*Lending
 	NextCursor *string
 	HasMore    bool
 }
 
-type LendingEventRepository interface {
-	Create(context.Context, *Lending) error
-	FindByID(context.Context, ulid.ULID) (*Lending, error)
-	FindByGroupIDAndUserIDWithPagination(context.Context, ulid.ULID, string, LendingPaginationParams) (*PaginatedLendings, error)
-	Update(context.Context, *Lending) error
-	Delete(context.Context, ulid.ULID) error
+// LendingRepository 立て替えイベントリポジトリのインターフェース
+type LendingRepository interface {
+	// Create 立て替えを作成する
+	Create(ctx context.Context, g *Group, l *Lending) error
+	// FindByID IDで立て替えを取得する
+	FindByID(ctx context.Context, id ulid.ULID) (*Lending, error)
+	// FindByGroupAndUserID グループとユーザーIDで立て替え一覧を取得する
+	FindByGroupAndUserID(ctx context.Context, g *Group, userID string, cursor *string, limit *int32) ([]*Lending, error)
+	// Update 立て替えを更新する
+	Update(ctx context.Context, l *Lending) error
+	// Delete 立て替えを削除する
+	Delete(ctx context.Context, id ulid.ULID) error
 }

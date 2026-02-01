@@ -2,46 +2,45 @@ package usecase
 
 import (
 	"context"
-	"errors"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
-	"github.com/jackc/pgx/v5"
 	"go.opentelemetry.io/otel/codes"
 )
 
+// UserUseCaseImpl ユーザーに関するユースケースの実装
 type UserUseCaseImpl struct {
 	ur domain.UserRepository
 }
 
+// NewUserUseCase UserUseCaseImplのファクトリ関数
 func NewUserUseCase(ur domain.UserRepository) UserUseCaseImpl {
 	return UserUseCaseImpl{
 		ur: ur,
 	}
 }
 
-func (u UserUseCaseImpl) Search(ctx context.Context, input handler.UserSearchInput) (*handler.UserSearchOutput, error) {
-	ctx, span := tracer.Start(ctx, "user.Search")
-	defer span.End()
+// Search ユーザーを検索する
+func (u UserUseCaseImpl) Search(ctx context.Context, input handler.UserSearchInput) (output *handler.UserSearchOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.User.Search")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
-	limit := input.Limit
-	if limit <= 0 {
-		limit = 20
-	}
-
-	var name *string
+	query := domain.UserSearchQuery{}
 	if input.Name != "" {
-		name = &input.Name
+		query.Name = &input.Name
 	}
-	var email *string
 	if input.Email != "" {
-		email = &input.Email
+		query.Email = &input.Email
 	}
 
-	users, err := u.ur.FindBySearch(ctx, name, email, limit)
+	users, err := u.ur.FindByQuery(ctx, query)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
@@ -50,17 +49,19 @@ func (u UserUseCaseImpl) Search(ctx context.Context, input handler.UserSearchInp
 	}, nil
 }
 
-func (u UserUseCaseImpl) Get(ctx context.Context, input handler.UserGetInput) (*handler.UserGetOutput, error) {
-	ctx, span := tracer.Start(ctx, "user.Get")
-	defer span.End()
+// Get ユーザーを取得する
+func (u UserUseCaseImpl) Get(ctx context.Context, input handler.UserGetInput) (output *handler.UserGetOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.User.Get")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
 	user, err := u.ur.FindByID(ctx, input.ID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, handler.ErrUserNotFound
-		}
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
@@ -69,17 +70,19 @@ func (u UserUseCaseImpl) Get(ctx context.Context, input handler.UserGetInput) (*
 	}, nil
 }
 
-func (u UserUseCaseImpl) GetMe(ctx context.Context, input handler.UserGetMeInput) (*handler.UserGetMeOutput, error) {
-	ctx, span := tracer.Start(ctx, "user.GetMe")
-	defer span.End()
+// GetMe 自分のユーザー情報を取得する
+func (u UserUseCaseImpl) GetMe(ctx context.Context, input handler.UserGetMeInput) (output *handler.UserGetMeOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.User.GetMe")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
 
 	user, err := u.ur.FindByID(ctx, input.UID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, handler.ErrUserNotFound
-		}
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
@@ -88,34 +91,33 @@ func (u UserUseCaseImpl) GetMe(ctx context.Context, input handler.UserGetMeInput
 	}, nil
 }
 
-func (u UserUseCaseImpl) Update(ctx context.Context, input handler.UserUpdateInput) (*handler.UserUpdateOutput, error) {
-	ctx, span := tracer.Start(ctx, "user.Update")
-	defer span.End()
-
-	existingUser, err := u.ur.FindByID(ctx, input.ID)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, handler.ErrUserNotFound
+// UpdateMe 自分のプロフィールを更新する
+func (u UserUseCaseImpl) UpdateMe(ctx context.Context, input handler.UserUpdateMeInput) (output *handler.UserUpdateMeOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.User.UpdateMe")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
 		}
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
-		return nil, err
-	}
+		span.End()
+	}()
 
-	updatedUser, err := existingUser.WithUpdatedProfile(input.Name, input.Avatar)
+	user, err := u.ur.FindByID(ctx, input.UID)
 	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
 		return nil, err
 	}
 
-	if err := u.ur.Update(ctx, updatedUser); err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		span.RecordError(err)
+	updatedUser, err := user.UpdateProfile(ctx, input.Name, input.Avatar)
+	if err != nil {
 		return nil, err
 	}
 
-	return &handler.UserUpdateOutput{
+	err = u.ur.Update(ctx, updatedUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return &handler.UserUpdateMeOutput{
 		User: updatedUser,
 	}, nil
 }

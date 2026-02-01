@@ -63,7 +63,7 @@ func (a AuthUseCaseImpl) Signup(ctx context.Context, input handler.AuthSignupInp
 		}
 
 		// Return migrated user with new ID
-		migratedUser, err := domain.NewUser(input.UID, existingUser.Name(), existingUser.Avatar(), existingUser.Email())
+		migratedUser, err := domain.NewUser(ctx, input.UID, existingUser.Name(), existingUser.Avatar(), existingUser.Email())
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
@@ -80,7 +80,7 @@ func (a AuthUseCaseImpl) Signup(ctx context.Context, input handler.AuthSignupInp
 	}
 
 	// Create new user
-	user, err := domain.NewUser(input.UID, input.Name, input.Avatar, input.Email)
+	user, err := domain.NewUser(ctx, input.UID, input.Name, input.Avatar, input.Email)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)

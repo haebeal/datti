@@ -110,14 +110,14 @@ func (h lendingHandler) Create(c echo.Context, id string) error {
 	for _, d := range output.Debtors {
 		debts = append(debts, api.LendingDebtParmam{
 			UserId: d.ID(),
-			Amount: uint64(d.Amount().Value()),
+			Amount: uint64(d.Amount()),
 		})
 	}
 
 	res := &api.LendingCreateResponse{
 		Id:        output.Event.ID().String(),
 		Name:      output.Event.Name(),
-		Amount:    uint64(output.Event.Amount().Value()),
+		Amount:    uint64(output.Event.Amount()),
 		EventDate: output.Event.EventDate(),
 		Debts:     debts,
 		CreatedAt: output.Event.CreatedAt(),
@@ -187,17 +187,17 @@ func (h lendingHandler) Get(c echo.Context, id string, lendingId string) error {
 	for _, d := range output.Debtors {
 		debts = append(debts, api.LendingDebtParmam{
 			UserId: d.ID(),
-			Amount: uint64(d.Amount().Value()),
+			Amount: uint64(d.Amount()),
 		})
 	}
 
 	res := &api.LendingGetResponse{
 		Id:        output.Lending.ID().String(),
 		Name:      output.Lending.Name(),
-		Amount:    uint64(output.Lending.Amount().Value()),
+		Amount:    uint64(output.Lending.Amount()),
 		EventDate: output.Lending.EventDate(),
 		Debts:     debts,
-		CreatedBy: output.Lending.CreatedBy().String(),
+		CreatedBy: output.Lending.Payer().ID(),
 		CreatedAt: output.Lending.CreatedAt(),
 		UpdatedAt: output.Lending.UpdatedAt(),
 	}
@@ -260,7 +260,7 @@ func (h lendingHandler) GetByQuery(c echo.Context, id string, params api.Lending
 		for _, d := range l.Debtors {
 			debts = append(debts, api.LendingDebtParmam{
 				UserId: d.ID(),
-				Amount: uint64(d.Amount().Value()),
+				Amount: uint64(d.Amount()),
 			})
 		}
 
@@ -268,10 +268,10 @@ func (h lendingHandler) GetByQuery(c echo.Context, id string, params api.Lending
 			Id:        l.Lending.ID().String(),
 			CreatedAt: l.Lending.CreatedAt(),
 			Debts:     debts,
-			Amount:    uint64(l.Lending.Amount().Value()),
+			Amount:    uint64(l.Lending.Amount()),
 			Name:      l.Lending.Name(),
 			EventDate: l.Lending.EventDate(),
-			CreatedBy: l.Lending.CreatedBy().String(),
+			CreatedBy: l.Lending.Payer().ID(),
 			UpdatedAt: l.Lending.UpdatedAt(),
 		})
 	}
@@ -375,14 +375,14 @@ func (h lendingHandler) Update(c echo.Context, id string, lendingId string) erro
 	for _, d := range output.Debtors {
 		debts = append(debts, api.LendingDebtParmam{
 			UserId: d.ID(),
-			Amount: uint64(d.Amount().Value()),
+			Amount: uint64(d.Amount()),
 		})
 	}
 
 	res := &api.LendingUpdateResponse{
 		Id:        output.Lending.ID().String(),
 		Name:      output.Lending.Name(),
-		Amount:    uint64(output.Lending.Amount().Value()),
+		Amount:    uint64(output.Lending.Amount()),
 		EventDate: output.Lending.EventDate(),
 		Debts:     debts,
 		CreatedAt: output.Lending.CreatedAt(),

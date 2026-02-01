@@ -1,10 +1,5 @@
 package domain
 
-import (
-	"context"
-
-	"github.com/oklog/ulid/v2"
-)
 
 // 支払い者
 type Payer struct {
@@ -41,8 +36,4 @@ func (p *Payer) Avatar() string {
 
 func (p *Payer) Email() string {
 	return p.email
-}
-
-type PayerRepository interface {
-	FindByEventID(context.Context, ulid.ULID) (*Payer, error)
 }

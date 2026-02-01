@@ -2,13 +2,14 @@ package domain
 
 import (
 	"context"
-	"fmt"
 	"net/mail"
 	"net/url"
 	"unicode/utf8"
+
+	"go.opentelemetry.io/otel/codes"
 )
 
-// ユーザー
+// User ユーザーを表すドメインエンティティ
 type User struct {
 	id     string
 	name   string
@@ -16,77 +17,91 @@ type User struct {
 	email  string
 }
 
-func NewUser(id string, name string, avatar string, email string) (*User, error) {
+// NewUser ユーザードメインエンティティのファクトリ関数
+func NewUser(ctx context.Context, id string, name string, avatar string, email string) (u *User, err error) {
+	_, span := tracer.Start(ctx, "domain.User.New")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
+
 	if id == "" {
-		return nil, fmt.Errorf("id is required")
+		return nil, NewValidationError("id", "ユーザーIDは必須です")
 	}
 
-	nl := utf8.RuneCountInString(name)
-	if nl <= 0 {
-		return nil, fmt.Errorf("name length must be greater than 0")
+	if utf8.RuneCountInString(name) < 1 {
+		return nil, NewValidationError("name", "ユーザー名は1文字以上である必要があります")
 	}
 
 	parsedURL, err := url.Parse(avatar)
 	if err != nil {
-		return nil, fmt.Errorf("invalid avatar URL: parse error")
+		return nil, NewValidationError("avatar", "アバターURLが不正です")
 	}
 	if parsedURL.Scheme == "" || parsedURL.Host == "" {
-		return nil, fmt.Errorf("invalid avatar URL: scheme and host are required")
+		return nil, NewValidationError("avatar", "アバターURLが不正です")
 	}
 
-	_, err = mail.ParseAddress(email)
-	if err != nil {
-		return nil, fmt.Errorf("invalid email format")
+	if _, err := mail.ParseAddress(email); err != nil {
+		return nil, NewValidationError("email", "メールアドレスの形式が不正です")
 	}
 
-	return &User{id, name, avatar, email}, nil
+	return &User{
+		id:     id,
+		name:   name,
+		avatar: avatar,
+		email:  email,
+	}, nil
 }
 
+// UpdateProfile プロフィールの更新を行う
+func (u *User) UpdateProfile(ctx context.Context, name string, avatar string) (*User, error) {
+	ctx, span := tracer.Start(ctx, "domain.User.UpdateProfile")
+	defer span.End()
+
+	return NewUser(ctx, u.id, name, avatar, u.email)
+}
+
+// ID ユーザーID
 func (u *User) ID() string {
 	return u.id
 }
 
+// Name ユーザー名
 func (u *User) Name() string {
 	return u.name
 }
 
+// Avatar アバター画像のURL
 func (u *User) Avatar() string {
 	return u.avatar
 }
 
+// Email メールアドレス
 func (u *User) Email() string {
 	return u.email
 }
 
-// WithUpdatedProfile はプロフィール情報（name, avatar）を更新した新しいUserを返す。
-// id, emailは不変のため変更されない。
-func (u *User) WithUpdatedProfile(name string, avatar string) (*User, error) {
-	nl := utf8.RuneCountInString(name)
-	if nl <= 0 {
-		return nil, fmt.Errorf("name length must be greater than 0")
-	}
-
-	parsedURL, err := url.Parse(avatar)
-	if err != nil {
-		return nil, fmt.Errorf("invalid avatar URL: parse error")
-	}
-	if parsedURL.Scheme == "" || parsedURL.Host == "" {
-		return nil, fmt.Errorf("invalid avatar URL: scheme and host are required")
-	}
-
-	return &User{
-		id:     u.id,
-		name:   name,
-		avatar: avatar,
-		email:  u.email,
-	}, nil
+// UserSearchQuery ユーザー検索クエリ
+type UserSearchQuery struct {
+	Name  *string
+	Email *string
 }
 
+// UserRepository ユーザーリポジトリのインターフェース
 type UserRepository interface {
-	FindByID(context.Context, string) (*User, error)
-	FindByEmail(context.Context, string) (*User, error)
-	FindBySearch(context.Context, *string, *string, int32) ([]*User, error)
-	Create(context.Context, *User) error
-	Update(context.Context, *User) error
+	// Create ユーザーを作成する
+	Create(ctx context.Context, u *User) error
+	// FindByID IDでユーザーを取得する
+	FindByID(ctx context.Context, id string) (*User, error)
+	// FindByEmail メールアドレスでユーザーを取得する
+	FindByEmail(ctx context.Context, email string) (*User, error)
+	// FindByQuery 検索条件でユーザー一覧を取得する
+	FindByQuery(ctx context.Context, query UserSearchQuery) ([]*User, error)
+	// Update ユーザーを更新する
+	Update(ctx context.Context, u *User) error
+	// UpdateID ユーザーIDを更新する(認証プロバイダ移行用)
 	UpdateID(ctx context.Context, oldID, newID string) error
 }

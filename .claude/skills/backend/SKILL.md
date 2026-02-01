@@ -187,6 +187,54 @@ go vet ./...
 - **生成ファイル** (`*.gen.go`): 手動編集は禁止。生成元を更新しコマンドを再実行する
 - **エラーハンドリング**: 明示的なエラー返却
 
+### 実装パターン
+
+#### ドメイン層
+
+**エンティティ**
+- ファクトリ関数 (`NewXxx`, `CreateXxx`) には `context.Context` を第一引数に取る
+- バリデーションエラーは `ValidationError` を使い、フィールド名 + メッセージで構造化
+- エラーメッセージは日本語で統一
+
+**リポジトリ**
+- 集約単位で分割 (テーブル単位ではない)
+- インターフェースの引数には名前を付ける (`ctx context.Context, id ulid.ULID`)
+- 関連エンティティは `User` を直接使う (中間エンティティは作らない)
+
+**トレーシング**
+- span名は `domain.エンティティ名.操作` 形式 (例: `domain.Group.Create`)
+- deferパターンでエラー記録を統一
+
+#### ユースケース層
+
+**構造**
+- `XxxUseCaseImpl` 構造体 + `NewXxxUseCase` ファクトリ関数
+- 依存はリポジトリインターフェースで注入
+
+**トレーシング**
+- span名は `usecase.エンティティ名.操作` 形式 (例: `usecase.Group.Create`)
+- deferパターンでエラー記録を統一:
+  ```go
+  func (u Impl) Method(ctx context.Context, input Input) (output *Output, err error) {
+      ctx, span := tracer.Start(ctx, "usecase.Xxx.Method")
+      defer func() {
+          if err != nil {
+              span.SetStatus(codes.Error, err.Error())
+              span.RecordError(err)
+          }
+          span.End()
+      }()
+      // ...
+  }
+  ```
+
+#### GoDoc
+
+- 構造体・メソッドにコメントを付ける
+- ファクトリ関数は「〜のファクトリ関数」と記載
+- 補足情報は半角括弧で記載 (例: `(作成者のみ実行可能)`)
+- パッケージには `doc.go` を作成し説明を記載
+
 ### 認証・環境
 
 - **認証**: Firebase Auth（`middleware.AuthMiddleware` が `uid` を注入）

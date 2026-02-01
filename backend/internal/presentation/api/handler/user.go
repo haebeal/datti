@@ -195,8 +195,8 @@ func (h userHandler) GetMe(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
-func (h userHandler) Update(c echo.Context, _ string) error {
-	ctx, span := tracer.Start(c.Request().Context(), "user.Update")
+func (h userHandler) UpdateMe(c echo.Context) error {
+	ctx, span := tracer.Start(c.Request().Context(), "user.UpdateMe")
 	defer span.End()
 
 	uid, ok := c.Get("uid").(string)

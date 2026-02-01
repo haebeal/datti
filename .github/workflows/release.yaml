@@ -1,0 +1,132 @@
+name: Release
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-northeast-1
+
+jobs:
+  create-release:
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'release/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.extract.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from branch name
+        id: extract
+        run: |
+          BRANCH="${{ github.head_ref }}"
+          VERSION="${BRANCH#release/}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Creating release for version: $VERSION"
+
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.extract.outputs.version }}"
+          git tag "$VERSION"
+          git push origin "$VERSION"
+          gh release create "$VERSION" \
+            --title "$VERSION" \
+            --generate-notes
+
+  deploy-backend:
+    needs: create-release
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: prod
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: backend
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/datti-backend:${{ needs.create-release.outputs.version }}
+          platforms: linux/arm64
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+
+      - name: Setup ecspresso
+        uses: kayac/ecspresso@v2
+        with:
+          version: latest
+
+      - name: Deploy to ECS
+        working-directory: backend
+        run: ecspresso deploy --config ecspresso.yaml
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          IMAGE_TAG: ${{ needs.create-release.outputs.version }}
+          ENV: prod
+
+  deploy-frontend:
+    needs: create-release
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+      id-token: write
+    environment:
+      name: prod
+      url: https://datti.app
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: frontend
+          push: true
+          tags: ${{ steps.login-ecr.outputs.registry }}/datti-frontend:${{ needs.create-release.outputs.version }}
+          platforms: linux/arm64
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend
+
+      - name: Setup ecspresso
+        uses: kayac/ecspresso@v2
+        with:
+          version: latest
+
+      - name: Deploy to ECS
+        working-directory: frontend
+        run: ecspresso deploy --config ecspresso.yaml
+        env:
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          IMAGE_TAG: ${{ needs.create-release.outputs.version }}
+          ENV: prod
+          APP_URL: https://datti.app

@@ -13,7 +13,7 @@
       "portMappings": [
         {
           "containerPort": 8080,
-          "hostPort": 8081,
+          "hostPort": {{ if eq (must_env "ENV") "prod" }}8080{{ else }}8081{{ end }},
           "protocol": "tcp"
         }
       ],

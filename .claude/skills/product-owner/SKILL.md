@@ -54,6 +54,7 @@ Dattiでは Linear を使ってタスク管理を行っています。このス�
 - **説明**: 背景・やりたいこと・必要な作業を記載
 - **ラベル**: Bug / Feature / Improvement のいずれかを付与
 - **優先度**: 適切な Priority を設定
+- **プロジェクト**: 必ず `Datti` プロジェクトに紐づける
 
 ### 説明のテンプレート
 
@@ -179,7 +180,8 @@ mcp__linear-server__create_issue(
   title: "...",
   description: "...",
   labels: ["Feature"],
-  priority: 3
+  priority: 3,
+  project: "Datti"
 )
 
 # 更新

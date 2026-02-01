@@ -75,8 +75,7 @@ export async function uploadAvatar(formData: FormData): Promise<UploadResult> {
     }
 
     // avatarを更新
-    const { error: updateError } = await client.PUT("/users/{id}", {
-      params: { path: { id: me.id } },
+    const { error: updateError } = await client.PUT("/users/me", {
       body: { name: me.name, avatar: url },
     });
 

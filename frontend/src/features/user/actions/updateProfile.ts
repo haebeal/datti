@@ -16,13 +16,12 @@ export async function updateProfile(_prevState: unknown, formData: FormData) {
     return submission.reply();
   }
 
-  const { id, name, avatar } = submission.value;
+  const { name, avatar } = submission.value;
 
   const token = await getAuthToken();
   const client = createApiClient(token);
 
-  const { error } = await client.PUT("/users/{id}", {
-    params: { path: { id } },
+  const { error } = await client.PUT("/users/me", {
     body: { name, avatar: avatar ?? "" },
   });
 

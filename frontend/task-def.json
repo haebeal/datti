@@ -31,6 +31,14 @@
         {
           "name": "COGNITO_CLIENT_ID",
           "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/dev/COGNITO_CLIENT_ID"
+        },
+        {
+          "name": "S3_AVATAR_BUCKET",
+          "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/dev/S3_AVATAR_BUCKET"
+        },
+        {
+          "name": "AVATAR_BASE_URL",
+          "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/dev/AVATAR_BASE_URL"
         }
       ],
       "logConfiguration": {

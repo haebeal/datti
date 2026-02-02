@@ -3,18 +3,12 @@ package handler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel/codes"
-)
-
-var (
-	ErrUserNotFound      = errors.New("user not found")
-	ErrUserAlreadyExists = errors.New("user already exists")
 )
 
 type AuthUseCase interface {
@@ -38,7 +32,7 @@ func (h authHandler) Login(c echo.Context) error {
 
 	uid, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
+		message := "認証情報が取得できませんでした"
 		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
 			Message: message,
@@ -52,17 +46,16 @@ func (h authHandler) Login(c echo.Context) error {
 
 	err := h.u.Login(ctx, input)
 	if err != nil {
-		if errors.Is(err, ErrUserNotFound) {
+		if errors.Is(err, &domain.NotFoundError{}) {
 			res := &api.ErrorResponse{
-				Message: "User not found",
+				Message: "ユーザーが見つかりません",
 			}
 			return c.JSON(http.StatusUnauthorized, res)
 		}
-		message := fmt.Sprintf("Failed to login: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -76,7 +69,7 @@ func (h authHandler) Signup(c echo.Context) error {
 
 	uid, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
+		message := "認証情報が取得できませんでした"
 		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
 			Message: message,
@@ -86,10 +79,8 @@ func (h authHandler) Signup(c echo.Context) error {
 
 	var req api.AuthSignupRequest
 	if err := c.Bind(&req); err != nil {
-		message := fmt.Sprintf("Invalid request body: %v", err)
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "リクエストの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
@@ -103,17 +94,16 @@ func (h authHandler) Signup(c echo.Context) error {
 
 	output, err := h.u.Signup(ctx, input)
 	if err != nil {
-		if errors.Is(err, ErrUserAlreadyExists) {
+		if errors.Is(err, &domain.ConflictError{}) {
 			res := &api.ErrorResponse{
-				Message: "User already exists",
+				Message: err.Error(),
 			}
 			return c.JSON(http.StatusConflict, res)
 		}
-		message := fmt.Sprintf("Failed to signup: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}

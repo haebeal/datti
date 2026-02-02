@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -35,10 +34,8 @@ func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 	defer span.End()
 
 	if _, ok := c.Get("uid").(string); !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -53,10 +50,8 @@ func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 	}
 
 	if name == "" && email == "" {
-		message := "name or email is required"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "名前またはメールアドレスを指定してください",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
@@ -74,11 +69,10 @@ func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 
 	output, err := h.u.Search(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to search users: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -111,10 +105,8 @@ func (h userHandler) Get(c echo.Context, id string) error {
 	defer span.End()
 
 	if _, ok := c.Get("uid").(string); !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -125,17 +117,16 @@ func (h userHandler) Get(c echo.Context, id string) error {
 
 	output, err := h.u.Get(ctx, input)
 	if err != nil {
-		if errors.Is(err, ErrUserNotFound) {
+		if errors.Is(err, &domain.NotFoundError{}) {
 			res := &api.ErrorResponse{
-				Message: "User not found",
+				Message: "ユーザーが見つかりません",
 			}
 			return c.JSON(http.StatusNotFound, res)
 		}
-		message := fmt.Sprintf("Failed to get user: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -156,10 +147,8 @@ func (h userHandler) GetMe(c echo.Context) error {
 
 	uid, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -170,17 +159,16 @@ func (h userHandler) GetMe(c echo.Context) error {
 
 	output, err := h.u.GetMe(ctx, input)
 	if err != nil {
-		if errors.Is(err, ErrUserNotFound) {
+		if errors.Is(err, &domain.NotFoundError{}) {
 			res := &api.ErrorResponse{
-				Message: "User not found",
+				Message: "ユーザーが見つかりません",
 			}
 			return c.JSON(http.StatusUnauthorized, res)
 		}
-		message := fmt.Sprintf("Failed to get user: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -201,20 +189,16 @@ func (h userHandler) UpdateMe(c echo.Context) error {
 
 	uid, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
 
 	var req api.UserUpdateRequest
 	if err := c.Bind(&req); err != nil {
-		message := fmt.Sprintf("Invalid request body: %v", err)
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "リクエストの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
@@ -227,17 +211,16 @@ func (h userHandler) UpdateMe(c echo.Context) error {
 
 	output, err := h.u.UpdateMe(ctx, input)
 	if err != nil {
-		if errors.Is(err, ErrUserNotFound) {
+		if errors.Is(err, &domain.NotFoundError{}) {
 			res := &api.ErrorResponse{
-				Message: "User not found",
+				Message: "ユーザーが見つかりません",
 			}
 			return c.JSON(http.StatusNotFound, res)
 		}
-		message := fmt.Sprintf("Failed to update user: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}

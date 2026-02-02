@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/haebeal/datti/internal/domain"
@@ -40,21 +39,16 @@ func (h groupHandler) Create(c echo.Context) error {
 
 	var req api.GroupCreateRequest
 	if err := c.Bind(&req); err != nil {
-		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "リクエストの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	createdBy, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -66,11 +60,10 @@ func (h groupHandler) Create(c echo.Context) error {
 
 	output, err := h.u.Create(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to create group: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -92,10 +85,8 @@ func (h groupHandler) GetAll(c echo.Context) error {
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -106,11 +97,10 @@ func (h groupHandler) GetAll(c echo.Context) error {
 
 	output, err := h.u.GetAll(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to get groups: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -135,21 +125,16 @@ func (h groupHandler) Get(c echo.Context, id string) error {
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -161,14 +146,24 @@ func (h groupHandler) Get(c echo.Context, id string) error {
 
 	output, err := h.u.Get(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to get group: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "グループが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
+			return c.JSON(http.StatusForbidden, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
-		}
-		if err.Error() == "forbidden Error" {
-			return c.JSON(http.StatusForbidden, res)
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -190,32 +185,24 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	var req api.GroupUpdateRequest
 	if err := c.Bind(&req); err != nil {
-		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "リクエストの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -228,14 +215,24 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 
 	output, err := h.u.Update(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to update group: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "グループが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
+			return c.JSON(http.StatusForbidden, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
-		}
-		if err.Error() == "forbidden Error" {
-			return c.JSON(http.StatusForbidden, res)
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -257,21 +254,16 @@ func (h groupHandler) Delete(c echo.Context, id string) error {
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -282,14 +274,24 @@ func (h groupHandler) Delete(c echo.Context, id string) error {
 	}
 
 	if err := h.u.Delete(ctx, input); err != nil {
-		message := fmt.Sprintf("Failed to delete group: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "グループが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
+			return c.JSON(http.StatusForbidden, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
-		}
-		if err.Error() == "forbidden Error" {
-			return c.JSON(http.StatusForbidden, res)
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -303,32 +305,24 @@ func (h groupHandler) AddMember(c echo.Context, id string) error {
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	var req api.GroupAddMemberRequest
 	if err := c.Bind(&req); err != nil {
-		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "リクエストの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -340,17 +334,31 @@ func (h groupHandler) AddMember(c echo.Context, id string) error {
 	}
 
 	if err := h.u.AddMember(ctx, input); err != nil {
-		message := fmt.Sprintf("Failed to add group member: %v", err)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
-		res := &api.ErrorResponse{
-			Message: message,
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "メンバーが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
 		}
+		
 		if errors.Is(err, &domain.ConflictError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
 			return c.JSON(http.StatusConflict, res)
 		}
+		
 		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
 			return c.JSON(http.StatusForbidden, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -364,21 +372,16 @@ func (h groupHandler) GetMembers(c echo.Context, id string) error {
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -390,14 +393,24 @@ func (h groupHandler) GetMembers(c echo.Context, id string) error {
 
 	output, err := h.u.ListMembers(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to get group members: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "グループが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
+			return c.JSON(http.StatusForbidden, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
-		}
-		if err.Error() == "forbidden Error" {
-			return c.JSON(http.StatusForbidden, res)
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -421,21 +434,16 @@ func (h groupHandler) RemoveMember(c echo.Context, id string, userId string) err
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -447,14 +455,24 @@ func (h groupHandler) RemoveMember(c echo.Context, id string, userId string) err
 	}
 
 	if err := h.u.RemoveMember(ctx, input); err != nil {
-		message := fmt.Sprintf("Failed to remove group member: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "メンバーが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
+			return c.JSON(http.StatusForbidden, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
-		}
-		if err.Error() == "forbidden Error" {
-			return c.JSON(http.StatusForbidden, res)
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}

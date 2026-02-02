@@ -6,7 +6,6 @@ import (
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
-	"github.com/jackc/pgx/v5"
 	"go.opentelemetry.io/otel/codes"
 )
 
@@ -26,8 +25,10 @@ func (a AuthUseCaseImpl) Login(ctx context.Context, input handler.AuthLoginInput
 
 	_, err := a.ur.FindByID(ctx, input.UID)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return handler.ErrUserNotFound
+		// NotFoundErrorはそのまま返す（Handler層で処理）
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			return err
 		}
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -44,9 +45,10 @@ func (a AuthUseCaseImpl) Signup(ctx context.Context, input handler.AuthSignupInp
 	// Check if user already exists by UID
 	_, err := a.ur.FindByID(ctx, input.UID)
 	if err == nil {
-		return nil, handler.ErrUserAlreadyExists
+		return nil, domain.NewConflictError("user", "既にユーザーが存在します")
 	}
-	if !errors.Is(err, pgx.ErrNoRows) {
+	
+	if !errors.Is(err, &domain.NotFoundError{}) {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err
@@ -73,7 +75,7 @@ func (a AuthUseCaseImpl) Signup(ctx context.Context, input handler.AuthSignupInp
 			User: migratedUser,
 		}, nil
 	}
-	if !errors.Is(err, pgx.ErrNoRows) {
+	if !errors.Is(err, &domain.NotFoundError{}) {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		return nil, err

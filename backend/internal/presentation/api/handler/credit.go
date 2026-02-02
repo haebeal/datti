@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"net/http"
 	"sort"
 
@@ -43,19 +43,27 @@ func (h creditHandler) List(c echo.Context, params api.CreditsListParams) error 
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
-		res := &api.ErrorResponse{Message: message}
+		res := &api.ErrorResponse{
+			Message: "認証情報が取得できませんでした",
+		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
 
 	input := CreditListInput{UserID: userID}
 	output, err := h.u.List(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to list credits: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "ユーザーが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
-		res := &api.ErrorResponse{Message: message}
+		res := &api.ErrorResponse{
+			Message: "サーバーエラーが発生しました",
+		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
 

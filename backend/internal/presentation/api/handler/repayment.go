@@ -11,6 +11,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// RepaymentUseCase 返済に関するユースケースのインターフェース
 type RepaymentUseCase interface {
 	Create(context.Context, RepaymentCreateInput) (*RepaymentCreateOutput, error)
 	GetByQuery(context.Context, RepaymentGetByQueryInput) (*RepaymentGetByQueryOutput, error)
@@ -23,12 +24,14 @@ type repaymentHandler struct {
 	u RepaymentUseCase
 }
 
+// NewRepaymentHandler repaymentHandlerのファクトリ関数
 func NewRepaymentHandler(u RepaymentUseCase) repaymentHandler {
 	return repaymentHandler{
 		u: u,
 	}
 }
 
+// Create 返済を新規作成する
 func (h repaymentHandler) Create(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.Create")
 	defer span.End()
@@ -100,6 +103,7 @@ func (h repaymentHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
+// GetByQuery 返済一覧を取得する
 func (h repaymentHandler) GetByQuery(c echo.Context, params api.RepaymentGetAllParams) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.GetByQuery")
 	defer span.End()
@@ -155,6 +159,7 @@ func (h repaymentHandler) GetByQuery(c echo.Context, params api.RepaymentGetAllP
 	return c.JSON(http.StatusOK, res)
 }
 
+// Get 指定したIDの返済情報を取得する
 func (h repaymentHandler) Get(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.Get")
 	defer span.End()
@@ -192,6 +197,7 @@ func (h repaymentHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// Update 返済情報を更新する
 func (h repaymentHandler) Update(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.Update")
 	defer span.End()
@@ -247,6 +253,7 @@ func (h repaymentHandler) Update(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// Delete 返済を削除する
 func (h repaymentHandler) Delete(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.Delete")
 	defer span.End()
@@ -282,45 +289,54 @@ func (h repaymentHandler) Delete(c echo.Context, id string) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+// RepaymentCreateInput 返済作成の入力パラメータ
 type RepaymentCreateInput struct {
 	PayerID  string
 	DebtorID string
 	Amount   int64
 }
 
+// RepaymentCreateOutput 返済作成の出力
 type RepaymentCreateOutput struct {
 	Repayment *domain.Repayment
 }
 
+// RepaymentGetByQueryInput 返済一覧取得の入力パラメータ
 type RepaymentGetByQueryInput struct {
 	UserID string
 	Limit  int32
 	Cursor *string
 }
 
+// RepaymentGetByQueryOutput 返済一覧取得の出力
 type RepaymentGetByQueryOutput struct {
 	Repayments []*domain.Repayment
 	NextCursor *string
 	HasMore    bool
 }
 
+// RepaymentGetInput 返済取得の入力パラメータ
 type RepaymentGetInput struct {
 	ID string
 }
 
+// RepaymentGetOutput 返済取得の出力
 type RepaymentGetOutput struct {
 	Repayment *domain.Repayment
 }
 
+// RepaymentUpdateInput 返済更新の入力パラメータ
 type RepaymentUpdateInput struct {
 	ID     string
 	Amount int64
 }
 
+// RepaymentUpdateOutput 返済更新の出力
 type RepaymentUpdateOutput struct {
 	Repayment *domain.Repayment
 }
 
+// RepaymentDeleteInput 返済削除の入力パラメータ
 type RepaymentDeleteInput struct {
 	ID string
 }

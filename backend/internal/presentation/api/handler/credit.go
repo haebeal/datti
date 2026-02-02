@@ -12,17 +12,17 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
-// CreditUseCase exposes read operations for credit summaries.
+// CreditUseCase 債権/債務に関するユースケースのインターフェース
 type CreditUseCase interface {
 	List(ctx context.Context, input CreditListInput) (*CreditListOutput, error)
 }
 
-// CreditListInput carries parameters for listing credits from the perspective of the authenticated user.
+// CreditListInput 債権/債務一覧取得の入力パラメータ
 type CreditListInput struct {
 	UserID string
 }
 
-// CreditListOutput 債権/債務の一覧を返す
+// CreditListOutput 債権/債務一覧取得の出力
 type CreditListOutput struct {
 	Credits []*domain.Credit
 }
@@ -31,12 +31,14 @@ type creditHandler struct {
 	u CreditUseCase
 }
 
+// NewCreditHandler creditHandlerのファクトリ関数
 func NewCreditHandler(u CreditUseCase) creditHandler {
 	return creditHandler{
 		u: u,
 	}
 }
 
+// List 認証ユーザーの債権/債務一覧を取得する
 func (h creditHandler) List(c echo.Context, params api.CreditsListParams) error {
 	ctx, span := tracer.Start(c.Request().Context(), "credit.List")
 	defer span.End()

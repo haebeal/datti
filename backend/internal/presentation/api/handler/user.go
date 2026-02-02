@@ -12,6 +12,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// UserUseCase ユーザーに関するユースケースのインターフェース
 type UserUseCase interface {
 	Search(context.Context, UserSearchInput) (*UserSearchOutput, error)
 	Get(context.Context, UserGetInput) (*UserGetOutput, error)
@@ -23,12 +24,14 @@ type userHandler struct {
 	u UserUseCase
 }
 
+// NewUserHandler userHandlerのファクトリ関数
 func NewUserHandler(u UserUseCase) userHandler {
 	return userHandler{
 		u: u,
 	}
 }
 
+// Search ユーザーを名前またはメールアドレスで検索する
 func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.Search")
 	defer span.End()
@@ -90,16 +93,19 @@ func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// UserSearchInput ユーザー検索の入力パラメータ
 type UserSearchInput struct {
 	Name  string
 	Email string
 	Limit int32
 }
 
+// UserSearchOutput ユーザー検索の出力
 type UserSearchOutput struct {
 	Users []*domain.User
 }
 
+// Get 指定したIDのユーザー情報を取得する
 func (h userHandler) Get(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.Get")
 	defer span.End()
@@ -141,6 +147,7 @@ func (h userHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// GetMe 認証ユーザー自身の情報を取得する
 func (h userHandler) GetMe(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.GetMe")
 	defer span.End()
@@ -183,6 +190,7 @@ func (h userHandler) GetMe(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// UpdateMe 認証ユーザー自身の情報を更新する
 func (h userHandler) UpdateMe(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.UpdateMe")
 	defer span.End()
@@ -235,28 +243,34 @@ func (h userHandler) UpdateMe(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// UserGetInput ユーザー取得の入力パラメータ
 type UserGetInput struct {
 	ID string
 }
 
+// UserGetOutput ユーザー取得の出力
 type UserGetOutput struct {
 	User *domain.User
 }
 
+// UserGetMeInput 自身の情報取得の入力パラメータ
 type UserGetMeInput struct {
 	UID string
 }
 
+// UserGetMeOutput 自身の情報取得の出力
 type UserGetMeOutput struct {
 	User *domain.User
 }
 
+// UserUpdateMeInput 自身の情報更新の入力パラメータ
 type UserUpdateMeInput struct {
 	UID    string
 	Name   string
 	Avatar string
 }
 
+// UserUpdateMeOutput 自身の情報更新の出力
 type UserUpdateMeOutput struct {
 	User *domain.User
 }

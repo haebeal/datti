@@ -12,6 +12,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// GroupUseCase グループに関するユースケースのインターフェース
 type GroupUseCase interface {
 	Create(context.Context, GroupCreateInput) (*GroupCreateOutput, error)
 	GetAll(context.Context, GroupGetAllInput) (*GroupGetAllOutput, error)
@@ -27,12 +28,14 @@ type groupHandler struct {
 	u GroupUseCase
 }
 
+// NewGroupHandler groupHandlerのファクトリ関数
 func NewGroupHandler(u GroupUseCase) groupHandler {
 	return groupHandler{
 		u: u,
 	}
 }
 
+// Create グループを新規作成する
 func (h groupHandler) Create(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "group.Create")
 	defer span.End()
@@ -79,6 +82,7 @@ func (h groupHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
+// GetAll 認証ユーザーが所属する全グループを取得する
 func (h groupHandler) GetAll(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "group.GetAll")
 	defer span.End()
@@ -119,6 +123,7 @@ func (h groupHandler) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// Get 指定したIDのグループ情報を取得する
 func (h groupHandler) Get(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "group.Get")
 	defer span.End()
@@ -179,6 +184,7 @@ func (h groupHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// Update グループ情報を更新する
 func (h groupHandler) Update(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "group.Update")
 	defer span.End()
@@ -248,6 +254,7 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// Delete グループを削除する
 func (h groupHandler) Delete(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "group.Delete")
 	defer span.End()
@@ -299,6 +306,7 @@ func (h groupHandler) Delete(c echo.Context, id string) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+// AddMember グループにメンバーを追加する
 func (h groupHandler) AddMember(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "group.AddMember")
 	defer span.End()
@@ -366,6 +374,7 @@ func (h groupHandler) AddMember(c echo.Context, id string) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+// GetMembers グループのメンバー一覧を取得する
 func (h groupHandler) GetMembers(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "group.GetMembers")
 	defer span.End()
@@ -428,6 +437,7 @@ func (h groupHandler) GetMembers(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// RemoveMember グループからメンバーを削除する
 func (h groupHandler) RemoveMember(c echo.Context, id string, userId string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "group.RemoveMember")
 	defer span.End()
@@ -480,62 +490,75 @@ func (h groupHandler) RemoveMember(c echo.Context, id string, userId string) err
 	return c.NoContent(http.StatusNoContent)
 }
 
+// GroupCreateInput グループ作成の入力パラメータ
 type GroupCreateInput struct {
 	CreatedBy string
 	Name      string
 }
 
+// GroupCreateOutput グループ作成の出力
 type GroupCreateOutput struct {
 	Group *domain.Group
 }
 
+// GroupGetAllInput グループ一覧取得の入力パラメータ
 type GroupGetAllInput struct {
 	UserID string
 }
 
+// GroupGetAllOutput グループ一覧取得の出力
 type GroupGetAllOutput struct {
 	Groups []*domain.Group
 }
 
+// GroupGetInput グループ取得の入力パラメータ
 type GroupGetInput struct {
 	UserID  string
 	GroupID ulid.ULID
 }
 
+// GroupGetOutput グループ取得の出力
 type GroupGetOutput struct {
 	Group *domain.Group
 }
 
+// GroupUpdateInput グループ更新の入力パラメータ
 type GroupUpdateInput struct {
 	UserID  string
 	GroupID ulid.ULID
 	Name    string
 }
 
+// GroupUpdateOutput グループ更新の出力
 type GroupUpdateOutput struct {
 	Group *domain.Group
 }
 
+// GroupDeleteInput グループ削除の入力パラメータ
 type GroupDeleteInput struct {
 	UserID  string
 	GroupID ulid.ULID
 }
 
+// GroupAddMemberInput メンバー追加の入力パラメータ
 type GroupAddMemberInput struct {
 	UserID   string
 	GroupID  ulid.ULID
 	MemberID string
 }
 
+// GroupListMembersInput メンバー一覧取得の入力パラメータ
 type GroupListMembersInput struct {
 	UserID  string
 	GroupID ulid.ULID
 }
 
+// GroupListMembersOutput メンバー一覧取得の出力
 type GroupListMembersOutput struct {
 	Members []*domain.User
 }
 
+// GroupRemoveMemberInput メンバー削除の入力パラメータ
 type GroupRemoveMemberInput struct {
 	UserID   string
 	GroupID  ulid.ULID

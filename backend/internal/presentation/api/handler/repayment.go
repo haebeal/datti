@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"net/http"
 
 	"github.com/haebeal/datti/internal/domain"
@@ -11,6 +11,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// RepaymentUseCase 返済に関するユースケースのインターフェース
 type RepaymentUseCase interface {
 	Create(context.Context, RepaymentCreateInput) (*RepaymentCreateOutput, error)
 	GetByQuery(context.Context, RepaymentGetByQueryInput) (*RepaymentGetByQueryOutput, error)
@@ -23,12 +24,14 @@ type repaymentHandler struct {
 	u RepaymentUseCase
 }
 
+// NewRepaymentHandler repaymentHandlerのファクトリ関数
 func NewRepaymentHandler(u RepaymentUseCase) repaymentHandler {
 	return repaymentHandler{
 		u: u,
 	}
 }
 
+// Create 返済を新規作成する
 func (h repaymentHandler) Create(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.Create")
 	defer span.End()
@@ -37,21 +40,16 @@ func (h repaymentHandler) Create(c echo.Context) error {
 
 	err := c.Bind(&req)
 	if err != nil {
-		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "リクエストの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	payerID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -64,11 +62,31 @@ func (h repaymentHandler) Create(c echo.Context) error {
 
 	output, err := h.u.Create(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to create repayment: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "ユーザーが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
+			return c.JSON(http.StatusForbidden, res)
+		}
+		
+		if errors.Is(err, &domain.ValidationError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
+			return c.JSON(http.StatusBadRequest, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -85,16 +103,15 @@ func (h repaymentHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
+// GetByQuery 返済一覧を取得する
 func (h repaymentHandler) GetByQuery(c echo.Context, params api.RepaymentGetAllParams) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.GetByQuery")
 	defer span.End()
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -113,11 +130,10 @@ func (h repaymentHandler) GetByQuery(c echo.Context, params api.RepaymentGetAllP
 
 	output, err := h.u.GetByQuery(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to get repayments: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -143,6 +159,7 @@ func (h repaymentHandler) GetByQuery(c echo.Context, params api.RepaymentGetAllP
 	return c.JSON(http.StatusOK, res)
 }
 
+// Get 指定したIDの返済情報を取得する
 func (h repaymentHandler) Get(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.Get")
 	defer span.End()
@@ -153,11 +170,17 @@ func (h repaymentHandler) Get(c echo.Context, id string) error {
 
 	output, err := h.u.Get(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to get repayment: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "返済が見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -174,6 +197,7 @@ func (h repaymentHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// Update 返済情報を更新する
 func (h repaymentHandler) Update(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.Update")
 	defer span.End()
@@ -182,11 +206,8 @@ func (h repaymentHandler) Update(c echo.Context, id string) error {
 
 	err := c.Bind(&req)
 	if err != nil {
-		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "リクエストの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
@@ -198,11 +219,24 @@ func (h repaymentHandler) Update(c echo.Context, id string) error {
 
 	output, err := h.u.Update(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to update repayment: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "返済が見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
+			return c.JSON(http.StatusForbidden, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -219,6 +253,7 @@ func (h repaymentHandler) Update(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// Delete 返済を削除する
 func (h repaymentHandler) Delete(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "repayment.Delete")
 	defer span.End()
@@ -229,11 +264,24 @@ func (h repaymentHandler) Delete(c echo.Context, id string) error {
 
 	err := h.u.Delete(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to delete repayment: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "返済が見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
+			return c.JSON(http.StatusForbidden, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -241,45 +289,54 @@ func (h repaymentHandler) Delete(c echo.Context, id string) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+// RepaymentCreateInput 返済作成の入力パラメータ
 type RepaymentCreateInput struct {
 	PayerID  string
 	DebtorID string
 	Amount   int64
 }
 
+// RepaymentCreateOutput 返済作成の出力
 type RepaymentCreateOutput struct {
 	Repayment *domain.Repayment
 }
 
+// RepaymentGetByQueryInput 返済一覧取得の入力パラメータ
 type RepaymentGetByQueryInput struct {
 	UserID string
 	Limit  int32
 	Cursor *string
 }
 
+// RepaymentGetByQueryOutput 返済一覧取得の出力
 type RepaymentGetByQueryOutput struct {
 	Repayments []*domain.Repayment
 	NextCursor *string
 	HasMore    bool
 }
 
+// RepaymentGetInput 返済取得の入力パラメータ
 type RepaymentGetInput struct {
 	ID string
 }
 
+// RepaymentGetOutput 返済取得の出力
 type RepaymentGetOutput struct {
 	Repayment *domain.Repayment
 }
 
+// RepaymentUpdateInput 返済更新の入力パラメータ
 type RepaymentUpdateInput struct {
 	ID     string
 	Amount int64
 }
 
+// RepaymentUpdateOutput 返済更新の出力
 type RepaymentUpdateOutput struct {
 	Repayment *domain.Repayment
 }
 
+// RepaymentDeleteInput 返済削除の入力パラメータ
 type RepaymentDeleteInput struct {
 	ID string
 }

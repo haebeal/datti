@@ -3,7 +3,6 @@ package handler
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -13,6 +12,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// UserUseCase ユーザーに関するユースケースのインターフェース
 type UserUseCase interface {
 	Search(context.Context, UserSearchInput) (*UserSearchOutput, error)
 	Get(context.Context, UserGetInput) (*UserGetOutput, error)
@@ -24,21 +24,21 @@ type userHandler struct {
 	u UserUseCase
 }
 
+// NewUserHandler userHandlerのファクトリ関数
 func NewUserHandler(u UserUseCase) userHandler {
 	return userHandler{
 		u: u,
 	}
 }
 
+// Search ユーザーを名前またはメールアドレスで検索する
 func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.Search")
 	defer span.End()
 
 	if _, ok := c.Get("uid").(string); !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -53,10 +53,8 @@ func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 	}
 
 	if name == "" && email == "" {
-		message := "name or email is required"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "名前またはメールアドレスを指定してください",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
@@ -74,11 +72,10 @@ func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 
 	output, err := h.u.Search(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to search users: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -96,25 +93,26 @@ func (h userHandler) Search(c echo.Context, params api.UserSearchParams) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// UserSearchInput ユーザー検索の入力パラメータ
 type UserSearchInput struct {
 	Name  string
 	Email string
 	Limit int32
 }
 
+// UserSearchOutput ユーザー検索の出力
 type UserSearchOutput struct {
 	Users []*domain.User
 }
 
+// Get 指定したIDのユーザー情報を取得する
 func (h userHandler) Get(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.Get")
 	defer span.End()
 
 	if _, ok := c.Get("uid").(string); !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -125,17 +123,16 @@ func (h userHandler) Get(c echo.Context, id string) error {
 
 	output, err := h.u.Get(ctx, input)
 	if err != nil {
-		if errors.Is(err, ErrUserNotFound) {
+		if errors.Is(err, &domain.NotFoundError{}) {
 			res := &api.ErrorResponse{
-				Message: "User not found",
+				Message: "ユーザーが見つかりません",
 			}
 			return c.JSON(http.StatusNotFound, res)
 		}
-		message := fmt.Sprintf("Failed to get user: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -150,16 +147,15 @@ func (h userHandler) Get(c echo.Context, id string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// GetMe 認証ユーザー自身の情報を取得する
 func (h userHandler) GetMe(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.GetMe")
 	defer span.End()
 
 	uid, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -170,17 +166,16 @@ func (h userHandler) GetMe(c echo.Context) error {
 
 	output, err := h.u.GetMe(ctx, input)
 	if err != nil {
-		if errors.Is(err, ErrUserNotFound) {
+		if errors.Is(err, &domain.NotFoundError{}) {
 			res := &api.ErrorResponse{
-				Message: "User not found",
+				Message: "ユーザーが見つかりません",
 			}
 			return c.JSON(http.StatusUnauthorized, res)
 		}
-		message := fmt.Sprintf("Failed to get user: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -195,26 +190,23 @@ func (h userHandler) GetMe(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// UpdateMe 認証ユーザー自身の情報を更新する
 func (h userHandler) UpdateMe(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.UpdateMe")
 	defer span.End()
 
 	uid, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
 
 	var req api.UserUpdateRequest
 	if err := c.Bind(&req); err != nil {
-		message := fmt.Sprintf("Invalid request body: %v", err)
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "リクエストの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
@@ -227,17 +219,16 @@ func (h userHandler) UpdateMe(c echo.Context) error {
 
 	output, err := h.u.UpdateMe(ctx, input)
 	if err != nil {
-		if errors.Is(err, ErrUserNotFound) {
+		if errors.Is(err, &domain.NotFoundError{}) {
 			res := &api.ErrorResponse{
-				Message: "User not found",
+				Message: "ユーザーが見つかりません",
 			}
 			return c.JSON(http.StatusNotFound, res)
 		}
-		message := fmt.Sprintf("Failed to update user: %v", err)
-		span.SetStatus(codes.Error, message)
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -252,28 +243,34 @@ func (h userHandler) UpdateMe(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// UserGetInput ユーザー取得の入力パラメータ
 type UserGetInput struct {
 	ID string
 }
 
+// UserGetOutput ユーザー取得の出力
 type UserGetOutput struct {
 	User *domain.User
 }
 
+// UserGetMeInput 自身の情報取得の入力パラメータ
 type UserGetMeInput struct {
 	UID string
 }
 
+// UserGetMeOutput 自身の情報取得の出力
 type UserGetMeOutput struct {
 	User *domain.User
 }
 
+// UserUpdateMeInput 自身の情報更新の入力パラメータ
 type UserUpdateMeInput struct {
 	UID    string
 	Name   string
 	Avatar string
 }
 
+// UserUpdateMeOutput 自身の情報更新の出力
 type UserUpdateMeOutput struct {
 	User *domain.User
 }

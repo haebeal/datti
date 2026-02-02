@@ -20,6 +20,12 @@ func (e *ValidationError) Error() string {
 	return fmt.Sprintf("%s: %s", e.field, e.message)
 }
 
+// Is errors.Isで型判定できるようにする
+func (e *ValidationError) Is(target error) bool {
+	_, ok := target.(*ValidationError)
+	return ok
+}
+
 // NotFoundError リソースが見つからないエラー
 type NotFoundError struct {
 	resource string
@@ -46,6 +52,12 @@ func (e *NotFoundError) Resource() string {
 // ID 見つからなかったリソースのIDを返す
 func (e *NotFoundError) ID() string {
 	return e.id
+}
+
+// Is errors.Isで型判定できるようにする
+func (e *NotFoundError) Is(target error) bool {
+	_, ok := target.(*NotFoundError)
+	return ok
 }
 
 // ForbiddenError 認可エラー(操作権限がない場合)

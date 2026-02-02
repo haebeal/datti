@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"net/http"
 	"time"
 
@@ -13,6 +13,7 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
+// LendingUseCase 立て替えに関するユースケースのインターフェース
 type LendingUseCase interface {
 	Create(context.Context, CreateInput) (*CreateOutput, error)
 	Get(context.Context, GetInput) (*GetOutput, error)
@@ -25,23 +26,22 @@ type lendingHandler struct {
 	u LendingUseCase
 }
 
+// NewLendingHandler lendingHandlerのファクトリ関数
 func NewLendingHandler(u LendingUseCase) lendingHandler {
 	return lendingHandler{
 		u: u,
 	}
 }
 
+// Create 立て替えを新規作成する
 func (h lendingHandler) Create(c echo.Context, id string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "lending.Create")
 	defer span.End()
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
@@ -50,11 +50,8 @@ func (h lendingHandler) Create(c echo.Context, id string) error {
 
 	err = c.Bind(&req)
 	if err != nil {
-		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "リクエストの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
@@ -69,10 +66,8 @@ func (h lendingHandler) Create(c echo.Context, id string) error {
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -88,20 +83,31 @@ func (h lendingHandler) Create(c echo.Context, id string) error {
 
 	output, err := h.u.Create(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to create lending event: %v", err)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
-		res := &api.ErrorResponse{
-			Message: message,
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "立て替えが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
 		}
-		if err.Error() == "forbidden Error" {
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
 			return c.JSON(http.StatusForbidden, res)
 		}
-		if err.Error() == "BadRequest Error" {
+		
+		if errors.Is(err, &domain.ValidationError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
 			return c.JSON(http.StatusBadRequest, res)
 		}
-		if err.Error() == "自分自身に立て替えを作成することはできません" {
-			return c.JSON(http.StatusBadRequest, res)
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -127,38 +133,31 @@ func (h lendingHandler) Create(c echo.Context, id string) error {
 	return c.JSON(http.StatusCreated, res)
 }
 
+// Get 指定したIDの立て替え情報を取得する
 func (h lendingHandler) Get(c echo.Context, id string, lendingId string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "lending.Get")
 	defer span.End()
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	eventID, err := ulid.Parse(lendingId)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", lendingId)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -171,14 +170,24 @@ func (h lendingHandler) Get(c echo.Context, id string, lendingId string) error {
 
 	output, err := h.u.Get(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to get lending event: %v", err)
-		span.SetStatus(codes.Error, message)
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "立て替えが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
+			return c.JSON(http.StatusForbidden, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
-		}
-		if err.Error() == "forbidden Error" {
-			return c.JSON(http.StatusForbidden, res)
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -205,26 +214,23 @@ func (h lendingHandler) Get(c echo.Context, id string, lendingId string) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// GetByQuery グループ内の立て替え一覧を取得する
 func (h lendingHandler) GetByQuery(c echo.Context, id string, params api.LendingGetAllParams) error {
 	ctx, span := tracer.Start(c.Request().Context(), "lending.GetByQuery")
 	defer span.End()
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -244,12 +250,24 @@ func (h lendingHandler) GetByQuery(c echo.Context, id string, params api.Lending
 
 	output, err := h.u.GetByQuery(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to get lending events: %v", err)
-		res := &api.ErrorResponse{
-			Message: message,
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "グループが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
 		}
-		if err.Error() == "forbidden Error" {
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
 			return c.JSON(http.StatusForbidden, res)
+		}
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -285,17 +303,15 @@ func (h lendingHandler) GetByQuery(c echo.Context, id string, params api.Lending
 	return c.JSON(http.StatusOK, res)
 }
 
+// Update 立て替え情報を更新する
 func (h lendingHandler) Update(c echo.Context, id string, lendingId string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "lending.Update")
 	defer span.End()
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
@@ -303,22 +319,16 @@ func (h lendingHandler) Update(c echo.Context, id string, lendingId string) erro
 	var req api.LendingUpdateRequest
 
 	if err := c.Bind(&req); err != nil {
-		message := fmt.Sprintf("RequestBody Binding Error body: %v", req)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "リクエストの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	eventID, err := ulid.Parse(lendingId)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", lendingId)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
@@ -333,10 +343,8 @@ func (h lendingHandler) Update(c echo.Context, id string, lendingId string) erro
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -353,20 +361,31 @@ func (h lendingHandler) Update(c echo.Context, id string, lendingId string) erro
 
 	output, err := h.u.Update(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to update lending event: %v", err)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
-		res := &api.ErrorResponse{
-			Message: message,
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
+			res := &api.ErrorResponse{
+				Message: "立て替えが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
 		}
-		if err.Error() == "forbidden Error" {
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
 			return c.JSON(http.StatusForbidden, res)
 		}
-		if err.Error() == "BadRequest Error" {
+		
+		if errors.Is(err, &domain.ValidationError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
+			}
 			return c.JSON(http.StatusBadRequest, res)
 		}
-		if err.Error() == "自分自身に立て替えを作成することはできません" {
-			return c.JSON(http.StatusBadRequest, res)
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -392,38 +411,31 @@ func (h lendingHandler) Update(c echo.Context, id string, lendingId string) erro
 	return c.JSON(http.StatusOK, res)
 }
 
+// Delete 立て替えを削除する
 func (h lendingHandler) Delete(c echo.Context, id string, lendingId string) error {
 	ctx, span := tracer.Start(c.Request().Context(), "lending.Delete")
 	defer span.End()
 
 	groupID, err := ulid.Parse(id)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", id)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	eventID, err := ulid.Parse(lendingId)
 	if err != nil {
-		message := fmt.Sprintf("Failed to parse ulid: %v", lendingId)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "IDの形式が正しくありません",
 		}
 		return c.JSON(http.StatusBadRequest, res)
 	}
 
 	userID, ok := c.Get("uid").(string)
 	if !ok {
-		message := "Failed to get authorized userID"
-		span.SetStatus(codes.Error, message)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "認証情報が取得できませんでした",
 		}
 		return c.JSON(http.StatusUnauthorized, res)
 	}
@@ -436,20 +448,24 @@ func (h lendingHandler) Delete(c echo.Context, id string, lendingId string) erro
 
 	err = h.u.Delete(ctx, input)
 	if err != nil {
-		message := fmt.Sprintf("Failed to delete lending event: %v", err)
-		span.SetStatus(codes.Error, message)
-		span.RecordError(err)
-
-		// 権限エラーの場合は403を返す
-		if err.Error() == "forbidden Error" {
+		
+		if errors.Is(err, &domain.NotFoundError{}) {
 			res := &api.ErrorResponse{
-				Message: message,
+				Message: "立て替えが見つかりません",
+			}
+			return c.JSON(http.StatusNotFound, res)
+		}
+		
+		if errors.Is(err, &domain.ForbiddenError{}) {
+			res := &api.ErrorResponse{
+				Message: err.Error(),
 			}
 			return c.JSON(http.StatusForbidden, res)
 		}
-
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
 		res := &api.ErrorResponse{
-			Message: message,
+			Message: "サーバーエラーが発生しました",
 		}
 		return c.JSON(http.StatusInternalServerError, res)
 	}
@@ -457,6 +473,7 @@ func (h lendingHandler) Delete(c echo.Context, id string, lendingId string) erro
 	return c.NoContent(http.StatusNoContent)
 }
 
+// CreateInput 立て替え作成の入力パラメータ
 type CreateInput struct {
 	GroupID   ulid.ULID
 	UserID    string
@@ -465,27 +482,33 @@ type CreateInput struct {
 	Debts     []DebtParam
 	EventDate time.Time
 }
+
+// DebtParam 債務者情報のパラメータ
 type DebtParam struct {
 	UserID string
 	Amount int64
 }
 
+// CreateOutput 立て替え作成の出力
 type CreateOutput struct {
 	Event   *domain.Lending
 	Debtors []*domain.Debtor
 }
 
+// GetInput 立て替え取得の入力パラメータ
 type GetInput struct {
 	GroupID ulid.ULID
 	UserID  string
 	EventID ulid.ULID
 }
 
+// GetOutput 立て替え取得の出力
 type GetOutput struct {
 	Lending *domain.Lending
 	Debtors []*domain.Debtor
 }
 
+// GetAllInput 立て替え一覧取得の入力パラメータ
 type GetAllInput struct {
 	GroupID ulid.ULID
 	UserID  string
@@ -493,6 +516,7 @@ type GetAllInput struct {
 	Cursor  *string
 }
 
+// GetAllOutput 立て替え一覧取得の出力
 type GetAllOutput struct {
 	Lendings []struct {
 		Lending *domain.Lending
@@ -502,6 +526,7 @@ type GetAllOutput struct {
 	HasMore    bool
 }
 
+// UpdateInput 立て替え更新の入力パラメータ
 type UpdateInput struct {
 	GroupID   ulid.ULID
 	UserID    string
@@ -512,11 +537,13 @@ type UpdateInput struct {
 	EventDate time.Time
 }
 
+// UpdateOutput 立て替え更新の出力
 type UpdateOutput struct {
 	Lending *domain.Lending
 	Debtors []*domain.Debtor
 }
 
+// DeleteInput 立て替え削除の入力パラメータ
 type DeleteInput struct {
 	GroupID ulid.ULID
 	UserID  string

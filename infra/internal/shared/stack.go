@@ -27,8 +27,8 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 	// ECS Cluster
 	cluster := newECSCluster(stack, network.Vpc, network.SecurityGroup)
 
-	// GitHub Actions Role (OIDC)
-	githubRole := newGitHubActionsRole(stack)
+	// IAM Roles and Groups
+	iam := newIAM(stack)
 
 	// Outputs
 	awscdk.NewCfnOutput(stack, jsii.String("VpcId"), &awscdk.CfnOutputProps{
@@ -56,8 +56,28 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 		ExportName: jsii.String("DattiFrontendRepoUri"),
 	})
 	awscdk.NewCfnOutput(stack, jsii.String("GitHubActionsRoleArn"), &awscdk.CfnOutputProps{
-		Value:      githubRole.RoleArn(),
+		Value:      iam.GitHubActionsRole.RoleArn(),
 		ExportName: jsii.String("DattiGitHubActionsRoleArn"),
+	})
+	awscdk.NewCfnOutput(stack, jsii.String("AdminRoleArn"), &awscdk.CfnOutputProps{
+		Value:      iam.AdminRole.RoleArn(),
+		ExportName: jsii.String("DattiAdminRoleArn"),
+	})
+	awscdk.NewCfnOutput(stack, jsii.String("BillingRoleArn"), &awscdk.CfnOutputProps{
+		Value:      iam.BillingRole.RoleArn(),
+		ExportName: jsii.String("DattiBillingRoleArn"),
+	})
+	awscdk.NewCfnOutput(stack, jsii.String("DeveloperRoleArn"), &awscdk.CfnOutputProps{
+		Value:      iam.DeveloperRole.RoleArn(),
+		ExportName: jsii.String("DattiDeveloperRoleArn"),
+	})
+	awscdk.NewCfnOutput(stack, jsii.String("AdminGroupArn"), &awscdk.CfnOutputProps{
+		Value:      iam.AdminGroup.GroupArn(),
+		ExportName: jsii.String("DattiAdminGroupArn"),
+	})
+	awscdk.NewCfnOutput(stack, jsii.String("DeveloperGroupArn"), &awscdk.CfnOutputProps{
+		Value:      iam.DeveloperGroup.GroupArn(),
+		ExportName: jsii.String("DattiDeveloperGroupArn"),
 	})
 
 	return stack

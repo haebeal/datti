@@ -3,6 +3,13 @@ name: Manual Deploy
 on:
   workflow_dispatch:
     inputs:
+      environment:
+        description: 'デプロイ環境'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
       deploy_target:
         description: 'デプロイ対象'
         required: true
@@ -23,7 +30,7 @@ jobs:
       contents: read
       id-token: write
     environment:
-      name: dev
+      name: ${{ github.event.inputs.environment }}
     steps:
       - uses: actions/checkout@v4
 
@@ -43,7 +50,7 @@ jobs:
         with:
           context: backend
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/datti-backend:dev
+          tags: ${{ steps.login-ecr.outputs.registry }}/datti-backend:${{ github.event.inputs.environment }}
           platforms: linux/arm64
           cache-from: type=gha,scope=backend
           cache-to: type=gha,mode=max,scope=backend
@@ -58,8 +65,8 @@ jobs:
         run: ecspresso deploy --config ecspresso.yaml
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          IMAGE_TAG: dev
-          ENV: dev
+          IMAGE_TAG: ${{ github.event.inputs.environment }}
+          ENV: ${{ github.event.inputs.environment }}
 
   deploy-frontend:
     if: github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'frontend'
@@ -68,8 +75,8 @@ jobs:
       contents: read
       id-token: write
     environment:
-      name: dev
-      url: https://dev.datti.app
+      name: ${{ github.event.inputs.environment }}
+      url: ${{ github.event.inputs.environment == 'prod' && 'https://datti.app' || 'https://dev.datti.app' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -89,7 +96,7 @@ jobs:
         with:
           context: frontend
           push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/datti-frontend:dev
+          tags: ${{ steps.login-ecr.outputs.registry }}/datti-frontend:${{ github.event.inputs.environment }}
           platforms: linux/arm64
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
@@ -104,6 +111,6 @@ jobs:
         run: ecspresso deploy --config ecspresso.yaml
         env:
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          IMAGE_TAG: dev
-          ENV: dev
-          APP_URL: https://dev.datti.app
+          IMAGE_TAG: ${{ github.event.inputs.environment }}
+          ENV: ${{ github.event.inputs.environment }}
+          APP_URL: ${{ github.event.inputs.environment == 'prod' && 'https://datti.app' || 'https://dev.datti.app' }}

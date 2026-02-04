@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/postgres"
@@ -33,6 +34,7 @@ func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id string) (*domain.
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, domain.NewNotFoundError("user", id)
 		}
+		fmt.Println(err)
 		return nil, err
 	}
 	querySpan.End()

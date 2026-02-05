@@ -168,8 +168,8 @@ WHERE id = $1;
 DELETE FROM payments WHERE id = $1;
 
 -- name: CreateGroup :exec
-INSERT INTO groups (id, name, created_by, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5);
+INSERT INTO groups (id, name, description, created_by, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6);
 
 -- name: AddGroupMember :exec
 INSERT INTO group_members (group_id, user_id, created_at)
@@ -180,7 +180,7 @@ DELETE FROM group_members
 WHERE group_id = $1 AND user_id = $2;
 
 -- name: FindGroupByID :one
-SELECT id, name, created_by, created_at, updated_at
+SELECT id, name, description, created_by, created_at, updated_at
 FROM groups WHERE id = $1 LIMIT 1;
 
 -- name: FindGroupMembersByGroupID :many
@@ -197,7 +197,8 @@ ORDER BY gm.created_at ASC;
 -- name: UpdateGroup :exec
 UPDATE groups
 SET name = $2,
-    updated_at = $3
+    description = $3,
+    updated_at = $4
 WHERE id = $1;
 
 -- name: DeleteGroup :exec
@@ -225,7 +226,7 @@ WHERE id IN (
 );
 
 -- name: FindGroupsByMemberUserID :many
-SELECT g.id, g.name, g.created_by, g.created_at, g.updated_at
+SELECT g.id, g.name, g.description, g.created_by, g.created_at, g.updated_at
 FROM groups g
 INNER JOIN group_members gm ON g.id = gm.group_id
 WHERE gm.user_id = $1

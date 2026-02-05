@@ -34,7 +34,7 @@ func (u GroupUseCaseImpl) Create(ctx context.Context, input handler.GroupCreateI
 		span.End()
 	}()
 
-	group, err := domain.CreateGroup(ctx, input.Name, input.CreatedBy)
+	group, err := domain.CreateGroup(ctx, input.Name, input.Description, input.CreatedBy)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,9 @@ func (u GroupUseCaseImpl) Get(ctx context.Context, input handler.GroupGetInput) 
 	}, nil
 }
 
-// Update グループ情報を更新する (作成者のみ実行可能)
+// Update グループ情報を更新する
+// - グループ名の変更: 作成者のみ実行可能
+// - 説明文の変更: メンバー全員が実行可能
 func (u GroupUseCaseImpl) Update(ctx context.Context, input handler.GroupUpdateInput) (output *handler.GroupUpdateOutput, err error) {
 	ctx, span := tracer.Start(ctx, "usecase.Group.Update")
 	defer func() {
@@ -128,11 +130,26 @@ func (u GroupUseCaseImpl) Update(ctx context.Context, input handler.GroupUpdateI
 		return nil, err
 	}
 
-	if input.UserID != group.CreatedBy() {
-		return nil, domain.NewForbiddenError("グループの更新権限がありません")
+	// メンバーチェック
+	members, err := u.gr.FindMembersByID(ctx, input.GroupID)
+	if err != nil {
+		return nil, err
 	}
 
-	updatedGroup, err := group.Update(ctx, input.Name)
+	isMember := slices.ContainsFunc(members, func(m *domain.User) bool {
+		return m.ID() == input.UserID
+	})
+	if !isMember {
+		return nil, domain.NewForbiddenError("グループのメンバーではありません")
+	}
+
+	// グループ名が変更されている場合は作成者のみ許可
+	nameChanged := input.Name != group.Name()
+	if nameChanged && input.UserID != group.CreatedBy() {
+		return nil, domain.NewForbiddenError("グループ名の更新権限がありません")
+	}
+
+	updatedGroup, err := group.Update(ctx, input.Name, input.Description)
 	if err != nil {
 		return nil, err
 	}

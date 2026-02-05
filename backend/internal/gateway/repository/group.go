@@ -33,11 +33,12 @@ func (gr *GroupRepositoryImpl) Create(ctx context.Context, g *domain.Group) (err
 	}()
 
 	err = gr.queries.CreateGroup(ctx, postgres.CreateGroupParams{
-		ID:        g.ID().String(),
-		Name:      g.Name(),
-		CreatedBy: g.CreatedBy(),
-		CreatedAt: g.CreatedAt(),
-		UpdatedAt: g.UpdatedAt(),
+		ID:          g.ID().String(),
+		Name:        g.Name(),
+		Description: g.Description(),
+		CreatedBy:   g.CreatedBy(),
+		CreatedAt:   g.CreatedAt(),
+		UpdatedAt:   g.UpdatedAt(),
 	})
 	if err != nil {
 		return err
@@ -68,7 +69,7 @@ func (gr *GroupRepositoryImpl) FindByMemberUserID(ctx context.Context, userID st
 		if err != nil {
 			return nil, err
 		}
-		group, err := domain.NewGroup(ctx, groupID, row.Name, row.CreatedBy, row.CreatedAt, row.UpdatedAt)
+		group, err := domain.NewGroup(ctx, groupID, row.Name, row.Description, row.CreatedBy, row.CreatedAt, row.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
@@ -99,7 +100,7 @@ func (gr *GroupRepositoryImpl) FindByID(ctx context.Context, id ulid.ULID) (g *d
 		return nil, err
 	}
 
-	g, err = domain.NewGroup(ctx, parsedID, row.Name, row.CreatedBy, row.CreatedAt, row.UpdatedAt)
+	g, err = domain.NewGroup(ctx, parsedID, row.Name, row.Description, row.CreatedBy, row.CreatedAt, row.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
@@ -119,9 +120,10 @@ func (gr *GroupRepositoryImpl) Update(ctx context.Context, g *domain.Group) (err
 	}()
 
 	err = gr.queries.UpdateGroup(ctx, postgres.UpdateGroupParams{
-		ID:        g.ID().String(),
-		Name:      g.Name(),
-		UpdatedAt: g.UpdatedAt(),
+		ID:          g.ID().String(),
+		Name:        g.Name(),
+		Description: g.Description(),
+		UpdatedAt:   g.UpdatedAt(),
 	})
 	if err != nil {
 		return err

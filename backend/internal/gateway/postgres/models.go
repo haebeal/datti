@@ -24,11 +24,12 @@ type EventPayment struct {
 }
 
 type Group struct {
-	ID        string
-	Name      string
-	CreatedBy string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          string
+	Name        string
+	Description string
+	CreatedBy   string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type GroupMember struct {

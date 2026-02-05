@@ -69,22 +69,24 @@ func (q *Queries) CreateEventPayment(ctx context.Context, arg CreateEventPayment
 }
 
 const createGroup = `-- name: CreateGroup :exec
-INSERT INTO groups (id, name, created_by, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO groups (id, name, description, created_by, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6)
 `
 
 type CreateGroupParams struct {
-	ID        string
-	Name      string
-	CreatedBy string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          string
+	Name        string
+	Description string
+	CreatedBy   string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) error {
 	_, err := q.db.Exec(ctx, createGroup,
 		arg.ID,
 		arg.Name,
+		arg.Description,
 		arg.CreatedBy,
 		arg.CreatedAt,
 		arg.UpdatedAt,
@@ -512,7 +514,7 @@ func (q *Queries) FindEventById(ctx context.Context, id string) (Event, error) {
 }
 
 const findGroupByID = `-- name: FindGroupByID :one
-SELECT id, name, created_by, created_at, updated_at
+SELECT id, name, description, created_by, created_at, updated_at
 FROM groups WHERE id = $1 LIMIT 1
 `
 
@@ -522,6 +524,7 @@ func (q *Queries) FindGroupByID(ctx context.Context, id string) (Group, error) {
 	err := row.Scan(
 		&i.ID,
 		&i.Name,
+		&i.Description,
 		&i.CreatedBy,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -595,7 +598,7 @@ func (q *Queries) FindGroupMembersByGroupID(ctx context.Context, groupID string)
 }
 
 const findGroupsByMemberUserID = `-- name: FindGroupsByMemberUserID :many
-SELECT g.id, g.name, g.created_by, g.created_at, g.updated_at
+SELECT g.id, g.name, g.description, g.created_by, g.created_at, g.updated_at
 FROM groups g
 INNER JOIN group_members gm ON g.id = gm.group_id
 WHERE gm.user_id = $1
@@ -614,6 +617,7 @@ func (q *Queries) FindGroupsByMemberUserID(ctx context.Context, userID string) (
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
+			&i.Description,
 			&i.CreatedBy,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -931,18 +935,25 @@ func (q *Queries) UpdateEvent(ctx context.Context, arg UpdateEventParams) error 
 const updateGroup = `-- name: UpdateGroup :exec
 UPDATE groups
 SET name = $2,
-    updated_at = $3
+    description = $3,
+    updated_at = $4
 WHERE id = $1
 `
 
 type UpdateGroupParams struct {
-	ID        string
-	Name      string
-	UpdatedAt time.Time
+	ID          string
+	Name        string
+	Description string
+	UpdatedAt   time.Time
 }
 
 func (q *Queries) UpdateGroup(ctx context.Context, arg UpdateGroupParams) error {
-	_, err := q.db.Exec(ctx, updateGroup, arg.ID, arg.Name, arg.UpdatedAt)
+	_, err := q.db.Exec(ctx, updateGroup,
+		arg.ID,
+		arg.Name,
+		arg.Description,
+		arg.UpdatedAt,
+	)
 	return err
 }
 

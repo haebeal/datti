@@ -56,9 +56,14 @@ func (h groupHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, res)
 	}
 
+	description := ""
+	if req.Description != nil {
+		description = *req.Description
+	}
 	input := GroupCreateInput{
-		CreatedBy: createdBy,
-		Name:      req.Name,
+		CreatedBy:   createdBy,
+		Name:        req.Name,
+		Description: description,
 	}
 
 	output, err := h.u.Create(ctx, input)
@@ -72,11 +77,12 @@ func (h groupHandler) Create(c echo.Context) error {
 	}
 
 	res := &api.GroupCreateResponse{
-		CreatedBy: output.Group.CreatedBy(),
-		Id:        output.Group.ID().String(),
-		Name:      output.Group.Name(),
-		CreatedAt: output.Group.CreatedAt(),
-		UpdatedAt: output.Group.UpdatedAt(),
+		CreatedBy:   output.Group.CreatedBy(),
+		Id:          output.Group.ID().String(),
+		Name:        output.Group.Name(),
+		Description: output.Group.Description(),
+		CreatedAt:   output.Group.CreatedAt(),
+		UpdatedAt:   output.Group.UpdatedAt(),
 	}
 
 	return c.JSON(http.StatusCreated, res)
@@ -112,11 +118,12 @@ func (h groupHandler) GetAll(c echo.Context) error {
 	res := []api.GroupGetAllResponse{}
 	for _, group := range output.Groups {
 		res = append(res, api.GroupGetAllResponse{
-			Id:        group.ID().String(),
-			Name:      group.Name(),
-			CreatedBy: group.CreatedBy(),
-			CreatedAt: group.CreatedAt(),
-			UpdatedAt: group.UpdatedAt(),
+			Id:          group.ID().String(),
+			Name:        group.Name(),
+			Description: group.Description(),
+			CreatedBy:   group.CreatedBy(),
+			CreatedAt:   group.CreatedAt(),
+			UpdatedAt:   group.UpdatedAt(),
 		})
 	}
 
@@ -174,11 +181,12 @@ func (h groupHandler) Get(c echo.Context, id string) error {
 	}
 
 	res := &api.GroupGetResponse{
-		Id:        output.Group.ID().String(),
-		Name:      output.Group.Name(),
-		CreatedBy: output.Group.CreatedBy(),
-		CreatedAt: output.Group.CreatedAt(),
-		UpdatedAt: output.Group.UpdatedAt(),
+		Id:          output.Group.ID().String(),
+		Name:        output.Group.Name(),
+		Description: output.Group.Description(),
+		CreatedBy:   output.Group.CreatedBy(),
+		CreatedAt:   output.Group.CreatedAt(),
+		UpdatedAt:   output.Group.UpdatedAt(),
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -213,10 +221,15 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 		return c.JSON(http.StatusUnauthorized, res)
 	}
 
+	updateDescription := ""
+	if req.Description != nil {
+		updateDescription = *req.Description
+	}
 	input := GroupUpdateInput{
-		UserID:  userID,
-		GroupID: groupID,
-		Name:    req.Name,
+		UserID:      userID,
+		GroupID:     groupID,
+		Name:        req.Name,
+		Description: updateDescription,
 	}
 
 	output, err := h.u.Update(ctx, input)
@@ -244,11 +257,12 @@ func (h groupHandler) Update(c echo.Context, id string) error {
 	}
 
 	res := &api.GroupUpdateResponse{
-		Id:        output.Group.ID().String(),
-		Name:      output.Group.Name(),
-		CreatedBy: output.Group.CreatedBy(),
-		CreatedAt: output.Group.CreatedAt(),
-		UpdatedAt: output.Group.UpdatedAt(),
+		Id:          output.Group.ID().String(),
+		Name:        output.Group.Name(),
+		Description: output.Group.Description(),
+		CreatedBy:   output.Group.CreatedBy(),
+		CreatedAt:   output.Group.CreatedAt(),
+		UpdatedAt:   output.Group.UpdatedAt(),
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -492,8 +506,9 @@ func (h groupHandler) RemoveMember(c echo.Context, id string, userId string) err
 
 // GroupCreateInput グループ作成の入力パラメータ
 type GroupCreateInput struct {
-	CreatedBy string
-	Name      string
+	CreatedBy   string
+	Name        string
+	Description string
 }
 
 // GroupCreateOutput グループ作成の出力
@@ -524,9 +539,10 @@ type GroupGetOutput struct {
 
 // GroupUpdateInput グループ更新の入力パラメータ
 type GroupUpdateInput struct {
-	UserID  string
-	GroupID ulid.ULID
-	Name    string
+	UserID      string
+	GroupID     ulid.ULID
+	Name        string
+	Description string
 }
 
 // GroupUpdateOutput グループ更新の出力

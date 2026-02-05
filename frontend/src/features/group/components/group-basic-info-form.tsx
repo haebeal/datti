@@ -6,6 +6,7 @@ import { useActionState, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   type DeleteGroupState,
   deleteGroup,
@@ -26,7 +27,7 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
     updateGroup,
     undefined,
   );
-  const [form, { id, name }] = useForm({
+  const [form, { id, name, description }] = useForm({
     lastResult,
     defaultValue: group,
     onValidate({ formData }) {
@@ -71,6 +72,23 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
           disabled={!isCreator}
         />
 
+        <label htmlFor={description.id} className={cn("text-sm")}>
+          説明文
+        </label>
+
+        <Textarea
+          name={description.name}
+          id={description.id}
+          key={description.key}
+          defaultValue={description.defaultValue}
+          placeholder="グループの説明を入力（500文字以内）"
+          className={cn("w-full")}
+          rows={4}
+        />
+        {description.errors && (
+          <p className={cn("text-sm text-error-base")}>{description.errors}</p>
+        )}
+
         <hr />
 
         <p className="text-sm">作成者: {group.creator.name}</p>
@@ -89,8 +107,8 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
           })}
         </p>
 
-        {isCreator && (
-          <div className={cn("flex justify-end gap-5")}>
+        <div className={cn("flex justify-end gap-5")}>
+          {isCreator && (
             <Button
               type="button"
               isDisabled={isDeleting}
@@ -100,11 +118,11 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
             >
               グループ削除
             </Button>
-            <Button type="submit" isDisabled={isUpdating}>
-              {isUpdating ? "更新中..." : "更新"}
-            </Button>
-          </div>
-        )}
+          )}
+          <Button type="submit" isDisabled={isUpdating}>
+            {isUpdating ? "更新中..." : "更新"}
+          </Button>
+        </div>
       </form>
 
       <form ref={deleteFormRef} action={deleteAction} className="hidden">

@@ -11,15 +11,16 @@ import (
 
 // Group グループを表すドメインエンティティ
 type Group struct {
-	id        ulid.ULID
-	name      string
-	createdBy string
-	createdAt time.Time
-	updatedAt time.Time
+	id          ulid.ULID
+	name        string
+	description string
+	createdBy   string
+	createdAt   time.Time
+	updatedAt   time.Time
 }
 
 // NewGroup グループドメインエンティティのファクトリ関数
-func NewGroup(ctx context.Context, id ulid.ULID, name string, createdBy string, createdAt time.Time, updatedAt time.Time) (g *Group, err error) {
+func NewGroup(ctx context.Context, id ulid.ULID, name string, description string, createdBy string, createdAt time.Time, updatedAt time.Time) (g *Group, err error) {
 	_, span := tracer.Start(ctx, "domain.Group.New")
 	defer func() {
 		if err != nil {
@@ -33,6 +34,10 @@ func NewGroup(ctx context.Context, id ulid.ULID, name string, createdBy string, 
 		return nil, NewValidationError("name", "グループ名は1文字以上である必要があります")
 	}
 
+	if utf8.RuneCountInString(description) > 500 {
+		return nil, NewValidationError("description", "説明文は500文字以内で入力してください")
+	}
+
 	if createdBy == "" {
 		return nil, NewValidationError("createdBy", "作成者IDは必須です")
 	}
@@ -42,16 +47,17 @@ func NewGroup(ctx context.Context, id ulid.ULID, name string, createdBy string, 
 	}
 
 	return &Group{
-		id:        id,
-		name:      name,
-		createdBy: createdBy,
-		createdAt: createdAt,
-		updatedAt: updatedAt,
+		id:          id,
+		name:        name,
+		description: description,
+		createdBy:   createdBy,
+		createdAt:   createdAt,
+		updatedAt:   updatedAt,
 	}, nil
 }
 
 // CreateGroup グループの作成を行うファクトリ関数
-func CreateGroup(ctx context.Context, name string, createdBy string) (g *Group, err error) {
+func CreateGroup(ctx context.Context, name string, description string, createdBy string) (g *Group, err error) {
 	ctx, span := tracer.Start(ctx, "domain.Group.Create")
 	defer func() {
 		if err != nil {
@@ -64,17 +70,17 @@ func CreateGroup(ctx context.Context, name string, createdBy string) (g *Group, 
 	id := ulid.Make()
 	now := time.Now()
 
-	return NewGroup(ctx, id, name, createdBy, now, now)
+	return NewGroup(ctx, id, name, description, createdBy, now, now)
 }
 
 // Update グループの更新を行う
-func (g *Group) Update(ctx context.Context, name string) (*Group, error) {
+func (g *Group) Update(ctx context.Context, name string, description string) (*Group, error) {
 	ctx, span := tracer.Start(ctx, "domain.Group.Update")
 	defer span.End()
 
 	now := time.Now()
 
-	return NewGroup(ctx, g.id, name, g.createdBy, g.createdAt, now)
+	return NewGroup(ctx, g.id, name, description, g.createdBy, g.createdAt, now)
 }
 
 // ID グループID (ULID形式)
@@ -85,6 +91,11 @@ func (g *Group) ID() ulid.ULID {
 // Name グループ名
 func (g *Group) Name() string {
 	return g.name
+}
+
+// Description 説明文
+func (g *Group) Description() string {
+	return g.description
 }
 
 func (g *Group) CreatedBy() string {

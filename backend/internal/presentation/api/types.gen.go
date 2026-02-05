@@ -55,34 +55,38 @@ type GroupAddMemberRequest struct {
 
 // GroupCreateRequest defines model for Group.CreateRequest.
 type GroupCreateRequest struct {
-	Name string `json:"name"`
+	Description *string `json:"description,omitempty"`
+	Name        string  `json:"name"`
 }
 
 // GroupCreateResponse defines model for Group.CreateResponse.
 type GroupCreateResponse struct {
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string    `json:"createdBy"`
-	Id        string    `json:"id"`
-	Name      string    `json:"name"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt   time.Time `json:"createdAt"`
+	CreatedBy   string    `json:"createdBy"`
+	Description string    `json:"description"`
+	Id          string    `json:"id"`
+	Name        string    `json:"name"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 // GroupGetAllResponse defines model for Group.GetAllResponse.
 type GroupGetAllResponse struct {
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string    `json:"createdBy"`
-	Id        string    `json:"id"`
-	Name      string    `json:"name"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt   time.Time `json:"createdAt"`
+	CreatedBy   string    `json:"createdBy"`
+	Description string    `json:"description"`
+	Id          string    `json:"id"`
+	Name        string    `json:"name"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 // GroupGetResponse defines model for Group.GetResponse.
 type GroupGetResponse struct {
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string    `json:"createdBy"`
-	Id        string    `json:"id"`
-	Name      string    `json:"name"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt   time.Time `json:"createdAt"`
+	CreatedBy   string    `json:"createdBy"`
+	Description string    `json:"description"`
+	Id          string    `json:"id"`
+	Name        string    `json:"name"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 // GroupMemberResponse defines model for Group.MemberResponse.
@@ -95,16 +99,18 @@ type GroupMemberResponse struct {
 
 // GroupUpdateRequest defines model for Group.UpdateRequest.
 type GroupUpdateRequest struct {
-	Name string `json:"name"`
+	Description *string `json:"description,omitempty"`
+	Name        string  `json:"name"`
 }
 
 // GroupUpdateResponse defines model for Group.UpdateResponse.
 type GroupUpdateResponse struct {
-	CreatedAt time.Time `json:"createdAt"`
-	CreatedBy string    `json:"createdBy"`
-	Id        string    `json:"id"`
-	Name      string    `json:"name"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	CreatedAt   time.Time `json:"createdAt"`
+	CreatedBy   string    `json:"createdBy"`
+	Description string    `json:"description"`
+	Id          string    `json:"id"`
+	Name        string    `json:"name"`
+	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
 // HealthCheckResponse defines model for Health.CheckResponse.

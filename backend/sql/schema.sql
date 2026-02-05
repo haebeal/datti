@@ -10,6 +10,7 @@ CREATE TABLE users (
 CREATE TABLE groups (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
+  description TEXT NOT NULL DEFAULT '',
   created_by TEXT NOT NULL REFERENCES users(id) ON UPDATE CASCADE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp

@@ -42,6 +42,7 @@ export async function getGroup(id: string): Promise<Result<Group>> {
   const group: Group = {
     id: response.id,
     name: response.name,
+    description: response.description,
     creator,
     createdAt: response.createdAt,
     updatedAt: response.updatedAt,

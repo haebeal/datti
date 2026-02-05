@@ -1,6 +1,7 @@
 import { getAllGroups } from "@/features/group/actions/getAllGroups";
 import { cn } from "@/utils/cn";
 import { LinkButton } from "@/components/ui/link-button";
+import Link from "next/link";
 
 export default async function GroupsPage() {
   const result = await getAllGroups();
@@ -31,22 +32,29 @@ export default async function GroupsPage() {
         groups.map((group) => (
           <div
             key={group.id}
-            className={cn("p-4", "flex flex-col gap-3", "border rounded-lg")}
+            className={cn(
+              "p-4",
+              "flex flex-col gap-3",
+              "border rounded-lg",
+              "relative",
+              "hover:bg-gray-50 transition-colors"
+            )}
           >
+            <Link
+              href={`/groups/${group.id}/lendings`}
+              className={cn("absolute inset-0")}
+            />
             <h2 className={cn("text-lg font-semibold")}>{group.name}</h2>
 
             <p className={cn("text-sm")}>作成者: {group.creator.name}</p>
 
-            <div className={cn("flex justify-end gap-5")}>
+            <div className={cn("flex justify-end", "relative z-10")}>
               <LinkButton
                 href={`/groups/${group.id}/settings`}
                 color="primary"
                 colorStyle="outline"
               >
                 設定
-              </LinkButton>
-              <LinkButton href={`/groups/${group.id}/lendings`}>
-                開く
               </LinkButton>
             </div>
           </div>

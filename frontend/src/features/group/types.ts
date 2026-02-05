@@ -10,6 +10,7 @@ import type { User } from "@/features/user/types";
 export type GroupResponse = {
   id: string;
   name: string;
+  description: string;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -21,6 +22,7 @@ export type GroupResponse = {
 export type Group = {
   id: string;
   name: string;
+  description: string;
   creator: User;
   createdAt: string;
   updatedAt: string;
@@ -28,10 +30,12 @@ export type Group = {
 
 export type CreateGroupRequest = {
   name: string;
+  description?: string;
 };
 
 export type UpdateGroupRequest = {
   name: string;
+  description?: string;
 };
 
 export type GroupMember = {

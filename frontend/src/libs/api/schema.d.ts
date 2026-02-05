@@ -295,10 +295,12 @@ export interface components {
         };
         "Group.CreateRequest": {
             name: string;
+            description?: string;
         };
         "Group.CreateResponse": {
             id: string;
             name: string;
+            description: string;
             createdBy: string;
             /** Format: date-time */
             createdAt: string;
@@ -308,6 +310,7 @@ export interface components {
         "Group.GetAllResponse": {
             id: string;
             name: string;
+            description: string;
             createdBy: string;
             /** Format: date-time */
             createdAt: string;
@@ -317,6 +320,7 @@ export interface components {
         "Group.GetResponse": {
             id: string;
             name: string;
+            description: string;
             createdBy: string;
             /** Format: date-time */
             createdAt: string;
@@ -325,10 +329,12 @@ export interface components {
         };
         "Group.UpdateRequest": {
             name: string;
+            description?: string;
         };
         "Group.UpdateResponse": {
             id: string;
             name: string;
+            description: string;
             createdBy: string;
             /** Format: date-time */
             createdAt: string;

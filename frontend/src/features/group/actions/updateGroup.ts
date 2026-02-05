@@ -14,14 +14,14 @@ export async function updateGroup(_: unknown, formData: FormData) {
     return submission.reply();
   }
 
-  const { id, name } = submission.value;
+  const { id, name, description } = submission.value;
 
   const token = await getAuthToken();
   const client = createApiClient(token);
 
   const { error } = await client.PUT("/groups/{id}", {
     params: { path: { id } },
-    body: { name },
+    body: { name, description },
   });
 
   if (error) {

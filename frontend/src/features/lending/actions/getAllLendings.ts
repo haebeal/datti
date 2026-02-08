@@ -19,11 +19,20 @@ function convertToLendingItems(lendings: Lending[], currentUserId: string): Lend
 			const isPayer = lending.createdBy === currentUserId;
 			const totalDebtAmount = lending.debts.reduce((sum, debt) => sum + debt.amount, 0);
 
+			let amount: number;
+			if (isPayer) {
+				// 支払者の場合は全員からの回収予定額
+				amount = totalDebtAmount;
+			} else {
+				// 債務者の場合は自分の支払い額のみ
+				const myDebt = lending.debts.find((debt) => debt.userId === currentUserId);
+				amount = myDebt ? -myDebt.amount : 0;
+			}
+
 			return {
 				id: lending.id,
 				name: lending.name,
-				// payer の場合は正の金額、debtor の場合は負の金額
-				amount: isPayer ? totalDebtAmount : -totalDebtAmount,
+				amount,
 				eventDate: formatDate(lending.eventDate),
 				createdBy: lending.createdBy,
 				debtsCount: lending.debts.length,

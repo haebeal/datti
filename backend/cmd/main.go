@@ -26,7 +26,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.39.0"
 )
 
 func setupOpenTelemetry(ctx context.Context) (shutdown func(context.Context) error, err error) {
@@ -90,8 +90,7 @@ func main() {
 
 	shutdown, err := setupOpenTelemetry(ctx)
 	if err != nil {
-		log.Fatal("OpenTelemetryのセットアップでエラーが発生しました")
-		os.Exit(1)
+		log.Fatalf("OpenTelemetryのセットアップでエラーが発生しました: %v", err)
 	}
 
 	pool, err := pgxpool.New(ctx, dsn)

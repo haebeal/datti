@@ -313,7 +313,7 @@ INNER JOIN payments p ON ep.payment_id = p.id
 WHERE e.group_id = $1
   AND (p.payer_id = $2 OR p.debtor_id = $2)
   AND ($3::text IS NULL OR e.id < $3)
-ORDER BY e.id DESC
+ORDER BY e.event_date DESC
 LIMIT $4
 `
 

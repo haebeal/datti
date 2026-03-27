@@ -54,7 +54,7 @@ INNER JOIN payments p ON ep.payment_id = p.id
 WHERE e.group_id = sqlc.arg('group_id')
   AND (p.payer_id = sqlc.arg('user_id') OR p.debtor_id = sqlc.arg('user_id'))
   AND (sqlc.narg('cursor')::text IS NULL OR e.id < sqlc.narg('cursor'))
-ORDER BY e.id DESC
+ORDER BY e.event_date DESC
 LIMIT sqlc.arg('limit');
 
 -- name: FindEventByGroupIDAndDebtorIDAndEventID :one

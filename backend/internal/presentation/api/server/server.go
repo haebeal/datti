@@ -45,6 +45,8 @@ type UserHandler interface {
 	Get(c echo.Context, id string) error
 	GetMe(c echo.Context) error
 	UpdateMe(c echo.Context) error
+	LinkLINE(c echo.Context) error
+	UnlinkLINE(c echo.Context) error
 }
 
 type AuthHandler interface {
@@ -169,6 +171,14 @@ func (s *Server) UserGetMe(ctx echo.Context) error {
 
 func (s *Server) UserUpdateMe(ctx echo.Context) error {
 	return s.uh.UpdateMe(ctx)
+}
+
+func (s *Server) UserLinkLINE(ctx echo.Context) error {
+	return s.uh.LinkLINE(ctx)
+}
+
+func (s *Server) UserUnlinkLINE(ctx echo.Context) error {
+	return s.uh.UnlinkLINE(ctx)
 }
 
 func (s *Server) AuthLogin(ctx echo.Context) error {

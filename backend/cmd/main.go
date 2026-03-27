@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
+	"github.com/haebeal/datti/internal/gateway/line"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/haebeal/datti/internal/gateway/repository"
 	"github.com/haebeal/datti/internal/presentation/api"
@@ -101,6 +102,10 @@ func main() {
 
 	queries := postgres.New(pool)
 
+	lineChannelID, _ := os.LookupEnv("LINE_CHANNEL_ID")
+	lineChannelSecret, _ := os.LookupEnv("LINE_CHANNEL_SECRET")
+	lc := line.NewClient(lineChannelID, lineChannelSecret)
+
 	ur := repository.NewUserRepository(queries)
 	lr := repository.NewLendingRepository(queries)
 	cr := repository.NewCreditRepository(queries)
@@ -111,7 +116,7 @@ func main() {
 	cu := usecase.NewCreditUseCase(cr)
 	ru := usecase.NewRepaymentUseCase(rr, cr)
 	gu := usecase.NewGroupUseCase(ur, gr)
-	uu := usecase.NewUserUseCase(ur)
+	uu := usecase.NewUserUseCase(ur, lc)
 	au := usecase.NewAuthUseCase(ur)
 
 	hh := handler.NewHealthHandler()

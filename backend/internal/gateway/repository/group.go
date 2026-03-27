@@ -196,7 +196,7 @@ func (gr *GroupRepositoryImpl) FindMembersByID(ctx context.Context, id ulid.ULID
 
 	members = make([]*domain.User, 0, len(rows))
 	for _, row := range rows {
-		user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email)
+		user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email, nil)
 		if err != nil {
 			return nil, err
 		}

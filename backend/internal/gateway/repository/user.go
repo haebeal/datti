@@ -39,7 +39,7 @@ func (ur *UserRepositoryImpl) FindByID(ctx context.Context, id string) (*domain.
 	}
 	querySpan.End()
 
-	user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email)
+	user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email, row.LineUserID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -69,7 +69,7 @@ func (ur *UserRepositoryImpl) FindByQuery(ctx context.Context, query domain.User
 
 	users := make([]*domain.User, 0, len(rows))
 	for _, row := range rows {
-		user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email)
+		user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email, row.LineUserID)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
@@ -107,11 +107,12 @@ func (ur *UserRepositoryImpl) Update(ctx context.Context, user *domain.User) err
 	ctx, span := tracer.Start(ctx, "user.Update")
 	defer span.End()
 
-	ctx, querySpan := tracer.Start(ctx, "UPDATE users SET name = $2, avatar = $3")
+	ctx, querySpan := tracer.Start(ctx, "UPDATE users SET name = $2, avatar = $3, line_user_id = $4")
 	err := ur.queries.UpdateUser(ctx, postgres.UpdateUserParams{
-		ID:     user.ID(),
-		Name:   user.Name(),
-		Avatar: user.Avatar(),
+		ID:         user.ID(),
+		Name:       user.Name(),
+		Avatar:     user.Avatar(),
+		LineUserID: user.LineUserID(),
 	})
 	if err != nil {
 		querySpan.SetStatus(codes.Error, err.Error())
@@ -141,7 +142,7 @@ func (ur *UserRepositoryImpl) FindByEmail(ctx context.Context, email string) (*d
 	}
 	querySpan.End()
 
-	user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email)
+	user, err := domain.NewUser(ctx, row.ID, row.Name, row.Avatar, row.Email, row.LineUserID)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)

@@ -7,5 +7,5 @@ export type User = {
   name: string;
   avatar: string;
   email: string;
-  lineUserId: string | null;
+  lineUserId?: string | null;
 };

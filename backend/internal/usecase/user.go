@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/haebeal/datti/internal/domain"
+	"github.com/haebeal/datti/internal/gateway/line"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
 	"go.opentelemetry.io/otel/codes"
 )
@@ -11,12 +12,14 @@ import (
 // UserUseCaseImpl ユーザーに関するユースケースの実装
 type UserUseCaseImpl struct {
 	ur domain.UserRepository
+	lc *line.Client
 }
 
 // NewUserUseCase UserUseCaseImplのファクトリ関数
-func NewUserUseCase(ur domain.UserRepository) UserUseCaseImpl {
+func NewUserUseCase(ur domain.UserRepository, lc *line.Client) UserUseCaseImpl {
 	return UserUseCaseImpl{
 		ur: ur,
+		lc: lc,
 	}
 }
 
@@ -125,4 +128,67 @@ func (u UserUseCaseImpl) UpdateMe(ctx context.Context, input handler.UserUpdateM
 	return &handler.UserUpdateMeOutput{
 		User: updatedUser,
 	}, nil
+}
+
+// LinkLINE LINE認可コードでアカウントを紐づける
+func (u UserUseCaseImpl) LinkLINE(ctx context.Context, input handler.UserLinkLINEInput) (output *handler.UserLinkLINEOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.User.LinkLINE")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
+
+	// LINE APIで認可コードからUser IDを取得
+	lineUserID, err := u.lc.GetUserID(ctx, input.Code, input.RedirectURI)
+	if err != nil {
+		return nil, err
+	}
+
+	// 現在のユーザーを取得
+	user, err := u.ur.FindByID(ctx, input.UID)
+	if err != nil {
+		return nil, err
+	}
+
+	// LINE User IDを紐づけた新しいエンティティを作成
+	updatedUser, err := domain.NewUser(ctx, user.ID(), user.Name(), user.Avatar(), user.Email(), &lineUserID)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := u.ur.Update(ctx, updatedUser); err != nil {
+		return nil, err
+	}
+
+	return &handler.UserLinkLINEOutput{
+		User: updatedUser,
+	}, nil
+}
+
+// UnlinkLINE LINE連携を解除する
+func (u UserUseCaseImpl) UnlinkLINE(ctx context.Context, input handler.UserUnlinkLINEInput) (err error) {
+	ctx, span := tracer.Start(ctx, "usecase.User.UnlinkLINE")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
+
+	user, err := u.ur.FindByID(ctx, input.UID)
+	if err != nil {
+		return err
+	}
+
+	// LINE User IDをクリアした新しいエンティティを作成
+	updatedUser, err := domain.NewUser(ctx, user.ID(), user.Name(), user.Avatar(), user.Email(), nil)
+	if err != nil {
+		return err
+	}
+
+	return u.ur.Update(ctx, updatedUser)
 }

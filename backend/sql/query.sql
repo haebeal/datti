@@ -1,8 +1,8 @@
 -- name: FindAllUsers :many
-SELECT id, name, avatar, email, created_at, updated_at FROM users;
+SELECT id, name, avatar, email, line_user_id, created_at, updated_at FROM users;
 
 -- name: FindUsersBySearch :many
-SELECT id, name, avatar, email, created_at, updated_at
+SELECT id, name, avatar, email, line_user_id, created_at, updated_at
 FROM users
 WHERE (sqlc.narg('name')::text IS NOT NULL AND name ILIKE '%' || sqlc.narg('name') || '%')
    OR (sqlc.narg('email')::text IS NOT NULL AND email ILIKE '%' || sqlc.narg('email') || '%')
@@ -10,10 +10,10 @@ ORDER BY name ASC
 LIMIT sqlc.arg('limit');
 
 -- name: FindUserByID :one
-SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1;
+SELECT id, name, avatar, email, line_user_id, created_at, updated_at FROM users WHERE id = $1 LIMIT 1;
 
 -- name: FindUserByEmail :one
-SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE email = $1 LIMIT 1;
+SELECT id, name, avatar, email, line_user_id, created_at, updated_at FROM users WHERE email = $1 LIMIT 1;
 
 -- name: UpdateUserID :exec
 UPDATE users SET id = $2, updated_at = current_timestamp WHERE id = $1;
@@ -24,7 +24,7 @@ VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp);
 
 -- name: UpdateUser :exec
 UPDATE users
-SET name = $2, avatar = $3, updated_at = current_timestamp
+SET name = $2, avatar = $3, line_user_id = sqlc.narg('line_user_id'), updated_at = current_timestamp
 WHERE id = $1;
 
 -- name: CreateEvent :exec

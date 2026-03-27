@@ -18,6 +18,8 @@ type UserUseCase interface {
 	Get(context.Context, UserGetInput) (*UserGetOutput, error)
 	GetMe(context.Context, UserGetMeInput) (*UserGetMeOutput, error)
 	UpdateMe(context.Context, UserUpdateMeInput) (*UserUpdateMeOutput, error)
+	LinkLINE(context.Context, UserLinkLINEInput) (*UserLinkLINEOutput, error)
+	UnlinkLINE(context.Context, UserUnlinkLINEInput) error
 }
 
 type userHandler struct {
@@ -181,10 +183,11 @@ func (h userHandler) GetMe(c echo.Context) error {
 	}
 
 	res := api.UserGetResponse{
-		Id:     output.User.ID(),
-		Name:   output.User.Name(),
-		Avatar: output.User.Avatar(),
-		Email:  output.User.Email(),
+		Id:         output.User.ID(),
+		Name:       output.User.Name(),
+		Avatar:     output.User.Avatar(),
+		Email:      output.User.Email(),
+		LineUserId: output.User.LineUserID(),
 	}
 
 	return c.JSON(http.StatusOK, res)
@@ -234,13 +237,91 @@ func (h userHandler) UpdateMe(c echo.Context) error {
 	}
 
 	res := api.UserGetResponse{
-		Id:     output.User.ID(),
-		Name:   output.User.Name(),
-		Avatar: output.User.Avatar(),
-		Email:  output.User.Email(),
+		Id:         output.User.ID(),
+		Name:       output.User.Name(),
+		Avatar:     output.User.Avatar(),
+		Email:      output.User.Email(),
+		LineUserId: output.User.LineUserID(),
 	}
 
 	return c.JSON(http.StatusOK, res)
+}
+
+// LinkLINE LINE認可コードでアカウントを紐づける
+func (h userHandler) LinkLINE(c echo.Context) error {
+	ctx, span := tracer.Start(c.Request().Context(), "user.LinkLINE")
+	defer span.End()
+
+	uid, ok := c.Get("uid").(string)
+	if !ok {
+		res := &api.ErrorResponse{
+			Message: "認証情報が取得できませんでした",
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	var req api.UserLinkLINERequest
+	if err := c.Bind(&req); err != nil {
+		res := &api.ErrorResponse{
+			Message: "リクエストの形式が正しくありません",
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	input := UserLinkLINEInput{
+		UID:         uid,
+		Code:        req.Code,
+		RedirectURI: req.RedirectUri,
+	}
+
+	output, err := h.u.LinkLINE(ctx, input)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: "LINE連携に失敗しました",
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := api.UserGetResponse{
+		Id:         output.User.ID(),
+		Name:       output.User.Name(),
+		Avatar:     output.User.Avatar(),
+		Email:      output.User.Email(),
+		LineUserId: output.User.LineUserID(),
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+// UnlinkLINE LINE連携を解除する
+func (h userHandler) UnlinkLINE(c echo.Context) error {
+	ctx, span := tracer.Start(c.Request().Context(), "user.UnlinkLINE")
+	defer span.End()
+
+	uid, ok := c.Get("uid").(string)
+	if !ok {
+		res := &api.ErrorResponse{
+			Message: "認証情報が取得できませんでした",
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	input := UserUnlinkLINEInput{
+		UID: uid,
+	}
+
+	if err := h.u.UnlinkLINE(ctx, input); err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: "LINE連携解除に失敗しました",
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	return c.NoContent(http.StatusNoContent)
 }
 
 // UserGetInput ユーザー取得の入力パラメータ
@@ -273,4 +354,21 @@ type UserUpdateMeInput struct {
 // UserUpdateMeOutput 自身の情報更新の出力
 type UserUpdateMeOutput struct {
 	User *domain.User
+}
+
+// UserLinkLINEInput LINE連携の入力パラメータ
+type UserLinkLINEInput struct {
+	UID         string
+	Code        string
+	RedirectURI string
+}
+
+// UserLinkLINEOutput LINE連携の出力
+type UserLinkLINEOutput struct {
+	User *domain.User
+}
+
+// UserUnlinkLINEInput LINE連携解除の入力パラメータ
+type UserUnlinkLINEInput struct {
+	UID string
 }

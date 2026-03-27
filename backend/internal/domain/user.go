@@ -11,14 +11,15 @@ import (
 
 // User ユーザーを表すドメインエンティティ
 type User struct {
-	id     string
-	name   string
-	avatar string
-	email  string
+	id         string
+	name       string
+	avatar     string
+	email      string
+	lineUserID *string
 }
 
 // NewUser ユーザードメインエンティティのファクトリ関数
-func NewUser(ctx context.Context, id string, name string, avatar string, email string) (u *User, err error) {
+func NewUser(ctx context.Context, id string, name string, avatar string, email string, lineUserID *string) (u *User, err error) {
 	_, span := tracer.Start(ctx, "domain.User.New")
 	defer func() {
 		if err != nil {
@@ -49,10 +50,11 @@ func NewUser(ctx context.Context, id string, name string, avatar string, email s
 	}
 
 	return &User{
-		id:     id,
-		name:   name,
-		avatar: avatar,
-		email:  email,
+		id:         id,
+		name:       name,
+		avatar:     avatar,
+		email:      email,
+		lineUserID: lineUserID,
 	}, nil
 }
 
@@ -61,7 +63,7 @@ func (u *User) UpdateProfile(ctx context.Context, name string, avatar string) (*
 	ctx, span := tracer.Start(ctx, "domain.User.UpdateProfile")
 	defer span.End()
 
-	return NewUser(ctx, u.id, name, avatar, u.email)
+	return NewUser(ctx, u.id, name, avatar, u.email, u.lineUserID)
 }
 
 // ID ユーザーID
@@ -82,6 +84,11 @@ func (u *User) Avatar() string {
 // Email メールアドレス
 func (u *User) Email() string {
 	return u.email
+}
+
+// LineUserID LINE User ID（未連携の場合はnil）
+func (u *User) LineUserID() *string {
+	return u.lineUserID
 }
 
 // UserSearchQuery ユーザー検索クエリ

@@ -4,6 +4,9 @@ declare namespace NodeJS {
     readonly COGNITO_DOMAIN: string;
     readonly COGNITO_CLIENT_ID: string;
 
+    // LINE Login
+    readonly LINE_CHANNEL_ID: string;
+
     // アプリケーション設定
     readonly APP_URL: string;
     readonly API_URL: string;

@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
+	"github.com/haebeal/datti/internal/gateway/line"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/haebeal/datti/internal/gateway/repository"
 	"github.com/haebeal/datti/internal/presentation/api"
@@ -25,7 +26,7 @@ import (
 	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.39.0"
 )
 
 func setupOpenTelemetry(ctx context.Context) (shutdown func(context.Context) error, err error) {
@@ -89,8 +90,7 @@ func main() {
 
 	shutdown, err := setupOpenTelemetry(ctx)
 	if err != nil {
-		log.Fatal("OpenTelemetryのセットアップでエラーが発生しました")
-		os.Exit(1)
+		log.Fatalf("OpenTelemetryのセットアップでエラーが発生しました: %v", err)
 	}
 
 	pool, err := pgxpool.New(ctx, dsn)
@@ -100,6 +100,10 @@ func main() {
 	defer pool.Close()
 
 	queries := postgres.New(pool)
+
+	lineChannelID, _ := os.LookupEnv("LINE_CHANNEL_ID")
+	lineChannelSecret, _ := os.LookupEnv("LINE_CHANNEL_SECRET")
+	lc := line.NewClient(lineChannelID, lineChannelSecret)
 
 	ur := repository.NewUserRepository(queries)
 	lr := repository.NewLendingRepository(queries)
@@ -111,7 +115,7 @@ func main() {
 	cu := usecase.NewCreditUseCase(cr)
 	ru := usecase.NewRepaymentUseCase(rr, cr)
 	gu := usecase.NewGroupUseCase(ur, gr)
-	uu := usecase.NewUserUseCase(ur)
+	uu := usecase.NewUserUseCase(ur, lc)
 	au := usecase.NewAuthUseCase(ur)
 
 	hh := handler.NewHealthHandler()

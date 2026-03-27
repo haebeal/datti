@@ -238,6 +238,65 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/User.UpdateRequest'
+  /users/me/line:
+    put:
+      operationId: User_linkLINE
+      summary: LINE連携（認可コードでLINEアカウントを紐づける）
+      parameters: []
+      responses:
+        '200':
+          description: LINE連携成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User.GetResponse'
+        '400':
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User.LinkLINERequest'
+    delete:
+      operationId: User_unlinkLINE
+      summary: LINE連携解除
+      parameters: []
+      responses:
+        '204':
+          description: LINE連携解除成功
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Users
   /users/{id}:
     get:
       operationId: User_get
@@ -1289,6 +1348,9 @@ components:
           type: string
         email:
           type: string
+        lineUserId:
+          type: string
+          nullable: true
     User.UpdateRequest:
       type: object
       required:
@@ -1299,6 +1361,18 @@ components:
           type: string
         avatar:
           type: string
+    User.LinkLINERequest:
+      type: object
+      required:
+        - code
+        - redirectUri
+      properties:
+        code:
+          type: string
+          description: LINE Loginの認可コード
+        redirectUri:
+          type: string
+          description: LINE Loginのリダイレクト URI
     Health.CheckResponse:
       type: object
       required:

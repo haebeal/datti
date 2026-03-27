@@ -3,6 +3,7 @@ CREATE TABLE users (
   name TEXT NOT NULL,
   avatar TEXT NOT NULL,
   email TEXT NOT NULL,
+  line_user_id TEXT UNIQUE,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp
 );

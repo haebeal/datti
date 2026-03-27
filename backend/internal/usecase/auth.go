@@ -70,7 +70,7 @@ func (a AuthUseCaseImpl) Signup(ctx context.Context, input handler.AuthSignupInp
 		}
 
 		// 新しいIDで移行済みユーザーを返す
-		migratedUser, err := domain.NewUser(ctx, input.UID, existingUser.Name(), existingUser.Avatar(), existingUser.Email())
+		migratedUser, err := domain.NewUser(ctx, input.UID, existingUser.Name(), existingUser.Avatar(), existingUser.Email(), existingUser.LineUserID())
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
@@ -87,7 +87,7 @@ func (a AuthUseCaseImpl) Signup(ctx context.Context, input handler.AuthSignupInp
 	}
 
 	// 新規ユーザーを作成
-	user, err := domain.NewUser(ctx, input.UID, input.Name, input.Avatar, input.Email)
+	user, err := domain.NewUser(ctx, input.UID, input.Name, input.Avatar, input.Email, nil)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)

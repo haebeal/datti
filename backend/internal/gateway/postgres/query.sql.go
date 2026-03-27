@@ -370,7 +370,7 @@ func (q *Queries) FindAllLendingsByGroupIDAndUserIDWithCursor(ctx context.Contex
 }
 
 const findAllUsers = `-- name: FindAllUsers :many
-SELECT id, name, avatar, email, created_at, updated_at FROM users
+SELECT id, name, avatar, email, line_user_id, created_at, updated_at FROM users
 `
 
 func (q *Queries) FindAllUsers(ctx context.Context) ([]User, error) {
@@ -387,6 +387,7 @@ func (q *Queries) FindAllUsers(ctx context.Context) ([]User, error) {
 			&i.Name,
 			&i.Avatar,
 			&i.Email,
+			&i.LineUserID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -755,7 +756,7 @@ func (q *Queries) FindRepaymentsByPayerIDWithCursor(ctx context.Context, arg Fin
 }
 
 const findUserByEmail = `-- name: FindUserByEmail :one
-SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE email = $1 LIMIT 1
+SELECT id, name, avatar, email, line_user_id, created_at, updated_at FROM users WHERE email = $1 LIMIT 1
 `
 
 func (q *Queries) FindUserByEmail(ctx context.Context, email string) (User, error) {
@@ -766,6 +767,7 @@ func (q *Queries) FindUserByEmail(ctx context.Context, email string) (User, erro
 		&i.Name,
 		&i.Avatar,
 		&i.Email,
+		&i.LineUserID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -773,7 +775,7 @@ func (q *Queries) FindUserByEmail(ctx context.Context, email string) (User, erro
 }
 
 const findUserByID = `-- name: FindUserByID :one
-SELECT id, name, avatar, email, created_at, updated_at FROM users WHERE id = $1 LIMIT 1
+SELECT id, name, avatar, email, line_user_id, created_at, updated_at FROM users WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) FindUserByID(ctx context.Context, id string) (User, error) {
@@ -784,6 +786,7 @@ func (q *Queries) FindUserByID(ctx context.Context, id string) (User, error) {
 		&i.Name,
 		&i.Avatar,
 		&i.Email,
+		&i.LineUserID,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -791,7 +794,7 @@ func (q *Queries) FindUserByID(ctx context.Context, id string) (User, error) {
 }
 
 const findUsersBySearch = `-- name: FindUsersBySearch :many
-SELECT id, name, avatar, email, created_at, updated_at
+SELECT id, name, avatar, email, line_user_id, created_at, updated_at
 FROM users
 WHERE ($1::text IS NOT NULL AND name ILIKE '%' || $1 || '%')
    OR ($2::text IS NOT NULL AND email ILIKE '%' || $2 || '%')
@@ -819,6 +822,7 @@ func (q *Queries) FindUsersBySearch(ctx context.Context, arg FindUsersBySearchPa
 			&i.Name,
 			&i.Avatar,
 			&i.Email,
+			&i.LineUserID,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -982,18 +986,24 @@ func (q *Queries) UpdateRepayment(ctx context.Context, arg UpdateRepaymentParams
 
 const updateUser = `-- name: UpdateUser :exec
 UPDATE users
-SET name = $2, avatar = $3, updated_at = current_timestamp
+SET name = $2, avatar = $3, line_user_id = $4, updated_at = current_timestamp
 WHERE id = $1
 `
 
 type UpdateUserParams struct {
-	ID     string
-	Name   string
-	Avatar string
+	ID         string
+	Name       string
+	Avatar     string
+	LineUserID *string
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
-	_, err := q.db.Exec(ctx, updateUser, arg.ID, arg.Name, arg.Avatar)
+	_, err := q.db.Exec(ctx, updateUser,
+		arg.ID,
+		arg.Name,
+		arg.Avatar,
+		arg.LineUserID,
+	)
 	return err
 }
 

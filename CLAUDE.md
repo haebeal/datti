@@ -13,29 +13,36 @@ Dattiは割り勘・立て替え管理アプリです。誰にいくら払った
 
 ## バックエンド開発
 
-**バックエンドタスクを実行する際は、バックエンドスキルが自動的に適用されます。**
+バックエンドタスクを実行する際は、以下が自動的に適用されます：
 
-- 📚 **[Backend Skill](.claude/skills/backend/SKILL.md)** - アーキテクチャ、実装フロー、開発ルール、コマンド
+- **プラグイン**: `go-backend-plugin` — 汎用的なGoバックエンド開発ガイド
+- **コンテキスト**: [backend/CLAUDE.md](backend/CLAUDE.md) — Datti固有のアーキテクチャ、実装フロー、コマンド
 
 ## フロントエンド開発
 
-**フロントエンドタスクを実行する際は、フロントエンドスキルが自動的に適用されます。**
+フロントエンドタスクを実行する際は、以下が自動的に適用されます：
 
-- 📚 **[Frontend Skill](.claude/skills/frontend/SKILL.md)** - 実装フロー、フォームパターン、開発ルール
-- 🎨 **[Design System](.claude/skills/design-system/SKILL.md)** - UIコンポーネント、スタイリング原則
+- **プラグイン**: `nextjs-frontend-plugin` — 汎用的なNext.js開発ガイド
+- **コンテキスト**: [frontend/CLAUDE.md](frontend/CLAUDE.md) — Datti固有のディレクトリ構成、フォームパターン、デザインシステム
 
 ## プロジェクト管理（Linear）
 
 タスク管理にはLinearを使用しています。MCP経由でチケットの確認・更新が可能です。
 
+- **プラグイン**: `linear-product-owner-plugin` — 汎用的なLinearチケット管理ガイド
 - **チケット形式**: `DATTI-xxx`
 - **チケット確認**: `mcp__linear-server__get_issue` でチケット内容を取得
 - **チケット一覧**: `mcp__linear-server__list_issues` でチーム内のチケットを取得
 - **GitHub連携**: PRタイトルに `DATTI-xxx` を含めると自動でリンク。マージ時にチケットがDoneに移行。
 
-**チケットの作成・整理・管理を依頼されたときは、POスキルを参照してください。**
+### Datti固有のLinear設定
 
-- 📋 **[Product Owner Skill](.claude/skills/product-owner/SKILL.md)** - チケット作成、整理、優先度設定、説明の肉付け
+| 項目 | 値 |
+|------|-----|
+| チーム名 | Datti |
+| ラベル | Bug / Feature / Improvement |
+| 優先度 | Urgent(1), High(2), Medium(3), Low(4) |
+| プロジェクト | Datti |
 
 ## 作業開始前の確認
 
@@ -75,6 +82,6 @@ Dattiは割り勘・立て替え管理アプリです。誰にいくら払った
 
 ## 参考資料
 
-- 📖 **[README](README.md)** - セットアップ手順、コマンド一覧
-- 📖 **[OpenAPI仕様](backend/openapi.yaml)** - API契約定義
-- 🌐 **[公開ドキュメント](https://dev-openapi.datti.app)** - API仕様書
+- [README](README.md) - セットアップ手順、コマンド一覧
+- [OpenAPI仕様](backend/openapi.yaml) - API契約定義
+- [公開ドキュメント](https://dev-openapi.datti.app) - API仕様書

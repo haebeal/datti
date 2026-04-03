@@ -1,0 +1,15 @@
+{
+  "enabledPlugins": {
+    "nextjs-frontend-plugin": true,
+    "go-backend-plugin@my-marketplace": true,
+    "linear-product-owner-plugin@my-marketplace": true
+  },
+  "extraKnownMarketplaces": {
+    "claude-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "rom6621/my-marketplace"
+      }
+    }
+  }
+}

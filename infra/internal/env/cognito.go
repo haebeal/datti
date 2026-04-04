@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awscognito"
+	awslambdago "github.com/aws/aws-cdk-go/awscdklambdagoalpha/v2"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
 )
@@ -41,6 +42,13 @@ func newCognito(scope constructs.Construct, env string, props *cognitoProps) *Co
 		AccountRecovery: awscognito.AccountRecovery_EMAIL_ONLY,
 		RemovalPolicy:   awscdk.RemovalPolicy_DESTROY,
 	})
+
+	// Pre Sign-up Lambda（メールベース自動アカウントリンク）
+	preSignUpFn := awslambdago.NewGoFunction(scope, jsii.String("DattiPreSignUpFunction"), &awslambdago.GoFunctionProps{
+		FunctionName: jsii.String(fmt.Sprintf("%s-datti-pre-signup", env)),
+		Entry:        jsii.String("../lambda/pre-signup"),
+	})
+	userPool.AddTrigger(awscognito.UserPoolOperation_PRE_SIGN_UP(), preSignUpFn, awscognito.LambdaVersion_V1_0)
 
 	userPoolDomain := userPool.AddDomain(jsii.String("DattiUserPoolDomain"), &awscognito.UserPoolDomainOptions{
 		CognitoDomain: &awscognito.CognitoDomainOptions{

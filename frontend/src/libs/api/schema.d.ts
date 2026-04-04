@@ -125,6 +125,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/me/subscriptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 通知購読一覧の取得 */
+        get: operations["Subscription_getAll"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/me/subscriptions/{channel}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** 通知購読の更新 */
+        put: operations["Subscription_upsert"];
+        post?: never;
+        /** 通知購読の削除 */
+        delete: operations["Subscription_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{id}": {
         parameters: {
             query?: never;
@@ -384,6 +419,20 @@ export interface components {
             code: string;
             /** @description LINE Loginのリダイレクト URI */
             redirectUri: string;
+        };
+        "Subscription.GetResponse": {
+            /** @enum {string} */
+            channel: "line";
+            /** @description イベント発生通知が有効かどうか */
+            eventFiring: boolean;
+            /** @description 週次サマリー通知が有効かどうか */
+            weeklySummary: boolean;
+        };
+        "Subscription.UpsertRequest": {
+            /** @description イベント発生通知の有効/無効 */
+            eventFiring: boolean;
+            /** @description 週次サマリー通知の有効/無効 */
+            weeklySummary: boolean;
         };
         "Health.CheckResponse": {
             /** @enum {string} */
@@ -893,6 +942,135 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description LINE連携解除成功 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Access is unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    Subscription_getAll: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 通知購読一覧 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Subscription.GetResponse"][];
+                };
+            };
+            /** @description Access is unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    Subscription_upsert: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                channel: "line";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Subscription.UpsertRequest"];
+            };
+        };
+        responses: {
+            /** @description 通知購読の更新成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Subscription.GetResponse"];
+                };
+            };
+            /** @description リクエストが不正 */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Access is unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    Subscription_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                channel: "line";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 通知購読の削除成功 */
             204: {
                 headers: {
                     [name: string]: unknown;

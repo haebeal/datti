@@ -110,12 +110,14 @@ func main() {
 	cr := repository.NewCreditRepository(queries)
 	rr := repository.NewRepaymentRepository(queries)
 	gr := repository.NewGroupRepository(queries)
+	sr := repository.NewSubscriptionRepository(queries)
 
 	lu := usecase.NewLendingUseCase(ur, gr, lr)
 	cu := usecase.NewCreditUseCase(cr)
 	ru := usecase.NewRepaymentUseCase(rr, cr)
 	gu := usecase.NewGroupUseCase(ur, gr)
 	uu := usecase.NewUserUseCase(ur, lc)
+	su := usecase.NewSubscriptionUseCase(sr)
 	au := usecase.NewAuthUseCase(ur)
 
 	hh := handler.NewHealthHandler()
@@ -124,8 +126,9 @@ func main() {
 	rh := handler.NewRepaymentHandler(ru)
 	gh := handler.NewGroupHandler(gu)
 	uh := handler.NewUserHandler(uu)
+	sh := handler.NewSubscriptionHandler(su)
 	ah := handler.NewAuthHandler(au)
-	server := server.NewServer(lh, ch, hh, rh, gh, uh, ah)
+	server := server.NewServer(lh, ch, hh, rh, gh, uh, sh, ah)
 
 	e := echo.New()
 

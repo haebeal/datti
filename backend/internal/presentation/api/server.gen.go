@@ -94,6 +94,15 @@ type ServerInterface interface {
 	// LINE連携（認可コードでLINEアカウントを紐づける）
 	// (PUT /users/me/line)
 	UserLinkLINE(ctx echo.Context) error
+	// 通知購読一覧の取得
+	// (GET /users/me/subscriptions)
+	SubscriptionGetAll(ctx echo.Context) error
+	// 通知購読の削除
+	// (DELETE /users/me/subscriptions/{channel})
+	SubscriptionDelete(ctx echo.Context, channel SubscriptionDeleteParamsChannel) error
+	// 通知購読の更新
+	// (PUT /users/me/subscriptions/{channel})
+	SubscriptionUpsert(ctx echo.Context, channel SubscriptionUpsertParamsChannel) error
 	// ユーザー情報取得
 	// (GET /users/{id})
 	UserGet(ctx echo.Context, id string) error
@@ -595,6 +604,53 @@ func (w *ServerInterfaceWrapper) UserLinkLINE(ctx echo.Context) error {
 	return err
 }
 
+// SubscriptionGetAll converts echo context to params.
+func (w *ServerInterfaceWrapper) SubscriptionGetAll(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.SubscriptionGetAll(ctx)
+	return err
+}
+
+// SubscriptionDelete converts echo context to params.
+func (w *ServerInterfaceWrapper) SubscriptionDelete(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "channel" -------------
+	var channel SubscriptionDeleteParamsChannel
+
+	err = runtime.BindStyledParameterWithOptions("simple", "channel", ctx.Param("channel"), &channel, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter channel: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.SubscriptionDelete(ctx, channel)
+	return err
+}
+
+// SubscriptionUpsert converts echo context to params.
+func (w *ServerInterfaceWrapper) SubscriptionUpsert(ctx echo.Context) error {
+	var err error
+	// ------------- Path parameter "channel" -------------
+	var channel SubscriptionUpsertParamsChannel
+
+	err = runtime.BindStyledParameterWithOptions("simple", "channel", ctx.Param("channel"), &channel, runtime.BindStyledParameterOptions{ParamLocation: runtime.ParamLocationPath, Explode: false, Required: true, Type: "string", Format: ""})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid format for parameter channel: %s", err))
+	}
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.SubscriptionUpsert(ctx, channel)
+	return err
+}
+
 // UserGet converts echo context to params.
 func (w *ServerInterfaceWrapper) UserGet(ctx echo.Context) error {
 	var err error
@@ -668,6 +724,9 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.PUT(baseURL+"/users/me", wrapper.UserUpdateMe)
 	router.DELETE(baseURL+"/users/me/line", wrapper.UserUnlinkLINE)
 	router.PUT(baseURL+"/users/me/line", wrapper.UserLinkLINE)
+	router.GET(baseURL+"/users/me/subscriptions", wrapper.SubscriptionGetAll)
+	router.DELETE(baseURL+"/users/me/subscriptions/:channel", wrapper.SubscriptionDelete)
+	router.PUT(baseURL+"/users/me/subscriptions/:channel", wrapper.SubscriptionUpsert)
 	router.GET(baseURL+"/users/:id", wrapper.UserGet)
 
 }

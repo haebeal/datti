@@ -265,6 +265,21 @@ func (q *Queries) DeleteRepayment(ctx context.Context, id string) error {
 	return err
 }
 
+const deleteSubscription = `-- name: DeleteSubscription :exec
+DELETE FROM subscriptions
+WHERE user_id = $1 AND channel = $2
+`
+
+type DeleteSubscriptionParams struct {
+	UserID  string
+	Channel string
+}
+
+func (q *Queries) DeleteSubscription(ctx context.Context, arg DeleteSubscriptionParams) error {
+	_, err := q.db.Exec(ctx, deleteSubscription, arg.UserID, arg.Channel)
+	return err
+}
+
 const findAllEvents = `-- name: FindAllEvents :many
 SELECT id, group_id, name, amount, event_date, created_at, updated_at FROM events
 `
@@ -755,6 +770,66 @@ func (q *Queries) FindRepaymentsByPayerIDWithCursor(ctx context.Context, arg Fin
 	return items, nil
 }
 
+const findSubscriptionByUserIDAndChannel = `-- name: FindSubscriptionByUserIDAndChannel :one
+SELECT user_id, channel, event_firing, weekly_summary, created_at, updated_at
+FROM subscriptions
+WHERE user_id = $1 AND channel = $2
+LIMIT 1
+`
+
+type FindSubscriptionByUserIDAndChannelParams struct {
+	UserID  string
+	Channel string
+}
+
+func (q *Queries) FindSubscriptionByUserIDAndChannel(ctx context.Context, arg FindSubscriptionByUserIDAndChannelParams) (Subscription, error) {
+	row := q.db.QueryRow(ctx, findSubscriptionByUserIDAndChannel, arg.UserID, arg.Channel)
+	var i Subscription
+	err := row.Scan(
+		&i.UserID,
+		&i.Channel,
+		&i.EventFiring,
+		&i.WeeklySummary,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const findSubscriptionsByUserID = `-- name: FindSubscriptionsByUserID :many
+SELECT user_id, channel, event_firing, weekly_summary, created_at, updated_at
+FROM subscriptions
+WHERE user_id = $1
+ORDER BY channel ASC
+`
+
+func (q *Queries) FindSubscriptionsByUserID(ctx context.Context, userID string) ([]Subscription, error) {
+	rows, err := q.db.Query(ctx, findSubscriptionsByUserID, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Subscription
+	for rows.Next() {
+		var i Subscription
+		if err := rows.Scan(
+			&i.UserID,
+			&i.Channel,
+			&i.EventFiring,
+			&i.WeeklySummary,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const findUserByEmail = `-- name: FindUserByEmail :one
 SELECT id, name, avatar, email, line_user_id, created_at, updated_at FROM users WHERE email = $1 LIMIT 1
 `
@@ -1018,5 +1093,29 @@ type UpdateUserIDParams struct {
 
 func (q *Queries) UpdateUserID(ctx context.Context, arg UpdateUserIDParams) error {
 	_, err := q.db.Exec(ctx, updateUserID, arg.ID, arg.ID_2)
+	return err
+}
+
+const upsertSubscription = `-- name: UpsertSubscription :exec
+INSERT INTO subscriptions (user_id, channel, event_firing, weekly_summary, created_at, updated_at)
+VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp)
+ON CONFLICT (user_id, channel)
+DO UPDATE SET event_firing = $3, weekly_summary = $4, updated_at = current_timestamp
+`
+
+type UpsertSubscriptionParams struct {
+	UserID        string
+	Channel       string
+	EventFiring   bool
+	WeeklySummary bool
+}
+
+func (q *Queries) UpsertSubscription(ctx context.Context, arg UpsertSubscriptionParams) error {
+	_, err := q.db.Exec(ctx, upsertSubscription,
+		arg.UserID,
+		arg.Channel,
+		arg.EventFiring,
+		arg.WeeklySummary,
+	)
 	return err
 }

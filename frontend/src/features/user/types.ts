@@ -9,3 +9,9 @@ export type User = {
   email: string;
   lineUserId?: string | null;
 };
+
+export type Subscription = {
+  channel: "line";
+  eventFiring: boolean;
+  weeklySummary: boolean;
+};

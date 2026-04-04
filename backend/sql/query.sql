@@ -230,3 +230,25 @@ FROM groups g
 INNER JOIN group_members gm ON g.id = gm.group_id
 WHERE gm.user_id = $1
 ORDER BY g.created_at DESC;
+
+-- name: FindSubscriptionByUserIDAndChannel :one
+SELECT user_id, channel, event_firing, weekly_summary, created_at, updated_at
+FROM subscriptions
+WHERE user_id = $1 AND channel = $2
+LIMIT 1;
+
+-- name: FindSubscriptionsByUserID :many
+SELECT user_id, channel, event_firing, weekly_summary, created_at, updated_at
+FROM subscriptions
+WHERE user_id = $1
+ORDER BY channel ASC;
+
+-- name: UpsertSubscription :exec
+INSERT INTO subscriptions (user_id, channel, event_firing, weekly_summary, created_at, updated_at)
+VALUES ($1, $2, $3, $4, current_timestamp, current_timestamp)
+ON CONFLICT (user_id, channel)
+DO UPDATE SET event_firing = $3, weekly_summary = $4, updated_at = current_timestamp;
+
+-- name: DeleteSubscription :exec
+DELETE FROM subscriptions
+WHERE user_id = $1 AND channel = $2;

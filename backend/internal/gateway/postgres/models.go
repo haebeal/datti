@@ -46,6 +46,15 @@ type Payment struct {
 	UpdatedAt time.Time
 }
 
+type Subscription struct {
+	UserID        string
+	Channel       string
+	EventFiring   bool
+	WeeklySummary bool
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
 type User struct {
 	ID         string
 	Name       string

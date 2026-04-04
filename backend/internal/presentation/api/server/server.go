@@ -49,6 +49,12 @@ type UserHandler interface {
 	UnlinkLINE(c echo.Context) error
 }
 
+type SubscriptionHandler interface {
+	GetAll(c echo.Context) error
+	Upsert(c echo.Context, channel api.SubscriptionUpsertParamsChannel) error
+	Delete(c echo.Context, channel api.SubscriptionDeleteParamsChannel) error
+}
+
 type AuthHandler interface {
 	Login(c echo.Context) error
 	Signup(c echo.Context) error
@@ -61,10 +67,11 @@ type Server struct {
 	rh RepaymentHandler
 	gh GroupHandler
 	uh UserHandler
+	sh SubscriptionHandler
 	ah AuthHandler
 }
 
-func NewServer(lh LendingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler, uh UserHandler, ah AuthHandler) api.ServerInterface {
+func NewServer(lh LendingHandler, ch CreditHandler, hh HealthHandler, rh RepaymentHandler, gh GroupHandler, uh UserHandler, sh SubscriptionHandler, ah AuthHandler) api.ServerInterface {
 	return &Server{
 		lh: lh,
 		ch: ch,
@@ -72,6 +79,7 @@ func NewServer(lh LendingHandler, ch CreditHandler, hh HealthHandler, rh Repayme
 		rh: rh,
 		gh: gh,
 		uh: uh,
+		sh: sh,
 		ah: ah,
 	}
 }
@@ -179,6 +187,18 @@ func (s *Server) UserLinkLINE(ctx echo.Context) error {
 
 func (s *Server) UserUnlinkLINE(ctx echo.Context) error {
 	return s.uh.UnlinkLINE(ctx)
+}
+
+func (s *Server) SubscriptionGetAll(ctx echo.Context) error {
+	return s.sh.GetAll(ctx)
+}
+
+func (s *Server) SubscriptionUpsert(ctx echo.Context, channel api.SubscriptionUpsertParamsChannel) error {
+	return s.sh.Upsert(ctx, channel)
+}
+
+func (s *Server) SubscriptionDelete(ctx echo.Context, channel api.SubscriptionDeleteParamsChannel) error {
+	return s.sh.Delete(ctx, channel)
 }
 
 func (s *Server) AuthLogin(ctx echo.Context) error {

@@ -14,6 +14,8 @@ type StackProps struct {
 	Env                string // "dev" or "prod"
 	GoogleClientID     string
 	GoogleClientSecret string
+	LineChannelID      string
+	LineChannelSecret  string
 }
 
 // NewStack は環境別リソースを持つスタックを作成
@@ -29,6 +31,8 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 	cognito := newCognito(stack, env, &cognitoProps{
 		GoogleClientID:     props.GoogleClientID,
 		GoogleClientSecret: props.GoogleClientSecret,
+		LineChannelID:      props.LineChannelID,
+		LineChannelSecret:  props.LineChannelSecret,
 	})
 
 	// DynamoDB

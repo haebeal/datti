@@ -26,14 +26,12 @@ func (c NotificationChannel) Valid() bool {
 
 // Subscription 通知購読を表すドメインエンティティ
 type Subscription struct {
-	userID        string
-	channel       NotificationChannel
 	eventFiring   bool
 	weeklySummary bool
 }
 
 // NewSubscription Subscriptionドメインエンティティのファクトリ関数
-func NewSubscription(ctx context.Context, userID string, channel NotificationChannel, eventFiring bool, weeklySummary bool) (s *Subscription, err error) {
+func NewSubscription(ctx context.Context, eventFiring bool, weeklySummary bool) (s *Subscription, err error) {
 	_, span := tracer.Start(ctx, "domain.Subscription.New")
 	defer func() {
 		if err != nil {
@@ -43,30 +41,10 @@ func NewSubscription(ctx context.Context, userID string, channel NotificationCha
 		span.End()
 	}()
 
-	if userID == "" {
-		return nil, NewValidationError("userID", "ユーザーIDは必須です")
-	}
-
-	if !channel.Valid() {
-		return nil, NewValidationError("channel", "無効な通知チャネルです")
-	}
-
 	return &Subscription{
-		userID:        userID,
-		channel:       channel,
 		eventFiring:   eventFiring,
 		weeklySummary: weeklySummary,
 	}, nil
-}
-
-// UserID ユーザーID
-func (s *Subscription) UserID() string {
-	return s.userID
-}
-
-// Channel 通知チャネル
-func (s *Subscription) Channel() NotificationChannel {
-	return s.channel
 }
 
 // EventFiring イベント発生通知が有効かどうか
@@ -86,7 +64,7 @@ type SubscriptionRepository interface {
 	// FindByUserID ユーザーIDで通知購読一覧を取得する
 	FindByUserID(ctx context.Context, userID string) ([]*Subscription, error)
 	// Upsert 通知購読を作成または更新する
-	Upsert(ctx context.Context, s *Subscription) error
+	Upsert(ctx context.Context, userID string, channel NotificationChannel, s *Subscription) error
 	// Delete 通知購読を削除する
 	Delete(ctx context.Context, userID string, channel NotificationChannel) error
 }

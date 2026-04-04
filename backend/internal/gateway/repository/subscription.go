@@ -43,7 +43,7 @@ func (sr *SubscriptionRepositoryImpl) FindByUserIDAndChannel(ctx context.Context
 	}
 	querySpan.End()
 
-	subscription, err := domain.NewSubscription(ctx, row.UserID, domain.NotificationChannel(row.Channel), row.EventFiring, row.WeeklySummary)
+	subscription, err := domain.NewSubscription(ctx, row.EventFiring, row.WeeklySummary)
 	if err != nil {
 		span.SetStatus(codes.Error, err.Error())
 		span.RecordError(err)
@@ -70,7 +70,7 @@ func (sr *SubscriptionRepositoryImpl) FindByUserID(ctx context.Context, userID s
 
 	subscriptions := make([]*domain.Subscription, 0, len(rows))
 	for _, row := range rows {
-		subscription, err := domain.NewSubscription(ctx, row.UserID, domain.NotificationChannel(row.Channel), row.EventFiring, row.WeeklySummary)
+		subscription, err := domain.NewSubscription(ctx, row.EventFiring, row.WeeklySummary)
 		if err != nil {
 			span.SetStatus(codes.Error, err.Error())
 			span.RecordError(err)
@@ -83,14 +83,14 @@ func (sr *SubscriptionRepositoryImpl) FindByUserID(ctx context.Context, userID s
 }
 
 // Upsert 通知購読を作成または更新する
-func (sr *SubscriptionRepositoryImpl) Upsert(ctx context.Context, s *domain.Subscription) error {
+func (sr *SubscriptionRepositoryImpl) Upsert(ctx context.Context, userID string, channel domain.NotificationChannel, s *domain.Subscription) error {
 	ctx, span := tracer.Start(ctx, "subscription.Upsert")
 	defer span.End()
 
 	ctx, querySpan := tracer.Start(ctx, "INSERT INTO subscriptions ... ON CONFLICT DO UPDATE")
 	err := sr.queries.UpsertSubscription(ctx, postgres.UpsertSubscriptionParams{
-		UserID:        s.UserID(),
-		Channel:       string(s.Channel()),
+		UserID:        userID,
+		Channel:       string(channel),
 		EventFiring:   s.EventFiring(),
 		WeeklySummary: s.WeeklySummary(),
 	})

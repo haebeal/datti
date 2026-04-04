@@ -78,6 +78,11 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 		StringValue:   jsii.String(props.LineChannelID),
 	})
 
+	awsssm.NewStringParameter(stack, jsii.String("DattiLineChannelSecretParam"), &awsssm.StringParameterProps{
+		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/LINE_CHANNEL_SECRET", env)),
+		StringValue:   jsii.String(props.LineChannelSecret),
+	})
+
 	awsssm.NewStringParameter(stack, jsii.String("DattiPostgresDsnParam"), &awsssm.StringParameterProps{
 		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/backend/POSTGRES_DSN", env)),
 		StringValue:   jsii.String("CHANGE_ME"),

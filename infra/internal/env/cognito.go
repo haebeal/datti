@@ -57,13 +57,19 @@ func newCognito(scope constructs.Construct, env string, props *cognitoProps) *Co
 	})
 
 	// Callback/Logout URLs based on environment
-	var callbackURL, logoutURL string
+	var callbackURLs, logoutURLs *[]*string
 	if env == "prod" {
-		callbackURL = "https://datti.app/api/auth/cognito/callback"
-		logoutURL = "https://datti.app/auth"
+		callbackURLs = jsii.Strings("https://datti.app/api/auth/cognito/callback")
+		logoutURLs = jsii.Strings("https://datti.app/auth")
 	} else {
-		callbackURL = fmt.Sprintf("https://%s.datti.app/api/auth/cognito/callback", env)
-		logoutURL = fmt.Sprintf("https://%s.datti.app/auth", env)
+		callbackURLs = jsii.Strings(
+			fmt.Sprintf("https://%s.datti.app/api/auth/cognito/callback", env),
+			"http://localhost:3000/api/auth/cognito/callback",
+		)
+		logoutURLs = jsii.Strings(
+			fmt.Sprintf("https://%s.datti.app/auth", env),
+			"http://localhost:3000/auth",
+		)
 	}
 
 	lineIdp := awscognito.NewUserPoolIdentityProviderOidc(scope, jsii.String("DattiLineIdp"), &awscognito.UserPoolIdentityProviderOidcProps{
@@ -111,8 +117,8 @@ func newCognito(scope constructs.Construct, env string, props *cognitoProps) *Co
 				awscognito.OAuthScope_PROFILE(),
 				awscognito.OAuthScope_COGNITO_ADMIN(),
 			},
-			CallbackUrls: jsii.Strings(callbackURL),
-			LogoutUrls:   jsii.Strings(logoutURL),
+			CallbackUrls: callbackURLs,
+			LogoutUrls:   logoutURLs,
 		},
 		SupportedIdentityProviders: &[]awscognito.UserPoolClientIdentityProvider{
 			awscognito.UserPoolClientIdentityProvider_GOOGLE(),

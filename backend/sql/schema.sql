@@ -54,3 +54,13 @@ CREATE TABLE event_payments (
   payment_id TEXT NOT NULL REFERENCES payments(id) ON DELETE CASCADE,
   PRIMARY KEY (event_id, payment_id)
 );
+
+CREATE TABLE subscriptions (
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  channel TEXT NOT NULL,
+  event_firing BOOLEAN NOT NULL DEFAULT true,
+  weekly_summary BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
+  PRIMARY KEY (user_id, channel)
+);

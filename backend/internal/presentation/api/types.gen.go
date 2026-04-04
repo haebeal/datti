@@ -26,6 +26,21 @@ func (e HealthCheckResponseStatus) Valid() bool {
 	}
 }
 
+// Defines values for SubscriptionGetResponseChannel.
+const (
+	SubscriptionGetResponseChannelLine SubscriptionGetResponseChannel = "line"
+)
+
+// Valid indicates whether the value is a known member of the SubscriptionGetResponseChannel enum.
+func (e SubscriptionGetResponseChannel) Valid() bool {
+	switch e {
+	case SubscriptionGetResponseChannelLine:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CreditsListParamsOrderBy.
 const (
 	Asc  CreditsListParamsOrderBy = "asc"
@@ -38,6 +53,36 @@ func (e CreditsListParamsOrderBy) Valid() bool {
 	case Asc:
 		return true
 	case Desc:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SubscriptionDeleteParamsChannel.
+const (
+	SubscriptionDeleteParamsChannelLine SubscriptionDeleteParamsChannel = "line"
+)
+
+// Valid indicates whether the value is a known member of the SubscriptionDeleteParamsChannel enum.
+func (e SubscriptionDeleteParamsChannel) Valid() bool {
+	switch e {
+	case SubscriptionDeleteParamsChannelLine:
+		return true
+	default:
+		return false
+	}
+}
+
+// Defines values for SubscriptionUpsertParamsChannel.
+const (
+	Line SubscriptionUpsertParamsChannel = "line"
+)
+
+// Valid indicates whether the value is a known member of the SubscriptionUpsertParamsChannel enum.
+func (e SubscriptionUpsertParamsChannel) Valid() bool {
+	switch e {
+	case Line:
 		return true
 	default:
 		return false
@@ -281,6 +326,29 @@ type RepaymentUpdateResponse struct {
 	UpdatedAt time.Time `json:"updatedAt"`
 }
 
+// SubscriptionGetResponse defines model for Subscription.GetResponse.
+type SubscriptionGetResponse struct {
+	Channel SubscriptionGetResponseChannel `json:"channel"`
+
+	// EventFiring イベント発生通知が有効かどうか
+	EventFiring bool `json:"eventFiring"`
+
+	// WeeklySummary 週次サマリー通知が有効かどうか
+	WeeklySummary bool `json:"weeklySummary"`
+}
+
+// SubscriptionGetResponseChannel defines model for SubscriptionGetResponse.Channel.
+type SubscriptionGetResponseChannel string
+
+// SubscriptionUpsertRequest defines model for Subscription.UpsertRequest.
+type SubscriptionUpsertRequest struct {
+	// EventFiring イベント発生通知の有効/無効
+	EventFiring bool `json:"eventFiring"`
+
+	// WeeklySummary 週次サマリー通知の有効/無効
+	WeeklySummary bool `json:"weeklySummary"`
+}
+
 // UserGetResponse defines model for User.GetResponse.
 type UserGetResponse struct {
 	Avatar     string  `json:"avatar"`
@@ -347,6 +415,12 @@ type UserSearchParams struct {
 	Limit *int32  `form:"limit,omitempty" json:"limit,omitempty"`
 }
 
+// SubscriptionDeleteParamsChannel defines parameters for SubscriptionDelete.
+type SubscriptionDeleteParamsChannel string
+
+// SubscriptionUpsertParamsChannel defines parameters for SubscriptionUpsert.
+type SubscriptionUpsertParamsChannel string
+
 // AuthSignupJSONRequestBody defines body for AuthSignup for application/json ContentType.
 type AuthSignupJSONRequestBody = AuthSignupRequest
 
@@ -376,3 +450,6 @@ type UserUpdateMeJSONRequestBody = UserUpdateRequest
 
 // UserLinkLINEJSONRequestBody defines body for UserLinkLINE for application/json ContentType.
 type UserLinkLINEJSONRequestBody = UserLinkLINERequest
+
+// SubscriptionUpsertJSONRequestBody defines body for SubscriptionUpsert for application/json ContentType.
+type SubscriptionUpsertJSONRequestBody = SubscriptionUpsertRequest

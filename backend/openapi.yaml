@@ -10,6 +10,7 @@ tags:
   - name: Repayments
   - name: Groups
   - name: Users
+  - name: Subscriptions
   - name: Health
 paths:
   /auth/login:
@@ -297,6 +298,107 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       tags:
         - Users
+  /users/me/subscriptions:
+    get:
+      operationId: Subscription_getAll
+      summary: 通知購読一覧の取得
+      parameters: []
+      responses:
+        '200':
+          description: 通知購読一覧
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Subscription.GetResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Subscriptions
+  /users/me/subscriptions/{channel}:
+    put:
+      operationId: Subscription_upsert
+      summary: 通知購読の更新
+      parameters:
+        - name: channel
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - line
+      responses:
+        '200':
+          description: 通知購読の更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription.GetResponse'
+        '400':
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Subscriptions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Subscription.UpsertRequest'
+    delete:
+      operationId: Subscription_delete
+      summary: 通知購読の削除
+      parameters:
+        - name: channel
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - line
+      responses:
+        '204':
+          description: 通知購読の削除成功
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Subscriptions
   /users/{id}:
     get:
       operationId: User_get
@@ -1373,6 +1475,35 @@ components:
         redirectUri:
           type: string
           description: LINE Loginのリダイレクト URI
+    Subscription.GetResponse:
+      type: object
+      required:
+        - channel
+        - eventFiring
+        - weeklySummary
+      properties:
+        channel:
+          type: string
+          enum:
+            - line
+        eventFiring:
+          type: boolean
+          description: イベント発生通知が有効かどうか
+        weeklySummary:
+          type: boolean
+          description: 週次サマリー通知が有効かどうか
+    Subscription.UpsertRequest:
+      type: object
+      required:
+        - eventFiring
+        - weeklySummary
+      properties:
+        eventFiring:
+          type: boolean
+          description: イベント発生通知の有効/無効
+        weeklySummary:
+          type: boolean
+          description: 週次サマリー通知の有効/無効
     Health.CheckResponse:
       type: object
       required:

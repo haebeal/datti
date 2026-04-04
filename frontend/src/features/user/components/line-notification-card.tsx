@@ -72,7 +72,7 @@ export function LineNotificationCard({ lineUserId, subscription }: Props) {
         </div>
         <div className={cn("border-t")} />
         <div className={cn("px-6 py-5", "flex flex-col gap-3")}>
-          <p className={cn("text-sm text-foreground-sub")}>
+          <p className={cn("text-sm text-gray-500")}>
             LINEアカウントと連携すると、通知を受け取れるようになります
           </p>
           <div className={cn("flex justify-end")}>
@@ -104,7 +104,7 @@ export function LineNotificationCard({ lineUserId, subscription }: Props) {
 
       <div className={cn("px-6 py-5", "flex flex-col")}>
         <div className={cn("flex items-center gap-2", "pb-4")}>
-          <Bell className={cn("w-4 h-4 text-foreground-sub")} />
+          <Bell className={cn("w-4 h-4 text-gray-500")} />
           <span className={cn("text-sm font-semibold")}>通知設定</span>
         </div>
 
@@ -121,7 +121,7 @@ export function LineNotificationCard({ lineUserId, subscription }: Props) {
           <Zap className={cn("w-5 h-5 text-accent-base shrink-0")} />
           <div className={cn("flex flex-col gap-0.5", "flex-1 min-w-0")}>
             <span className={cn("text-sm font-medium")}>イベント発生通知</span>
-            <span className={cn("text-xs text-foreground-sub")}>
+            <span className={cn("text-xs text-gray-400")}>
               立て替えが登録されたときに通知を受け取ります
             </span>
           </div>
@@ -130,7 +130,7 @@ export function LineNotificationCard({ lineUserId, subscription }: Props) {
               "w-11 h-6 rounded-full shrink-0",
               "transition-colors",
               "group-data-[selected]:bg-accent-base",
-              "bg-foreground-sub/20",
+              "bg-gray-200",
               "flex items-center px-0.5",
             )}
           >
@@ -157,7 +157,7 @@ export function LineNotificationCard({ lineUserId, subscription }: Props) {
           <CalendarClock className={cn("w-5 h-5 text-accent-base shrink-0")} />
           <div className={cn("flex flex-col gap-0.5", "flex-1 min-w-0")}>
             <span className={cn("text-sm font-medium")}>週次サマリー</span>
-            <span className={cn("text-xs text-foreground-sub")}>
+            <span className={cn("text-xs text-gray-400")}>
               毎週の未精算状況をまとめて通知します
             </span>
           </div>
@@ -166,7 +166,7 @@ export function LineNotificationCard({ lineUserId, subscription }: Props) {
               "w-11 h-6 rounded-full shrink-0",
               "transition-colors",
               "group-data-[selected]:bg-accent-base",
-              "bg-foreground-sub/20",
+              "bg-gray-200",
               "flex items-center px-0.5",
             )}
           >

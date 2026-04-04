@@ -25,6 +25,14 @@
         {
           "name": "POSTGRES_DSN",
           "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/{{ must_env `ENV` }}/backend/POSTGRES_DSN"
+        },
+        {
+          "name": "LINE_CHANNEL_ID",
+          "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/{{ must_env `ENV` }}/LINE_CHANNEL_ID"
+        },
+        {
+          "name": "LINE_CHANNEL_SECRET",
+          "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/{{ must_env `ENV` }}/LINE_CHANNEL_SECRET"
         }
       ],
       "logConfiguration": {

@@ -48,6 +48,7 @@ func newCognito(scope constructs.Construct, env string, props *cognitoProps) *Co
 		FunctionName: jsii.String(fmt.Sprintf("%s-datti-pre-signup", env)),
 		Entry:        jsii.String("../lambda/pre-signup"),
 	})
+	userPool.Grant(preSignUpFn, jsii.String("cognito-idp:ListUsers"), jsii.String("cognito-idp:AdminLinkProviderForUser"))
 	userPool.AddTrigger(awscognito.UserPoolOperation_PRE_SIGN_UP(), preSignUpFn, awscognito.LambdaVersion_V1_0)
 
 	userPoolDomain := userPool.AddDomain(jsii.String("DattiUserPoolDomain"), &awscognito.UserPoolDomainOptions{

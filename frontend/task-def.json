@@ -39,6 +39,10 @@
         {
           "name": "AVATAR_BASE_URL",
           "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/{{ must_env `ENV` }}/AVATAR_BASE_URL"
+        },
+        {
+          "name": "LINE_CHANNEL_ID",
+          "valueFrom": "arn:aws:ssm:ap-northeast-1:{{ must_env `AWS_ACCOUNT_ID` }}:parameter/datti/{{ must_env `ENV` }}/LINE_CHANNEL_ID"
         }
       ],
       "logConfiguration": {

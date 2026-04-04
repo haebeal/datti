@@ -51,7 +51,7 @@ export function NotificationSection({ subscription, isLineLinked }: Props) {
       <div className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}>
         <h2 className={cn("text-lg font-semibold")}>LINE通知設定</h2>
         <p className={cn("text-sm text-foreground-sub")}>
-          LINE連携すると通知設定���有効になります
+          LINE連携すると通知設定が有効になります
         </p>
       </div>
     );

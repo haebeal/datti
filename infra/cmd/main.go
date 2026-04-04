@@ -29,9 +29,14 @@ func main() {
 	// 環境変数（GitHub Environmentごとに異なる値が設定される）
 	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
 	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	lineChannelID := os.Getenv("LINE_CHANNEL_ID")
+	lineChannelSecret := os.Getenv("LINE_CHANNEL_SECRET")
 
 	if googleClientID == "" || googleClientSecret == "" {
 		panic("GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables are required")
+	}
+	if lineChannelID == "" || lineChannelSecret == "" {
+		panic("LINE_CHANNEL_ID and LINE_CHANNEL_SECRET environment variables are required")
 	}
 
 	// Dev 環境スタック
@@ -42,6 +47,8 @@ func main() {
 		Env:                "dev",
 		GoogleClientID:     googleClientID,
 		GoogleClientSecret: googleClientSecret,
+		LineChannelID:      lineChannelID,
+		LineChannelSecret:  lineChannelSecret,
 	})
 
 	// Prod 環境スタック
@@ -52,6 +59,8 @@ func main() {
 		Env:                "prod",
 		GoogleClientID:     googleClientID,
 		GoogleClientSecret: googleClientSecret,
+		LineChannelID:      lineChannelID,
+		LineChannelSecret:  lineChannelSecret,
 	})
 
 	app.Synth(nil)

@@ -34,11 +34,15 @@ export default async function AuthPage({ searchParams }: Props) {
       <div className={cn("w-full max-w-md", "flex flex-col gap-6")}>
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold">ログイン</h1>
-          <p className="text-gray-600">Googleアカウントで認証してください</p>
+          <p className="text-gray-600">アカウントで認証してください</p>
         </div>
 
         <LinkButton href="/api/auth/cognito" color="primary" colorStyle="fill" external>
           Googleで続ける
+        </LinkButton>
+
+        <LinkButton href="/api/auth/cognito/line" color="primary" colorStyle="outline" external>
+          LINEで続ける
         </LinkButton>
 
         {error && <p className="text-sm text-error-base">{error}</p>}

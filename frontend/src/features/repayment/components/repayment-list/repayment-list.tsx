@@ -2,6 +2,7 @@
 
 import { use, useState, useTransition, useEffect, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
+import { CircleDollarSign } from "lucide-react";
 import { RepaymentCard } from "../repayment-card";
 import { LinkButton } from "@/components/ui/link-button";
 import { cn } from "@/utils/cn";
@@ -52,12 +53,28 @@ export function RepaymentList({ initialDataPromise }: Props) {
     return (
       <div
         className={cn(
-          "p-6",
-          "flex flex-col items-center gap-3",
-          "bg-white border border-gray-200 rounded-xl",
+          "flex-1",
+          "flex flex-col items-center justify-center gap-4",
+          "py-20",
         )}
       >
-        <p className={cn("text-sm text-gray-500")}>返済履歴はまだありません</p>
+        <div
+          className={cn(
+            "w-16 h-16 rounded-full",
+            "border-2 border-gray-200",
+            "flex items-center justify-center",
+          )}
+        >
+          <CircleDollarSign className="w-8 h-8 text-accent-base" />
+        </div>
+        <div className={cn("flex flex-col items-center gap-1")}>
+          <p className={cn("text-base font-bold text-primary-base")}>
+            返済履歴はまだありません
+          </p>
+          <p className={cn("text-sm text-gray-400 text-center")}>
+            返済を記録すると、ここに履歴が表示されます
+          </p>
+        </div>
         <LinkButton
           href="/repayments/new"
           color="accent"

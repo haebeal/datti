@@ -1,7 +1,7 @@
 import Link, { type LinkProps } from "next/link";
 import { cn } from "@/utils/cn";
 
-type Color = "primary" | "error";
+type Color = "primary" | "accent" | "error";
 type Props = Omit<LinkProps, "href"> & {
   href: string;
   colorStyle?: "outline" | "fill";
@@ -32,6 +32,8 @@ export function LinkButton(props: Props) {
     } else {
       // fill
       switch (color) {
+        case "accent":
+          return "border border-accent-base bg-accent-base hover:bg-accent-hover active:bg-accent-active text-white focus:ring-accent-base";
         case "error":
           return "border border-error-base bg-error-base hover:bg-error-hover hover:text-white active:bg-error-active text-white focus:ring-error-base";
         default:

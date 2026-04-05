@@ -67,7 +67,7 @@ export function RepaymentList({ initialDataPromise }: Props) {
   );
 
   return (
-    <div className={cn("flex flex-col gap-4")}>
+    <div className={cn("flex flex-col gap-3")}>
       {sortedRepayments.map((repayment) => (
         <RepaymentCard key={repayment.id} repayment={repayment} />
       ))}

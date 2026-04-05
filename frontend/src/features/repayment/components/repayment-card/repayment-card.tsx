@@ -11,15 +11,15 @@ type Props = {
 export function RepaymentCard({ repayment }: Props) {
   const payerName = repayment.payer.name;
   const debtorName = repayment.debtor.name;
-  const avatarLetter = debtorName.charAt(0).toUpperCase();
+  const avatarLetter = debtorName.charAt(0);
 
   return (
     <Link
       href={`/repayments/${repayment.id}`}
       className={cn(
         "p-4",
-        "flex items-center gap-5",
-        "border rounded-lg",
+        "flex items-center gap-3",
+        "bg-white border border-gray-200 rounded-xl",
         "hover:bg-gray-50 transition-colors",
       )}
     >
@@ -28,38 +28,40 @@ export function RepaymentCard({ repayment }: Props) {
         <Image
           src={repayment.debtor.avatar}
           alt={debtorName}
-          width={48}
-          height={48}
-          className={cn("flex-shrink-0 w-12 h-12 rounded-full object-cover")}
+          width={40}
+          height={40}
+          className={cn("flex-shrink-0 w-10 h-10 rounded-full object-cover")}
         />
       ) : (
         <div
           className={cn(
-            "flex-shrink-0 w-12 h-12 rounded-full",
-            "bg-gradient-to-br from-primary-base to-primary-active",
+            "flex-shrink-0 w-10 h-10 rounded-full",
+            "bg-accent-base",
             "flex items-center justify-center",
-            "text-white font-bold text-xl",
+            "text-white font-bold text-sm",
           )}
         >
           {avatarLetter}
         </div>
       )}
 
+      {/* Info */}
       <div className={cn("flex-1 min-w-0")}>
-        <p className={cn("text-sm text-gray-500")}>返済先</p>
-        <h3 className={cn("text-lg font-semibold text-gray-900 truncate")}>
+        <p className={cn("text-xs text-gray-400")}>返済先</p>
+        <p className={cn("text-base font-semibold text-primary-base truncate")}>
           {debtorName}
-        </h3>
-        <p className={cn("text-sm text-gray-500 truncate")}>
+        </p>
+        <p className={cn("text-xs text-gray-500 truncate")}>
           返済者: {payerName}
         </p>
       </div>
 
-      <div className={cn("text-right flex-shrink-0")}>
-        <p className={cn("text-2xl font-bold text-primary-base")}>
+      {/* Amount & Date */}
+      <div className={cn("text-right flex-shrink-0 flex flex-col items-end gap-0.5")}>
+        <p className={cn("text-xl font-bold text-primary-base")}>
           {formatCurrency(repayment.amount)}
         </p>
-        <p className={cn("text-sm text-gray-500")}>
+        <p className={cn("text-xs text-gray-500")}>
           {formatDate(repayment.createdAt)}
         </p>
       </div>

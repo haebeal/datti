@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useActionState, useState } from "react";
-import { X } from "lucide-react";
+import { useActionState, useState, useTransition } from "react";
+import { X, UserMinus } from "lucide-react";
 import {
   Dialog,
   Modal,
@@ -13,24 +13,43 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import type { GroupMember } from "../types";
 import { inviteMember } from "../actions/inviteMember";
+import { removeMember } from "../actions/removeMember";
+import { leaveGroup } from "../actions/leaveGroup";
 
 type Props = {
   groupId: string;
   members: GroupMember[];
   creatorId: string;
+  currentUserId: string;
 };
 
-export function MemberPanel({ groupId, members, creatorId }: Props) {
+export function MemberPanel({ groupId, members, creatorId, currentUserId }: Props) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [state, action, isPending] = useActionState(
     inviteMember.bind(null, groupId),
     undefined,
   );
+  const [isRemoving, startRemoveTransition] = useTransition();
+  const [isLeaving, startLeaveTransition] = useTransition();
+
+  const isCreator = currentUserId === creatorId;
 
   // 成功したらダイアログを閉じる
   if (state?.success && isDialogOpen) {
     setIsDialogOpen(false);
   }
+
+  const handleRemoveMember = (userId: string) => {
+    startRemoveTransition(async () => {
+      await removeMember(groupId, userId);
+    });
+  };
+
+  const handleLeaveGroup = () => {
+    startLeaveTransition(async () => {
+      await leaveGroup(groupId);
+    });
+  };
 
   return (
     <>
@@ -103,8 +122,40 @@ export function MemberPanel({ groupId, members, creatorId }: Props) {
                 <p className={cn("text-xs text-gray-400")}>作成者</p>
               )}
             </div>
+            {/* 作成者が他メンバーを削除できるアイコン */}
+            {isCreator && member.id !== creatorId && (
+              <button
+                type="button"
+                onClick={() => handleRemoveMember(member.id)}
+                disabled={isRemoving}
+                className={cn("p-1 cursor-pointer", "disabled:opacity-50")}
+                aria-label={`${member.name}をグループから外す`}
+              >
+                <UserMinus className="w-4.5 h-4.5 text-gray-400" />
+              </button>
+            )}
           </div>
         ))}
+
+        {/* グループから抜ける */}
+        {!isCreator && (
+          <button
+            type="button"
+            onClick={handleLeaveGroup}
+            disabled={isLeaving}
+            className={cn(
+              "w-full",
+              "flex items-center justify-center",
+              "px-5 py-3",
+              "border-t border-gray-200",
+              "text-xs font-medium text-error-base",
+              "hover:bg-gray-50 transition-colors cursor-pointer",
+              "disabled:opacity-50",
+            )}
+          >
+            {isLeaving ? "処理中..." : "グループから抜ける"}
+          </button>
+        )}
       </div>
 
       {/* 招待ダイアログ */}
@@ -132,7 +183,6 @@ export function MemberPanel({ groupId, members, creatorId }: Props) {
             {({ close }) => (
               <form action={action}>
                 <div className={cn("flex flex-col gap-5")}>
-                  {/* ヘッダー */}
                   <div className={cn("flex items-center")}>
                     <h2 className={cn("text-xl font-bold text-primary-base")}>
                       メンバーを招待
@@ -148,12 +198,10 @@ export function MemberPanel({ groupId, members, creatorId }: Props) {
                     </button>
                   </div>
 
-                  {/* 説明 */}
                   <p className={cn("text-xs text-gray-500")}>
                     招待するメンバーのメールアドレスを入力してください
                   </p>
 
-                  {/* 入力 */}
                   <Input
                     type="email"
                     name="email"
@@ -162,12 +210,10 @@ export function MemberPanel({ groupId, members, creatorId }: Props) {
                     required
                   />
 
-                  {/* エラー */}
                   {state?.error && (
                     <p className={cn("text-sm text-error-base")}>{state.error}</p>
                   )}
 
-                  {/* ボタン */}
                   <div className={cn("flex justify-end gap-2")}>
                     <Button
                       type="button"

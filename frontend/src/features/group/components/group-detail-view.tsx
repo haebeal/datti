@@ -8,11 +8,12 @@ import { MemberPanel } from "./member-panel";
 type Props = {
   groupId: string;
   creatorId: string;
+  currentUserId: string;
   members: GroupMember[];
   eventList: React.ReactNode;
 };
 
-export function GroupDetailView({ groupId, creatorId, members, eventList }: Props) {
+export function GroupDetailView({ groupId, creatorId, currentUserId, members, eventList }: Props) {
   return (
     <>
       {/* モバイル: タブ切り替え */}
@@ -57,7 +58,7 @@ export function GroupDetailView({ groupId, creatorId, members, eventList }: Prop
             {eventList}
           </TabPanel>
           <TabPanel id="members" className="pt-4">
-            <MemberPanel groupId={groupId} members={members} creatorId={creatorId} />
+            <MemberPanel groupId={groupId} members={members} creatorId={creatorId} currentUserId={currentUserId} />
           </TabPanel>
         </Tabs>
       </div>
@@ -68,7 +69,7 @@ export function GroupDetailView({ groupId, creatorId, members, eventList }: Prop
           {eventList}
         </div>
         <div className="w-1/3">
-          <MemberPanel groupId={groupId} members={members} creatorId={creatorId} />
+          <MemberPanel groupId={groupId} members={members} creatorId={creatorId} currentUserId={currentUserId} />
         </div>
       </div>
     </>

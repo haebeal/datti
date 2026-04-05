@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { getAllLendings } from "@/features/lending/actions/getAllLendings";
 import { getGroup } from "@/features/group/actions/getGroup";
 import { getMembers } from "@/features/group/actions/getMembers";
+import { getMe } from "@/features/user/actions/getMe";
 import { LendingList } from "@/features/lending/components/lending-list";
 import { GroupDetailHeader } from "@/features/group/components/group-detail-header";
 import { GroupDetailView } from "@/features/group/components/group-detail-view";
@@ -48,9 +49,10 @@ export default async function LendingPage({
 }) {
   const { groupId } = await params;
 
-  const [groupResult, membersResult] = await Promise.all([
+  const [groupResult, membersResult, meResult] = await Promise.all([
     getGroup(groupId),
     getMembers(groupId),
+    getMe(),
   ]);
 
   if (!groupResult.success) {
@@ -61,6 +63,7 @@ export default async function LendingPage({
 
   const group = groupResult.result;
   const members = membersResult.success ? membersResult.result : [];
+  const currentUserId = meResult.success ? meResult.user.id : "";
   const initialDataPromise = getInitialData(groupId);
 
   const eventList = (
@@ -89,6 +92,7 @@ export default async function LendingPage({
       <GroupDetailView
         groupId={groupId}
         creatorId={group.creator.id}
+        currentUserId={currentUserId}
         members={members}
         eventList={eventList}
       />

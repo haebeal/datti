@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CircleDollarSign, ArrowLeftRight, Users, User } from "lucide-react";
+import { House, ArrowLeftRight, Users, User } from "lucide-react";
 import { cn } from "@/utils/cn";
 
 export function MobileMenu() {
   const pathname = usePathname();
 
   const items = [
-    { href: "/", icon: CircleDollarSign, label: "立て替え", match: pathname === "/" },
-    { href: "/repayments", icon: ArrowLeftRight, label: "返済", match: pathname.startsWith("/repayments") },
+    { href: "/", icon: House, label: "ホーム", match: pathname === "/" },
+    { href: "/repayments", icon: ArrowLeftRight, label: "返す", match: pathname.startsWith("/repayments") },
     { href: "/groups", icon: Users, label: "グループ", match: pathname.startsWith("/groups") },
-    { href: "/profile", icon: User, label: "プロフィール", match: pathname === "/profile" },
+    { href: "/profile", icon: User, label: "マイページ", match: pathname === "/profile" },
   ];
 
   return (

@@ -8,7 +8,7 @@ import { cn } from "@/utils/cn";
 import type { Group } from "@/features/group/types";
 import type { User } from "@/features/user/types";
 import {
-  CircleDollarSign,
+  House,
   ArrowLeftRight,
   Settings,
   Plus,
@@ -76,8 +76,8 @@ export function Sidebar({ groups, user }: SidebarProps) {
                 : "text-gray-500 hover:bg-gray-50",
             )}
           >
-            <CircleDollarSign className="w-5 h-5" />
-            <span className="text-sm">立て替え</span>
+            <House className="w-5 h-5" />
+            <span className="text-sm">ホーム</span>
           </Link>
 
           <Link
@@ -92,7 +92,7 @@ export function Sidebar({ groups, user }: SidebarProps) {
             )}
           >
             <ArrowLeftRight className="w-5 h-5" />
-            <span className="text-sm">返済</span>
+            <span className="text-sm">返す</span>
           </Link>
         </nav>
       </div>

@@ -24,7 +24,10 @@ type Props = {
 };
 
 export function MemberPanel({ groupId, members, creatorId, currentUserId }: Props) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isInviteOpen, setIsInviteOpen] = useState(false);
+  const [isLeaveOpen, setIsLeaveOpen] = useState(false);
+  const [removingMember, setRemovingMember] = useState<GroupMember | null>(null);
+
   const [state, action, isPending] = useActionState(
     inviteMember.bind(null, groupId),
     undefined,
@@ -34,14 +37,16 @@ export function MemberPanel({ groupId, members, creatorId, currentUserId }: Prop
 
   const isCreator = currentUserId === creatorId;
 
-  // 成功したらダイアログを閉じる
-  if (state?.success && isDialogOpen) {
-    setIsDialogOpen(false);
+  // 招待成功したらダイアログを閉じる
+  if (state?.success && isInviteOpen) {
+    setIsInviteOpen(false);
   }
 
-  const handleRemoveMember = (userId: string) => {
+  const handleRemoveMember = () => {
+    if (!removingMember) return;
     startRemoveTransition(async () => {
-      await removeMember(groupId, userId);
+      await removeMember(groupId, removingMember.id);
+      setRemovingMember(null);
     });
   };
 
@@ -71,7 +76,7 @@ export function MemberPanel({ groupId, members, creatorId, currentUserId }: Prop
           </p>
           <button
             type="button"
-            onClick={() => setIsDialogOpen(true)}
+            onClick={() => setIsInviteOpen(true)}
             className={cn(
               "px-4 py-2",
               "text-xs font-semibold text-primary-base",
@@ -126,9 +131,8 @@ export function MemberPanel({ groupId, members, creatorId, currentUserId }: Prop
             {isCreator && member.id !== creatorId && (
               <button
                 type="button"
-                onClick={() => handleRemoveMember(member.id)}
-                disabled={isRemoving}
-                className={cn("p-1 cursor-pointer", "disabled:opacity-50")}
+                onClick={() => setRemovingMember(member)}
+                className={cn("p-1 cursor-pointer")}
                 aria-label={`${member.name}をグループから外す`}
               >
                 <UserMinus className="w-4.5 h-4.5 text-gray-400" />
@@ -141,8 +145,7 @@ export function MemberPanel({ groupId, members, creatorId, currentUserId }: Prop
         {!isCreator && (
           <button
             type="button"
-            onClick={handleLeaveGroup}
-            disabled={isLeaving}
+            onClick={() => setIsLeaveOpen(true)}
             className={cn(
               "w-full",
               "flex items-center justify-center",
@@ -150,18 +153,17 @@ export function MemberPanel({ groupId, members, creatorId, currentUserId }: Prop
               "border-t border-gray-200",
               "text-xs font-medium text-error-base",
               "hover:bg-gray-50 transition-colors cursor-pointer",
-              "disabled:opacity-50",
             )}
           >
-            {isLeaving ? "処理中..." : "グループから抜ける"}
+            グループから抜ける
           </button>
         )}
       </div>
 
       {/* 招待ダイアログ */}
       <ModalOverlay
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        isOpen={isInviteOpen}
+        onOpenChange={setIsInviteOpen}
         className={cn(
           "fixed inset-0 z-50",
           "bg-black/40",
@@ -236,6 +238,114 @@ export function MemberPanel({ groupId, members, creatorId, currentUserId }: Prop
                   </div>
                 </div>
               </form>
+            )}
+          </Dialog>
+        </Modal>
+      </ModalOverlay>
+
+      {/* 脱退ダイアログ */}
+      <ModalOverlay
+        isOpen={isLeaveOpen}
+        onOpenChange={setIsLeaveOpen}
+        className={cn(
+          "fixed inset-0 z-50",
+          "bg-black/40",
+          "flex items-center justify-center",
+          "p-4",
+        )}
+        isDismissable
+      >
+        <Modal
+          className={cn(
+            "w-full max-w-[480px]",
+            "bg-white rounded-xl shadow-xl outline-none",
+          )}
+        >
+          <Dialog className={cn("p-6 lg:p-8", "flex flex-col gap-5", "outline-none")}>
+            {({ close }) => (
+              <div className={cn("flex flex-col gap-5")}>
+                <h2 className={cn("text-xl font-bold text-primary-base")}>
+                  グループから抜ける
+                </h2>
+                <p className={cn("text-xs text-gray-500 whitespace-pre-line")}>
+                  {"本当にこのグループから抜けますか？\nグループへの再参加には招待が必要になります。"}
+                </p>
+                <div className={cn("flex justify-end gap-2")}>
+                  <Button
+                    type="button"
+                    onPress={close}
+                    colorStyle="outline"
+                    color="primary"
+                    isDisabled={isLeaving}
+                  >
+                    キャンセル
+                  </Button>
+                  <Button
+                    type="button"
+                    color="error"
+                    colorStyle="fill"
+                    isDisabled={isLeaving}
+                    onPress={() => {
+                      handleLeaveGroup();
+                    }}
+                  >
+                    {isLeaving ? "処理中..." : "抜ける"}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </Dialog>
+        </Modal>
+      </ModalOverlay>
+
+      {/* メンバー削除ダイアログ */}
+      <ModalOverlay
+        isOpen={!!removingMember}
+        onOpenChange={(open) => { if (!open) setRemovingMember(null); }}
+        className={cn(
+          "fixed inset-0 z-50",
+          "bg-black/40",
+          "flex items-center justify-center",
+          "p-4",
+        )}
+        isDismissable
+      >
+        <Modal
+          className={cn(
+            "w-full max-w-[480px]",
+            "bg-white rounded-xl shadow-xl outline-none",
+          )}
+        >
+          <Dialog className={cn("p-6 lg:p-8", "flex flex-col gap-5", "outline-none")}>
+            {({ close }) => (
+              <div className={cn("flex flex-col gap-5")}>
+                <h2 className={cn("text-xl font-bold text-primary-base")}>
+                  メンバーを抜けさせる
+                </h2>
+                <p className={cn("text-xs text-gray-500 whitespace-pre-line")}>
+                  {`${removingMember?.name}をグループから外しますか？\nこの操作は取り消せません。`}
+                </p>
+                <div className={cn("flex justify-end gap-2")}>
+                  <Button
+                    type="button"
+                    onPress={close}
+                    colorStyle="outline"
+                    color="primary"
+                    isDisabled={isRemoving}
+                  >
+                    キャンセル
+                  </Button>
+                  <Button
+                    type="button"
+                    color="error"
+                    colorStyle="fill"
+                    isDisabled={isRemoving}
+                    onPress={handleRemoveMember}
+                  >
+                    {isRemoving ? "処理中..." : "抜けさせる"}
+                  </Button>
+                </div>
+              </div>
             )}
           </Dialog>
         </Modal>

@@ -82,7 +82,7 @@ export default async function LendingPage({
           colorStyle="fill"
           className="px-6 py-2.5"
         >
-          + 新規作成
+          + 立て替えを追加
         </LinkButton>
       </div>
 

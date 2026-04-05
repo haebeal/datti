@@ -139,9 +139,9 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
               <p className={cn("text-xs text-gray-400")}>{item.eventDate}</p>
               <p className={cn("text-xs text-gray-500")}>
                 {isPositive && item.debtsCount > 0
-                  ? `${item.debtsCount}人から回収予定`
+                  ? `${item.debtsCount}人に立て替えた`
                   : !isPositive
-                    ? "支払い予定"
+                    ? "立て替えてもらった"
                     : ""}
               </p>
             </div>

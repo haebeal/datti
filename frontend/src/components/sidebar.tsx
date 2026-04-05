@@ -63,6 +63,7 @@ export function Sidebar({ groups, user }: SidebarProps) {
         "hidden",
         "sm:flex flex-col gap-2",
         "px-5 py-6",
+        "bg-white",
         "border-gray-200 border-r",
       )}
     >

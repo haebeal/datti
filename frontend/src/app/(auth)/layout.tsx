@@ -17,7 +17,7 @@ export default async function AuthLayout({
 
   return (
     <>
-      <div className={cn("h-screen", "flex", "bg-background")}>
+      <div className={cn("h-screen", "flex")}>
         <Sidebar groups={groups} user={user} />
         <main
           className={cn(

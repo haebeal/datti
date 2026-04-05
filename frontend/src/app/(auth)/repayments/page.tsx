@@ -50,7 +50,7 @@ export default async function RepaymentsPage() {
     <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-6")}>
       <div className={cn("flex justify-between items-center")}>
         <h1 className={cn("text-2xl lg:text-3xl font-bold text-primary-base")}>
-          返済履歴
+          返した記録
         </h1>
         <LinkButton
           href="/repayments/new"
@@ -58,7 +58,7 @@ export default async function RepaymentsPage() {
           colorStyle="fill"
           className="px-6 py-2.5"
         >
-          返済を記録
+          返す
         </LinkButton>
       </div>
 

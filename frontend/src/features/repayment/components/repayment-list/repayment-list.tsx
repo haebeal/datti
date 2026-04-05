@@ -2,7 +2,7 @@
 
 import { use, useState, useTransition, useEffect, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
-import { CircleDollarSign } from "lucide-react";
+import { Receipt } from "lucide-react";
 import { RepaymentCard } from "../repayment-card";
 import { LinkButton } from "@/components/ui/link-button";
 import { cn } from "@/utils/cn";
@@ -60,19 +60,19 @@ export function RepaymentList({ initialDataPromise }: Props) {
       >
         <div
           className={cn(
-            "w-16 h-16 rounded-full",
-            "border-2 border-gray-200",
+            "w-16 h-16 lg:w-20 lg:h-20 rounded-full",
+            "bg-gray-100",
             "flex items-center justify-center",
           )}
         >
-          <CircleDollarSign className="w-8 h-8 text-accent-base" />
+          <Receipt className="w-8 h-8 lg:w-10 lg:h-10 text-gray-400" />
         </div>
         <div className={cn("flex flex-col items-center gap-1")}>
-          <p className={cn("text-base font-bold text-primary-base")}>
-            返済履歴はまだありません
+          <p className={cn("text-sm lg:text-base font-semibold text-primary-base")}>
+            まだ返した記録はありません
           </p>
-          <p className={cn("text-sm text-gray-400 text-center")}>
-            返済を記録すると、ここに履歴が表示されます
+          <p className={cn("text-xs lg:text-sm text-gray-500 text-center")}>
+            返したら、ここに記録されます
           </p>
         </div>
         <LinkButton
@@ -81,7 +81,7 @@ export function RepaymentList({ initialDataPromise }: Props) {
           colorStyle="fill"
           className="px-6 py-2.5"
         >
-          返済を記録
+          返す
         </LinkButton>
       </div>
     );

@@ -1,26 +1,29 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Bell } from "lucide-react";
+import { Menu, Bell, ArrowLeft } from "lucide-react";
 import { cn } from "@/utils/cn";
 
-const PAGE_TITLES: Record<string, string> = {
-  "/": "ホーム",
-  "/repayments": "返した記録",
-  "/groups": "グループ",
-  "/profile": "マイページ",
+type PageConfig = {
+  title: string;
+  back?: string;
 };
 
-function getPageTitle(pathname: string): string {
-  if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
-  if (pathname.startsWith("/repayments")) return "返した記録";
-  if (pathname.startsWith("/groups")) return "グループ";
-  return "ホーム";
+function getPageConfig(pathname: string): PageConfig {
+  if (pathname === "/") return { title: "ホーム" };
+  if (pathname === "/repayments") return { title: "返した記録" };
+  if (pathname === "/repayments/new") return { title: "返す", back: "/repayments" };
+  if (pathname.startsWith("/repayments/")) return { title: "返した記録", back: "/repayments" };
+  if (pathname === "/groups") return { title: "グループ" };
+  if (pathname === "/groups/new") return { title: "グループ作成", back: "/groups" };
+  if (pathname === "/profile") return { title: "マイページ" };
+  return { title: "ホーム" };
 }
 
 export function Header() {
   const pathname = usePathname();
-  const title = getPageTitle(pathname);
+  const config = getPageConfig(pathname);
 
   // グループ詳細は独自ヘッダーを持つので非表示
   const isGroupDetail = /^\/groups\/[^/]+\/(lendings|settings)/.test(pathname);
@@ -36,25 +39,39 @@ export function Header() {
         "border-b border-gray-200",
       )}
     >
-      <button
-        type="button"
-        className={cn("p-2 rounded-md", "hover:bg-gray-100")}
-        aria-label="メニューを開く"
-      >
-        <Menu className={cn("w-6 h-6 text-primary-base")} />
-      </button>
+      {config.back ? (
+        <Link
+          href={config.back}
+          className={cn("p-2 rounded-md", "hover:bg-gray-100")}
+          aria-label="戻る"
+        >
+          <ArrowLeft className={cn("w-6 h-6 text-primary-base")} />
+        </Link>
+      ) : (
+        <button
+          type="button"
+          className={cn("p-2 rounded-md", "hover:bg-gray-100")}
+          aria-label="メニューを開く"
+        >
+          <Menu className={cn("w-6 h-6 text-primary-base")} />
+        </button>
+      )}
       <div className="flex-1" />
       <span className={cn("text-base font-semibold text-primary-base")}>
-        {title}
+        {config.title}
       </span>
       <div className="flex-1" />
-      <button
-        type="button"
-        className={cn("p-2 rounded-md", "hover:bg-gray-100")}
-        aria-label="通知"
-      >
-        <Bell className={cn("w-6 h-6 text-primary-base")} />
-      </button>
+      {config.back ? (
+        <div className="w-10" />
+      ) : (
+        <button
+          type="button"
+          className={cn("p-2 rounded-md", "hover:bg-gray-100")}
+          aria-label="通知"
+        >
+          <Bell className={cn("w-6 h-6 text-primary-base")} />
+        </button>
+      )}
     </header>
   );
 }

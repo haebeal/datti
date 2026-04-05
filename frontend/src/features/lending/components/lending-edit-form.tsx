@@ -1,17 +1,17 @@
 "use client";
 
-import { useActionState } from "react";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import { cn } from "@/utils/cn";
+import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Select } from "@/components/ui/select";
 import { ErrorText } from "@/components/ui/error-text";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import type { GroupMember } from "@/features/group/types";
+import { cn } from "@/utils/cn";
 import { updateLending } from "../actions/updateLending";
 import { updateLendingSchema } from "../schema";
-import type { GroupMember } from "@/features/group/types";
 import type { Lending } from "../types";
 
 type Props = {
@@ -106,64 +106,84 @@ export function LendingEditForm({
       id={form.id}
       onSubmit={form.onSubmit}
       action={action}
-      className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
+      className={cn(
+        "p-6 lg:p-8",
+        "flex flex-col gap-5",
+        "bg-white border border-gray-200 rounded-xl",
+        "w-full",
+      )}
     >
-      <h2 className={cn("text-lg font-semibold")}>イベント情報</h2>
+      <h2
+        className={cn("text-base lg:text-xl font-semibold text-primary-base")}
+      >
+        立て替えの情報を編集
+      </h2>
 
       <input type="hidden" name={fields.id.name} value={lending.id} readOnly />
 
-      <label htmlFor={fields.name.id} className={cn("text-sm")}>
-        名前
-      </label>
+      <div className={cn("flex flex-col gap-1.5")}>
+        <label
+          htmlFor={fields.name.id}
+          className={cn("text-xs font-medium text-primary-base")}
+        >
+          タイトル
+        </label>
+        <Input
+          type="text"
+          name={fields.name.name}
+          id={fields.name.id}
+          key={fields.name.key}
+          defaultValue={fields.name.initialValue}
+          placeholder="例: ランチ代, 飲み会"
+          className={cn("w-full")}
+        />
+        {fields.name.errors && <ErrorText>{fields.name.errors}</ErrorText>}
+      </div>
 
-      <Input
-        type="text"
-        name={fields.name.name}
-        id={fields.name.id}
-        key={fields.name.key}
-        defaultValue={fields.name.initialValue}
-        placeholder="例: ランチ代, 飲み会"
-        className={cn("w-full")}
-      />
+      <div className={cn("flex flex-col gap-1.5")}>
+        <label
+          htmlFor={fields.amount.id}
+          className={cn("text-xs font-medium text-primary-base")}
+        >
+          金額
+        </label>
+        <Input
+          type="number"
+          name={fields.amount.name}
+          id={fields.amount.id}
+          key={fields.amount.key}
+          defaultValue={fields.amount.initialValue}
+          placeholder="0"
+          className={cn("w-full")}
+        />
+        {fields.amount.errors && <ErrorText>{fields.amount.errors}</ErrorText>}
+      </div>
 
-      {fields.name.errors && <ErrorText>{fields.name.errors}</ErrorText>}
-
-      <label htmlFor={fields.amount.id} className={cn("text-sm")}>
-        合計金額
-      </label>
-
-      <Input
-        type="number"
-        name={fields.amount.name}
-        id={fields.amount.id}
-        key={fields.amount.key}
-        defaultValue={fields.amount.initialValue}
-        placeholder="0"
-        className={cn("w-full")}
-      />
-
-      {fields.amount.errors && <ErrorText>{fields.amount.errors}</ErrorText>}
-
-      <label htmlFor={fields.eventDate.id} className={cn("text-sm")}>
-        日付
-      </label>
-
-      <DatePicker
-        name={fields.eventDate.name}
-        id={fields.eventDate.id}
-        key={fields.eventDate.key}
-        defaultValue={fields.eventDate.initialValue}
-        placeholder="日付を選択"
-        className={cn("w-full")}
-        isError={!!fields.eventDate.errors}
-      />
-
-      {fields.eventDate.errors && (
-        <ErrorText>{fields.eventDate.errors}</ErrorText>
-      )}
+      <div className={cn("flex flex-col gap-1.5")}>
+        <label
+          htmlFor={fields.eventDate.id}
+          className={cn("text-xs font-medium text-primary-base")}
+        >
+          日付
+        </label>
+        <DatePicker
+          name={fields.eventDate.name}
+          id={fields.eventDate.id}
+          key={fields.eventDate.key}
+          defaultValue={fields.eventDate.initialValue}
+          placeholder="日付を選択"
+          className={cn("w-full")}
+          isError={!!fields.eventDate.errors}
+        />
+        {fields.eventDate.errors && (
+          <ErrorText>{fields.eventDate.errors}</ErrorText>
+        )}
+      </div>
 
       <div className={cn("flex justify-between items-center")}>
-        <span className={cn("text-sm font-semibold")}>支払い詳細</span>
+        <span className={cn("text-sm font-semibold text-primary-base")}>
+          だれがいくら？
+        </span>
         <Button
           type="button"
           onPress={() => {
@@ -177,7 +197,7 @@ export function LendingEditForm({
           color="primary"
           className={cn("text-sm")}
         >
-          + 追加
+          + ひとを追加
         </Button>
       </div>
 
@@ -197,16 +217,15 @@ export function LendingEditForm({
               ¥
             </span>
             <div
-              className={cn(
-                "px-3 py-2 pl-7",
-                myShare < 0 && "text-error-base",
-              )}
+              className={cn("px-3 py-2 pl-7", myShare < 0 && "text-error-base")}
             >
               {myShare}
             </div>
           </div>
         </div>
-        {debtsList.length > 1 && <div className={cn("px-3 py-2 invisible")}>削除</div>}
+        {debtsList.length > 1 && (
+          <div className={cn("px-3 py-2 invisible")}>削除</div>
+        )}
       </div>
 
       <div className={cn("flex flex-col gap-3")}>

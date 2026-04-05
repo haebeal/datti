@@ -23,8 +23,10 @@ export default async function ProfilePage() {
       : null;
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
-      <h1 className={cn("text-2xl font-bold")}>プロフィール</h1>
+    <div className={cn("w-full", "flex flex-col items-center gap-6")}>
+      <h1 className={cn("hidden sm:block", "w-full max-w-[640px]", "text-3xl font-bold text-primary-base")}>
+        マイページ
+      </h1>
       <ProfileEditForm user={result.user} />
       <LineNotificationCard
         lineUserId={result.user.lineUserId ?? null}

@@ -34,11 +34,19 @@ export function ProfileEditForm({ user }: Props) {
       id={form.id}
       onSubmit={form.onSubmit}
       action={action}
-      className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
+      className={cn(
+        "p-6 lg:p-8",
+        "flex flex-col gap-5",
+        "bg-white border border-gray-200 rounded-xl",
+        "w-full max-w-[640px]",
+      )}
     >
-      <h2 className={cn("text-lg font-semibold")}>プロフィール編集</h2>
+      <h2 className={cn("text-base lg:text-xl font-semibold text-primary-base")}>
+        プロフィール編集
+      </h2>
 
-      <span className={cn("text-sm")}>アバター</span>
+      <div className={cn("flex flex-col gap-2")}>
+      <span className={cn("text-xs font-medium text-primary-base")}>アバター</span>
 
       <AvatarPicker
         currentAvatar={avatarUrl}
@@ -49,8 +57,10 @@ export function ProfileEditForm({ user }: Props) {
       {avatar.errors && (
         <p className={cn("text-sm text-error-base")}>{avatar.errors}</p>
       )}
+      </div>
 
-      <label htmlFor={name.id} className={cn("text-sm")}>
+      <div className={cn("flex flex-col gap-1.5")}>
+      <label htmlFor={name.id} className={cn("text-xs font-medium text-primary-base")}>
         名前
       </label>
 
@@ -65,6 +75,7 @@ export function ProfileEditForm({ user }: Props) {
       {name.errors && (
         <p className={cn("text-sm text-error-base")}>{name.errors}</p>
       )}
+      </div>
 
       {form.errors && (
         <p className={cn("text-sm text-error-base")}>{form.errors}</p>

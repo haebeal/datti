@@ -1,7 +1,7 @@
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getGroup } from "@/features/group/actions/getGroup";
-import { getMembers } from "@/features/group/actions/getMembers";
 import { GroupBasicInfoForm } from "@/features/group/components/group-basic-info-form";
-import { GroupMemberManagement } from "@/features/group/components/group-member-management";
 import { getMe } from "@/features/user/actions/getMe";
 import { cn } from "@/utils/cn";
 
@@ -12,9 +12,8 @@ type Props = {
 export default async function GroupSettingsPage({ params }: Props) {
   const { groupId } = await params;
 
-  const [groupResult, membersResult, meResult] = await Promise.all([
+  const [groupResult, meResult] = await Promise.all([
     getGroup(groupId),
-    getMembers(groupId),
     getMe(),
   ]);
 
@@ -23,30 +22,32 @@ export default async function GroupSettingsPage({ params }: Props) {
   }
   const group = groupResult.result;
 
-  if (!membersResult.success) {
-    throw new Error(membersResult.error);
-  }
-  const members = membersResult.result;
-
   if (!meResult.success) {
     throw new Error(meResult.error);
   }
   const currentUserId = meResult.user.id;
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
-      <div>
-        <h1 className={cn("text-2xl font-bold")}>グループ設定</h1>
-        <p className={cn("text-base text-gray-500")}>{group.name}</p>
+    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-6")}>
+      {/* ヘッダー */}
+      <div className={cn("flex items-center gap-3")}>
+        <Link
+          href={`/groups/${groupId}/lendings`}
+          className={cn("p-2 -ml-2 rounded-md", "hover:bg-gray-100")}
+          aria-label="戻る"
+        >
+          <ArrowLeft className="w-6 h-6 text-primary-base sm:text-gray-500" />
+        </Link>
+        <h1
+          className={cn(
+            "text-base sm:text-3xl font-semibold sm:font-bold text-primary-base",
+          )}
+        >
+          グループ設定
+        </h1>
       </div>
 
       <GroupBasicInfoForm group={group} currentUserId={currentUserId} />
-
-      <GroupMemberManagement
-        group={group}
-        members={members}
-        currentUserId={currentUserId}
-      />
     </div>
   );
 }

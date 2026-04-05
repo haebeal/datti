@@ -44,7 +44,7 @@ export default async function AuthPage({ searchParams }: Props) {
             alt=""
             width={48}
             height={48}
-            className="w-12 h-12 invert"
+            className="w-12 h-12"
           />
           <span className="text-5xl font-bold text-white">atti</span>
         </div>

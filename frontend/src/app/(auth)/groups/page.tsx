@@ -24,16 +24,20 @@ export default async function GroupsPage() {
         >
           グループ
         </h1>
-        <div className="hidden sm:block flex-1" />
-        <LinkButton
-          href="/groups/new"
-          color="accent"
-          colorStyle="fill"
-          className="px-6 py-2.5"
-        >
-          <span className="sm:hidden">+ つくる</span>
-          <span className="hidden sm:inline">+ グループをつくる</span>
-        </LinkButton>
+        {groups.length > 0 && (
+          <>
+            <div className="flex-1" />
+            <LinkButton
+              href="/groups/new"
+              color="accent"
+              colorStyle="fill"
+              className="px-6 py-2.5"
+            >
+              <span className="sm:hidden">+ つくる</span>
+              <span className="hidden sm:inline">+ グループをつくる</span>
+            </LinkButton>
+          </>
+        )}
       </div>
 
       {groups.length === 0 ? (

@@ -19,7 +19,7 @@ export function MemberPanel({ members, creatorId }: Props) {
       <div
         className={cn(
           "flex items-center justify-between",
-          "px-4 lg:px-5 py-3 lg:py-4",
+          "px-4 lg:px-5 py-3",
         )}
       >
         <p className={cn("text-sm font-semibold text-primary-base")}>
@@ -39,13 +39,13 @@ export function MemberPanel({ members, creatorId }: Props) {
       </div>
 
       {/* メンバーリスト */}
-      {members.map((member, index) => (
+      {members.map((member) => (
         <div
           key={member.id}
           className={cn(
             "flex items-center gap-3",
-            "px-4 lg:px-5 py-3.5",
-            index > 0 && "border-t border-gray-200",
+            "px-4 lg:px-5 py-3",
+            "border-t border-gray-200",
           )}
         >
           {member.avatar ? (

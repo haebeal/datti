@@ -66,7 +66,7 @@ export function LineNotificationCard({ lineUserId, subscription }: Props) {
 
   if (!isLinked) {
     return (
-      <div className={cn("border border-gray-200 rounded-xl", "bg-white", "w-full max-w-[640px]")}>
+      <div className={cn("border border-gray-200 rounded-xl", "bg-white", "w-full")}>
         <div className={cn("px-6 py-5", "flex items-center gap-3")}>
           <h2 className={cn("text-base font-semibold")}>LINE連携</h2>
         </div>
@@ -84,7 +84,7 @@ export function LineNotificationCard({ lineUserId, subscription }: Props) {
   }
 
   return (
-    <div className={cn("border border-gray-200 rounded-xl", "bg-white", "w-full max-w-[640px]")}>
+    <div className={cn("border border-gray-200 rounded-xl", "bg-white", "w-full")}>
       <div className={cn("px-6 py-5", "flex items-center gap-3")}>
         <h2 className={cn("text-base font-semibold")}>LINE連携</h2>
         <div className={cn("flex-1")} />

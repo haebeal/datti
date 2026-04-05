@@ -25,12 +25,14 @@ export default async function AuthLayout({
           <main
             className={cn(
               "flex-1 overflow-y-auto",
-              "px-4 sm:px-6 lg:px-8",
+              "px-4 sm:px-6 lg:px-10",
               "py-5 sm:py-8",
               "pb-20 sm:pb-8",
             )}
           >
-            {children}
+            <div className={cn("w-full max-w-[800px] mx-auto")}>
+              {children}
+            </div>
           </main>
         </div>
       </div>

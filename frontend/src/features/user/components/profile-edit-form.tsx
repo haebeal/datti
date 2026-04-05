@@ -38,7 +38,7 @@ export function ProfileEditForm({ user }: Props) {
         "p-6 lg:p-8",
         "flex flex-col gap-5",
         "bg-white border border-gray-200 rounded-xl",
-        "w-full max-w-[640px]",
+        "w-full",
       )}
     >
       <h2 className={cn("text-base lg:text-xl font-semibold text-primary-base")}>

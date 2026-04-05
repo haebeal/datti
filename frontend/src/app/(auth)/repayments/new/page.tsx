@@ -28,7 +28,7 @@ export default async function RepaymentCreatePage({ searchParams }: Props) {
       : undefined;
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-6")}>
+    <div className={cn("w-full", "flex flex-col gap-6")}>
       <div className={cn("hidden sm:flex items-center gap-3")}>
         <Link
           href="/repayments"

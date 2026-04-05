@@ -14,7 +14,7 @@ export default async function GroupsPage() {
   const groups = result.result;
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-6")}>
+    <div className={cn("w-full", "flex flex-col gap-6")}>
       <div className={cn("flex items-center")}>
         <h1
           className={cn(
@@ -61,7 +61,7 @@ export default async function GroupsPage() {
           </LinkButton>
         </div>
       ) : (
-        <div className={cn("flex flex-col gap-3 lg:gap-4", "max-w-[640px]")}>
+        <div className={cn("flex flex-col gap-3 lg:gap-4")}>
           {groups.map((group) => (
             <Link
               key={group.id}

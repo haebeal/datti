@@ -55,7 +55,7 @@ export default async function LendingDetailPage({
   };
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
+    <div className={cn("w-full", "flex flex-col gap-5")}>
       <div className={cn("flex justify-between items-center")}>
         <div>
           <h1 className={cn("text-2xl font-bold")}>イベント詳細</h1>

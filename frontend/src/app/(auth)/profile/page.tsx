@@ -23,8 +23,8 @@ export default async function ProfilePage() {
       : null;
 
   return (
-    <div className={cn("w-full", "flex flex-col items-center gap-6")}>
-      <h1 className={cn("hidden sm:block", "w-full max-w-[640px]", "text-3xl font-bold text-primary-base")}>
+    <div className={cn("w-full", "flex flex-col gap-6")}>
+      <h1 className={cn("hidden sm:block", "text-3xl font-bold text-primary-base")}>
         マイページ
       </h1>
       <ProfileEditForm user={result.user} />

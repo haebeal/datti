@@ -14,10 +14,8 @@ export function GroupDetailHeader({ groupId, groupName }: Props) {
     <div
       className={cn(
         "flex items-center gap-3",
-        "px-4 sm:px-0",
         "h-14 sm:h-auto",
-        "bg-white sm:bg-transparent",
-        "border-b border-gray-200 sm:border-b-0",
+        "sm:mb-2",
       )}
     >
       <Link
@@ -25,7 +23,7 @@ export function GroupDetailHeader({ groupId, groupName }: Props) {
         className={cn("p-2 -ml-2 rounded-md", "hover:bg-gray-100 sm:hover:bg-transparent")}
         aria-label="戻る"
       >
-        <ArrowLeft className="w-6 h-6 text-gray-500 sm:text-gray-500" />
+        <ArrowLeft className="w-6 h-6 text-gray-500" />
       </Link>
       <div className="flex-1 sm:hidden" />
       <span

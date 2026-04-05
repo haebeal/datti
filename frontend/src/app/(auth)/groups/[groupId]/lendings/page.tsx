@@ -96,7 +96,7 @@ export default async function LendingPage({
   );
 
   return (
-    <div className={cn("w-full", "flex flex-col gap-6")}>
+    <div className={cn("w-full", "flex flex-col gap-4")}>
       <GroupDetailHeader groupId={groupId} groupName={group.name} />
       <GroupDetailView
         creatorId={group.creator.id}

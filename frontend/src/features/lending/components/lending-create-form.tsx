@@ -109,12 +109,20 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
       id={form.id}
       onSubmit={form.onSubmit}
       action={action}
-      className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
+      className={cn(
+        "p-6 lg:p-8",
+        "flex flex-col gap-5",
+        "bg-white border border-gray-200 rounded-xl",
+        "w-full max-w-[640px] mx-auto",
+      )}
     >
-      <h2 className={cn("text-lg font-semibold")}>イベント情報</h2>
+      <h2 className={cn("text-base lg:text-xl font-semibold text-primary-base")}>
+        なにに使った？
+      </h2>
 
-      <label htmlFor={fields.name.id} className={cn("text-sm")}>
-        名前
+      <div className={cn("flex flex-col gap-1.5")}>
+      <label htmlFor={fields.name.id} className={cn("text-xs font-medium text-primary-base")}>
+        タイトル
       </label>
 
       <Input
@@ -128,9 +136,11 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
       />
 
       {fields.name.errors && <ErrorText>{fields.name.errors}</ErrorText>}
+      </div>
 
-      <label htmlFor={fields.amount.id} className={cn("text-sm")}>
-        合計金額
+      <div className={cn("flex flex-col gap-1.5")}>
+      <label htmlFor={fields.amount.id} className={cn("text-xs font-medium text-primary-base")}>
+        いくら？
       </label>
 
       <Input
@@ -144,9 +154,11 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
       />
 
       {fields.amount.errors && <ErrorText>{fields.amount.errors}</ErrorText>}
+      </div>
 
-      <label htmlFor={fields.eventDate.id} className={cn("text-sm")}>
-        日付
+      <div className={cn("flex flex-col gap-1.5")}>
+      <label htmlFor={fields.eventDate.id} className={cn("text-xs font-medium text-primary-base")}>
+        いつ？
       </label>
 
       <DatePicker
@@ -167,9 +179,11 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
       {fields.eventDate.errors && (
         <ErrorText>{fields.eventDate.errors}</ErrorText>
       )}
+      </div>
 
-      <div className={cn("flex justify-between items-center")}>
-        <span className={cn("text-sm font-semibold")}>支払い詳細</span>
+      <div className={cn("flex items-center gap-2")}>
+        <span className={cn("text-base lg:text-xl font-semibold text-primary-base")}>だれがいくら？</span>
+        <div className="flex-1" />
         <div className={cn("flex gap-2")}>
           <Button
             type="button"
@@ -194,37 +208,30 @@ export function LendingCreateForm({ groupId, members, currentUserId }: Props) {
             color="primary"
             className={cn("text-sm")}
           >
-            + 追加
+            + ひとを追加
           </Button>
         </div>
       </div>
 
       {/* 自分の負担額（読み取り専用） */}
-      <div className={cn("flex gap-5 items-center")}>
-        <div className={cn("flex-1")}>
-          <div className={cn("px-3 py-2")}>{currentUserName}</div>
-        </div>
-        <div className={cn("w-32")}>
-          <div className={cn("relative")}>
-            <span
-              className={cn(
-                "absolute left-3 top-1/2 -translate-y-1/2",
-                "pointer-events-none",
-              )}
-            >
-              ¥
-            </span>
-            <div
-              className={cn(
-                "px-3 py-2 pl-7",
-                myShare < 0 && "text-error-base",
-              )}
-            >
-              {myShare}
-            </div>
-          </div>
-        </div>
-        {debtsList.length > 1 && <div className={cn("px-3 py-2 invisible")}>削除</div>}
+      <div
+        className={cn(
+          "flex items-center gap-3",
+          "px-3 lg:px-4 py-2.5",
+          "bg-gray-100 rounded-md",
+        )}
+      >
+        <span className={cn("text-sm text-primary-base flex-1")}>
+          {currentUserName}（自分）
+        </span>
+        <span
+          className={cn(
+            "text-sm font-semibold text-primary-base",
+            myShare < 0 && "text-error-base",
+          )}
+        >
+          ¥{myShare.toLocaleString()}
+        </span>
       </div>
 
       <div className={cn("flex flex-col gap-3")}>

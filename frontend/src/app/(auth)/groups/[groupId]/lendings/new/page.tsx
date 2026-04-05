@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getGroup } from "@/features/group/actions/getGroup";
 import { getMembers } from "@/features/group/actions/getMembers";
 import { getMe } from "@/features/user/actions/getMe";
@@ -32,15 +34,22 @@ export default async function CreateLendingPage({
     return <div className={cn("text-error-base")}>エラー: {meResult.error}</div>;
   }
 
-  const group = groupResult.result;
   const members = membersResult.result;
   const currentUserId = meResult.user.id;
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
-      <div>
-        <h1 className={cn("text-2xl font-bold")}>新規イベント作成</h1>
-        <p className={cn("text-base text-gray-500")}>{group.name}</p>
+    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-6")}>
+      <div className={cn("hidden sm:flex items-center gap-3")}>
+        <Link
+          href={`/groups/${groupId}/lendings`}
+          className={cn("p-2 -ml-2 rounded-md", "hover:bg-transparent")}
+          aria-label="戻る"
+        >
+          <ArrowLeft className="w-6 h-6 text-gray-500" />
+        </Link>
+        <h1 className={cn("text-3xl font-bold text-primary-base")}>
+          立て替えを追加
+        </h1>
       </div>
 
       <LendingCreateForm

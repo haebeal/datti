@@ -66,7 +66,7 @@ export default async function LendingPage({
 
   const eventList = (
     <div className={cn("flex flex-col gap-4")}>
-      <div className={cn("flex items-center justify-between")}>
+      <div className={cn("flex items-center")}>
         <h2
           className={cn(
             "hidden sm:block",
@@ -75,6 +75,7 @@ export default async function LendingPage({
         >
           イベント一覧
         </h2>
+        <div className="flex-1" />
         <LinkButton
           href={`/groups/${groupId}/lendings/new`}
           color="accent"

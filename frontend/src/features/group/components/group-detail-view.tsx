@@ -62,7 +62,7 @@ export function GroupDetailView({ creatorId, members, eventList }: Props) {
         {/* イベント一覧 */}
         <div
           className={cn(
-            "flex-1 min-w-0",
+            "sm:w-2/3 min-w-0",
             activeTab !== "events" && "hidden sm:block",
           )}
         >
@@ -72,7 +72,7 @@ export function GroupDetailView({ creatorId, members, eventList }: Props) {
         {/* メンバーパネル */}
         <div
           className={cn(
-            "sm:w-80 sm:flex-shrink-0",
+            "sm:w-1/3",
             activeTab !== "members" && "hidden sm:block",
           )}
         >

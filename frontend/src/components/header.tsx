@@ -45,13 +45,11 @@ export function Header() {
           "sm:hidden",
           "flex items-center",
           "h-16 px-4",
-          "bg-white",
-          "border-b border-gray-200",
         )}
       >
         <Link
           href={config.back}
-          className={cn("p-2 rounded-md", "hover:bg-gray-100")}
+          className={cn("p-2 -ml-2 rounded-md")}
           aria-label="戻る"
         >
           <ArrowLeft className={cn("w-6 h-6 text-primary-base")} />
@@ -61,7 +59,7 @@ export function Header() {
           {config.title}
         </span>
         <div className="flex-1" />
-        <div className="w-10" />
+        <div className="w-6" />
       </header>
     );
   }
@@ -80,7 +78,7 @@ export function Header() {
       </span>
       <button
         type="button"
-        className={cn("p-2 rounded-md", "hover:bg-gray-100")}
+        className={cn("p-2 -mr-2 rounded-md")}
         aria-label="通知"
       >
         <Bell className={cn("w-6 h-6 text-primary-base")} />

@@ -5,7 +5,6 @@ import { getMembers } from "@/features/group/actions/getMembers";
 import { LendingList } from "@/features/lending/components/lending-list";
 import { GroupDetailHeader } from "@/features/group/components/group-detail-header";
 import { GroupDetailView } from "@/features/group/components/group-detail-view";
-import { LinkButton } from "@/components/ui/link-button";
 import { cn } from "@/utils/cn";
 
 async function getInitialData(groupId: string) {
@@ -66,25 +65,14 @@ export default async function LendingPage({
 
   const eventList = (
     <div className={cn("flex flex-col gap-4")}>
-      <div className={cn("flex items-center")}>
-        <h2
-          className={cn(
-            "hidden sm:block",
-            "text-xl font-bold text-primary-base",
-          )}
-        >
-          イベント一覧
-        </h2>
-        <div className="flex-1" />
-        <LinkButton
-          href={`/groups/${groupId}/lendings/new`}
-          color="accent"
-          colorStyle="fill"
-          className="px-6 py-2.5"
-        >
-          + 立て替えを追加
-        </LinkButton>
-      </div>
+      <h2
+        className={cn(
+          "hidden sm:block",
+          "text-xl font-bold text-primary-base",
+        )}
+      >
+        イベント一覧
+      </h2>
 
       <Suspense fallback={<LendingListSkeleton />}>
         <LendingList

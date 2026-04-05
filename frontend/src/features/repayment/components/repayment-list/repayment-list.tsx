@@ -93,6 +93,17 @@ export function RepaymentList({ initialDataPromise }: Props) {
 
   return (
     <div className={cn("flex flex-col gap-3")}>
+      <div className={cn("flex items-center")}>
+        <div className="flex-1" />
+        <LinkButton
+          href="/repayments/new"
+          color="accent"
+          colorStyle="fill"
+          className="px-6 py-2.5"
+        >
+          返す
+        </LinkButton>
+      </div>
       {sortedRepayments.map((repayment) => (
         <RepaymentCard key={repayment.id} repayment={repayment} />
       ))}

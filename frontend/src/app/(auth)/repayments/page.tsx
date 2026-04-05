@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import { getAllRepayments } from "@/features/repayment/actions/getAllRepayments";
 import { RepaymentList } from "@/features/repayment/components/repayment-list";
-import { LinkButton } from "@/components/ui/link-button";
 import { cn } from "@/utils/cn";
 
 export const dynamic = "force-dynamic";
@@ -48,20 +47,9 @@ export default async function RepaymentsPage() {
 
   return (
     <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-6")}>
-      <div className={cn("flex items-center")}>
-        <h1 className={cn("hidden sm:block", "text-2xl lg:text-3xl font-bold text-primary-base")}>
-          返した記録
-        </h1>
-        <div className="hidden sm:block flex-1" />
-        <LinkButton
-          href="/repayments/new"
-          color="accent"
-          colorStyle="fill"
-          className="px-6 py-2.5"
-        >
-          返す
-        </LinkButton>
-      </div>
+      <h1 className={cn("hidden sm:block", "text-2xl lg:text-3xl font-bold text-primary-base")}>
+        返した記録
+      </h1>
 
       <Suspense fallback={<RepaymentListSkeleton />}>
         <RepaymentList initialDataPromise={initialDataPromise} />

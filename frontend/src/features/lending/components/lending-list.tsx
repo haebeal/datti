@@ -89,6 +89,17 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
 
   return (
     <div className={cn("flex flex-col gap-3")}>
+      <div className={cn("flex items-center")}>
+        <div className="flex-1" />
+        <LinkButton
+          href={`/groups/${groupId}/lendings/new`}
+          color="accent"
+          colorStyle="fill"
+          className="px-6 py-2.5"
+        >
+          + 立て替えを追加
+        </LinkButton>
+      </div>
       {items.map((item) => {
         const isPositive = item.amount >= 0;
 

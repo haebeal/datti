@@ -38,28 +38,25 @@ export function Header() {
   if (isGroupDetail) return null;
 
   if (config.back) {
-    // サブページ: ← タイトル(中央)
+    // サブページ: ← タイトル(左寄せ)
     return (
       <header
         className={cn(
           "sm:hidden",
-          "flex items-center",
+          "flex items-center gap-2",
           "h-16 px-4",
         )}
       >
         <Link
           href={config.back}
-          className={cn("p-2 -ml-2 rounded-md")}
+          className={cn("p-1 -ml-1")}
           aria-label="戻る"
         >
           <ArrowLeft className={cn("w-6 h-6 text-primary-base")} />
         </Link>
-        <div className="flex-1" />
-        <span className={cn("text-base font-semibold text-primary-base")}>
+        <span className={cn("text-2xl font-bold text-primary-base")}>
           {config.title}
         </span>
-        <div className="flex-1" />
-        <div className="w-6" />
       </header>
     );
   }
@@ -73,12 +70,12 @@ export function Header() {
         "h-16 px-4",
       )}
     >
-      <span className={cn("text-base font-semibold text-primary-base")}>
+      <span className={cn("text-2xl font-bold text-primary-base")}>
         {config.title}
       </span>
       <button
         type="button"
-        className={cn("p-2 -mr-2 rounded-md")}
+        className={cn("p-2 -mr-2")}
         aria-label="通知"
       >
         <Bell className={cn("w-6 h-6 text-primary-base")} />

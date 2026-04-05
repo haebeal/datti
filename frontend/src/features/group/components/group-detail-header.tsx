@@ -13,23 +13,21 @@ export function GroupDetailHeader({ groupId, groupName }: Props) {
   return (
     <div
       className={cn(
-        "flex items-center gap-3",
-        "h-14 sm:h-auto",
-        "sm:mb-2",
+        "flex items-center gap-2",
+        "h-16 sm:h-auto",
       )}
     >
       <Link
         href="/groups"
-        className={cn("p-2 -ml-2 rounded-md", "hover:bg-gray-100 sm:hover:bg-transparent")}
+        className={cn("p-1 -ml-1 cursor-pointer")}
         aria-label="戻る"
       >
-        <ArrowLeft className="w-6 h-6 text-gray-500" />
+        <ArrowLeft className="w-6 h-6 text-primary-base sm:text-gray-500" />
       </Link>
-      <div className="flex-1 sm:hidden" />
       <span
         className={cn(
-          "text-base font-semibold text-primary-base",
-          "sm:text-3xl sm:font-bold",
+          "text-2xl font-bold text-primary-base",
+          "sm:text-3xl",
         )}
       >
         {groupName}
@@ -37,7 +35,7 @@ export function GroupDetailHeader({ groupId, groupName }: Props) {
       <div className="flex-1" />
       <Link
         href={`/groups/${groupId}/settings`}
-        className={cn("p-2 -mr-2 rounded-md", "hover:bg-gray-100 sm:hover:bg-transparent")}
+        className={cn("p-1 -mr-1 cursor-pointer")}
         aria-label="設定"
       >
         <Settings className="w-6 h-6 text-primary-base sm:text-gray-500" />

@@ -37,7 +37,7 @@ export function RepaymentCard({ repayment }: Props) {
 
       {/* Info */}
       <div className={cn("flex-1 min-w-0 flex flex-col gap-0.5")}>
-        <p className={cn("text-xs font-semibold text-accent-base")}>記録済み</p>
+        <p className={cn("text-xs font-semibold text-accent-base")}>返した</p>
         <p className={cn("text-sm font-semibold text-primary-base truncate")}>
           {payerName} → {debtorName}
         </p>

@@ -7,11 +7,7 @@ import { GroupSelector } from "@/features/group/components/group-selector";
 import { cn } from "@/utils/cn";
 import type { Group } from "@/features/group/types";
 import type { User } from "@/features/user/types";
-import { useTransition } from "react";
-import { logout } from "@/features/auth/actions/logout";
-import { Button } from "@/components/ui/button";
 import {
-  User as UserIcon,
   CircleDollarSign,
   ArrowLeftRight,
   Users,
@@ -21,30 +17,6 @@ import {
 interface SidebarProps {
   groups: Group[];
   user: User | null;
-}
-
-/**
- * ログアウトボタン
- */
-export function LogoutButton() {
-  const [isPending, startTransition] = useTransition();
-
-  const handleLogout = () => {
-    startTransition(async () => {
-      await logout();
-    });
-  };
-
-  return (
-    <Button
-      type="button"
-      colorStyle="outline"
-      onPress={handleLogout}
-      isDisabled={isPending}
-    >
-      {isPending ? "ログアウト中..." : "ログアウト"}
-    </Button>
-  );
 }
 
 export function Sidebar({ groups, user }: SidebarProps) {
@@ -61,133 +33,150 @@ export function Sidebar({ groups, user }: SidebarProps) {
       className={cn(
         "h-full w-80",
         "hidden",
-        "sm:flex flex-col gap-2",
-        "px-5 py-6",
+        "sm:flex flex-col",
+        "px-4 py-6",
         "bg-white",
         "border-gray-200 border-r",
       )}
     >
       {/* Logo */}
-      <Link href="/" className={cn("flex items-center gap-1", "px-3 py-2")}>
+      <Link
+        href="/"
+        className={cn("flex items-center gap-1", "px-2 py-2 pb-6")}
+      >
         <Image
           src="/logo.svg"
           alt="Datti"
-          width={36}
-          height={36}
-          className="w-9 h-9 shrink-0"
+          width={28}
+          height={28}
+          className="w-7 h-7 shrink-0"
         />
         <span className="text-2xl font-bold text-primary-base">atti</span>
       </Link>
 
-      <hr className={cn("border-gray-200 mb-2")} />
-
-      {/* My Page Section */}
-      <div className={cn("flex flex-col gap-3")}>
-        <div className={cn("flex items-center gap-2", "px-2")}>
-          <UserIcon className={cn("w-4 h-4 text-primary-base")} />
-          <span className={cn("text-xs font-bold text-primary-base uppercase")}>
-            マイページ
-          </span>
-        </div>
-
+      {/* マイページセクション */}
+      <div className={cn("flex flex-col gap-1")}>
+        <p
+          className={cn(
+            "px-2 pb-1",
+            "text-xs font-semibold text-gray-400",
+          )}
+        >
+          マイページ
+        </p>
         <nav className={cn("flex flex-col gap-1")}>
           <Link
             href="/"
             className={cn(
               "flex items-center gap-3",
-              "px-4 py-3 rounded-md",
+              "px-4 py-2.5 rounded-lg",
               "transition-colors",
               isActive("/")
                 ? "bg-primary-surface text-primary-base font-semibold"
-                : "text-gray-700 hover:bg-gray-100",
+                : "text-gray-500 hover:bg-gray-50",
             )}
           >
             <CircleDollarSign className="w-5 h-5" />
-            <span>立て替え</span>
+            <span className="text-sm">立て替え</span>
           </Link>
 
           <Link
             href="/repayments"
             className={cn(
               "flex items-center gap-3",
-              "px-4 py-3 rounded-md",
+              "px-4 py-2.5 rounded-lg",
               "transition-colors",
               isActive("/repayments")
                 ? "bg-primary-surface text-primary-base font-semibold"
-                : "text-gray-700 hover:bg-gray-100",
+                : "text-gray-500 hover:bg-gray-50",
             )}
           >
             <ArrowLeftRight className="w-5 h-5" />
-            <span>返済</span>
+            <span className="text-sm">返済</span>
           </Link>
         </nav>
       </div>
 
-      <hr className={cn("border-gray-200 my-4")} />
-
-      {/* Group Section */}
-      <div className={cn("flex flex-col gap-3")}>
-        <div className={cn("flex items-center gap-2", "px-2")}>
-          <Users className={cn("w-4 h-4 text-primary-base")} />
-          <span className={cn("text-xs font-bold text-primary-base uppercase")}>
-            グループ
-          </span>
-        </div>
-
-        <GroupSelector groups={groups} />
+      {/* グループセクション */}
+      <div className={cn("flex flex-col gap-1", "pt-4")}>
+        <p
+          className={cn(
+            "px-2 pb-1",
+            "text-xs font-semibold text-gray-400",
+          )}
+        >
+          グループ
+        </p>
+        <nav className={cn("flex flex-col gap-1")}>
+          <Link
+            href="/groups"
+            className={cn(
+              "flex items-center gap-3",
+              "px-4 py-2.5 rounded-lg",
+              "transition-colors",
+              "text-gray-500 hover:bg-gray-50",
+            )}
+          >
+            <Users className="w-5 h-5" />
+            <span className="text-sm">グループ</span>
+          </Link>
+          <GroupSelector groups={groups} />
+        </nav>
       </div>
 
-      {/* User Section */}
+      {/* Spacer */}
+      <div className="flex-1" />
+
+      {/* プロフィールセクション */}
       {user && (
-        <>
-          <div className="flex-1" />
-          <hr className={cn("border-gray-200 my-4")} />
-          <div className={cn("flex flex-col gap-3")}>
-            <div className={cn("flex items-center gap-3", "px-2")}>
-              {user.avatar ? (
-                <Image
-                  src={user.avatar}
-                  alt={user.name}
-                  width={40}
-                  height={40}
-                  className={cn("w-10 h-10 rounded-full object-cover")}
-                  unoptimized={process.env.NODE_ENV === "development"}
-                />
-              ) : (
-                <div
-                  className={cn(
-                    "w-10 h-10 rounded-full",
-                    "bg-primary-surface",
-                    "flex items-center justify-center",
-                    "text-primary-base font-bold",
-                  )}
-                >
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
+        <div
+          className={cn(
+            "flex items-center gap-3",
+            "px-2 py-4",
+            "border-t border-gray-200",
+          )}
+        >
+          {user.avatar ? (
+            <Image
+              src={user.avatar}
+              alt={user.name}
+              width={40}
+              height={40}
+              className={cn("w-10 h-10 rounded-full object-cover")}
+              unoptimized={process.env.NODE_ENV === "development"}
+            />
+          ) : (
+            <div
+              className={cn(
+                "w-10 h-10 rounded-full",
+                "bg-accent-base",
+                "flex items-center justify-center",
+                "text-white font-bold text-sm",
               )}
-              <div className="flex flex-col flex-1 min-w-0">
-                <p className={cn("text-sm font-medium text-gray-900 truncate")}>
-                  {user.name}
-                </p>
-                <p className={cn("text-xs text-gray-500 truncate")}>
-                  {user.email}
-                </p>
-              </div>
-              <Link
-                href="/profile"
-                className={cn(
-                  "p-2 rounded-md",
-                  "transition-colors",
-                  "hover:bg-gray-100",
-                  "flex items-center justify-center",
-                )}
-              >
-                <Settings className="w-5 h-5 text-gray-600" />
-              </Link>
+            >
+              {user.name.charAt(0)}
             </div>
-            <LogoutButton />
+          )}
+          <div className="flex flex-col flex-1 min-w-0">
+            <p className={cn("text-sm font-semibold text-primary-base truncate")}>
+              {user.name}
+            </p>
+            <p className={cn("text-xs text-gray-500 truncate")}>
+              {user.email}
+            </p>
           </div>
-        </>
+          <Link
+            href="/profile"
+            className={cn(
+              "p-2 rounded-md",
+              "transition-colors",
+              "hover:bg-gray-100",
+              "flex items-center justify-center",
+            )}
+          >
+            <Settings className="w-5 h-5 text-gray-400" />
+          </Link>
+        </div>
       )}
     </aside>
   );

@@ -28,8 +28,8 @@ export default async function GroupSettingsPage({ params }: Props) {
   const currentUserId = meResult.user.id;
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-6")}>
-      <div className={cn("hidden sm:flex items-center gap-3")}>
+    <div className={cn("w-full", "flex flex-col items-center gap-6")}>
+      <div className={cn("hidden sm:flex items-center gap-3", "w-full max-w-[640px]")}>
         <Link
           href={`/groups/${groupId}/lendings`}
           className={cn("p-2 -ml-2 rounded-md", "hover:bg-transparent")}

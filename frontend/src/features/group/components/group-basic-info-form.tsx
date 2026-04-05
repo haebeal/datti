@@ -53,9 +53,10 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
         onSubmit={form.onSubmit}
         action={action}
         className={cn(
-          "p-6 lg:p-8",
-          "flex flex-col gap-4",
+          "p-5 lg:p-8",
+          "flex flex-col gap-4 lg:gap-5",
           "bg-white border border-gray-200 rounded-xl",
+          "w-full max-w-[640px]",
         )}
       >
         <h2 className={cn("text-base lg:text-xl font-semibold text-primary-base")}>
@@ -95,9 +96,10 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
       {isCreator && (
         <div
           className={cn(
-            "p-6 lg:p-8",
-            "flex flex-col gap-4",
+            "p-5 lg:p-8",
+            "flex flex-col gap-3 lg:gap-4",
             "bg-white border border-gray-200 rounded-xl",
+            "w-full max-w-[640px]",
           )}
         >
           <h2 className={cn("text-base lg:text-xl font-semibold text-error-base")}>

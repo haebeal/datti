@@ -8,6 +8,7 @@ import { cn } from "@/utils/cn";
 type PageConfig = {
   title: string;
   back?: string;
+  bell?: boolean;
 };
 
 function getPageConfig(pathname: string): PageConfig {
@@ -23,7 +24,7 @@ function getPageConfig(pathname: string): PageConfig {
   }
   if (pathname.endsWith("/settings")) {
     const groupPath = pathname.replace("/settings", "/lendings");
-    return { title: "グループ設定", back: groupPath };
+    return { title: "グループ設定", back: groupPath, bell: true };
   }
   if (pathname === "/profile") return { title: "マイページ" };
   return { title: "ホーム" };
@@ -57,6 +58,18 @@ export function Header() {
         <span className={cn("text-2xl font-bold text-primary-base")}>
           {config.title}
         </span>
+        {config.bell && (
+          <>
+            <div className="flex-1" />
+            <button
+              type="button"
+              className={cn("p-2 -mr-2")}
+              aria-label="通知"
+            >
+              <Bell className={cn("w-6 h-6 text-primary-base")} />
+            </button>
+          </>
+        )}
       </header>
     );
   }

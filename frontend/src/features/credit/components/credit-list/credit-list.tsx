@@ -69,7 +69,7 @@ export function CreditList({ credits }: Props) {
           </div>
           <div className={cn("flex flex-col gap-0.5 lg:gap-1")}>
             <p className={cn("text-[11px] lg:text-xs font-medium text-gray-500")}>
-              支払う金額
+              返す金額
             </p>
             <p className={cn("text-base lg:text-2xl font-bold text-error-base")}>
               {formatCurrency(payable)}

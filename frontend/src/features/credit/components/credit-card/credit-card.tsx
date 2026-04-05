@@ -10,7 +10,7 @@ type Props = {
 export function CreditCard({ credit }: Props) {
   const userName = credit.user.name;
   const isPositive = credit.amount >= 0;
-  const label = isPositive ? "もらう" : "払う";
+  const label = isPositive ? "もらう" : "返す";
 
   return (
     <div

@@ -92,7 +92,7 @@ export function Sidebar({ groups, user }: SidebarProps) {
             )}
           >
             <ArrowLeftRight className="w-5 h-5" />
-            <span className="text-sm">返す</span>
+            <span className="text-sm">返した記録</span>
           </Link>
         </nav>
       </div>

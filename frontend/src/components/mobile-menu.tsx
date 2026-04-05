@@ -10,7 +10,7 @@ export function MobileMenu() {
 
   const items = [
     { href: "/", icon: House, label: "ホーム", match: pathname === "/" },
-    { href: "/repayments", icon: ArrowLeftRight, label: "返す", match: pathname.startsWith("/repayments") },
+    { href: "/repayments", icon: ArrowLeftRight, label: "返した記録", match: pathname.startsWith("/repayments") },
     { href: "/groups", icon: Users, label: "グループ", match: pathname.startsWith("/groups") },
     { href: "/profile", icon: User, label: "マイページ", match: pathname === "/profile" },
   ];

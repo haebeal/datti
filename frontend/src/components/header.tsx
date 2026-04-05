@@ -14,7 +14,7 @@ type PageConfig = {
 function getPageConfig(pathname: string): PageConfig {
   if (pathname === "/") return { title: "ホーム" };
   if (pathname === "/repayments") return { title: "返した記録" };
-  if (pathname === "/repayments/new") return { title: "返す", back: "/repayments" };
+  if (pathname === "/repayments/new") return { title: "返した記録をつける", back: "/repayments" };
   if (pathname.startsWith("/repayments/")) return { title: "返した記録", back: "/repayments" };
   if (pathname === "/groups") return { title: "グループ" };
   if (pathname === "/groups/new") return { title: "グループをつくる", back: "/groups" };

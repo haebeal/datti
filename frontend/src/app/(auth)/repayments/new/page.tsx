@@ -38,7 +38,7 @@ export default async function RepaymentCreatePage({ searchParams }: Props) {
           <ArrowLeft className="w-6 h-6 text-gray-500" />
         </Link>
         <h1 className={cn("text-3xl font-bold text-primary-base")}>
-          返す
+          返した記録をつける
         </h1>
       </div>
 

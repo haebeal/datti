@@ -81,7 +81,7 @@ export function RepaymentList({ initialDataPromise }: Props) {
           colorStyle="fill"
           className="px-6 py-2.5"
         >
-          返す
+          記録をつける
         </LinkButton>
       </div>
     );
@@ -101,7 +101,7 @@ export function RepaymentList({ initialDataPromise }: Props) {
           colorStyle="fill"
           className="px-6 py-2.5"
         >
-          返す
+          記録をつける
         </LinkButton>
       </div>
       {sortedRepayments.map((repayment) => (

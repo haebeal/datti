@@ -21,6 +21,10 @@ function getPageConfig(pathname: string): PageConfig {
     const groupPath = pathname.replace("/lendings/new", "/lendings");
     return { title: "立て替えを追加", back: groupPath };
   }
+  if (pathname.endsWith("/settings")) {
+    const groupPath = pathname.replace("/settings", "/lendings");
+    return { title: "グループ設定", back: groupPath };
+  }
   if (pathname === "/profile") return { title: "マイページ" };
   return { title: "ホーム" };
 }
@@ -29,8 +33,8 @@ export function Header() {
   const pathname = usePathname();
   const config = getPageConfig(pathname);
 
-  // グループ詳細は独自ヘッダーを持つので非表示
-  const isGroupDetail = /^\/groups\/[^/]+\/(lendings|settings)/.test(pathname);
+  // グループ詳細(イベント/メンバー)は独自ヘッダーを持つので非表示
+  const isGroupDetail = /^\/groups\/[^/]+\/lendings$/.test(pathname);
   if (isGroupDetail) return null;
 
   return (

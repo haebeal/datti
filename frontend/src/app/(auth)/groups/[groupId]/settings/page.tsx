@@ -29,20 +29,15 @@ export default async function GroupSettingsPage({ params }: Props) {
 
   return (
     <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-6")}>
-      {/* ヘッダー */}
-      <div className={cn("flex items-center gap-3")}>
+      <div className={cn("hidden sm:flex items-center gap-3")}>
         <Link
           href={`/groups/${groupId}/lendings`}
-          className={cn("p-2 -ml-2 rounded-md", "hover:bg-gray-100")}
+          className={cn("p-2 -ml-2 rounded-md", "hover:bg-transparent")}
           aria-label="戻る"
         >
-          <ArrowLeft className="w-6 h-6 text-primary-base sm:text-gray-500" />
+          <ArrowLeft className="w-6 h-6 text-gray-500" />
         </Link>
-        <h1
-          className={cn(
-            "text-base sm:text-3xl font-semibold sm:font-bold text-primary-base",
-          )}
-        >
+        <h1 className={cn("text-3xl font-bold text-primary-base")}>
           グループ設定
         </h1>
       </div>

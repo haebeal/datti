@@ -11,6 +11,7 @@ import {
   CircleDollarSign,
   ArrowLeftRight,
   Settings,
+  Plus,
 } from "lucide-react";
 
 interface SidebarProps {
@@ -98,14 +99,26 @@ export function Sidebar({ groups, user }: SidebarProps) {
 
       {/* グループセクション */}
       <div className={cn("flex flex-col gap-1", "pt-4")}>
-        <p
+        <div
           className={cn(
+            "flex items-center justify-between",
             "px-2 pb-1",
-            "text-xs font-semibold text-gray-400",
           )}
         >
-          グループ
-        </p>
+          <span className="text-xs font-semibold text-gray-400">
+            グループ
+          </span>
+          <Link
+            href="/groups/new"
+            className={cn(
+              "p-0.5 rounded",
+              "hover:bg-gray-100 transition-colors",
+            )}
+            aria-label="グループを追加"
+          >
+            <Plus className="w-4 h-4 text-gray-400" />
+          </Link>
+        </div>
         <GroupSelector groups={groups} />
       </div>
 

@@ -1,4 +1,4 @@
-import { Users, Settings } from "lucide-react";
+import { Users } from "lucide-react";
 import { getAllGroups } from "@/features/group/actions/getAllGroups";
 import { cn } from "@/utils/cn";
 import { LinkButton } from "@/components/ui/link-button";
@@ -72,10 +72,9 @@ export default async function GroupsPage() {
               {/* 上段: アイコン + グループ名 + 設定 */}
               <div className={cn("flex items-center gap-3")}>
                 <Users className="w-5 h-5 text-accent-base flex-shrink-0" />
-                <span className={cn("text-base font-semibold text-primary-base flex-1 truncate")}>
+                <span className={cn("text-base font-semibold text-primary-base truncate")}>
                   {group.name}
                 </span>
-                <Settings className="w-4.5 h-4.5 text-gray-400 flex-shrink-0" />
               </div>
 
               {/* 下段: メタ情報 */}

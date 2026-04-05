@@ -38,13 +38,13 @@ export default async function AuthPage({ searchParams }: Props) {
           "gap-4",
         )}
       >
-        <div className={cn("flex items-center gap-3")}>
+        <div className={cn("flex items-center gap-1")}>
           <Image
             src="/logo.svg"
             alt=""
-            width={48}
-            height={48}
-            className="w-12 h-12"
+            width={56}
+            height={56}
+            className="w-14 h-14 border-2 border-white rounded-xl"
           />
           <span className="text-5xl font-bold text-white">atti</span>
         </div>
@@ -63,7 +63,7 @@ export default async function AuthPage({ searchParams }: Props) {
       >
         <div className={cn("w-full max-w-[400px]", "flex flex-col gap-6")}>
           {/* ロゴ - モバイルのみ */}
-          <div className={cn("flex items-center gap-2.5", "lg:hidden")}>
+          <div className={cn("flex items-center gap-1", "lg:hidden")}>
             <Image
               src="/logo.svg"
               alt=""

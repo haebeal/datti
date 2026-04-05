@@ -59,7 +59,9 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
           "w-full",
         )}
       >
-        <h2 className={cn("text-base lg:text-xl font-semibold text-primary-base")}>
+        <h2
+          className={cn("text-base lg:text-xl font-semibold text-primary-base")}
+        >
           グループ情報
         </h2>
 
@@ -102,7 +104,9 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
             "w-full",
           )}
         >
-          <h2 className={cn("text-base lg:text-xl font-semibold text-error-base")}>
+          <h2
+            className={cn("text-base lg:text-xl font-semibold text-error-base")}
+          >
             危険な操作
           </h2>
           <p className={cn("text-sm text-gray-500")}>
@@ -128,7 +132,7 @@ export function GroupBasicInfoForm({ group, currentUserId }: Props) {
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         title="グループを削除"
-        message="このグループを削除してもよろしいですか？グループに関連する全てのイベントと立て替え記録も削除されます。"
+        message="このグループを削除してもよろしいですか？グループに関連する全ての立て替えと返した記録も削除されます。"
         confirmLabel="削除する"
         cancelLabel="キャンセル"
         onConfirm={handleDeleteConfirm}

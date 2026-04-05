@@ -13,18 +13,19 @@ type Props = {
   eventList: React.ReactNode;
 };
 
-export function GroupDetailView({ groupId, creatorId, currentUserId, members, eventList }: Props) {
+export function GroupDetailView({
+  groupId,
+  creatorId,
+  currentUserId,
+  members,
+  eventList,
+}: Props) {
   return (
     <>
       {/* モバイル: タブ切り替え */}
       <div className="sm:hidden">
         <Tabs defaultSelectedKey="events">
-          <TabList
-            className={cn(
-              "flex",
-              "border-b border-gray-200",
-            )}
-          >
+          <TabList className={cn("flex", "border-b border-gray-200")}>
             <Tab
               id="events"
               className={cn(
@@ -37,7 +38,7 @@ export function GroupDetailView({ groupId, creatorId, currentUserId, members, ev
                 "data-[selected]:border-b-2 data-[selected]:border-accent-base",
               )}
             >
-              イベント
+              立て替え
             </Tab>
             <Tab
               id="members"
@@ -58,18 +59,26 @@ export function GroupDetailView({ groupId, creatorId, currentUserId, members, ev
             {eventList}
           </TabPanel>
           <TabPanel id="members" className="pt-4">
-            <MemberPanel groupId={groupId} members={members} creatorId={creatorId} currentUserId={currentUserId} />
+            <MemberPanel
+              groupId={groupId}
+              members={members}
+              creatorId={creatorId}
+              currentUserId={currentUserId}
+            />
           </TabPanel>
         </Tabs>
       </div>
 
       {/* デスクトップ: 横並び */}
       <div className={cn("hidden sm:flex gap-6")}>
-        <div className="w-2/3 min-w-0">
-          {eventList}
-        </div>
+        <div className="w-2/3 min-w-0">{eventList}</div>
         <div className="w-1/3">
-          <MemberPanel groupId={groupId} members={members} creatorId={creatorId} currentUserId={currentUserId} />
+          <MemberPanel
+            groupId={groupId}
+            members={members}
+            creatorId={creatorId}
+            currentUserId={currentUserId}
+          />
         </div>
       </div>
     </>

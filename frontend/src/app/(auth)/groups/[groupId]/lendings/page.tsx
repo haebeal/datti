@@ -1,11 +1,11 @@
 import { Suspense } from "react";
-import { getAllLendings } from "@/features/lending/actions/getAllLendings";
 import { getGroup } from "@/features/group/actions/getGroup";
 import { getMembers } from "@/features/group/actions/getMembers";
-import { getMe } from "@/features/user/actions/getMe";
-import { LendingList } from "@/features/lending/components/lending-list";
 import { GroupDetailHeader } from "@/features/group/components/group-detail-header";
 import { GroupDetailView } from "@/features/group/components/group-detail-view";
+import { getAllLendings } from "@/features/lending/actions/getAllLendings";
+import { LendingList } from "@/features/lending/components/lending-list";
+import { getMe } from "@/features/user/actions/getMe";
 import { cn } from "@/utils/cn";
 
 async function getInitialData(groupId: string) {
@@ -69,12 +69,9 @@ export default async function LendingPage({
   const eventList = (
     <div className={cn("flex flex-col gap-4")}>
       <h2
-        className={cn(
-          "hidden sm:block",
-          "text-xl font-bold text-primary-base",
-        )}
+        className={cn("hidden sm:block", "text-xl font-bold text-primary-base")}
       >
-        イベント一覧
+        立て替え一覧
       </h2>
 
       <Suspense fallback={<LendingListSkeleton />}>

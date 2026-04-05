@@ -1,13 +1,13 @@
 "use client";
 
 import { useActionState, useRef, useState } from "react";
-import { cn } from "@/utils/cn";
 import { Button } from "@/components/ui/button";
-import { ErrorText } from "@/components/ui/error-text";
 import { ConfirmDialog } from "@/components/ui/dialog";
+import { ErrorText } from "@/components/ui/error-text";
+import { cn } from "@/utils/cn";
 import {
-  deleteLending,
   type DeleteLendingState,
+  deleteLending,
 } from "../actions/deleteLending";
 
 type Props = {
@@ -34,7 +34,7 @@ export function LendingDeleteForm({ groupId, lendingId }: Props) {
         action={action}
         className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
       >
-        <h2 className={cn("text-lg font-semibold")}>イベントを削除</h2>
+        <h2 className={cn("text-lg font-semibold")}>立て替えを削除</h2>
         <p className={cn("text-sm text-gray-600")}>削除すると元に戻せません</p>
 
         {state?.error && <ErrorText>{state.error}</ErrorText>}
@@ -54,8 +54,8 @@ export function LendingDeleteForm({ groupId, lendingId }: Props) {
       <ConfirmDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        title="イベントを削除"
-        message="このイベントを削除してもよろしいですか？"
+        title="立て替えを削除"
+        message="この立て替えを削除してもよろしいですか？"
         confirmLabel="削除する"
         cancelLabel="キャンセル"
         onConfirm={handleConfirm}

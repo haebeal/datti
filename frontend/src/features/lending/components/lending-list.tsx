@@ -1,14 +1,14 @@
 "use client";
 
-import { use, useState, useTransition, useEffect, useCallback } from "react";
-import { useInView } from "react-intersection-observer";
-import Link from "next/link";
 import { CalendarX } from "lucide-react";
+import Link from "next/link";
+import { use, useCallback, useEffect, useState, useTransition } from "react";
+import { useInView } from "react-intersection-observer";
+import { LinkButton } from "@/components/ui/link-button";
 import { cn } from "@/utils/cn";
 import { formatCurrency } from "@/utils/format";
-import { LinkButton } from "@/components/ui/link-button";
-import type { LendingItem, PaginatedLendingItems } from "../types";
 import { getAllLendings } from "../actions/getAllLendings";
+import type { LendingItem, PaginatedLendingItems } from "../types";
 
 type Props = {
   groupId: string;
@@ -68,8 +68,12 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
           <CalendarX className="w-8 h-8 lg:w-10 lg:h-10 text-gray-400" />
         </div>
         <div className={cn("flex flex-col items-center gap-1")}>
-          <p className={cn("text-sm lg:text-base font-semibold text-primary-base")}>
-            まだイベントはありません
+          <p
+            className={cn(
+              "text-sm lg:text-base font-semibold text-primary-base",
+            )}
+          >
+            まだ立て替えはありません
           </p>
           <p className={cn("text-xs lg:text-sm text-gray-500 text-center")}>
             立て替えを追加すると、ここに表示されます

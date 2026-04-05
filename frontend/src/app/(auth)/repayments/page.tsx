@@ -48,10 +48,11 @@ export default async function RepaymentsPage() {
 
   return (
     <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-6")}>
-      <div className={cn("flex justify-between items-center")}>
-        <h1 className={cn("text-2xl lg:text-3xl font-bold text-primary-base")}>
+      <div className={cn("flex items-center")}>
+        <h1 className={cn("hidden sm:block", "text-2xl lg:text-3xl font-bold text-primary-base")}>
           返した記録
         </h1>
+        <div className="hidden sm:block flex-1" />
         <LinkButton
           href="/repayments/new"
           color="accent"

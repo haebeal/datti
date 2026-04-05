@@ -9,7 +9,7 @@ export default async function CreditPage() {
 
   return (
     <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
-      <h1 className={cn("text-2xl lg:text-3xl font-bold text-primary-base")}>
+      <h1 className={cn("hidden sm:block", "text-2xl lg:text-3xl font-bold text-primary-base")}>
         ホーム
       </h1>
 

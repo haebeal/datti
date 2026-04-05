@@ -1,10 +1,31 @@
 "use client";
 
-import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { Menu, Bell } from "lucide-react";
 import { cn } from "@/utils/cn";
 
+const PAGE_TITLES: Record<string, string> = {
+  "/": "ホーム",
+  "/repayments": "返した記録",
+  "/groups": "グループ",
+  "/profile": "マイページ",
+};
+
+function getPageTitle(pathname: string): string {
+  if (PAGE_TITLES[pathname]) return PAGE_TITLES[pathname];
+  if (pathname.startsWith("/repayments")) return "返した記録";
+  if (pathname.startsWith("/groups")) return "グループ";
+  return "ホーム";
+}
+
 export function Header() {
+  const pathname = usePathname();
+  const title = getPageTitle(pathname);
+
+  // グループ詳細は独自ヘッダーを持つので非表示
+  const isGroupDetail = /^\/groups\/[^/]+\/(lendings|settings)/.test(pathname);
+  if (isGroupDetail) return null;
+
   return (
     <header
       className={cn(
@@ -23,16 +44,9 @@ export function Header() {
         <Menu className={cn("w-6 h-6 text-primary-base")} />
       </button>
       <div className="flex-1" />
-      <div className={cn("flex items-center gap-1")}>
-        <Image
-          src="/logo.svg"
-          alt=""
-          width={24}
-          height={24}
-          className="w-6 h-6"
-        />
-        <span className={cn("text-xl font-bold text-primary-base")}>atti</span>
-      </div>
+      <span className={cn("text-base font-semibold text-primary-base")}>
+        {title}
+      </span>
       <div className="flex-1" />
       <button
         type="button"

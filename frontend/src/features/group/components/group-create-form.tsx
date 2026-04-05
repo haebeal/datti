@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
 import { cn } from "@/utils/cn";
@@ -8,7 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ErrorText } from "@/components/ui/error-text";
 import { createGroup } from "../actions/createGroup";
+import { searchUserByEmail } from "../actions/searchUserByEmail";
 import { createGroupSchema } from "../schema";
+
+type InviteUser = {
+  id: string;
+  name: string;
+  email: string;
+};
 
 export function GroupCreateForm() {
   const [lastResult, action, isCreating] = useActionState(
@@ -24,19 +31,33 @@ export function GroupCreateForm() {
     shouldRevalidate: "onInput",
   });
 
-  const [emails, setEmails] = useState<string[]>([]);
+  const [inviteUsers, setInviteUsers] = useState<InviteUser[]>([]);
   const [emailInput, setEmailInput] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [isSearching, startSearchTransition] = useTransition();
 
   const handleAddEmail = () => {
     const trimmed = emailInput.trim();
-    if (trimmed && !emails.includes(trimmed)) {
-      setEmails([...emails, trimmed]);
-      setEmailInput("");
+    if (!trimmed) return;
+    if (inviteUsers.some((u) => u.email === trimmed)) {
+      setEmailError("既に追加済みです");
+      return;
     }
+    setEmailError("");
+    startSearchTransition(async () => {
+      const result = await searchUserByEmail(trimmed);
+      if (result.success) {
+        setInviteUsers((prev) => [...prev, result.user]);
+        setEmailInput("");
+        setEmailError("");
+      } else {
+        setEmailError(result.error);
+      }
+    });
   };
 
-  const handleRemoveEmail = (email: string) => {
-    setEmails(emails.filter((e) => e !== email));
+  const handleRemoveUser = (userId: string) => {
+    setInviteUsers(inviteUsers.filter((u) => u.id !== userId));
   };
 
   return (
@@ -88,7 +109,7 @@ export function GroupCreateForm() {
         <Input
           type="email"
           value={emailInput}
-          onChange={(e) => setEmailInput(e.target.value)}
+          onChange={(e) => { setEmailInput(e.target.value); setEmailError(""); }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
@@ -103,18 +124,23 @@ export function GroupCreateForm() {
           color="primary"
           colorStyle="fill"
           onPress={handleAddEmail}
+          isDisabled={isSearching}
           className="bg-accent-base border-accent-base"
         >
-          + 追加
+          {isSearching ? "検索中..." : "+ 追加"}
         </Button>
       </div>
 
-      {/* 追加済みメールリスト */}
-      {emails.length > 0 && (
+      {emailError && (
+        <p className={cn("text-xs text-error-base")}>{emailError}</p>
+      )}
+
+      {/* 追加済みユーザーリスト */}
+      {inviteUsers.length > 0 && (
         <div className={cn("flex flex-wrap gap-2")}>
-          {emails.map((email) => (
+          {inviteUsers.map((user) => (
             <div
-              key={email}
+              key={user.id}
               className={cn(
                 "flex items-center gap-1.5",
                 "px-3 py-1.5",
@@ -122,12 +148,12 @@ export function GroupCreateForm() {
                 "text-xs text-primary-base",
               )}
             >
-              {email}
+              {user.name}
               <button
                 type="button"
-                onClick={() => handleRemoveEmail(email)}
+                onClick={() => handleRemoveUser(user.id)}
                 className="cursor-pointer text-gray-400 hover:text-gray-600"
-                aria-label={`${email}を削除`}
+                aria-label={`${user.name}を削除`}
               >
                 ×
               </button>
@@ -137,8 +163,8 @@ export function GroupCreateForm() {
       )}
 
       {/* hidden inputsでemailsを送信 */}
-      {emails.map((email) => (
-        <input key={email} type="hidden" name="emails" value={email} />
+      {inviteUsers.map((user) => (
+        <input key={user.id} type="hidden" name="emails" value={user.email} />
       ))}
 
       {form.errors && <ErrorText>{form.errors}</ErrorText>}

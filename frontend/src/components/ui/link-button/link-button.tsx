@@ -48,6 +48,7 @@ export function LinkButton(props: Props) {
     "flex items-center justify-center gap-2.5",
     "text-sm font-semibold",
     getColorClasses(),
+    "cursor-pointer",
     "transition-colors",
     "focus:outline-none focus:ring-2 focus:ring-offset-4",
     className,

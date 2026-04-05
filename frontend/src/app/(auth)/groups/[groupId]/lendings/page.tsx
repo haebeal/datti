@@ -87,6 +87,7 @@ export default async function LendingPage({
     <div className={cn("w-full", "flex flex-col gap-4")}>
       <GroupDetailHeader groupId={groupId} groupName={group.name} />
       <GroupDetailView
+        groupId={groupId}
         creatorId={group.creator.id}
         members={members}
         eventList={eventList}

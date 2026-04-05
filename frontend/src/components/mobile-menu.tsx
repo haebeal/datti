@@ -8,6 +8,13 @@ import { cn } from "@/utils/cn";
 export function MobileMenu() {
   const pathname = usePathname();
 
+  const items = [
+    { href: "/", icon: CircleDollarSign, label: "立て替え", match: pathname === "/" },
+    { href: "/repayments", icon: ArrowLeftRight, label: "返済", match: pathname.startsWith("/repayments") },
+    { href: "/groups", icon: Users, label: "グループ", match: pathname.startsWith("/groups") },
+    { href: "/profile", icon: User, label: "プロフィール", match: pathname === "/profile" },
+  ];
+
   return (
     <nav
       className={cn(
@@ -16,54 +23,21 @@ export function MobileMenu() {
       )}
     >
       <div className={cn("flex justify-around items-center h-16")}>
-        <Link
-          href="/"
-          className={cn(
-            "flex flex-col items-center justify-center flex-1 h-full",
-            pathname === "/"
-              ? "text-primary-base"
-              : "text-gray-500 hover:text-primary-base",
-          )}
-        >
-          <CircleDollarSign className={cn("w-6 h-6")} />
-          <span className={cn("text-xs mt-1")}>立て替え</span>
-        </Link>
-        <Link
-          href="/repayments"
-          className={cn(
-            "flex flex-col items-center justify-center flex-1 h-full",
-            pathname.startsWith("/repayments")
-              ? "text-primary-base"
-              : "text-gray-500 hover:text-primary-base",
-          )}
-        >
-          <ArrowLeftRight className={cn("w-6 h-6")} />
-          <span className={cn("text-xs mt-1")}>返済</span>
-        </Link>
-        <Link
-          href="/groups"
-          className={cn(
-            "flex flex-col items-center justify-center flex-1 h-full",
-            pathname.startsWith("/groups")
-              ? "text-primary-base"
-              : "text-gray-500 hover:text-primary-base",
-          )}
-        >
-          <Users className={cn("w-6 h-6")} />
-          <span className={cn("text-xs mt-1")}>グループ</span>
-        </Link>
-        <Link
-          href="/profile"
-          className={cn(
-            "flex flex-col items-center justify-center flex-1 h-full",
-            pathname === "/profile"
-              ? "text-primary-base"
-              : "text-gray-500 hover:text-primary-base",
-          )}
-        >
-          <User className={cn("w-6 h-6")} />
-          <span className={cn("text-xs mt-1")}>プロフィール</span>
-        </Link>
+        {items.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "flex flex-col items-center justify-center gap-1 flex-1 h-full",
+              item.match
+                ? "text-accent-base font-semibold"
+                : "text-gray-400",
+            )}
+          >
+            <item.icon className={cn("w-5.5 h-5.5")} />
+            <span className={cn("text-[10px]")}>{item.label}</span>
+          </Link>
+        ))}
       </div>
     </nav>
   );

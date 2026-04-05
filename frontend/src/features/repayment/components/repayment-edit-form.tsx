@@ -1,12 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
 import { useForm } from "@conform-to/react";
 import { parseWithZod } from "@conform-to/zod";
-import { cn } from "@/utils/cn";
+import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ErrorText } from "@/components/ui/error-text";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/utils/cn";
 import { updateRepayment } from "../actions/updateRepayment";
 import { updateRepaymentSchema } from "../schema";
 import type { Repayment } from "../types";
@@ -32,7 +32,6 @@ export function RepaymentEditForm({ repayment }: Props) {
     shouldRevalidate: "onInput",
   });
 
-  const payerName = repayment.payer.name;
   const debtorName = repayment.debtor.name;
 
   return (
@@ -40,40 +39,60 @@ export function RepaymentEditForm({ repayment }: Props) {
       id={form.id}
       onSubmit={form.onSubmit}
       action={action}
-      className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
+      className={cn(
+        "p-6 lg:p-8",
+        "flex flex-col gap-5",
+        "bg-white border border-gray-200 rounded-xl",
+        "w-full",
+      )}
     >
-      <h2 className={cn("text-lg font-semibold")}>返済情報</h2>
+      <h2
+        className={cn("text-base lg:text-xl font-semibold text-primary-base")}
+      >
+        返済情報を編集
+      </h2>
 
-      <div className={cn("flex justify-between items-start gap-6")}>
-        <div className={cn("flex-1")}>
-          <p className={cn("text-sm text-gray-600")}>返済者</p>
-          <p className={cn("text-lg font-semibold")}>{payerName}</p>
-        </div>
-        <div className={cn("flex-1 text-right")}>
-          <p className={cn("text-sm text-gray-600")}>返済先</p>
-          <p className={cn("text-lg font-semibold")}>{debtorName}</p>
-        </div>
+      <div className={cn("flex flex-col gap-1.5")}>
+        <label
+          htmlFor="repayment-debtor"
+          className={cn("text-xs font-medium text-primary-base")}
+        >
+          相手
+        </label>
+        <Input
+          type="text"
+          id="repayment-debtor"
+          value={debtorName}
+          readOnly
+          className={cn(
+            "w-full",
+            "bg-gray-50 text-gray-600 cursor-not-allowed",
+          )}
+        />
       </div>
 
-      <label htmlFor={fields.amount.id} className={cn("text-sm")}>
-        金額
-      </label>
-
-      <Input
-        type="number"
-        name={fields.amount.name}
-        id={fields.amount.id}
-        key={fields.amount.key}
-        defaultValue={fields.amount.initialValue}
-        placeholder="0"
-        className={cn("w-full")}
-      />
-
-      {fields.amount.errors && <ErrorText>{fields.amount.errors}</ErrorText>}
+      <div className={cn("flex flex-col gap-1.5")}>
+        <label
+          htmlFor={fields.amount.id}
+          className={cn("text-xs font-medium text-primary-base")}
+        >
+          金額
+        </label>
+        <Input
+          type="number"
+          name={fields.amount.name}
+          id={fields.amount.id}
+          key={fields.amount.key}
+          defaultValue={fields.amount.initialValue}
+          placeholder="0"
+          className={cn("w-full")}
+        />
+        {fields.amount.errors && <ErrorText>{fields.amount.errors}</ErrorText>}
+      </div>
 
       {form.errors && <ErrorText>{form.errors}</ErrorText>}
 
-      <div className={cn("flex justify-end gap-5")}>
+      <div className={cn("flex justify-end")}>
         <Button type="submit" isDisabled={isUpdating}>
           {isUpdating ? "更新中..." : "更新"}
         </Button>

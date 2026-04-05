@@ -50,14 +50,22 @@ export function RepaymentList({ initialDataPromise }: Props) {
 
   if (repayments.length === 0) {
     return (
-      <div className={cn("p-4", "flex flex-col gap-3", "border rounded-lg")}>
-        <p className={cn("text-center text-gray-500")}>返済がまだありません</p>
-        <p className={cn("text-sm text-center text-gray-400")}>
-          返済した金額がここに表示されます
-        </p>
-        <div className={cn("flex justify-center")}>
-          <LinkButton href="/repayments/new">新規返済</LinkButton>
-        </div>
+      <div
+        className={cn(
+          "p-6",
+          "flex flex-col items-center gap-3",
+          "bg-white border border-gray-200 rounded-xl",
+        )}
+      >
+        <p className={cn("text-sm text-gray-500")}>返済履歴はまだありません</p>
+        <LinkButton
+          href="/repayments/new"
+          color="accent"
+          colorStyle="fill"
+          className="px-6 py-2.5"
+        >
+          返済を記録
+        </LinkButton>
       </div>
     );
   }

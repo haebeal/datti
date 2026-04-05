@@ -55,7 +55,7 @@ export function RepaymentList({ initialDataPromise }: Props) {
         className={cn(
           "flex-1",
           "flex flex-col items-center justify-center gap-4",
-          "py-20",
+          "min-h-[60vh]",
         )}
       >
         <div

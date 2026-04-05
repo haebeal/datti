@@ -1,6 +1,7 @@
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { getRepayment } from "@/features/repayment/actions/getRepayment";
-import { LinkButton } from "@/components/ui/link-button";
-import { formatCurrency, formatDate } from "@/utils/format";
+import { RepaymentEditForm } from "@/features/repayment/components/repayment-edit-form";
 import { cn } from "@/utils/cn";
 
 export default async function RepaymentDetailPage({
@@ -18,58 +19,23 @@ export default async function RepaymentDetailPage({
   }
 
   const repayment = repaymentResult.result;
-  const payerName = repayment.payer.name;
-  const debtorName = repayment.debtor.name;
 
   return (
-    <div className={cn("w-full", "flex flex-col gap-5")}>
-      <div className={cn("flex justify-between items-center")}>
-        <h1 className={cn("text-2xl font-bold")}>返済詳細</h1>
-        <LinkButton
-          href={`/repayments/${id}/edit`}
-          color="primary"
-          colorStyle="outline"
+    <div className={cn("w-full", "flex flex-col gap-6")}>
+      <div className={cn("hidden sm:flex items-center gap-3")}>
+        <Link
+          href="/repayments"
+          className={cn("p-2 -ml-2 rounded-md", "hover:bg-transparent")}
+          aria-label="戻る"
         >
-          編集
-        </LinkButton>
+          <ArrowLeft className="w-6 h-6 text-gray-500" />
+        </Link>
+        <h1 className={cn("text-3xl font-bold text-primary-base")}>
+          返済編集
+        </h1>
       </div>
 
-      <div className={cn("p-6", "flex flex-col gap-4", "border rounded-lg")}>
-        <div className={cn("flex justify-between items-start gap-6")}>
-          <div className={cn("flex-1")}>
-            <p className={cn("text-sm text-gray-600")}>返済者</p>
-            <p className={cn("text-lg font-semibold")}>{payerName}</p>
-          </div>
-          <div className={cn("flex-1 text-right")}>
-            <p className={cn("text-sm text-gray-600")}>返済先</p>
-            <p className={cn("text-lg font-semibold")}>{debtorName}</p>
-          </div>
-        </div>
-
-        <hr />
-
-        <div className={cn("flex justify-between items-center")}>
-          <div>
-            <p className={cn("text-sm text-gray-600")}>作成日</p>
-            <p className={cn("font-medium")}>
-              {formatDate(repayment.createdAt)}
-            </p>
-          </div>
-          <div className={cn("text-right")}>
-            <p className={cn("text-sm text-gray-600")}>更新日</p>
-            <p className={cn("font-medium")}>
-              {formatDate(repayment.updatedAt)}
-            </p>
-          </div>
-        </div>
-
-        <div className={cn("text-right")}>
-          <p className={cn("text-sm text-gray-600")}>返済金額</p>
-          <p className={cn("text-2xl font-bold text-primary-base")}>
-            {formatCurrency(repayment.amount)}
-          </p>
-        </div>
-      </div>
+      <RepaymentEditForm repayment={repayment} />
     </div>
   );
 }

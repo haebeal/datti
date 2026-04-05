@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Globe, MessageCircle } from "lucide-react";
+
 import { LinkButton } from "@/components/ui/link-button/link-button";
 import { cn } from "@/utils/cn";
 
@@ -39,11 +40,11 @@ export default async function AuthPage({ searchParams }: Props) {
       >
         <div className={cn("flex items-center gap-3")}>
           <Image
-            src="/logo-white.svg"
+            src="/logo.svg"
             alt=""
             width={48}
             height={48}
-            className="w-12 h-12"
+            className="w-12 h-12 invert"
           />
           <span className="text-5xl font-bold text-white">atti</span>
         </div>

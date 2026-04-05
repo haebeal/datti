@@ -57,7 +57,7 @@ export function MemberPanel({ groupId, members, creatorId }: Props) {
               "px-4 py-2",
               "text-xs font-semibold text-primary-base",
               "bg-white border border-gray-200 rounded-lg",
-              "hover:bg-gray-50 transition-colors",
+              "hover:bg-gray-50 transition-colors cursor-pointer",
             )}
           >
             + 招待
@@ -141,7 +141,7 @@ export function MemberPanel({ groupId, members, creatorId }: Props) {
                     <button
                       type="button"
                       onClick={close}
-                      className="p-1"
+                      className="p-1 cursor-pointer"
                       aria-label="閉じる"
                     >
                       <X className="w-6 h-6 text-gray-400" />

@@ -63,7 +63,7 @@ export function Header() {
             <div className="flex-1" />
             <button
               type="button"
-              className={cn("p-2 -mr-2")}
+              className={cn("p-2 -mr-2 cursor-pointer")}
               aria-label="通知"
             >
               <Bell className={cn("w-6 h-6 text-primary-base")} />
@@ -88,7 +88,7 @@ export function Header() {
       </span>
       <button
         type="button"
-        className={cn("p-2 -mr-2")}
+        className={cn("p-2 -mr-2 cursor-pointer")}
         aria-label="通知"
       >
         <Bell className={cn("w-6 h-6 text-primary-base")} />

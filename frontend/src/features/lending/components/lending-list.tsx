@@ -3,6 +3,7 @@
 import { use, useState, useTransition, useEffect, useCallback } from "react";
 import { useInView } from "react-intersection-observer";
 import Link from "next/link";
+import { CalendarX } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { formatCurrency } from "@/utils/format";
 import { LinkButton } from "@/components/ui/link-button";
@@ -57,16 +58,30 @@ export function LendingList({ groupId, initialDataPromise }: Props) {
           "min-h-[40vh]",
         )}
       >
-        <p className={cn("text-sm text-gray-500")}>
-          イベントがまだありません
-        </p>
+        <div
+          className={cn(
+            "w-16 h-16 lg:w-20 lg:h-20 rounded-full",
+            "bg-gray-100",
+            "flex items-center justify-center",
+          )}
+        >
+          <CalendarX className="w-8 h-8 lg:w-10 lg:h-10 text-gray-400" />
+        </div>
+        <div className={cn("flex flex-col items-center gap-1")}>
+          <p className={cn("text-sm lg:text-base font-semibold text-primary-base")}>
+            まだイベントはありません
+          </p>
+          <p className={cn("text-xs lg:text-sm text-gray-500 text-center")}>
+            立て替えを追加すると、ここに表示されます
+          </p>
+        </div>
         <LinkButton
           href={`/groups/${groupId}/lendings/new`}
           color="accent"
           colorStyle="fill"
           className="px-6 py-2.5"
         >
-          + 新規作成
+          + 立て替えを追加
         </LinkButton>
       </div>
     );

@@ -313,22 +313,25 @@ func (q *Queries) FindAllEvents(ctx context.Context) ([]Event, error) {
 }
 
 const findAllLendingsByGroupIDAndUserIDWithCursor = `-- name: FindAllLendingsByGroupIDAndUserIDWithCursor :many
-SELECT DISTINCT ON (e.id)
-  e.id,
-  e.group_id,
-  e.name,
-  e.amount,
-  e.event_date,
-  e.created_at,
-  e.updated_at,
-  p.payer_id AS created_by
-FROM events e
-INNER JOIN event_payments ep ON e.id = ep.event_id
-INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = $1
-  AND (p.payer_id = $2 OR p.debtor_id = $2)
-  AND ($3::text IS NULL OR e.id < $3)
-ORDER BY e.event_date DESC
+SELECT id, group_id, name, amount, event_date, created_at, updated_at, created_by FROM (
+  SELECT DISTINCT ON (e.id)
+    e.id,
+    e.group_id,
+    e.name,
+    e.amount,
+    e.event_date,
+    e.created_at,
+    e.updated_at,
+    p.payer_id AS created_by
+  FROM events e
+  INNER JOIN event_payments ep ON e.id = ep.event_id
+  INNER JOIN payments p ON ep.payment_id = p.id
+  WHERE e.group_id = $1
+    AND (p.payer_id = $2 OR p.debtor_id = $2)
+    AND ($3::text IS NULL OR e.id < $3)
+  ORDER BY e.id
+) t
+ORDER BY t.event_date DESC
 LIMIT $4
 `
 

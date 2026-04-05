@@ -1,8 +1,8 @@
-import { getLending } from "@/features/lending/actions/getLending";
 import { getGroup } from "@/features/group/actions/getGroup";
 import { getMembers } from "@/features/group/actions/getMembers";
-import { getMe } from "@/features/user/actions/getMe";
+import { getLending } from "@/features/lending/actions/getLending";
 import { LendingEditForm } from "@/features/lending/components/lending-edit-form";
+import { getMe } from "@/features/user/actions/getMe";
 import { cn } from "@/utils/cn";
 
 export default async function EditLendingPage({
@@ -38,7 +38,9 @@ export default async function EditLendingPage({
   }
 
   if (!meResult.success) {
-    return <div className={cn("text-error-base")}>エラー: {meResult.error}</div>;
+    return (
+      <div className={cn("text-error-base")}>エラー: {meResult.error}</div>
+    );
   }
 
   const group = groupResult.result;
@@ -47,9 +49,9 @@ export default async function EditLendingPage({
   const currentUserId = meResult.user.id;
 
   return (
-    <div className={cn("w-full max-w-4xl mx-auto", "flex flex-col gap-5")}>
+    <div className={cn("w-full", "flex flex-col gap-5")}>
       <div>
-        <h1 className={cn("text-2xl font-bold")}>イベント編集</h1>
+        <h1 className={cn("text-2xl font-bold")}>立て替え編集</h1>
         <p className={cn("text-base text-gray-500")}>{group.name}</p>
       </div>
 

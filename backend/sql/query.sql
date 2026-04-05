@@ -39,22 +39,25 @@ SELECT id, group_id, name, amount, event_date, created_at, updated_at
 FROM events WHERE id = $1 LIMIT 1;
 
 -- name: FindAllLendingsByGroupIDAndUserIDWithCursor :many
-SELECT DISTINCT ON (e.id)
-  e.id,
-  e.group_id,
-  e.name,
-  e.amount,
-  e.event_date,
-  e.created_at,
-  e.updated_at,
-  p.payer_id AS created_by
-FROM events e
-INNER JOIN event_payments ep ON e.id = ep.event_id
-INNER JOIN payments p ON ep.payment_id = p.id
-WHERE e.group_id = sqlc.arg('group_id')
-  AND (p.payer_id = sqlc.arg('user_id') OR p.debtor_id = sqlc.arg('user_id'))
-  AND (sqlc.narg('cursor')::text IS NULL OR e.id < sqlc.narg('cursor'))
-ORDER BY e.event_date DESC
+SELECT * FROM (
+  SELECT DISTINCT ON (e.id)
+    e.id,
+    e.group_id,
+    e.name,
+    e.amount,
+    e.event_date,
+    e.created_at,
+    e.updated_at,
+    p.payer_id AS created_by
+  FROM events e
+  INNER JOIN event_payments ep ON e.id = ep.event_id
+  INNER JOIN payments p ON ep.payment_id = p.id
+  WHERE e.group_id = sqlc.arg('group_id')
+    AND (p.payer_id = sqlc.arg('user_id') OR p.debtor_id = sqlc.arg('user_id'))
+    AND (sqlc.narg('cursor')::text IS NULL OR e.id < sqlc.narg('cursor'))
+  ORDER BY e.id
+) t
+ORDER BY t.event_date DESC
 LIMIT sqlc.arg('limit');
 
 -- name: FindEventByGroupIDAndDebtorIDAndEventID :one

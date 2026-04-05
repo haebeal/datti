@@ -18,9 +18,14 @@ export async function createGroup(_: unknown, formData: FormData) {
 
   const { name } = submission.value;
 
+  // メールアドレスリストを取得
+  const emails = formData.getAll("emails") as string[];
+  const validEmails = emails.filter((e) => e.trim() !== "");
+
   const token = await getAuthToken();
   const client = createApiClient(token);
 
+  // グループ作成
   const { data, error } = await client.POST("/groups", {
     body: { name },
   });
@@ -29,6 +34,28 @@ export async function createGroup(_: unknown, formData: FormData) {
     return submission.reply({
       formErrors: [error.message],
     });
+  }
+
+  // メンバー招待（メールアドレスからユーザー検索して追加）
+  const inviteErrors: string[] = [];
+  for (const email of validEmails) {
+    const { data: users } = await client.GET("/users", {
+      params: { query: { email, limit: 1 } },
+    });
+
+    if (!users || users.length === 0) {
+      inviteErrors.push(`${email}: ユーザーが見つかりません`);
+      continue;
+    }
+
+    const { error: addError } = await client.POST("/groups/{id}/members", {
+      params: { path: { id: data.id } },
+      body: { userId: users[0].id },
+    });
+
+    if (addError) {
+      inviteErrors.push(`${email}: ${addError.message}`);
+    }
   }
 
   // グループ一覧とレイアウトを再検証

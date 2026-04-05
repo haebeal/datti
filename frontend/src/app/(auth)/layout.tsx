@@ -1,3 +1,4 @@
+import { Header } from "@/components/header";
 import { MobileMenu } from "@/components/mobile-menu";
 import { Sidebar } from "@/components/sidebar";
 import { getAllGroups } from "@/features/group/actions/getAllGroups";
@@ -17,16 +18,23 @@ export default async function AuthLayout({
 
   return (
     <>
-      <div className={cn("h-screen", "flex", "bg-background")}>
+      <div className={cn("h-screen", "flex")}>
         <Sidebar groups={groups} user={user} />
-        <main
-          className={cn(
-            "flex-1 min-w-0 overflow-y-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 sm:pb-8",
-            "flex flex-col",
-          )}
-        >
-          {children}
-        </main>
+        <div className={cn("flex-1 min-w-0", "flex flex-col")}>
+          <Header />
+          <main
+            className={cn(
+              "flex-1 overflow-y-auto",
+              "px-4 sm:px-6 lg:px-10",
+              "py-5 sm:py-8",
+              "pb-20 sm:pb-8",
+            )}
+          >
+            <div className={cn("w-full max-w-[800px] mx-auto")}>
+              {children}
+            </div>
+          </main>
+        </div>
       </div>
       <MobileMenu />
     </>

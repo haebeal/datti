@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Props) {
   return (
     <html lang="ja">
-      <body className={cn(notoSansJP.variable, "antialiased")}>{children}</body>
+      <body className={cn(notoSansJP.variable, "antialiased", "bg-background")}>{children}</body>
     </html>
   );
 }

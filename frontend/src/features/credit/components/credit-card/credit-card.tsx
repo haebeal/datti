@@ -1,7 +1,8 @@
+import { CircleArrowDown, CircleArrowUp } from "lucide-react";
 import Image from "next/image";
 import { LinkButton } from "@/components/ui/link-button";
-import { formatCurrency } from "@/utils/format";
 import { cn } from "@/utils/cn";
+import { formatCurrency } from "@/utils/format";
 import type { Credit } from "../../types";
 
 type Props = {
@@ -10,88 +11,102 @@ type Props = {
 
 export function CreditCard({ credit }: Props) {
   const userName = credit.user.name;
-  const avatarLetter = userName.charAt(0).toUpperCase();
+  const avatarLetter = userName.charAt(0);
   const isPositive = credit.amount >= 0;
-  const sign = isPositive ? "+" : "";
-  const label = isPositive ? "受け取る予定" : "支払う予定";
-
-  // 返済ボタン用のURLパラメータ（負の金額を正にして渡す）
-  const repaymentUrl = `/repayments/new?debtorId=${credit.user.id}&amount=${Math.abs(credit.amount)}`;
+  const label = isPositive ? "もらう" : "返す";
+  const absAmount = Math.abs(credit.amount);
 
   return (
     <div
       className={cn(
-        "p-4",
+        "p-4 lg:p-5",
         "flex flex-col gap-3",
-        "md:flex-row md:items-center md:gap-5",
-        "border rounded-lg",
-        "hover:bg-gray-50 transition-colors",
+        "bg-white border border-gray-200 rounded-xl",
       )}
     >
-      {/* Mobile: Row 1 - Avatar + Name / PC: Avatar */}
-      <div className={cn("flex items-center gap-3 md:flex-1 md:gap-5")}>
-        {/* User Avatar */}
-        {credit.user.avatar ? (
-          <Image
-            src={credit.user.avatar}
-            alt={userName}
-            width={48}
-            height={48}
-            className={cn("flex-shrink-0 w-12 h-12 rounded-full object-cover")}
-          />
-        ) : (
-          <div
-            className={cn(
-              "flex-shrink-0 w-12 h-12 rounded-full",
-              "bg-gradient-to-br from-primary-base to-primary-active",
-              "flex items-center justify-center",
-              "text-white font-bold text-xl",
-            )}
-          >
-            {avatarLetter}
-          </div>
-        )}
-
-        {/* User Info */}
-        <div className={cn("flex-1 min-w-0")}>
-          <h3 className={cn("text-lg font-semibold text-gray-900 truncate")}>
-            {userName}
-          </h3>
-          <p className={cn("text-sm text-gray-500 truncate")}>
-            {credit.user.email}
-          </p>
-        </div>
-      </div>
-
-      {/* Mobile: Row 2 - Amount + Button / PC: Amount + Button */}
-      <div
-        className={cn(
-          "flex items-center justify-between gap-4",
-          "md:flex-shrink-0 md:gap-4",
-        )}
-      >
-        <div className={cn("text-left md:text-right")}>
-          <p
-            className={cn(
-              "text-2xl font-bold",
-              isPositive ? "text-success-base" : "text-error-base",
-            )}
-          >
-            {sign}
-            {formatCurrency(credit.amount)}
-          </p>
-          <p className={cn("text-sm text-gray-500")}>{label}</p>
-        </div>
-        {/* 返済ボタン（負の金額の場合のみ表示、正の金額でもスペース確保） */}
-        <LinkButton
-          href={repaymentUrl}
-          colorStyle="outline"
-          color="error"
-          className={cn(isPositive && "invisible")}
+      <div className={cn("flex items-center gap-3 lg:gap-4")}>
+        {/* Direction Icon */}
+        <div
+          className={cn(
+            "flex-shrink-0",
+            "w-8 h-8 lg:w-10 lg:h-10 rounded-full",
+            isPositive ? "bg-[#ECFDF5]" : "bg-[#FEF2F2]",
+            "flex items-center justify-center",
+          )}
         >
-          返済する
-        </LinkButton>
+          {isPositive ? (
+            <CircleArrowDown className="w-4.5 h-4.5 lg:w-5.5 lg:h-5.5 text-success-base" />
+          ) : (
+            <CircleArrowUp className="w-4.5 h-4.5 lg:w-5.5 lg:h-5.5 text-error-base" />
+          )}
+        </div>
+
+        {/* Avatar + Info */}
+        <div className={cn("flex-1 min-w-0 flex items-center gap-3")}>
+          {/* User Avatar */}
+          {credit.user.avatar ? (
+            <Image
+              src={credit.user.avatar}
+              alt={userName}
+              width={32}
+              height={32}
+              className={cn("flex-shrink-0 w-8 h-8 rounded-full object-cover")}
+            />
+          ) : (
+            <div
+              className={cn(
+                "flex-shrink-0 w-8 h-8 rounded-full",
+                "bg-accent-base",
+                "flex items-center justify-center",
+                "text-white font-bold text-xs",
+              )}
+            >
+              {avatarLetter}
+            </div>
+          )}
+
+          <div className={cn("flex-1 min-w-0 flex flex-col gap-0.5")}>
+            <p
+              className={cn(
+                "text-xs lg:text-sm font-semibold",
+                isPositive ? "text-success-base" : "text-error-base",
+              )}
+            >
+              {label}
+            </p>
+            <p
+              className={cn(
+                "text-xs lg:text-sm font-semibold text-primary-base truncate",
+              )}
+            >
+              {userName}
+            </p>
+          </div>
+        </div>
+
+        {/* Amount */}
+        <p
+          className={cn(
+            "text-sm lg:text-xl font-bold flex-shrink-0",
+            isPositive ? "text-success-base" : "text-error-base",
+          )}
+        >
+          {formatCurrency(absAmount)}
+        </p>
       </div>
+
+      {!isPositive && (
+        <div className={cn("flex justify-end")}>
+          <LinkButton
+            href={`/repayments/new?debtorId=${credit.user.id}&amount=${absAmount}`}
+            colorStyle="outline"
+            color="primary"
+            className={cn("px-3 py-1.5 text-xs")}
+          >
+            返した記録をつける
+          </LinkButton>
+        </div>
+      )}
     </div>
   );
 }

@@ -21,4 +21,7 @@
   --color-error-hover: #ef4444;
   --color-error-base: #dc2626;
   --color-error-active: #b91c1c;
+
+  /* Background */
+  --color-background: #F9FAFB;
 }

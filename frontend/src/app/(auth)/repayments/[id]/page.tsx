@@ -31,7 +31,7 @@ export default async function RepaymentDetailPage({
           <ArrowLeft className="w-6 h-6 text-gray-500" />
         </Link>
         <h1 className={cn("text-3xl font-bold text-primary-base")}>
-          返済編集
+          返した記録を編集
         </h1>
       </div>
 

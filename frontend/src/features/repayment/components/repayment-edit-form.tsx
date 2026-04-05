@@ -49,7 +49,7 @@ export function RepaymentEditForm({ repayment }: Props) {
       <h2
         className={cn("text-base lg:text-xl font-semibold text-primary-base")}
       >
-        返済情報を編集
+        返した記録の情報を編集
       </h2>
 
       <div className={cn("flex flex-col gap-1.5")}>

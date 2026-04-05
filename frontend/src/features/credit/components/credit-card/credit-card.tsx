@@ -16,10 +16,10 @@ export function CreditCard({ credit }: Props) {
   return (
     <div
       className={cn(
-        "p-4",
+        "py-4",
         "flex items-center gap-3",
-        "bg-white border border-gray-200 rounded-xl",
-        "hover:bg-gray-50 transition-colors",
+        "border-b border-gray-200",
+        "last:border-b-0",
       )}
     >
       {/* Avatar */}

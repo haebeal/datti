@@ -77,7 +77,7 @@ export function CreditList({ credits }: Props) {
           <h2 className={cn("text-base lg:text-xl font-bold text-primary-base")}>
             ユーザー別
           </h2>
-          <div className={cn("flex flex-col gap-3")}>
+          <div className={cn("flex flex-col")}>
             {credits.map((credit) => (
               <CreditCard key={credit.user.id} credit={credit} />
             ))}

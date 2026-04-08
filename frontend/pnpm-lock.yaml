@@ -22,7 +22,7 @@ importers:
         version: 1.17.1(react@19.2.4)
       '@conform-to/zod':
         specifier: ^1.15.1
-        version: 1.17.1(zod@3.25.76)
+        version: 1.17.1(zod@4.3.6)
       '@internationalized/date':
         specifier: ^3.10.1
         version: 3.11.0
@@ -60,8 +60,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(tailwindcss@4.1.18)
       zod:
-        specifier: ^3
-        version: 3.25.76
+        specifier: ^4.0.0
+        version: 4.3.6
     devDependencies:
       '@biomejs/biome':
         specifier: ^2.3.12
@@ -1953,8 +1953,8 @@ packages:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
 
-  zod@3.25.76:
-    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
 
@@ -2595,10 +2595,10 @@ snapshots:
       '@conform-to/dom': 1.17.1
       react: 19.2.4
 
-  '@conform-to/zod@1.17.1(zod@3.25.76)':
+  '@conform-to/zod@1.17.1(zod@4.3.6)':
     dependencies:
       '@conform-to/dom': 1.17.1
-      zod: 3.25.76
+      zod: 4.3.6
 
   '@emnapi/runtime@1.8.1':
     dependencies:
@@ -4713,4 +4713,4 @@ snapshots:
 
   yargs-parser@21.1.1: {}
 
-  zod@3.25.76: {}
+  zod@4.3.6: {}

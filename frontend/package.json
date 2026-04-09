@@ -19,7 +19,7 @@
     "@conform-to/zod": "^1.15.1",
     "@internationalized/date": "^3.10.1",
     "browser-image-compression": "^2.0.2",
-    "lucide-react": "^0.575.0",
+    "lucide-react": "^1.0.0",
     "nanoid": "^5.1.6",
     "next": "16.1.7",
     "openapi-fetch": "^0.17.0",

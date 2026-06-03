@@ -1,10 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
 import { ArrowLeftRight, House, Plus, Settings } from "lucide-react";
-import { useAuth } from "@/libs/auth/auth-context";
+import { authUserQueryOptions } from "@/libs/auth/queries";
 import { cn } from "@/utils/cn";
 
 export function Sidebar() {
-	const { user } = useAuth();
+	const { data: user } = useQuery(authUserQueryOptions);
 	const { pathname } = useLocation();
 
 	const isActive = (path: string) => {

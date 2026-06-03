@@ -1,5 +1,5 @@
 import createClient from "openapi-fetch";
-import { getCurrentAccessToken } from "@/libs/auth/token-store";
+import { userManager } from "@/libs/auth/cognito";
 import type { paths } from "./schema";
 
 export const apiClient = createClient<paths>({
@@ -7,10 +7,10 @@ export const apiClient = createClient<paths>({
 });
 
 apiClient.use({
-	onRequest({ request }) {
-		const token = getCurrentAccessToken();
-		if (token) {
-			request.headers.set("Authorization", `Bearer ${token}`);
+	async onRequest({ request }) {
+		const user = await userManager.getUser();
+		if (user && !user.expired) {
+			request.headers.set("Authorization", `Bearer ${user.access_token}`);
 		}
 		return request;
 	},

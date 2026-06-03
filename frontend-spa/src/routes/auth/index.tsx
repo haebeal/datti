@@ -2,7 +2,7 @@ import { Globe, MessageCircle } from "lucide-react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/libs/auth/auth-context";
+import { login } from "@/libs/auth/actions";
 import { userManager } from "@/libs/auth/cognito";
 import { cn } from "@/utils/cn";
 
@@ -31,7 +31,6 @@ export const Route = createFileRoute("/auth/")({
 });
 
 function AuthPage() {
-	const { login } = useAuth();
 	const { error: errorParam } = Route.useSearch();
 	const error = errorParam ? ERROR_MESSAGES[errorParam] || errorParam : null;
 

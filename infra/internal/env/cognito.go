@@ -62,14 +62,22 @@ func newCognito(scope constructs.Construct, env string, props *cognitoProps) *Co
 	})
 
 	// Callback/Logout URLs based on environment
+	// Next.js (旧フロント) と SPA (新フロント) の両方を許可
 	var callbackURLs, logoutURLs *[]*string
 	if env == "prod" {
-		callbackURLs = jsii.Strings("https://datti.app/api/auth/cognito/callback")
-		logoutURLs = jsii.Strings("https://datti.app/auth")
+		callbackURLs = jsii.Strings(
+			"https://datti.app/api/auth/cognito/callback",
+			"https://datti.app/auth/callback",
+		)
+		logoutURLs = jsii.Strings(
+			"https://datti.app/auth",
+		)
 	} else {
 		callbackURLs = jsii.Strings(
 			fmt.Sprintf("https://%s.datti.app/api/auth/cognito/callback", env),
+			fmt.Sprintf("https://%s.datti.app/auth/callback", env),
 			"http://localhost:3000/api/auth/cognito/callback",
+			"http://localhost:3000/auth/callback",
 		)
 		logoutURLs = jsii.Strings(
 			fmt.Sprintf("https://%s.datti.app/auth", env),

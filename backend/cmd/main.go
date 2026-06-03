@@ -162,7 +162,7 @@ func main() {
 	e.Use(otelecho.Middleware("github.com/haebeal/datti"))
 
 	e.Use(echomw.CORSWithConfig(echomw.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:5173"},
+		AllowOrigins:     []string{"http://localhost:3000"},
 		AllowCredentials: true,
 		AllowMethods: []string{
 			http.MethodGet, http.MethodPost, http.MethodPut,

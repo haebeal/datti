@@ -12,11 +12,11 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthCallbackRouteImport } from './routes/auth/callback'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedRepaymentsIndexRouteImport } from './routes/_authenticated/repayments/index'
 import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenticated/groups/index'
 import { Route as AuthenticatedGroupsNewRouteImport } from './routes/_authenticated/groups/new'
+import { Route as ApiAuthCognitoCallbackRouteImport } from './routes/api/auth/cognito/callback'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -31,11 +31,6 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
-  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
@@ -59,71 +54,76 @@ const AuthenticatedGroupsNewRoute = AuthenticatedGroupsNewRouteImport.update({
   path: '/groups/new',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const ApiAuthCognitoCallbackRoute = ApiAuthCognitoCallbackRouteImport.update({
+  id: '/api/auth/cognito/callback',
+  path: '/api/auth/cognito/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/profile': typeof AuthenticatedProfileRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/auth/': typeof AuthIndexRoute
   '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/groups/': typeof AuthenticatedGroupsIndexRoute
   '/repayments/': typeof AuthenticatedRepaymentsIndexRoute
+  '/api/auth/cognito/callback': typeof ApiAuthCognitoCallbackRoute
 }
 export interface FileRoutesByTo {
   '/profile': typeof AuthenticatedProfileRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthIndexRoute
   '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/groups': typeof AuthenticatedGroupsIndexRoute
   '/repayments': typeof AuthenticatedRepaymentsIndexRoute
+  '/api/auth/cognito/callback': typeof ApiAuthCognitoCallbackRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
-  '/auth/callback': typeof AuthCallbackRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/auth/': typeof AuthIndexRoute
   '/_authenticated/groups/new': typeof AuthenticatedGroupsNewRoute
   '/_authenticated/groups/': typeof AuthenticatedGroupsIndexRoute
   '/_authenticated/repayments/': typeof AuthenticatedRepaymentsIndexRoute
+  '/api/auth/cognito/callback': typeof ApiAuthCognitoCallbackRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/profile'
-    | '/auth/callback'
     | '/auth/'
     | '/groups/new'
     | '/groups/'
     | '/repayments/'
+    | '/api/auth/cognito/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/profile'
-    | '/auth/callback'
     | '/'
     | '/auth'
     | '/groups/new'
     | '/groups'
     | '/repayments'
+    | '/api/auth/cognito/callback'
   id:
     | '__root__'
     | '/_authenticated'
     | '/_authenticated/profile'
-    | '/auth/callback'
     | '/_authenticated/'
     | '/auth/'
     | '/_authenticated/groups/new'
     | '/_authenticated/groups/'
     | '/_authenticated/repayments/'
+    | '/api/auth/cognito/callback'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
-  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthIndexRoute: typeof AuthIndexRoute
+  ApiAuthCognitoCallbackRoute: typeof ApiAuthCognitoCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -148,13 +148,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
-    }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
@@ -184,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedGroupsNewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/api/auth/cognito/callback': {
+      id: '/api/auth/cognito/callback'
+      path: '/api/auth/cognito/callback'
+      fullPath: '/api/auth/cognito/callback'
+      preLoaderRoute: typeof ApiAuthCognitoCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -209,8 +209,8 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
-  AuthCallbackRoute: AuthCallbackRoute,
   AuthIndexRoute: AuthIndexRoute,
+  ApiAuthCognitoCallbackRoute: ApiAuthCognitoCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

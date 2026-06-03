@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { userManager } from "@/libs/auth/cognito";
 
-export const Route = createFileRoute("/auth/callback")({
+export const Route = createFileRoute("/api/auth/cognito/callback")({
 	loader: async () => {
 		try {
 			await userManager.signinRedirectCallback();

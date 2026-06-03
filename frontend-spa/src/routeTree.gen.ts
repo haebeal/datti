@@ -17,6 +17,7 @@ import { Route as AuthenticatedRepaymentsIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenticated/groups/index'
 import { Route as AuthenticatedGroupsNewRouteImport } from './routes/_authenticated/groups/new'
 import { Route as ApiAuthCognitoCallbackRouteImport } from './routes/api/auth/cognito/callback'
+import { Route as AuthenticatedGroupsGroupIdSettingsRouteImport } from './routes/_authenticated/groups/$groupId.settings'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
   id: '/_authenticated',
@@ -59,6 +60,12 @@ const ApiAuthCognitoCallbackRoute = ApiAuthCognitoCallbackRouteImport.update({
   path: '/api/auth/cognito/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedGroupsGroupIdSettingsRoute =
+  AuthenticatedGroupsGroupIdSettingsRouteImport.update({
+    id: '/groups/$groupId/settings',
+    path: '/groups/$groupId/settings',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/groups/': typeof AuthenticatedGroupsIndexRoute
   '/repayments/': typeof AuthenticatedRepaymentsIndexRoute
+  '/groups/$groupId/settings': typeof AuthenticatedGroupsGroupIdSettingsRoute
   '/api/auth/cognito/callback': typeof ApiAuthCognitoCallbackRoute
 }
 export interface FileRoutesByTo {
@@ -76,6 +84,7 @@ export interface FileRoutesByTo {
   '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/groups': typeof AuthenticatedGroupsIndexRoute
   '/repayments': typeof AuthenticatedRepaymentsIndexRoute
+  '/groups/$groupId/settings': typeof AuthenticatedGroupsGroupIdSettingsRoute
   '/api/auth/cognito/callback': typeof ApiAuthCognitoCallbackRoute
 }
 export interface FileRoutesById {
@@ -87,6 +96,7 @@ export interface FileRoutesById {
   '/_authenticated/groups/new': typeof AuthenticatedGroupsNewRoute
   '/_authenticated/groups/': typeof AuthenticatedGroupsIndexRoute
   '/_authenticated/repayments/': typeof AuthenticatedRepaymentsIndexRoute
+  '/_authenticated/groups/$groupId/settings': typeof AuthenticatedGroupsGroupIdSettingsRoute
   '/api/auth/cognito/callback': typeof ApiAuthCognitoCallbackRoute
 }
 export interface FileRouteTypes {
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/groups/new'
     | '/groups/'
     | '/repayments/'
+    | '/groups/$groupId/settings'
     | '/api/auth/cognito/callback'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/groups/new'
     | '/groups'
     | '/repayments'
+    | '/groups/$groupId/settings'
     | '/api/auth/cognito/callback'
   id:
     | '__root__'
@@ -117,6 +129,7 @@ export interface FileRouteTypes {
     | '/_authenticated/groups/new'
     | '/_authenticated/groups/'
     | '/_authenticated/repayments/'
+    | '/_authenticated/groups/$groupId/settings'
     | '/api/auth/cognito/callback'
   fileRoutesById: FileRoutesById
 }
@@ -184,6 +197,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthCognitoCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/groups/$groupId/settings': {
+      id: '/_authenticated/groups/$groupId/settings'
+      path: '/groups/$groupId/settings'
+      fullPath: '/groups/$groupId/settings'
+      preLoaderRoute: typeof AuthenticatedGroupsGroupIdSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -193,6 +213,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedGroupsNewRoute: typeof AuthenticatedGroupsNewRoute
   AuthenticatedGroupsIndexRoute: typeof AuthenticatedGroupsIndexRoute
   AuthenticatedRepaymentsIndexRoute: typeof AuthenticatedRepaymentsIndexRoute
+  AuthenticatedGroupsGroupIdSettingsRoute: typeof AuthenticatedGroupsGroupIdSettingsRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -201,6 +222,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedGroupsNewRoute: AuthenticatedGroupsNewRoute,
   AuthenticatedGroupsIndexRoute: AuthenticatedGroupsIndexRoute,
   AuthenticatedRepaymentsIndexRoute: AuthenticatedRepaymentsIndexRoute,
+  AuthenticatedGroupsGroupIdSettingsRoute:
+    AuthenticatedGroupsGroupIdSettingsRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

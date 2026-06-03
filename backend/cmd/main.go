@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -121,8 +120,9 @@ func main() {
 		log.Fatal("環境変数AVATAR_BASE_URLが設定してありません")
 	}
 	s3Client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
-		if endpoint, ok := os.LookupEnv("AWS_ENDPOINT_URL"); ok {
-			o.BaseEndpoint = aws.String(endpoint)
+		// AWS_ENDPOINT_URL_S3 が設定されていれば (LocalStack 等) path-style にする。
+		// エンドポイント自体は SDK が AWS_ENDPOINT_URL_S3 を自動で適用する。
+		if _, ok := os.LookupEnv("AWS_ENDPOINT_URL_S3"); ok {
 			o.UsePathStyle = true
 		}
 	})

@@ -5,8 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider } from "./libs/auth/auth-provider";
-import { useAuth } from "./libs/auth/auth-context";
-import type { AuthState } from "./libs/auth/auth-context";
+import { Loading } from "./components/loading";
 import "./styles/globals.css";
 
 const queryClient = new QueryClient({
@@ -20,22 +19,15 @@ const queryClient = new QueryClient({
 
 const router = createRouter({
 	routeTree,
-	context: {
-		queryClient,
-		auth: undefined as unknown as AuthState,
-	},
+	context: { queryClient },
 	defaultPreload: "intent",
+	defaultPendingComponent: Loading,
 });
 
 declare module "@tanstack/react-router" {
 	interface Register {
 		router: typeof router;
 	}
-}
-
-function InnerApp() {
-	const auth = useAuth();
-	return <RouterProvider router={router} context={{ queryClient, auth }} />;
 }
 
 const rootEl = document.getElementById("root");
@@ -45,7 +37,7 @@ createRoot(rootEl).render(
 	<StrictMode>
 		<QueryClientProvider client={queryClient}>
 			<AuthProvider>
-				<InnerApp />
+				<RouterProvider router={router} />
 			</AuthProvider>
 		</QueryClientProvider>
 	</StrictMode>,

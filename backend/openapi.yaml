@@ -239,6 +239,44 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/User.UpdateRequest'
+  /users/me/avatar/upload-url:
+    post:
+      operationId: User_createAvatarUploadURL
+      summary: アバター画像アップロード用の署名付きURLを発行
+      parameters: []
+      responses:
+        '200':
+          description: 署名付きURLの発行成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User.AvatarUploadURLResponse'
+        '400':
+          description: リクエストが不正
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Access is unauthorized.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User.AvatarUploadURLRequest'
   /users/me/line:
     put:
       operationId: User_linkLINE
@@ -1475,6 +1513,37 @@ components:
         redirectUri:
           type: string
           description: LINE Loginのリダイレクト URI
+    User.AvatarUploadURLRequest:
+      type: object
+      required:
+        - contentType
+        - contentLength
+      properties:
+        contentType:
+          type: string
+          enum:
+            - image/jpeg
+            - image/png
+            - image/webp
+          description: アップロードするファイルのMIMEタイプ
+        contentLength:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 10485760
+          description: アップロードするファイルのサイズ (バイト、最大10MB)
+    User.AvatarUploadURLResponse:
+      type: object
+      required:
+        - uploadUrl
+        - publicUrl
+      properties:
+        uploadUrl:
+          type: string
+          description: S3への直接PUTアップロード用URL (5分有効)
+        publicUrl:
+          type: string
+          description: アップロード完了後、プロフィール更新時にavatarフィールドに指定するURL
     Subscription.GetResponse:
       type: object
       required:

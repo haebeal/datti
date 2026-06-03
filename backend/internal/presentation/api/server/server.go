@@ -47,6 +47,7 @@ type UserHandler interface {
 	UpdateMe(c echo.Context) error
 	LinkLINE(c echo.Context) error
 	UnlinkLINE(c echo.Context) error
+	CreateAvatarUploadURL(c echo.Context) error
 }
 
 type SubscriptionHandler interface {
@@ -187,6 +188,10 @@ func (s *Server) UserLinkLINE(ctx echo.Context) error {
 
 func (s *Server) UserUnlinkLINE(ctx echo.Context) error {
 	return s.uh.UnlinkLINE(ctx)
+}
+
+func (s *Server) UserCreateAvatarUploadURL(ctx echo.Context) error {
+	return s.uh.CreateAvatarUploadURL(ctx)
 }
 
 func (s *Server) SubscriptionGetAll(ctx echo.Context) error {

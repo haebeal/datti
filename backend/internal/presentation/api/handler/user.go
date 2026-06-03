@@ -20,6 +20,7 @@ type UserUseCase interface {
 	UpdateMe(context.Context, UserUpdateMeInput) (*UserUpdateMeOutput, error)
 	LinkLINE(context.Context, UserLinkLINEInput) (*UserLinkLINEOutput, error)
 	UnlinkLINE(context.Context, UserUnlinkLINEInput) error
+	CreateAvatarUploadURL(context.Context, UserCreateAvatarUploadURLInput) (*UserCreateAvatarUploadURLOutput, error)
 }
 
 type userHandler struct {
@@ -295,6 +296,50 @@ func (h userHandler) LinkLINE(c echo.Context) error {
 	return c.JSON(http.StatusOK, res)
 }
 
+// CreateAvatarUploadURL アバター画像アップロード用の署名付きURLを発行する
+func (h userHandler) CreateAvatarUploadURL(c echo.Context) error {
+	ctx, span := tracer.Start(c.Request().Context(), "user.CreateAvatarUploadURL")
+	defer span.End()
+
+	uid, ok := c.Get("uid").(string)
+	if !ok {
+		res := &api.ErrorResponse{
+			Message: "認証情報が取得できませんでした",
+		}
+		return c.JSON(http.StatusUnauthorized, res)
+	}
+
+	var req api.UserAvatarUploadURLRequest
+	if err := c.Bind(&req); err != nil {
+		res := &api.ErrorResponse{
+			Message: "リクエストの形式が正しくありません",
+		}
+		return c.JSON(http.StatusBadRequest, res)
+	}
+
+	input := UserCreateAvatarUploadURLInput{
+		UID:           uid,
+		ContentType:   string(req.ContentType),
+		ContentLength: req.ContentLength,
+	}
+
+	output, err := h.u.CreateAvatarUploadURL(ctx, input)
+	if err != nil {
+		span.SetStatus(codes.Error, err.Error())
+		span.RecordError(err)
+		res := &api.ErrorResponse{
+			Message: "署名付きURLの発行に失敗しました",
+		}
+		return c.JSON(http.StatusInternalServerError, res)
+	}
+
+	res := api.UserAvatarUploadURLResponse{
+		UploadUrl: output.UploadURL,
+		PublicUrl: output.PublicURL,
+	}
+	return c.JSON(http.StatusOK, res)
+}
+
 // UnlinkLINE LINE連携を解除する
 func (h userHandler) UnlinkLINE(c echo.Context) error {
 	ctx, span := tracer.Start(c.Request().Context(), "user.UnlinkLINE")
@@ -371,4 +416,17 @@ type UserLinkLINEOutput struct {
 // UserUnlinkLINEInput LINE連携解除の入力パラメータ
 type UserUnlinkLINEInput struct {
 	UID string
+}
+
+// UserCreateAvatarUploadURLInput アバターアップロードURL発行の入力パラメータ
+type UserCreateAvatarUploadURLInput struct {
+	UID           string
+	ContentType   string
+	ContentLength int64
+}
+
+// UserCreateAvatarUploadURLOutput アバターアップロードURL発行の出力
+type UserCreateAvatarUploadURLOutput struct {
+	UploadURL string
+	PublicURL string
 }

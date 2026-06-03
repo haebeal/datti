@@ -8,11 +8,14 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/haebeal/datti/internal/gateway/line"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/haebeal/datti/internal/gateway/repository"
+	"github.com/haebeal/datti/internal/gateway/storage"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
 	"github.com/haebeal/datti/internal/presentation/api/middleware"
@@ -103,6 +106,28 @@ func main() {
 
 	queries := postgres.New(pool)
 
+	awsCfg, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"))
+	if err != nil {
+		log.Fatal("AWSへの認証に失敗しました")
+	}
+	cognitoClient := cognitoidentityprovider.NewFromConfig(awsCfg)
+
+	avatarBucket, ok := os.LookupEnv("S3_AVATAR_BUCKET")
+	if !ok {
+		log.Fatal("環境変数S3_AVATAR_BUCKETが設定してありません")
+	}
+	avatarBaseURL, ok := os.LookupEnv("AVATAR_BASE_URL")
+	if !ok {
+		log.Fatal("環境変数AVATAR_BASE_URLが設定してありません")
+	}
+	s3Client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+		if endpoint, ok := os.LookupEnv("AWS_ENDPOINT_URL"); ok {
+			o.BaseEndpoint = aws.String(endpoint)
+			o.UsePathStyle = true
+		}
+	})
+	avatarStorage := storage.NewAvatarStorage(s3Client, avatarBucket, avatarBaseURL)
+
 	lineChannelID, _ := os.LookupEnv("LINE_CHANNEL_ID")
 	lineChannelSecret, _ := os.LookupEnv("LINE_CHANNEL_SECRET")
 	lc := line.NewClient(lineChannelID, lineChannelSecret)
@@ -118,7 +143,7 @@ func main() {
 	cu := usecase.NewCreditUseCase(cr)
 	ru := usecase.NewRepaymentUseCase(rr, cr)
 	gu := usecase.NewGroupUseCase(ur, gr)
-	uu := usecase.NewUserUseCase(ur, lc)
+	uu := usecase.NewUserUseCase(ur, lc, avatarStorage)
 	su := usecase.NewSubscriptionUseCase(sr)
 	au := usecase.NewAuthUseCase(ur)
 
@@ -149,12 +174,6 @@ func main() {
 		},
 		MaxAge: 86400,
 	}))
-
-	awsCfg, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"))
-	if err != nil {
-		log.Fatal("AWSへの認証に失敗しました")
-	}
-	cognitoClient := cognitoidentityprovider.NewFromConfig(awsCfg)
 
 	e.Use(middleware.AuthMiddleware(middleware.AuthMiddlewareConfig{
 		SkipPaths:     []string{"/health"},

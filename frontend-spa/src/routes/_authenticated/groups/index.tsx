@@ -39,7 +39,7 @@ function GroupsPage() {
 					{groups.map((group) => (
 						<li key={group.id}>
 							<Link
-								to="/groups/$groupId/settings"
+								to="/groups/$groupId/lendings"
 								params={{ groupId: group.id }}
 								className={cn(
 									"flex items-center gap-3",

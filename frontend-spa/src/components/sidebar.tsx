@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
 import { ArrowLeftRight, House, Plus, Settings } from "lucide-react";
+import { GroupSelector } from "@/features/group/components/group-selector";
 import { authUserQueryOptions } from "@/libs/auth/queries";
 import { cn } from "@/utils/cn";
 
@@ -86,6 +87,7 @@ export function Sidebar() {
 						<Plus className="w-4 h-4 text-gray-400" />
 					</Link>
 				</div>
+				<GroupSelector />
 			</div>
 
 			<div className="flex-1" />

@@ -1,147 +1,86 @@
-"use client";
-
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
+import { ErrorText } from "@/components/ui/error-text";
 import { cn } from "@/utils/cn";
-import { ImageCropDialog } from "./image-crop-dialog";
-import { compressImage } from "../lib/compress-image";
-import { uploadAvatar } from "../actions/uploadAvatar";
+import { useUploadAvatar } from "../mutations";
 
-type AvatarPickerProps = {
-  currentAvatar: string;
-  onAvatarChange: (url: string) => void;
-  name: string;
-  id: string;
+type Props = {
+	currentAvatar: string;
+	onAvatarChange: (url: string) => void;
 };
 
-export function AvatarPicker({
-  currentAvatar,
-  onAvatarChange,
-  name,
-  id,
-}: AvatarPickerProps) {
-  const [previewUrl, setPreviewUrl] = useState(currentAvatar);
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+const MAX_SIZE = 10 * 1024 * 1024;
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+export function AvatarPicker({ currentAvatar, onAvatarChange }: Props) {
+	const [previewUrl, setPreviewUrl] = useState(currentAvatar);
+	const [error, setError] = useState<string | null>(null);
+	const inputRef = useRef<HTMLInputElement>(null);
+	const uploadAvatar = useUploadAvatar();
 
-    setError(null);
+	const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		setError(null);
+		if (inputRef.current) inputRef.current.value = "";
 
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      setError("ファイルサイズは10MB以下にしてください");
-      return;
-    }
+		if (file.size > MAX_SIZE) {
+			setError("ファイルサイズは10MB以下にしてください");
+			return;
+		}
+		if (!ALLOWED_TYPES.includes(file.type)) {
+			setError("JPG、PNG、WebP形式のみ対応しています");
+			return;
+		}
 
-    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-      setError("JPG、PNG、WebP形式のみ対応しています");
-      return;
-    }
+		try {
+			const url = await uploadAvatar.mutateAsync(file);
+			setPreviewUrl(url);
+			onAvatarChange(url);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "アップロードに失敗しました");
+		}
+	};
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      setImageSrc(reader.result as string);
-      setIsDialogOpen(true);
-    };
-    reader.readAsDataURL(file);
+	const isUploading = uploadAvatar.isPending;
 
-    if (inputRef.current) {
-      inputRef.current.value = "";
-    }
-  };
-
-  const handleCropComplete = async (blob: Blob) => {
-    setIsUploading(true);
-    setError(null);
-
-    try {
-      const compressedFile = await compressImage(blob);
-
-      const formData = new FormData();
-      formData.append("file", compressedFile);
-
-      const result = await uploadAvatar(formData);
-
-      if (result.success) {
-        setPreviewUrl(result.url);
-        onAvatarChange(result.url);
-      } else {
-        setError(result.error);
-      }
-    } catch (err) {
-      console.error("Failed to upload avatar:", err);
-      setError("アップロードに失敗しました");
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  return (
-    <div className={cn("flex flex-col gap-2")}>
-      <input type="hidden" name={name} id={id} value={previewUrl} />
-
-      <div className={cn("flex items-center gap-4")}>
-        <div
-          className={cn(
-            "w-20 h-20",
-            "rounded-full",
-            "overflow-hidden",
-            "bg-gray-200",
-            "flex items-center justify-center",
-          )}
-        >
-          {previewUrl ? (
-            <img
-              src={previewUrl}
-              alt="アバター"
-              className={cn("w-full h-full object-cover")}
-            />
-          ) : (
-            <span className={cn("text-gray-400 text-2xl")}>?</span>
-          )}
-        </div>
-
-        <div className={cn("flex flex-col gap-2")}>
-          <label
-            className={cn(
-              "px-4 py-2",
-              "bg-gray-100 hover:bg-gray-200",
-              "rounded-md",
-              "cursor-pointer",
-              "text-sm font-medium",
-              "transition-colors",
-              isUploading && "opacity-50 cursor-not-allowed",
-            )}
-          >
-            {isUploading ? "アップロード中..." : "画像を選択"}
-            <input
-              ref={inputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              onChange={handleFileSelect}
-              disabled={isUploading}
-              className={cn("sr-only")}
-            />
-          </label>
-        </div>
-      </div>
-
-      {error && <p className={cn("text-sm text-error-base")}>{error}</p>}
-
-      {imageSrc && (
-        <ImageCropDialog
-          isOpen={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          imageSrc={imageSrc}
-          onCropComplete={handleCropComplete}
-        />
-      )}
-    </div>
-  );
+	return (
+		<div className="flex flex-col gap-2">
+			<div className="flex items-center gap-4">
+				<div
+					className={cn(
+						"w-20 h-20 rounded-full overflow-hidden bg-gray-200",
+						"flex items-center justify-center",
+					)}
+				>
+					{previewUrl ? (
+						<img
+							src={previewUrl}
+							alt="アバター"
+							className="w-full h-full object-cover"
+						/>
+					) : (
+						<span className="text-gray-400 text-2xl">?</span>
+					)}
+				</div>
+				<label
+					className={cn(
+						"px-4 py-2 rounded-md text-sm font-medium cursor-pointer",
+						"bg-gray-100 hover:bg-gray-200 transition-colors",
+						isUploading && "opacity-50 cursor-not-allowed",
+					)}
+				>
+					{isUploading ? "アップロード中…" : "画像を選択"}
+					<input
+						ref={inputRef}
+						type="file"
+						accept="image/jpeg,image/png,image/webp"
+						onChange={handleFileSelect}
+						disabled={isUploading}
+						className="sr-only"
+					/>
+				</label>
+			</div>
+			<ErrorText>{error}</ErrorText>
+		</div>
+	);
 }

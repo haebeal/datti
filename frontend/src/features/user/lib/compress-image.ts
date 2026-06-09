@@ -1,29 +1,25 @@
 import imageCompression from "browser-image-compression";
 
 type CompressOptions = {
-  maxSizeMB?: number;
-  maxWidthOrHeight?: number;
+	maxSizeMB?: number;
+	maxWidthOrHeight?: number;
 };
 
-const DEFAULT_OPTIONS: CompressOptions = {
-  maxSizeMB: 1,
-  maxWidthOrHeight: 500,
+const DEFAULT_OPTIONS: Required<CompressOptions> = {
+	maxSizeMB: 1,
+	maxWidthOrHeight: 500,
 };
 
 export async function compressImage(
-  blob: Blob,
-  options: CompressOptions = {},
+	blob: Blob,
+	options: CompressOptions = {},
 ): Promise<File> {
-  const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-
-  const file = new File([blob], "avatar.webp", { type: blob.type });
-
-  const compressedFile = await imageCompression(file, {
-    maxSizeMB: mergedOptions.maxSizeMB,
-    maxWidthOrHeight: mergedOptions.maxWidthOrHeight,
-    useWebWorker: true,
-    fileType: "image/webp",
-  });
-
-  return compressedFile;
+	const merged = { ...DEFAULT_OPTIONS, ...options };
+	const file = new File([blob], "avatar.webp", { type: blob.type });
+	return imageCompression(file, {
+		maxSizeMB: merged.maxSizeMB,
+		maxWidthOrHeight: merged.maxWidthOrHeight,
+		useWebWorker: true,
+		fileType: "image/webp",
+	});
 }

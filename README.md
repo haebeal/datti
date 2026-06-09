@@ -9,8 +9,8 @@
 | ディレクトリ | 説明 |
 | --- | --- |
 | `backend` | Go 製 API サーバー本体（Taskfile、スキーマ、OpenAPI 生成物を含む） |
-| `frontend` | Next.js 製 Web フロントエンド |
-| `infra` | Terraform などインフラ構成管理 |
+| `frontend` | Vite + React + TanStack Router 製 SPA フロントエンド |
+| `infra` | AWS CDK によるインフラ構成管理 |
 
 ## 必要なツール
 
@@ -59,7 +59,7 @@
 | 環境名 | Destination | 説明 |
 | --- | --- | --- |
 | Datti Backend | `backend/.env` | バックエンド API 用 |
-| Datti Frontend | `frontend/.env.local` | フロントエンド用 |
+| Datti Frontend | `frontend/.env` | フロントエンド用 (Vite が読み取る) |
 
 ## デプロイ環境変数
 
@@ -69,24 +69,27 @@
 
 | Secret | 用途 | 設定元 |
 | --- | --- | --- |
-| `AWS_ROLE_ARN` | GitHub OIDC で Assume するロール | AWS IAM（CDKで作成） |
+| `AWS_ROLE_ARN` | GitHub OIDC で Assume するロール (backend ECS) | AWS IAM（CDKで作成） |
 | `AWS_ACCOUNT_ID` | AWS アカウント ID | AWS |
 | `GOOGLE_CLIENT_ID` | Cognito Google OAuth | Google Cloud Console |
 | `GOOGLE_CLIENT_SECRET` | Cognito Google OAuth | Google Cloud Console |
 | `POSTGRES_DSN` | PostgreSQL 接続文字列 | Neon |
-| `CLOUDFLARE_API_TOKEN` | Swagger UI デプロイ | Cloudflare |
-| `CLOUDFLARE_ACCOUNT_ID` | Swagger UI デプロイ | Cloudflare |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare Pages / Swagger UI デプロイ | Cloudflare |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Pages / Swagger UI デプロイ | Cloudflare |
+| `VITE_API_URL` | フロントエンドビルド時に注入するバックエンド URL | (env ごとに設定) |
+| `VITE_COGNITO_DOMAIN` | Cognito Hosted UI ドメイン | CDK Output |
+| `VITE_COGNITO_CLIENT_ID` | Cognito App Client ID | CDK Output |
+| `VITE_COGNITO_REDIRECT_URI` | OAuth コールバック URL | (env ごとに設定) |
 
-### ecspresso 環境変数
+### ecspresso 環境変数 (backend のみ)
 
-GitHub Actions から ecspresso に渡す環境変数です。
+GitHub Actions から ecspresso に渡す環境変数です。フロントエンドは Cloudflare Pages に直接デプロイするため不要。
 
 | 変数 | 用途 | dev | prod |
 | --- | --- | --- | --- |
 | `ENV` | 環境識別子 | `dev` | `prod` |
 | `AWS_ACCOUNT_ID` | AWS アカウント ID | Secrets から | Secrets から |
 | `IMAGE_TAG` | Docker イメージタグ | `dev` | `prod` |
-| `APP_URL` | アプリ URL（frontend のみ） | `https://dev.datti.app` | `https://datti.app` |
 
 ### AWS SSM Parameter Store
 
@@ -141,6 +144,7 @@ lefthook install
 cd backend && go mod download
 task postgres:migrate
 task postgres:seed
+task localstack:init
 ```
 ※ Task コマンドはリポジトリルートから実行します。
 
@@ -148,6 +152,7 @@ task postgres:seed
 ```bash
 cd frontend
 pnpm install
+cp .env.example .env  # 必要な値を埋める
 ```
 
 ## ローカル開発
@@ -163,8 +168,16 @@ task api:dev
 ```bash
 task web:dev
 ```
-- `http://localhost:3000` で開発サーバーが起動します
+- Vite 開発サーバーが `http://localhost:3000` で起動します
 - ソース変更を監視しホットリロードが行われます
+
+#### 必要な環境変数 (`frontend/.env`)
+| 変数 | 用途 |
+| --- | --- |
+| `VITE_API_URL` | バックエンド API URL (例: `http://localhost:7070`) |
+| `VITE_COGNITO_DOMAIN` | Cognito Hosted UI ドメイン |
+| `VITE_COGNITO_CLIENT_ID` | Cognito App Client ID |
+| `VITE_COGNITO_REDIRECT_URI` | OAuth コールバック (例: `http://localhost:3000/api/auth/cognito/callback`) |
 
 ## 利用可能な Task 一覧
 
@@ -174,7 +187,7 @@ task web:dev
 | --- | --- |
 | `task postgres:migrate` | Atlas 経由で Postgres スキーマを適用 |
 | `task postgres:seed` | サンプルデータを投入 |
-| `task dynamo:migrate` | DynamoDB のセッションテーブルを作成 |
+| `task localstack:init` | LocalStack の S3 バケットを初期化 (アバター用) |
 | `task sqlc:gen` | `sql/query.sql` から `internal/gateway/postgres` のクエリコードを生成 |
 | `task api:gen-interface` | OpenAPI から型とサーバースタブを生成（出力: `internal/presentation/api/*.gen.go`） |
 | `task api:gen-mock` | モックを生成（出力: `internal/usecase/test` など） |

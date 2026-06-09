@@ -51,10 +51,6 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 		Value:      ecr.BackendRepo.RepositoryUri(),
 		ExportName: jsii.String("DattiBackendRepoUri"),
 	})
-	awscdk.NewCfnOutput(stack, jsii.String("FrontendRepoUri"), &awscdk.CfnOutputProps{
-		Value:      ecr.FrontendRepo.RepositoryUri(),
-		ExportName: jsii.String("DattiFrontendRepoUri"),
-	})
 	awscdk.NewCfnOutput(stack, jsii.String("GitHubActionsRoleArn"), &awscdk.CfnOutputProps{
 		Value:      githubRole.RoleArn(),
 		ExportName: jsii.String("DattiGitHubActionsRoleArn"),

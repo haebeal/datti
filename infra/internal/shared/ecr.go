@@ -8,8 +8,7 @@ import (
 )
 
 type ECRResources struct {
-	BackendRepo  awsecr.IRepository
-	FrontendRepo awsecr.IRepository
+	BackendRepo awsecr.IRepository
 }
 
 func newECR(scope constructs.Construct) *ECRResources {
@@ -28,16 +27,7 @@ func newECR(scope constructs.Construct) *ECRResources {
 		LifecycleRules:     &[]*awsecr.LifecycleRule{lifecycleRule},
 	})
 
-	frontendRepo := awsecr.NewRepository(scope, jsii.String("DattiFrontendRepo"), &awsecr.RepositoryProps{
-		RepositoryName:     jsii.String("datti-frontend"),
-		ImageTagMutability: awsecr.TagMutability_MUTABLE,
-		RemovalPolicy:      awscdk.RemovalPolicy_DESTROY,
-		EmptyOnDelete:      jsii.Bool(true),
-		LifecycleRules:     &[]*awsecr.LifecycleRule{lifecycleRule},
-	})
-
 	return &ECRResources{
-		BackendRepo:  backendRepo,
-		FrontendRepo: frontendRepo,
+		BackendRepo: backendRepo,
 	}
 }

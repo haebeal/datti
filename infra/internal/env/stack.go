@@ -35,17 +35,11 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 		LineChannelSecret:  props.LineChannelSecret,
 	})
 
-	// DynamoDB
-	dynamoDB := newDynamoDB(stack, env)
-
 	// S3 + CloudFront
 	s3 := newS3(stack, env)
 
 	// ECS Roles and Log Groups
 	ecs := newECS(stack, env)
-
-	// Grant DynamoDB access to task role
-	dynamoDB.SessionsTable.GrantReadWriteData(ecs.TaskRole)
 
 	// Grant S3 access to task role
 	s3.AvatarBucket.GrantReadWrite(ecs.TaskRole, jsii.String("avatars/*"))

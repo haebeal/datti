@@ -6,8 +6,9 @@
 
 Dattiは割り勘・立て替え管理アプリです。誰にいくら払ったかを記録・共有し、グループ内の精算を簡単にします。
 
-- **バックエンド**: Go製APIサーバー + PostgreSQL
-- **フロントエンド**: Next.js App Router + TypeScript
+- **バックエンド**: Go製APIサーバー + PostgreSQL (AWS ECS)
+- **フロントエンド**: Vite + React + TanStack Router (SPA、Cloudflare Pages にデプロイ)
+- **認証**: AWS Cognito (Google / LINE フェデレーション、SPA で PKCE フロー)
 
 セットアップ手順は [README.md](README.md) を参照。
 
@@ -20,9 +21,9 @@ Dattiは割り勘・立て替え管理アプリです。誰にいくら払った
 
 ## フロントエンド開発
 
-フロントエンドタスクを実行する際は、以下が自動的に適用されます：
-
-- **プラグイン**: `nextjs-frontend-plugin` — 汎用的なNext.js開発ガイド
+- **スタック**: Vite + React 19 + TypeScript + TanStack Router (file-based) + TanStack Query + TanStack Form + React Aria Components + Tailwind v4 + Biome
+- **データ取得**: TanStack Router の loader で `queryClient.ensureQueryData(queryOptions(...))`、コンポーネントは `useSuspenseQuery`
+- **認証ガード**: `_authenticated.tsx` の `beforeLoad` で `userManager.getUser()` を見て未認証なら `/auth` へ
 - **コンテキスト**: [frontend/CLAUDE.md](frontend/CLAUDE.md) — Datti固有のディレクトリ構成、フォームパターン、デザインシステム
 
 ## プロジェクト管理（Linear）

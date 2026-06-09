@@ -43,12 +43,6 @@ func newECS(scope constructs.Construct, env string) *ECSResources {
 		RemovalPolicy: awscdk.RemovalPolicy_DESTROY,
 	})
 
-	awslogs.NewLogGroup(scope, jsii.String("DattiFrontendLogGroup"), &awslogs.LogGroupProps{
-		LogGroupName:  jsii.String(fmt.Sprintf("/ecs/%s/datti-frontend", env)),
-		Retention:     awslogs.RetentionDays_ONE_WEEK,
-		RemovalPolicy: awscdk.RemovalPolicy_DESTROY,
-	})
-
 	return &ECSResources{
 		ExecutionRole: executionRole,
 		TaskRole:      taskRole,

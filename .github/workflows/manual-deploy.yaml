@@ -70,47 +70,39 @@ jobs:
 
   deploy-frontend:
     if: github.event.inputs.deploy_target == 'all' || github.event.inputs.deploy_target == 'frontend'
-    runs-on: ubuntu-24.04-arm
-    permissions:
-      contents: read
-      id-token: write
+    runs-on: ubuntu-latest
     environment:
       name: ${{ github.event.inputs.environment }}
       url: ${{ github.event.inputs.environment == 'prod' && 'https://datti.app' || 'https://dev.datti.app' }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: pnpm/action-setup@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          version: 10
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - uses: docker/setup-buildx-action@v3
-
-      - uses: docker/build-push-action@v6
+      - uses: actions/setup-node@v6
         with:
-          context: frontend
-          push: true
-          tags: ${{ steps.login-ecr.outputs.registry }}/datti-frontend:${{ github.event.inputs.environment }}
-          platforms: linux/arm64
-          cache-from: type=gha,scope=frontend
-          cache-to: type=gha,mode=max,scope=frontend
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: frontend/pnpm-lock.yaml
 
-      - name: Setup ecspresso
-        uses: kayac/ecspresso@v2
-        with:
-          version: latest
-
-      - name: Deploy to ECS
+      - name: Install dependencies
         working-directory: frontend
-        run: ecspresso deploy --config ecspresso.yaml
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        working-directory: frontend
+        run: pnpm build
         env:
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          IMAGE_TAG: ${{ github.event.inputs.environment }}
-          ENV: ${{ github.event.inputs.environment }}
-          APP_URL: ${{ github.event.inputs.environment == 'prod' && 'https://datti.app' || 'https://dev.datti.app' }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_COGNITO_DOMAIN: ${{ secrets.VITE_COGNITO_DOMAIN }}
+          VITE_COGNITO_CLIENT_ID: ${{ secrets.VITE_COGNITO_CLIENT_ID }}
+          VITE_COGNITO_REDIRECT_URI: ${{ secrets.VITE_COGNITO_REDIRECT_URI }}
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy frontend/dist --project-name=datti-${{ github.event.inputs.environment }} --branch=main

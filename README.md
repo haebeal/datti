@@ -69,17 +69,18 @@
 
 | Secret | 用途 | 設定元 |
 | --- | --- | --- |
-| `AWS_ROLE_ARN` | GitHub OIDC で Assume するロール (backend ECS) | AWS IAM（CDKで作成） |
+| `AWS_ROLE_ARN` | GitHub OIDC で Assume するロール | AWS IAM（CDKで作成） |
 | `AWS_ACCOUNT_ID` | AWS アカウント ID | AWS |
 | `GOOGLE_CLIENT_ID` | Cognito Google OAuth | Google Cloud Console |
 | `GOOGLE_CLIENT_SECRET` | Cognito Google OAuth | Google Cloud Console |
 | `POSTGRES_DSN` | PostgreSQL 接続文字列 | Neon |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare Pages / Swagger UI デプロイ | Cloudflare |
-| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Pages / Swagger UI デプロイ | Cloudflare |
+| `CLOUDFLARE_API_TOKEN` | Swagger UI を Cloudflare Pages にデプロイする用 | Cloudflare |
+| `CLOUDFLARE_ACCOUNT_ID` | Swagger UI を Cloudflare Pages にデプロイする用 | Cloudflare |
 | `VITE_API_URL` | フロントエンドビルド時に注入するバックエンド URL | (env ごとに設定) |
 | `VITE_COGNITO_DOMAIN` | Cognito Hosted UI ドメイン | CDK Output |
 | `VITE_COGNITO_CLIENT_ID` | Cognito App Client ID | CDK Output |
 | `VITE_COGNITO_REDIRECT_URI` | OAuth コールバック URL | (env ごとに設定) |
+| `WEB_DISTRIBUTION_ID` | フロントエンド (S3 + CloudFront) の Distribution ID | CDK Output (`WebDistributionId`) |
 
 ### ecspresso 環境変数 (backend のみ)
 
@@ -102,7 +103,15 @@ GitHub Actions から ecspresso に渡す環境変数です。フロントエン
 | `/datti/{env}/COGNITO_DOMAIN` | Cognito ドメイン URL |
 | `/datti/{env}/COGNITO_ISSUER` | Cognito Issuer URL |
 | `/datti/{env}/S3_AVATAR_BUCKET` | アバター用 S3 バケット名 |
-| `/datti/{env}/AVATAR_BASE_URL` | CloudFront CDN URL |
+| `/datti/{env}/AVATAR_BASE_URL` | CloudFront CDN URL (アバター) |
+
+CDK Output (CFn Output) で取れるもの:
+
+| 出力名 | 用途 |
+| --- | --- |
+| `WebBucketName` | フロントエンド配置先 S3 バケット名 |
+| `WebDistributionId` | フロントエンド配信用 CloudFront Distribution ID (Invalidation で使用) |
+| `WebDistributionDomain` | CloudFront のデフォルトドメイン (カスタムドメインを当てるまでの確認用) |
 
 #### 手動設定が必要なもの
 

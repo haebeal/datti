@@ -7,8 +7,10 @@
 Dattiは割り勘・立て替え管理アプリです。誰にいくら払ったかを記録・共有し、グループ内の精算を簡単にします。
 
 - **バックエンド**: Go製APIサーバー + PostgreSQL (AWS ECS)
-- **フロントエンド**: Vite + React + TanStack Router (SPA、Cloudflare Pages にデプロイ)
+- **フロントエンド**: Vite + React + TanStack Router (SPA、AWS S3 + CloudFront でホスティング)
 - **認証**: AWS Cognito (Google / LINE フェデレーション、SPA で PKCE フロー)
+
+将来的に Cloudflare スタック (Pages + Containers) に移行する予定だが、現状は AWS で完結。
 
 セットアップ手順は [README.md](README.md) を参照。
 

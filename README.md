@@ -119,10 +119,10 @@ CDK が自動作成するパラメータ:
 
 | パラメータ | 用途 |
 | --- | --- |
-| `/datti/{env}/COGNITO_USER_POOL_ID` | Cognito ユーザープール ID |
-| `/datti/{env}/COGNITO_CLIENT_ID` | Cognito クライアント ID |
-| `/datti/{env}/COGNITO_DOMAIN` | Cognito Hosted UI ドメイン URL |
-| `/datti/{env}/COGNITO_ISSUER` | Cognito Issuer URL |
+| `/datti/COGNITO_USER_POOL_ID` | Cognito ユーザープール ID |
+| `/datti/COGNITO_CLIENT_ID` | Cognito クライアント ID |
+| `/datti/COGNITO_DOMAIN` | Cognito Hosted UI ドメイン URL |
+| `/datti/COGNITO_ISSUER` | Cognito Issuer URL |
 
 CDK Output (Cognito 値をフロントの環境変数 / Cloudflare Secrets に反映する際に参照):
 

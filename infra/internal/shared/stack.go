@@ -10,7 +10,8 @@ type StackProps struct {
 	awscdk.StackProps
 }
 
-// NewStack は共有リソースを持つスタックを作成
+// NewStack は環境横断で1個あれば足りるリソース (GitHub OIDC Role) を持つスタックを作成する。
+// バックエンドが Cloudflare Containers に移行したため、VPC / ECS / ECR はすべて廃止済み。
 func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.Stack {
 	var sprops awscdk.StackProps
 	if props != nil {
@@ -18,39 +19,9 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
 
-	// Network (VPC, Security Group)
-	network := newNetwork(stack)
-
-	// ECR Repositories
-	ecr := newECR(stack)
-
-	// ECS Cluster
-	cluster := newECSCluster(stack, network.Vpc, network.SecurityGroup)
-
-	// GitHub Actions Role (OIDC)
+	// GitHub Actions Role (OIDC) — CDK デプロイ自身に必要なので残す
 	githubRole := newGitHubActionsRole(stack)
 
-	// Outputs
-	awscdk.NewCfnOutput(stack, jsii.String("VpcId"), &awscdk.CfnOutputProps{
-		Value:      network.Vpc.VpcId(),
-		ExportName: jsii.String("DattiVpcId"),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("SecurityGroupId"), &awscdk.CfnOutputProps{
-		Value:      network.SecurityGroup.SecurityGroupId(),
-		ExportName: jsii.String("DattiSecurityGroupId"),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("EcsClusterName"), &awscdk.CfnOutputProps{
-		Value:      cluster.ClusterName(),
-		ExportName: jsii.String("DattiEcsClusterName"),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("EcsClusterArn"), &awscdk.CfnOutputProps{
-		Value:      cluster.ClusterArn(),
-		ExportName: jsii.String("DattiEcsClusterArn"),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("BackendRepoUri"), &awscdk.CfnOutputProps{
-		Value:      ecr.BackendRepo.RepositoryUri(),
-		ExportName: jsii.String("DattiBackendRepoUri"),
-	})
 	awscdk.NewCfnOutput(stack, jsii.String("GitHubActionsRoleArn"), &awscdk.CfnOutputProps{
 		Value:      githubRole.RoleArn(),
 		ExportName: jsii.String("DattiGitHubActionsRoleArn"),

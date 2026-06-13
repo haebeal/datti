@@ -18,7 +18,9 @@ type StackProps struct {
 	LineChannelSecret  string
 }
 
-// NewStack は環境別リソースを持つスタックを作成
+// NewStack は環境別リソース (現状: Cognito のみ) を持つスタックを作成する。
+// バックエンドは Cloudflare Containers、フロントは Cloudflare Pages、
+// アバター画像は R2 に移行済みのため、CDK で管理する AWS リソースは Cognito だけになった。
 func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.Stack {
 	var sprops awscdk.StackProps
 	if props != nil {
@@ -27,7 +29,6 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 	stack := awscdk.NewStack(scope, &id, &sprops)
 	env := props.Env
 
-	// Cognito
 	cognito := newCognito(stack, env, &cognitoProps{
 		GoogleClientID:     props.GoogleClientID,
 		GoogleClientSecret: props.GoogleClientSecret,
@@ -35,16 +36,7 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 		LineChannelSecret:  props.LineChannelSecret,
 	})
 
-	// S3 + CloudFront (avatar)
-	s3 := newS3(stack, env)
-
-	// ECS Roles and Log Groups
-	ecs := newECS(stack, env)
-
-	// Grant S3 access to task role
-	s3.AvatarBucket.GrantReadWrite(ecs.TaskRole, jsii.String("avatars/*"))
-
-	// SSM Parameters
+	// Cognito 値の参照用に SSM Parameter Store にも書き出す
 	cognitoDomainURL := fmt.Sprintf("https://%s.auth.ap-northeast-1.amazoncognito.com", *cognito.UserPoolDomain.DomainName())
 
 	awsssm.NewStringParameter(stack, jsii.String("DattiCognitoUserPoolIdParam"), &awsssm.StringParameterProps{
@@ -67,42 +59,16 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 		StringValue:   jsii.String(fmt.Sprintf("https://cognito-idp.ap-northeast-1.amazonaws.com/%s", *cognito.UserPool.UserPoolId())),
 	})
 
-	awsssm.NewStringParameter(stack, jsii.String("DattiLineChannelIdParam"), &awsssm.StringParameterProps{
-		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/LINE_CHANNEL_ID", env)),
-		StringValue:   jsii.String(props.LineChannelID),
+	// Outputs (Cloudflare 側に登録するために参照する)
+	awscdk.NewCfnOutput(stack, jsii.String("CognitoUserPoolId"), &awscdk.CfnOutputProps{
+		Value: cognito.UserPool.UserPoolId(),
+	})
+	awscdk.NewCfnOutput(stack, jsii.String("CognitoClientId"), &awscdk.CfnOutputProps{
+		Value: cognito.UserPoolClient.UserPoolClientId(),
+	})
+	awscdk.NewCfnOutput(stack, jsii.String("CognitoDomain"), &awscdk.CfnOutputProps{
+		Value: jsii.String(cognitoDomainURL),
 	})
 
-	awsssm.NewStringParameter(stack, jsii.String("DattiLineChannelSecretParam"), &awsssm.StringParameterProps{
-		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/LINE_CHANNEL_SECRET", env)),
-		StringValue:   jsii.String(props.LineChannelSecret),
-	})
-
-	awsssm.NewStringParameter(stack, jsii.String("DattiPostgresDsnParam"), &awsssm.StringParameterProps{
-		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/backend/POSTGRES_DSN", env)),
-		StringValue:   jsii.String("CHANGE_ME"),
-	})
-
-	awsssm.NewStringParameter(stack, jsii.String("DattiCloudflaredTokenParam"), &awsssm.StringParameterProps{
-		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/cloudflared/token", env)),
-		StringValue:   jsii.String("CHANGE_ME"),
-	})
-
-	awsssm.NewStringParameter(stack, jsii.String("DattiS3AvatarBucketParam"), &awsssm.StringParameterProps{
-		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/S3_AVATAR_BUCKET", env)),
-		StringValue:   s3.AvatarBucket.BucketName(),
-	})
-
-	awsssm.NewStringParameter(stack, jsii.String("DattiAvatarBaseUrlParam"), &awsssm.StringParameterProps{
-		ParameterName: jsii.String(fmt.Sprintf("/datti/%s/AVATAR_BASE_URL", env)),
-		StringValue:   jsii.String(fmt.Sprintf("https://%s", *s3.AvatarDistribution.DistributionDomainName())),
-	})
-
-	// Outputs
-	awscdk.NewCfnOutput(stack, jsii.String("ExecutionRoleArn"), &awscdk.CfnOutputProps{
-		Value: ecs.ExecutionRole.RoleArn(),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("TaskRoleArn"), &awscdk.CfnOutputProps{
-		Value: ecs.TaskRole.RoleArn(),
-	})
 	return stack
 }

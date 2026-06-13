@@ -11,7 +11,8 @@ import (
 	"go.opentelemetry.io/otel/codes"
 )
 
-// AvatarStorage S3にアバター画像を保存するクライアント (署名付きURL方式)
+// AvatarStorage S3互換ストレージ (本番: Cloudflare R2 / ローカル: LocalStack S3) に
+// アバター画像を保存するクライアント。署名付きURLでフロントから直接アップロードさせる方式。
 type AvatarStorage struct {
 	presignClient *s3.PresignClient
 	bucket        string

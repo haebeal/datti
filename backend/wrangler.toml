@@ -20,9 +20,19 @@ tag = "v1"
 new_sqlite_classes = ["BackendContainer"]
 
 # 環境変数 (シークレットでないもののみ。シークレットは `wrangler secret put NAME` で個別に設定)
+# シークレットとして登録するもの:
+#   - POSTGRES_DSN
+#   - LINE_CHANNEL_ID / LINE_CHANNEL_SECRET
+#   - AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (Cognito GetUser 用)
+#   - R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY (R2 アクセス用、AWS_* と同名で両方使うので注意)
+#
+# アバター画像は Cloudflare R2 (S3互換API) に置く。aws-sdk-go-v2 の S3 クライアントが
+# そのまま使えるので、エンドポイントだけ R2 に向ければ動く。
 [vars]
 PORT = "8080"
 AWS_REGION = "ap-northeast-1"
 CORS_ALLOW_ORIGINS = "https://dev.datti.app"
 S3_AVATAR_BUCKET = "dev-datti-avatar"
 AVATAR_BASE_URL = "https://avatar.dev.datti.app"
+# R2 エンドポイント (Cloudflare ダッシュボード → R2 → 設定で確認)
+AWS_ENDPOINT_URL_S3 = "https://CHANGE_ME.r2.cloudflarestorage.com"

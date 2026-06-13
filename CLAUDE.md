@@ -6,11 +6,12 @@
 
 Dattiは割り勘・立て替え管理アプリです。誰にいくら払ったかを記録・共有し、グループ内の精算を簡単にします。
 
-- **バックエンド**: Go製APIサーバー + PostgreSQL (AWS ECS)
-- **フロントエンド**: Vite + React + TanStack Router (SPA、AWS S3 + CloudFront でホスティング)
-- **認証**: AWS Cognito (Google / LINE フェデレーション、SPA で PKCE フロー)
-
-将来的に Cloudflare スタック (Pages + Containers) に移行する予定だが、現状は AWS で完結。
+- **バックエンド**: Go 製 API サーバー (Cloudflare Containers でホスト、Worker が Container Binding でフォワード)
+- **フロントエンド**: Vite + React + TanStack Router (Cloudflare Pages)
+- **DB**: Neon の PostgreSQL
+- **オブジェクトストレージ**: Cloudflare R2 (アバター画像、aws-sdk-go-v2 S3 クライアントで操作)
+- **認証**: AWS Cognito (Google / LINE フェデレーション、SPA で PKCE フロー、バックから GetUser でトークン検証)
+- **インフラ管理**: AWS は CDK で Cognito と GitHub OIDC ロールのみ管理。Cloudflare は wrangler で管理。
 
 セットアップ手順は [README.md](README.md) を参照。
 

@@ -19,14 +19,13 @@ func main() {
 		Region: jsii.String("ap-northeast-1"),
 	}
 
-	// 共有スタック（VPC, ECS Cluster, ECR, GitHub OIDC）
+	// 共有スタック (GitHub OIDC Role のみ)
 	shared.NewStack(app, "SharedDattiStack", &shared.StackProps{
 		StackProps: awscdk.StackProps{
 			Env: region,
 		},
 	})
 
-	// 環境変数（GitHub Environmentごとに異なる値が設定される）
 	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
 	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
 	lineChannelID := os.Getenv("LINE_CHANNEL_ID")
@@ -39,24 +38,11 @@ func main() {
 		panic("LINE_CHANNEL_ID and LINE_CHANNEL_SECRET environment variables are required")
 	}
 
-	// Dev 環境スタック
-	env.NewStack(app, "DevDattiStack", &env.StackProps{
+	// 本番スタック (dev は廃止、ローカル開発は localhost のまま動かす)
+	env.NewStack(app, "DattiStack", &env.StackProps{
 		StackProps: awscdk.StackProps{
 			Env: region,
 		},
-		Env:                "dev",
-		GoogleClientID:     googleClientID,
-		GoogleClientSecret: googleClientSecret,
-		LineChannelID:      lineChannelID,
-		LineChannelSecret:  lineChannelSecret,
-	})
-
-	// Prod 環境スタック
-	env.NewStack(app, "ProdDattiStack", &env.StackProps{
-		StackProps: awscdk.StackProps{
-			Env: region,
-		},
-		Env:                "prod",
 		GoogleClientID:     googleClientID,
 		GoogleClientSecret: googleClientSecret,
 		LineChannelID:      lineChannelID,

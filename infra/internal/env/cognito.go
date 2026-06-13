@@ -1,8 +1,6 @@
 package env
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awscognito"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsiam"
@@ -24,9 +22,9 @@ type cognitoProps struct {
 	LineChannelSecret  string
 }
 
-func newCognito(scope constructs.Construct, env string, props *cognitoProps) *CognitoResources {
+func newCognito(scope constructs.Construct, props *cognitoProps) *CognitoResources {
 	userPool := awscognito.NewUserPool(scope, jsii.String("DattiUserPool"), &awscognito.UserPoolProps{
-		UserPoolName: jsii.String(fmt.Sprintf("%s-datti-user-pool", env)),
+		UserPoolName: jsii.String("datti-user-pool"),
 		SignInAliases: &awscognito.SignInAliases{
 			Email: jsii.Bool(true),
 		},
@@ -44,9 +42,9 @@ func newCognito(scope constructs.Construct, env string, props *cognitoProps) *Co
 		RemovalPolicy:   awscdk.RemovalPolicy_DESTROY,
 	})
 
-	// Pre Sign-up Lambda（メールベース自動アカウントリンク）
+	// Pre Sign-up Lambda (メールベースの自動アカウントリンク)
 	preSignUpFn := awslambdago.NewGoFunction(scope, jsii.String("DattiPreSignUpFunction"), &awslambdago.GoFunctionProps{
-		FunctionName: jsii.String(fmt.Sprintf("%s-datti-pre-signup", env)),
+		FunctionName: jsii.String("datti-pre-signup"),
 		Entry:        jsii.String("../lambda/pre-signup"),
 	})
 	preSignUpFn.AddToRolePolicy(awsiam.NewPolicyStatement(&awsiam.PolicyStatementProps{
@@ -57,25 +55,19 @@ func newCognito(scope constructs.Construct, env string, props *cognitoProps) *Co
 
 	userPoolDomain := userPool.AddDomain(jsii.String("DattiUserPoolDomain"), &awscognito.UserPoolDomainOptions{
 		CognitoDomain: &awscognito.CognitoDomainOptions{
-			DomainPrefix: jsii.String(fmt.Sprintf("%s-datti", env)),
+			DomainPrefix: jsii.String("datti"),
 		},
 	})
 
-	// Callback/Logout URLs based on environment
-	var callbackURLs, logoutURLs *[]*string
-	if env == "prod" {
-		callbackURLs = jsii.Strings("https://datti.app/api/auth/cognito/callback")
-		logoutURLs = jsii.Strings("https://datti.app/auth")
-	} else {
-		callbackURLs = jsii.Strings(
-			fmt.Sprintf("https://%s.datti.app/api/auth/cognito/callback", env),
-			"http://localhost:3000/api/auth/cognito/callback",
-		)
-		logoutURLs = jsii.Strings(
-			fmt.Sprintf("https://%s.datti.app/auth", env),
-			"http://localhost:3000/auth",
-		)
-	}
+	// Callback/Logout URLs — 本番 (datti.app) とローカル開発 (localhost:3000) のみ
+	callbackURLs := jsii.Strings(
+		"https://datti.app/api/auth/cognito/callback",
+		"http://localhost:3000/api/auth/cognito/callback",
+	)
+	logoutURLs := jsii.Strings(
+		"https://datti.app/auth",
+		"http://localhost:3000/auth",
+	)
 
 	lineIdp := awscognito.NewUserPoolIdentityProviderOidc(scope, jsii.String("DattiLineIdp"), &awscognito.UserPoolIdentityProviderOidcProps{
 		UserPool:     userPool,
@@ -111,7 +103,7 @@ func newCognito(scope constructs.Construct, env string, props *cognitoProps) *Co
 	})
 
 	userPoolClient := userPool.AddClient(jsii.String("DattiUserPoolClient"), &awscognito.UserPoolClientOptions{
-		UserPoolClientName: jsii.String(fmt.Sprintf("%s-datti-frontend", env)),
+		UserPoolClientName: jsii.String("datti-frontend"),
 		OAuth: &awscognito.OAuthSettings{
 			Flows: &awscognito.OAuthFlows{
 				AuthorizationCodeGrant: jsii.Bool(true),

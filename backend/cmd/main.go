@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
@@ -161,8 +162,18 @@ func main() {
 
 	e.Use(otelecho.Middleware("github.com/haebeal/datti"))
 
+	allowOrigins := []string{"http://localhost:3000"}
+	if raw, ok := os.LookupEnv("CORS_ALLOW_ORIGINS"); ok && raw != "" {
+		allowOrigins = nil
+		for _, origin := range strings.Split(raw, ",") {
+			trimmed := strings.TrimSpace(origin)
+			if trimmed != "" {
+				allowOrigins = append(allowOrigins, trimmed)
+			}
+		}
+	}
 	e.Use(echomw.CORSWithConfig(echomw.CORSConfig{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     allowOrigins,
 		AllowCredentials: true,
 		AllowMethods: []string{
 			http.MethodGet, http.MethodPost, http.MethodPut,

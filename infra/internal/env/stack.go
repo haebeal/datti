@@ -38,9 +38,6 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 	// S3 + CloudFront (avatar)
 	s3 := newS3(stack, env)
 
-	// S3 + CloudFront (web frontend)
-	web := newWeb(stack, env)
-
 	// ECS Roles and Log Groups
 	ecs := newECS(stack, env)
 
@@ -107,15 +104,5 @@ func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.S
 	awscdk.NewCfnOutput(stack, jsii.String("TaskRoleArn"), &awscdk.CfnOutputProps{
 		Value: ecs.TaskRole.RoleArn(),
 	})
-	awscdk.NewCfnOutput(stack, jsii.String("WebBucketName"), &awscdk.CfnOutputProps{
-		Value: web.Bucket.BucketName(),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("WebDistributionId"), &awscdk.CfnOutputProps{
-		Value: web.Distribution.DistributionId(),
-	})
-	awscdk.NewCfnOutput(stack, jsii.String("WebDistributionDomain"), &awscdk.CfnOutputProps{
-		Value: web.Distribution.DistributionDomainName(),
-	})
-
 	return stack
 }

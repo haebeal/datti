@@ -10,10 +10,10 @@ tasks:
       AWS_DEFAULT_REGION: ap-northeast-1
     cmds:
       # S3: Profile images bucket
-      - aws s3 mb s3://local-datti-avatar --endpoint-url $AWS_ENDPOINT_URL
+      - aws s3 mb s3://local-datti-cdn --endpoint-url $AWS_ENDPOINT_URL
       - |
         aws s3api put-bucket-policy \
-          --bucket local-datti-avatar \
+          --bucket local-datti-cdn \
           --endpoint-url $AWS_ENDPOINT_URL \
           --policy '{
             "Version": "2012-10-17",
@@ -23,14 +23,14 @@ tasks:
                 "Effect": "Allow",
                 "Principal": "*",
                 "Action": "s3:GetObject",
-                "Resource": "arn:aws:s3:::local-datti-avatar/*"
+                "Resource": "arn:aws:s3:::local-datti-cdn/*"
               }
             ]
           }'
       # S3: CORS for SPA direct upload
       - |
         aws s3api put-bucket-cors \
-          --bucket local-datti-avatar \
+          --bucket local-datti-cdn \
           --endpoint-url $AWS_ENDPOINT_URL \
           --cors-configuration '{
             "CORSRules": [

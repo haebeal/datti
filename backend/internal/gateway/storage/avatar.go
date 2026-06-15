@@ -28,11 +28,11 @@ func NewAvatarStorage(s3Client *s3.Client, bucket string, baseURL string) *Avata
 	}
 }
 
-// extByContentType サポートする画像形式 → 拡張子のマッピング
-var extByContentType = map[string]string{
-	"image/jpeg": "jpg",
-	"image/png":  "png",
-	"image/webp": "webp",
+// allowedContentTypes サポートする画像形式 (Content-Type は R2 にメタデータとして保存される)
+var allowedContentTypes = map[string]struct{}{
+	"image/jpeg": {},
+	"image/png":  {},
+	"image/webp": {},
 }
 
 // GeneratePresignedUploadURL アバター画像アップロード用の署名付きURLを生成する (5分有効)
@@ -46,12 +46,12 @@ func (a *AvatarStorage) GeneratePresignedUploadURL(ctx context.Context, contentT
 		span.End()
 	}()
 
-	ext, ok := extByContentType[contentType]
-	if !ok {
+	if _, ok := allowedContentTypes[contentType]; !ok {
 		return "", "", fmt.Errorf("サポートしていないコンテンツタイプです: %s", contentType)
 	}
 
-	key := fmt.Sprintf("avatars/%s.%s", uuid.NewString(), ext)
+	// 公開 URL は {baseURL}/avatar/{uuid} の形になる (拡張子なし、Content-Type は R2 メタデータで判定)
+	key := fmt.Sprintf("avatar/%s", uuid.NewString())
 
 	presigned, err := a.presignClient.PresignPutObject(ctx, &s3.PutObjectInput{
 		Bucket:        aws.String(a.bucket),

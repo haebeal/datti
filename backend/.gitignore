@@ -241,3 +241,6 @@ tmp
 
 # Generated docs
 docs/
+
+node_modules
+.wrangler

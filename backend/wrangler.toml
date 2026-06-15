@@ -32,7 +32,7 @@ new_sqlite_classes = ["BackendContainer"]
 PORT = "8080"
 AWS_REGION = "ap-northeast-1"
 CORS_ALLOW_ORIGINS = "https://datti.app"
-S3_AVATAR_BUCKET = "datti-avatar"
-AVATAR_BASE_URL = "https://avatar.datti.app"
+S3_AVATAR_BUCKET = "datti-cdn"
+AVATAR_BASE_URL = "https://cdn.datti.app"
 # R2 エンドポイント (Cloudflare ダッシュボード → R2 → 設定で確認)
 AWS_ENDPOINT_URL_S3 = "https://CHANGE_ME.r2.cloudflarestorage.com"

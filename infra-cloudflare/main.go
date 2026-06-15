@@ -11,10 +11,10 @@ func main() {
 		cfg := config.New(ctx, "")
 		accountID := cfg.Require("accountId")
 
-		// R2: アバター画像用バケット
-		avatarBucket, err := cloudflare.NewR2Bucket(ctx, "avatar", &cloudflare.R2BucketArgs{
+		// R2: 静的アセット (アバター画像など) を配信する CDN バケット
+		cdnBucket, err := cloudflare.NewR2Bucket(ctx, "cdn", &cloudflare.R2BucketArgs{
 			AccountId: pulumi.String(accountID),
-			Name:      pulumi.String("datti-avatar"),
+			Name:      pulumi.String("datti-cdn"),
 			Location:  pulumi.String("apac"),
 		})
 		if err != nil {
@@ -22,9 +22,9 @@ func main() {
 		}
 
 		// R2: SPA からの Presigned PUT を許可する CORS
-		_, err = cloudflare.NewR2BucketCors(ctx, "avatar-cors", &cloudflare.R2BucketCorsArgs{
+		_, err = cloudflare.NewR2BucketCors(ctx, "cdn-cors", &cloudflare.R2BucketCorsArgs{
 			AccountId:  pulumi.String(accountID),
-			BucketName: avatarBucket.Name,
+			BucketName: cdnBucket.Name,
 			Rules: cloudflare.R2BucketCorsRuleArray{
 				&cloudflare.R2BucketCorsRuleArgs{
 					Allowed: &cloudflare.R2BucketCorsRuleAllowedArgs{
@@ -59,7 +59,7 @@ func main() {
 			return err
 		}
 
-		ctx.Export("avatarBucketName", avatarBucket.Name)
+		ctx.Export("cdnBucketName", cdnBucket.Name)
 		ctx.Export("pagesProjectName", pagesProject.Name)
 		ctx.Export("pagesProjectSubdomain", pagesProject.Subdomain)
 		return nil

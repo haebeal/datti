@@ -35,6 +35,7 @@
 | `backend` | Go 製 API サーバー本体 + Cloudflare Containers 用 Worker エントリ (`src/`, `wrangler.toml`) |
 | `frontend` | Vite + React + TanStack Router 製 SPA |
 | `infra` | AWS CDK (現在は Cognito + GitHub OIDC Role のみ) |
+| `infra-cloudflare` | Pulumi Go (R2 / Pages) |
 
 ## 必要なツール
 
@@ -207,6 +208,49 @@ pnpm dev   # wrangler dev (内部で docker build + container 起動)
 
 ### インフラ (Cognito)
 - `infra/**` 変更 → CDK で apply (現在は Cognito + OIDC Role だけ)
+
+### インフラ (Cloudflare R2 / Pages)
+- `infra-cloudflare/**` 変更 → Pulumi で apply
+- state backend は R2 を使う (self-managed)
+
+#### 初回セットアップ
+```bash
+# 1. state 用バケットを Cloudflare ダッシュボードで1個だけ手動作成
+#    例: datti-pulumi-state
+
+# 2. R2 API トークンを発行 (Object Read & Write)
+#    Access Key ID / Secret Access Key を控える
+
+# 3. Pulumi に state backend を登録
+export AWS_ACCESS_KEY_ID=<R2 Access Key>
+export AWS_SECRET_ACCESS_KEY=<R2 Secret>
+pulumi login s3://datti-pulumi-state?endpoint=https://<ACCOUNT_ID>.r2.cloudflarestorage.com&s3ForcePathStyle=true
+
+# 4. state 暗号化用パスフレーズを設定 (今後 apply するたびに必須)
+export PULUMI_CONFIG_PASSPHRASE=<好きな文字列>
+
+# 5. Cloudflare API トークン (Cloudflare provider が使う)
+export CLOUDFLARE_API_TOKEN=<アカウント API トークン>
+
+# 6. stack 初期化と config セット
+cd infra-cloudflare
+pulumi stack init prod
+pulumi config set accountId <CLOUDFLARE_ACCOUNT_ID>
+
+# 7. apply
+pulumi up
+```
+
+#### 通常運用
+```bash
+cd infra-cloudflare
+export AWS_ACCESS_KEY_ID=<R2 Access Key>
+export AWS_SECRET_ACCESS_KEY=<R2 Secret>
+export PULUMI_CONFIG_PASSPHRASE=<パスフレーズ>
+export CLOUDFLARE_API_TOKEN=<トークン>
+pulumi preview   # 差分確認
+pulumi up        # apply
+```
 
 ## 利用可能な Task 一覧
 

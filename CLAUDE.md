@@ -88,4 +88,4 @@ Dattiは割り勘・立て替え管理アプリです。誰にいくら払った
 
 - [README](README.md) - セットアップ手順、コマンド一覧
 - [OpenAPI仕様](backend/openapi.yaml) - API契約定義
-- [公開ドキュメント](https://dev-openapi.datti.app) - API仕様書
+- [公開ドキュメント](https://openapi.datti.app) - API仕様書

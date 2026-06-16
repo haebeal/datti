@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/haebeal/datti/internal/gateway/line"
@@ -120,9 +121,17 @@ func main() {
 	if !ok {
 		log.Fatal("環境変数AVATAR_BASE_URLが設定してありません")
 	}
+	// S3 クライアント (R2 or LocalStack 向け)
+	// - R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY が設定されていれば R2 用の credentials で上書き
+	//   (Cognito GetUser に使う AWS_* とは別物のため)
+	// - 未設定なら awsCfg の credentials を流用 (ローカル LocalStack は dummy で動く)
+	// - AWS_ENDPOINT_URL_S3 が設定されていれば path-style に
 	s3Client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
-		// AWS_ENDPOINT_URL_S3 が設定されていれば (LocalStack 等) path-style にする。
-		// エンドポイント自体は SDK が AWS_ENDPOINT_URL_S3 を自動で適用する。
+		if r2Key, ok := os.LookupEnv("R2_ACCESS_KEY_ID"); ok && r2Key != "" {
+			r2Secret := os.Getenv("R2_SECRET_ACCESS_KEY")
+			o.Credentials = credentials.NewStaticCredentialsProvider(r2Key, r2Secret, "")
+			o.Region = "auto"
+		}
 		if _, ok := os.LookupEnv("AWS_ENDPOINT_URL_S3"); ok {
 			o.UsePathStyle = true
 		}

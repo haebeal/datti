@@ -23,8 +23,8 @@ new_sqlite_classes = ["BackendContainer"]
 # シークレットとして登録するもの:
 #   - POSTGRES_DSN
 #   - LINE_CHANNEL_ID / LINE_CHANNEL_SECRET
-#   - AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (Cognito GetUser 用)
-#   - R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY (R2 アクセス用、AWS_* と同名で両方使うので注意)
+#   - AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY (Cognito GetUser を叩く AWS IAM ユーザー)
+#   - R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY (R2 アクセス用、Cloudflare で発行する別物)
 #
 # アバター画像は Cloudflare R2 (S3互換API) に置く。aws-sdk-go-v2 の S3 クライアントが
 # そのまま使えるので、エンドポイントだけ R2 に向ければ動く。

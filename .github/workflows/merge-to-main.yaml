@@ -14,7 +14,8 @@ jobs:
     outputs:
       openapi: ${{ steps.filter.outputs.openapi }}
       schema: ${{ steps.filter.outputs.schema }}
-      infra: ${{ steps.filter.outputs.infra }}
+      aws-infra: ${{ steps.filter.outputs.aws-infra }}
+      cf-infra: ${{ steps.filter.outputs.cf-infra }}
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
@@ -27,41 +28,19 @@ jobs:
               - 'backend/openapi.yaml'
             schema:
               - 'backend/sql/**'
-            infra:
+            aws-infra:
               - 'infra/cmd/**'
               - 'infra/internal/**'
+            cf-infra:
+              - 'infra-cloudflare/**'
             backend:
               - 'backend/**'
             frontend:
               - 'frontend/**'
 
-  deploy-openapi:
+  provision-aws-infra:
     needs: detect-changes
-    if: needs.detect-changes.outputs.openapi == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      deployments: write
-    environment: prod
-    steps:
-      - uses: actions/checkout@v6
-      - name: Build SwaggerUI
-        run: |
-          mkdir -p _site
-          SWAGGER_UI_VERSION=$(curl -s https://api.github.com/repos/swagger-api/swagger-ui/releases/latest | jq -r '.tag_name')
-          curl -sL "https://github.com/swagger-api/swagger-ui/archive/refs/tags/${SWAGGER_UI_VERSION}.tar.gz" | tar xz --strip-components=2 -C _site "swagger-ui-${SWAGGER_UI_VERSION#v}/dist"
-          cp backend/openapi.yaml _site/
-          sed -i 's|https://petstore.swagger.io/v2/swagger.json|./openapi.yaml|g' _site/swagger-initializer.js
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy _site --project-name=datti-openapi
-
-  provision-infra:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.infra == 'true'
+    if: needs.detect-changes.outputs.aws-infra == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -96,6 +75,34 @@ jobs:
           LINE_CHANNEL_ID: ${{ secrets.LINE_CHANNEL_ID }}
           LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
 
+  provision-cf-infra:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.cf-infra == 'true'
+    runs-on: ubuntu-latest
+    environment: prod
+    defaults:
+      run:
+        working-directory: infra-cloudflare
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - uses: pulumi/actions@v6
+        with:
+          command: up
+          stack-name: ${{ secrets.PULUMI_STACK_NAME }}
+          work-dir: infra-cloudflare
+          cloud-url: s3://datti-pulumi-state?endpoint=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com&s3ForcePathStyle=true
+        env:
+          AWS_REGION: auto
+          AWS_ACCESS_KEY_ID: ${{ secrets.PULUMI_STATE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.PULUMI_STATE_R2_SECRET_ACCESS_KEY }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
   apply-schema:
     needs: detect-changes
     if: needs.detect-changes.outputs.schema == 'true'
@@ -111,11 +118,40 @@ jobs:
           dev-url: "docker://postgres"
           auto-approve: true
 
+  deploy-openapi:
+    needs: [detect-changes, provision-cf-infra]
+    if: |
+      always() &&
+      needs.detect-changes.outputs.openapi == 'true' &&
+      (needs.provision-cf-infra.result == 'success' || needs.provision-cf-infra.result == 'skipped')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    environment: prod
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build SwaggerUI
+        run: |
+          mkdir -p _site
+          SWAGGER_UI_VERSION=$(curl -s https://api.github.com/repos/swagger-api/swagger-ui/releases/latest | jq -r '.tag_name')
+          curl -sL "https://github.com/swagger-api/swagger-ui/archive/refs/tags/${SWAGGER_UI_VERSION}.tar.gz" | tar xz --strip-components=2 -C _site "swagger-ui-${SWAGGER_UI_VERSION#v}/dist"
+          cp backend/openapi.yaml _site/
+          sed -i 's|https://petstore.swagger.io/v2/swagger.json|./openapi.yaml|g' _site/swagger-initializer.js
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy _site --project-name=datti-openapi --branch=main
+
   deploy-backend:
-    needs: [detect-changes, apply-schema]
+    needs: [detect-changes, provision-aws-infra, provision-cf-infra, apply-schema]
     if: |
       always() &&
       needs.detect-changes.outputs.backend == 'true' &&
+      (needs.provision-aws-infra.result == 'success' || needs.provision-aws-infra.result == 'skipped') &&
+      (needs.provision-cf-infra.result == 'success' || needs.provision-cf-infra.result == 'skipped') &&
       (needs.apply-schema.result == 'success' || needs.apply-schema.result == 'skipped')
     runs-on: ubuntu-latest
     environment: prod
@@ -145,8 +181,11 @@ jobs:
           command: deploy
 
   deploy-frontend:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
+    needs: [detect-changes, provision-cf-infra]
+    if: |
+      always() &&
+      needs.detect-changes.outputs.frontend == 'true' &&
+      (needs.provision-cf-infra.result == 'success' || needs.provision-cf-infra.result == 'skipped')
     runs-on: ubuntu-latest
     environment: prod
     steps:

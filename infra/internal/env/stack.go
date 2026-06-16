@@ -18,7 +18,6 @@ type StackProps struct {
 }
 
 // NewStack は本番リソース (Cognito) を持つスタックを作成する。
-// dev 環境は廃止しローカル開発は localhost のみ。
 func NewStack(scope constructs.Construct, id string, props *StackProps) awscdk.Stack {
 	var sprops awscdk.StackProps
 	if props != nil {

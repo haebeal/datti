@@ -5,13 +5,18 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/haebeal/datti/internal/gateway/line"
 	"github.com/haebeal/datti/internal/gateway/postgres"
 	"github.com/haebeal/datti/internal/gateway/repository"
+	"github.com/haebeal/datti/internal/gateway/storage"
 	"github.com/haebeal/datti/internal/presentation/api"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
 	"github.com/haebeal/datti/internal/presentation/api/middleware"
@@ -19,6 +24,7 @@ import (
 	"github.com/haebeal/datti/internal/usecase"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
+	echomw "github.com/labstack/echo/v4/middleware"
 
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"go.opentelemetry.io/otel"
@@ -101,6 +107,37 @@ func main() {
 
 	queries := postgres.New(pool)
 
+	awsCfg, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"))
+	if err != nil {
+		log.Fatal("AWSへの認証に失敗しました")
+	}
+	cognitoClient := cognitoidentityprovider.NewFromConfig(awsCfg)
+
+	avatarBucket, ok := os.LookupEnv("S3_AVATAR_BUCKET")
+	if !ok {
+		log.Fatal("環境変数S3_AVATAR_BUCKETが設定してありません")
+	}
+	avatarBaseURL, ok := os.LookupEnv("AVATAR_BASE_URL")
+	if !ok {
+		log.Fatal("環境変数AVATAR_BASE_URLが設定してありません")
+	}
+	// S3 クライアント (R2 or LocalStack 向け)
+	// - R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY が設定されていれば R2 用の credentials で上書き
+	//   (Cognito GetUser に使う AWS_* とは別物のため)
+	// - 未設定なら awsCfg の credentials を流用 (ローカル LocalStack は dummy で動く)
+	// - AWS_ENDPOINT_URL_S3 が設定されていれば path-style に
+	s3Client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
+		if r2Key, ok := os.LookupEnv("R2_ACCESS_KEY_ID"); ok && r2Key != "" {
+			r2Secret := os.Getenv("R2_SECRET_ACCESS_KEY")
+			o.Credentials = credentials.NewStaticCredentialsProvider(r2Key, r2Secret, "")
+			o.Region = "auto"
+		}
+		if _, ok := os.LookupEnv("AWS_ENDPOINT_URL_S3"); ok {
+			o.UsePathStyle = true
+		}
+	})
+	avatarStorage := storage.NewAvatarStorage(s3Client, avatarBucket, avatarBaseURL)
+
 	lineChannelID, _ := os.LookupEnv("LINE_CHANNEL_ID")
 	lineChannelSecret, _ := os.LookupEnv("LINE_CHANNEL_SECRET")
 	lc := line.NewClient(lineChannelID, lineChannelSecret)
@@ -116,7 +153,7 @@ func main() {
 	cu := usecase.NewCreditUseCase(cr)
 	ru := usecase.NewRepaymentUseCase(rr, cr)
 	gu := usecase.NewGroupUseCase(ur, gr)
-	uu := usecase.NewUserUseCase(ur, lc)
+	uu := usecase.NewUserUseCase(ur, lc, avatarStorage)
 	su := usecase.NewSubscriptionUseCase(sr)
 	au := usecase.NewAuthUseCase(ur)
 
@@ -134,11 +171,29 @@ func main() {
 
 	e.Use(otelecho.Middleware("github.com/haebeal/datti"))
 
-	awsCfg, err := config.LoadDefaultConfig(ctx, config.WithRegion("ap-northeast-1"))
-	if err != nil {
-		log.Fatal("AWSへの認証に失敗しました")
+	allowOrigins := []string{"http://localhost:3000"}
+	if raw, ok := os.LookupEnv("CORS_ALLOW_ORIGINS"); ok && raw != "" {
+		allowOrigins = nil
+		for _, origin := range strings.Split(raw, ",") {
+			trimmed := strings.TrimSpace(origin)
+			if trimmed != "" {
+				allowOrigins = append(allowOrigins, trimmed)
+			}
+		}
 	}
-	cognitoClient := cognitoidentityprovider.NewFromConfig(awsCfg)
+	e.Use(echomw.CORSWithConfig(echomw.CORSConfig{
+		AllowOrigins:     allowOrigins,
+		AllowCredentials: true,
+		AllowMethods: []string{
+			http.MethodGet, http.MethodPost, http.MethodPut,
+			http.MethodPatch, http.MethodDelete, http.MethodOptions,
+		},
+		AllowHeaders: []string{
+			echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept,
+			echo.HeaderAuthorization, echo.HeaderXRequestedWith,
+		},
+		MaxAge: 86400,
+	}))
 
 	e.Use(middleware.AuthMiddleware(middleware.AuthMiddlewareConfig{
 		SkipPaths:     []string{"/health"},

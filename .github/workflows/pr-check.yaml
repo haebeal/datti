@@ -104,8 +104,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    environment:
-      name: dev
+    environment: prod
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6
@@ -122,7 +121,7 @@ jobs:
         run: npm install -g aws-cdk
       - name: CDK Diff
         working-directory: infra
-        run: cdk diff DevDattiStack
+        run: cdk diff DattiStack
         env:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}

@@ -1,22 +1,17 @@
-import createClient, { type Middleware } from "openapi-fetch";
+import createClient from "openapi-fetch";
+import { userManager } from "@/libs/auth/cognito";
 import type { paths } from "./schema";
 
-const API_BASE_URL = process.env.API_URL;
+export const apiClient = createClient<paths>({
+	baseUrl: import.meta.env.VITE_API_URL,
+});
 
-export function createApiClient(token: string) {
-  const authMiddleware: Middleware = {
-    async onRequest({ request }) {
-      request.headers.set("Authorization", `Bearer ${token}`);
-      return request;
-    },
-  };
-
-  const client = createClient<paths>({
-    baseUrl: API_BASE_URL,
-    cache: "no-store",
-  });
-
-  client.use(authMiddleware);
-
-  return client;
-}
+apiClient.use({
+	async onRequest({ request }) {
+		const user = await userManager.getUser();
+		if (user && !user.expired) {
+			request.headers.set("Authorization", `Bearer ${user.access_token}`);
+		}
+		return request;
+	},
+});

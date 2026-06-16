@@ -41,6 +41,27 @@ func (e SubscriptionGetResponseChannel) Valid() bool {
 	}
 }
 
+// Defines values for UserAvatarUploadURLRequestContentType.
+const (
+	Imagejpeg UserAvatarUploadURLRequestContentType = "image/jpeg"
+	Imagepng  UserAvatarUploadURLRequestContentType = "image/png"
+	Imagewebp UserAvatarUploadURLRequestContentType = "image/webp"
+)
+
+// Valid indicates whether the value is a known member of the UserAvatarUploadURLRequestContentType enum.
+func (e UserAvatarUploadURLRequestContentType) Valid() bool {
+	switch e {
+	case Imagejpeg:
+		return true
+	case Imagepng:
+		return true
+	case Imagewebp:
+		return true
+	default:
+		return false
+	}
+}
+
 // Defines values for CreditsListParamsOrderBy.
 const (
 	Asc  CreditsListParamsOrderBy = "asc"
@@ -349,6 +370,27 @@ type SubscriptionUpsertRequest struct {
 	WeeklySummary bool `json:"weeklySummary"`
 }
 
+// UserAvatarUploadURLRequest defines model for User.AvatarUploadURLRequest.
+type UserAvatarUploadURLRequest struct {
+	// ContentLength アップロードするファイルのサイズ (バイト、最大10MB)
+	ContentLength int64 `json:"contentLength"`
+
+	// ContentType アップロードするファイルのMIMEタイプ
+	ContentType UserAvatarUploadURLRequestContentType `json:"contentType"`
+}
+
+// UserAvatarUploadURLRequestContentType アップロードするファイルのMIMEタイプ
+type UserAvatarUploadURLRequestContentType string
+
+// UserAvatarUploadURLResponse defines model for User.AvatarUploadURLResponse.
+type UserAvatarUploadURLResponse struct {
+	// PublicUrl アップロード完了後、プロフィール更新時にavatarフィールドに指定するURL
+	PublicUrl string `json:"publicUrl"`
+
+	// UploadUrl S3への直接PUTアップロード用URL (5分有効)
+	UploadUrl string `json:"uploadUrl"`
+}
+
 // UserGetResponse defines model for User.GetResponse.
 type UserGetResponse struct {
 	Avatar     string  `json:"avatar"`
@@ -447,6 +489,9 @@ type RepaymentUpdateJSONRequestBody = RepaymentUpdateRequest
 
 // UserUpdateMeJSONRequestBody defines body for UserUpdateMe for application/json ContentType.
 type UserUpdateMeJSONRequestBody = UserUpdateRequest
+
+// UserCreateAvatarUploadURLJSONRequestBody defines body for UserCreateAvatarUploadURL for application/json ContentType.
+type UserCreateAvatarUploadURLJSONRequestBody = UserAvatarUploadURLRequest
 
 // UserLinkLINEJSONRequestBody defines body for UserLinkLINE for application/json ContentType.
 type UserLinkLINEJSONRequestBody = UserLinkLINERequest

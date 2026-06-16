@@ -1,21 +1,12 @@
-declare namespace NodeJS {
-  interface ProcessEnv {
-    // Cognito
-    readonly COGNITO_DOMAIN: string;
-    readonly COGNITO_CLIENT_ID: string;
+/// <reference types="vite/client" />
 
-    // LINE Login
-    readonly LINE_CHANNEL_ID: string;
+interface ImportMetaEnv {
+	readonly VITE_API_URL: string;
+	readonly VITE_COGNITO_DOMAIN: string;
+	readonly VITE_COGNITO_CLIENT_ID: string;
+	readonly VITE_COGNITO_REDIRECT_URI: string;
+}
 
-    // アプリケーション設定
-    readonly APP_URL: string;
-    readonly API_URL: string;
-
-    // DynamoDB (Session Storage)
-    readonly DYNAMODB_SESSIONS_TABLE: string;
-
-    // S3 (Avatar)
-    readonly S3_AVATAR_BUCKET: string;
-    readonly AVATAR_BASE_URL: string;
-  }
+interface ImportMeta {
+	readonly env: ImportMetaEnv;
 }

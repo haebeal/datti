@@ -1,91 +1,102 @@
-"use client";
-
-import { useState, useActionState } from "react";
-import { updateProfile } from "@/features/user/actions/updateProfile";
-import type { User } from "@/features/user/types";
-import { cn } from "@/utils/cn";
-import { Button } from "@/components/ui/button";
+import { useForm } from "@tanstack/react-form";
+import { useState } from "react";
+import { ErrorText } from "@/components/ui/error-text";
 import { Input } from "@/components/ui/input";
-import { useForm } from "@conform-to/react";
-import { parseWithZod } from "@conform-to/zod";
+import { cn } from "@/utils/cn";
+import { useUpdateProfile } from "../mutations";
 import { profileEditSchema } from "../schema";
+import type { User } from "../types";
 import { AvatarPicker } from "./avatar-picker";
 
-type Props = {
-  user: User;
-};
+function getFieldErrorMessage(errors: ReadonlyArray<unknown>) {
+	if (errors.length === 0) return undefined;
+	return errors
+		.map((err) =>
+			typeof err === "string"
+				? err
+				: typeof err === "object" && err && "message" in err
+					? String((err as { message: unknown }).message)
+					: undefined,
+		)
+		.filter(Boolean)
+		.join(", ");
+}
 
-export function ProfileEditForm({ user }: Props) {
-  const [avatarUrl, setAvatarUrl] = useState(user.avatar);
-  const [lastResult, action, isUpdating] = useActionState(
-    updateProfile,
-    undefined,
-  );
-  const [form, { name, avatar }] = useForm({
-    lastResult,
-    defaultValue: user,
-    onValidate({ formData }) {
-      return parseWithZod(formData, { schema: profileEditSchema });
-    },
-  });
+export function ProfileEditForm({ user }: { user: User }) {
+	const updateProfile = useUpdateProfile();
+	const [avatar, setAvatar] = useState(user.avatar);
 
-  return (
-    <form
-      id={form.id}
-      onSubmit={form.onSubmit}
-      action={action}
-      className={cn(
-        "p-6 lg:p-8",
-        "flex flex-col gap-5",
-        "bg-white border border-gray-200 rounded-xl",
-        "w-full",
-      )}
-    >
-      <h2 className={cn("text-base lg:text-xl font-semibold text-primary-base")}>
-        プロフィール編集
-      </h2>
+	const form = useForm({
+		defaultValues: { name: user.name, avatar: user.avatar },
+		validators: { onChange: profileEditSchema },
+		onSubmit: async ({ value }) => {
+			await updateProfile.mutateAsync({ ...value, avatar });
+		},
+	});
 
-      <div className={cn("flex flex-col gap-2")}>
-      <span className={cn("text-xs font-medium text-primary-base")}>アバター</span>
+	return (
+		<form
+			onSubmit={(e) => {
+				e.preventDefault();
+				form.handleSubmit();
+			}}
+			className={cn(
+				"p-6",
+				"flex flex-col gap-5",
+				"bg-white border border-gray-200 rounded-xl",
+			)}
+		>
+			<h2 className="text-base sm:text-xl font-semibold text-primary-base">
+				プロフィール編集
+			</h2>
 
-      <AvatarPicker
-        currentAvatar={avatarUrl}
-        onAvatarChange={setAvatarUrl}
-        name={avatar.name}
-        id={avatar.id}
-      />
-      {avatar.errors && (
-        <p className={cn("text-sm text-error-base")}>{avatar.errors}</p>
-      )}
-      </div>
+			<div className="flex flex-col gap-2">
+				<span className="text-xs font-medium">アバター</span>
+				<AvatarPicker
+					currentAvatar={avatar}
+					onAvatarChange={(url) => {
+						setAvatar(url);
+						form.setFieldValue("avatar", url);
+					}}
+				/>
+			</div>
 
-      <div className={cn("flex flex-col gap-1.5")}>
-      <label htmlFor={name.id} className={cn("text-xs font-medium text-primary-base")}>
-        名前
-      </label>
+			<form.Field name="name">
+				{(field) => (
+					<div className="flex flex-col gap-1.5">
+						<label htmlFor={field.name} className="text-xs font-medium">
+							名前
+						</label>
+						<Input
+							id={field.name}
+							name={field.name}
+							value={field.state.value}
+							onChange={(e) => field.handleChange(e.target.value)}
+							onBlur={field.handleBlur}
+						/>
+						<ErrorText>{getFieldErrorMessage(field.state.meta.errors)}</ErrorText>
+					</div>
+				)}
+			</form.Field>
 
-      <Input
-        type="text"
-        name={name.name}
-        id={name.id}
-        key={name.key}
-        defaultValue={name.defaultValue}
-        className={cn("w-full")}
-      />
-      {name.errors && (
-        <p className={cn("text-sm text-error-base")}>{name.errors}</p>
-      )}
-      </div>
-
-      {form.errors && (
-        <p className={cn("text-sm text-error-base")}>{form.errors}</p>
-      )}
-
-      <div className={cn("flex justify-end")}>
-        <Button type="submit" isDisabled={isUpdating}>
-          {isUpdating ? "更新中..." : "更新"}
-        </Button>
-      </div>
-    </form>
-  );
+			<form.Subscribe selector={(state) => state.isSubmitting}>
+				{(isSubmitting) => (
+					<button
+						type="submit"
+						disabled={isSubmitting}
+						className={cn(
+							"px-4 py-2 self-end rounded-md",
+							"border border-primary-base bg-primary-base text-white",
+							"hover:bg-primary-hover active:bg-primary-active",
+							"disabled:opacity-50 disabled:cursor-not-allowed",
+							"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
+							"transition-colors",
+						)}
+					>
+						{isSubmitting ? "更新中…" : "更新"}
+					</button>
+				)}
+			</form.Subscribe>
+		</form>
+	);
 }

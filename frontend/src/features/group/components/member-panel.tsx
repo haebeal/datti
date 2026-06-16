@@ -1,355 +1,132 @@
-"use client";
-
-import Image from "next/image";
-import { useActionState, useState, useTransition } from "react";
-import { X, UserMinus } from "lucide-react";
-import {
-  Dialog,
-  Modal,
-  ModalOverlay,
-} from "react-aria-components";
-import { cn } from "@/utils/cn";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import type { GroupMember } from "../types";
-import { inviteMember } from "../actions/inviteMember";
-import { removeMember } from "../actions/removeMember";
-import { leaveGroup } from "../actions/leaveGroup";
+import { meQueryOptions } from "@/features/user/queries";
+import { cn } from "@/utils/cn";
+import {
+	useAddMember,
+	useRemoveMember,
+	useSearchUserByEmail,
+} from "../mutations";
+import { groupMembersQueryOptions } from "../queries";
 
-type Props = {
-  groupId: string;
-  members: GroupMember[];
-  creatorId: string;
-  currentUserId: string;
-};
+export function MemberPanel({ groupId }: { groupId: string }) {
+	const { data: members } = useSuspenseQuery(groupMembersQueryOptions(groupId));
+	const { data: me } = useSuspenseQuery(meQueryOptions);
 
-export function MemberPanel({ groupId, members, creatorId, currentUserId }: Props) {
-  const [isInviteOpen, setIsInviteOpen] = useState(false);
-  const [isLeaveOpen, setIsLeaveOpen] = useState(false);
-  const [removingMember, setRemovingMember] = useState<GroupMember | null>(null);
+	const [email, setEmail] = useState("");
+	const [feedback, setFeedback] = useState<string | null>(null);
 
-  const [state, action, isPending] = useActionState(
-    inviteMember.bind(null, groupId),
-    undefined,
-  );
-  const [isRemoving, startRemoveTransition] = useTransition();
-  const [isLeaving, startLeaveTransition] = useTransition();
+	const search = useSearchUserByEmail();
+	const addMember = useAddMember(groupId);
+	const removeMember = useRemoveMember(groupId);
 
-  const isCreator = currentUserId === creatorId;
+	const handleAdd = async () => {
+		setFeedback(null);
+		const trimmed = email.trim();
+		if (!trimmed) return;
+		const found = await search.mutateAsync(trimmed);
+		if (!found) {
+			setFeedback("このメールアドレスのユーザーが見つかりませんでした");
+			return;
+		}
+		if (found.id === me.id) {
+			setFeedback("自分自身を招待することはできません");
+			return;
+		}
+		try {
+			await addMember.mutateAsync(found.id);
+			setEmail("");
+		} catch (err) {
+			setFeedback(err instanceof Error ? err.message : "追加に失敗しました");
+		}
+	};
 
-  // 招待成功したらダイアログを閉じる
-  if (state?.success && isInviteOpen) {
-    setIsInviteOpen(false);
-  }
+	return (
+		<div className={cn("p-6", "flex flex-col gap-4", "border rounded-lg")}>
+			<h2 className="text-lg font-semibold">メンバー</h2>
 
-  const handleRemoveMember = () => {
-    if (!removingMember) return;
-    startRemoveTransition(async () => {
-      await removeMember(groupId, removingMember.id);
-      setRemovingMember(null);
-    });
-  };
+			<ul className="flex flex-col gap-2">
+				{members.map((member) => (
+					<li
+						key={member.id}
+						className={cn(
+							"flex items-center gap-3",
+							"p-3",
+							"border rounded-md",
+						)}
+					>
+						{member.avatar ? (
+							<img
+								src={member.avatar}
+								alt={member.name}
+								className="w-10 h-10 rounded-full object-cover"
+							/>
+						) : (
+							<div
+								className={cn(
+									"w-10 h-10 rounded-full",
+									"bg-accent-base text-white",
+									"flex items-center justify-center font-bold",
+								)}
+							>
+								{member.name.charAt(0)}
+							</div>
+						)}
+						<div className="flex-1 min-w-0">
+							<p className="font-semibold truncate">{member.name}</p>
+							<p className="text-sm text-gray-500 truncate">{member.email}</p>
+						</div>
+						{member.id !== me.id && (
+							<button
+								type="button"
+								onClick={() => removeMember.mutate(member.id)}
+								disabled={removeMember.isPending}
+								className={cn(
+									"px-3 py-1.5 rounded-md text-sm",
+									"border border-error-base text-error-base",
+									"hover:bg-error-base hover:text-white",
+									"disabled:opacity-50",
+									"transition-colors",
+								)}
+							>
+								削除
+							</button>
+						)}
+					</li>
+				))}
+			</ul>
 
-  const handleLeaveGroup = () => {
-    startLeaveTransition(async () => {
-      await leaveGroup(groupId);
-    });
-  };
-
-  return (
-    <>
-      <div
-        className={cn(
-          "bg-white border border-gray-200 rounded-xl",
-          "overflow-hidden",
-        )}
-      >
-        {/* ヘッダー */}
-        <div
-          className={cn(
-            "flex items-center justify-between",
-            "px-4 lg:px-5 py-3",
-          )}
-        >
-          <p className={cn("text-sm font-semibold text-primary-base")}>
-            メンバー ({members.length}人)
-          </p>
-          <button
-            type="button"
-            onClick={() => setIsInviteOpen(true)}
-            className={cn(
-              "px-4 py-2",
-              "text-xs font-semibold text-primary-base",
-              "bg-white border border-gray-200 rounded-lg",
-              "hover:bg-gray-50 transition-colors cursor-pointer",
-            )}
-          >
-            + 招待
-          </button>
-        </div>
-
-        {/* メンバーリスト */}
-        {members.map((member) => (
-          <div
-            key={member.id}
-            className={cn(
-              "flex items-center gap-3",
-              "px-4 lg:px-5 py-3",
-              "border-t border-gray-200",
-            )}
-          >
-            {member.avatar ? (
-              <Image
-                src={member.avatar}
-                alt={member.name}
-                width={40}
-                height={40}
-                className="w-10 h-10 rounded-full object-cover"
-                unoptimized={process.env.NODE_ENV === "development"}
-              />
-            ) : (
-              <div
-                className={cn(
-                  "w-10 h-10 rounded-full",
-                  "bg-accent-base",
-                  "flex items-center justify-center",
-                  "text-white font-bold text-sm",
-                )}
-              >
-                {member.name.charAt(0)}
-              </div>
-            )}
-            <div className={cn("flex-1 min-w-0 flex flex-col gap-0.5")}>
-              <p className={cn("text-sm text-primary-base truncate")}>
-                {member.name}
-              </p>
-              {member.id === creatorId && (
-                <p className={cn("text-xs text-gray-400")}>作成者</p>
-              )}
-            </div>
-            {/* 作成者が他メンバーを削除できるアイコン */}
-            {isCreator && member.id !== creatorId && (
-              <button
-                type="button"
-                onClick={() => setRemovingMember(member)}
-                className={cn("p-1 cursor-pointer")}
-                aria-label={`${member.name}をグループから外す`}
-              >
-                <UserMinus className="w-4.5 h-4.5 text-gray-400" />
-              </button>
-            )}
-          </div>
-        ))}
-
-        {/* グループから抜ける */}
-        {!isCreator && (
-          <button
-            type="button"
-            onClick={() => setIsLeaveOpen(true)}
-            className={cn(
-              "w-full",
-              "flex items-center justify-center",
-              "px-5 py-3",
-              "border-t border-gray-200",
-              "text-xs font-medium text-error-base",
-              "hover:bg-gray-50 transition-colors cursor-pointer",
-            )}
-          >
-            グループから抜ける
-          </button>
-        )}
-      </div>
-
-      {/* 招待ダイアログ */}
-      <ModalOverlay
-        isOpen={isInviteOpen}
-        onOpenChange={setIsInviteOpen}
-        className={cn(
-          "fixed inset-0 z-50",
-          "bg-black/40",
-          "flex items-center justify-center",
-          "p-4",
-        )}
-        isDismissable
-      >
-        <Modal
-          className={cn(
-            "w-full max-w-[480px]",
-            "bg-white",
-            "rounded-xl",
-            "shadow-xl",
-            "outline-none",
-          )}
-        >
-          <Dialog className={cn("p-6 lg:p-8", "flex flex-col gap-5", "outline-none")}>
-            {({ close }) => (
-              <form action={action}>
-                <div className={cn("flex flex-col gap-5")}>
-                  <div className={cn("flex items-center")}>
-                    <h2 className={cn("text-xl font-bold text-primary-base")}>
-                      メンバーを招待
-                    </h2>
-                    <div className="flex-1" />
-                    <button
-                      type="button"
-                      onClick={close}
-                      className="p-1 cursor-pointer"
-                      aria-label="閉じる"
-                    >
-                      <X className="w-6 h-6 text-gray-400" />
-                    </button>
-                  </div>
-
-                  <p className={cn("text-xs text-gray-500")}>
-                    招待するメンバーのメールアドレスを入力してください
-                  </p>
-
-                  <Input
-                    type="email"
-                    name="email"
-                    placeholder="メールアドレス"
-                    className="w-full"
-                    required
-                  />
-
-                  {state?.error && (
-                    <p className={cn("text-sm text-error-base")}>{state.error}</p>
-                  )}
-
-                  <div className={cn("flex justify-end gap-2")}>
-                    <Button
-                      type="button"
-                      onPress={close}
-                      colorStyle="outline"
-                      color="primary"
-                      isDisabled={isPending}
-                    >
-                      キャンセル
-                    </Button>
-                    <Button
-                      type="submit"
-                      color="primary"
-                      colorStyle="fill"
-                      isDisabled={isPending}
-                      className="bg-accent-base border-accent-base"
-                    >
-                      {isPending ? "招待中..." : "招待する"}
-                    </Button>
-                  </div>
-                </div>
-              </form>
-            )}
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-
-      {/* 脱退ダイアログ */}
-      <ModalOverlay
-        isOpen={isLeaveOpen}
-        onOpenChange={setIsLeaveOpen}
-        className={cn(
-          "fixed inset-0 z-50",
-          "bg-black/40",
-          "flex items-center justify-center",
-          "p-4",
-        )}
-        isDismissable
-      >
-        <Modal
-          className={cn(
-            "w-full max-w-[480px]",
-            "bg-white rounded-xl shadow-xl outline-none",
-          )}
-        >
-          <Dialog className={cn("p-6 lg:p-8", "flex flex-col gap-5", "outline-none")}>
-            {({ close }) => (
-              <div className={cn("flex flex-col gap-5")}>
-                <h2 className={cn("text-xl font-bold text-primary-base")}>
-                  グループから抜ける
-                </h2>
-                <p className={cn("text-xs text-gray-500 whitespace-pre-line")}>
-                  {"本当にこのグループから抜けますか？\nグループへの再参加には招待が必要になります。"}
-                </p>
-                <div className={cn("flex justify-end gap-2")}>
-                  <Button
-                    type="button"
-                    onPress={close}
-                    colorStyle="outline"
-                    color="primary"
-                    isDisabled={isLeaving}
-                  >
-                    キャンセル
-                  </Button>
-                  <Button
-                    type="button"
-                    color="error"
-                    colorStyle="fill"
-                    isDisabled={isLeaving}
-                    onPress={() => {
-                      handleLeaveGroup();
-                    }}
-                  >
-                    {isLeaving ? "処理中..." : "抜ける"}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-
-      {/* メンバー削除ダイアログ */}
-      <ModalOverlay
-        isOpen={!!removingMember}
-        onOpenChange={(open) => { if (!open) setRemovingMember(null); }}
-        className={cn(
-          "fixed inset-0 z-50",
-          "bg-black/40",
-          "flex items-center justify-center",
-          "p-4",
-        )}
-        isDismissable
-      >
-        <Modal
-          className={cn(
-            "w-full max-w-[480px]",
-            "bg-white rounded-xl shadow-xl outline-none",
-          )}
-        >
-          <Dialog className={cn("p-6 lg:p-8", "flex flex-col gap-5", "outline-none")}>
-            {({ close }) => (
-              <div className={cn("flex flex-col gap-5")}>
-                <h2 className={cn("text-xl font-bold text-primary-base")}>
-                  メンバーを抜けさせる
-                </h2>
-                <p className={cn("text-xs text-gray-500 whitespace-pre-line")}>
-                  {`${removingMember?.name}をグループから外しますか？\nこの操作は取り消せません。`}
-                </p>
-                <div className={cn("flex justify-end gap-2")}>
-                  <Button
-                    type="button"
-                    onPress={close}
-                    colorStyle="outline"
-                    color="primary"
-                    isDisabled={isRemoving}
-                  >
-                    キャンセル
-                  </Button>
-                  <Button
-                    type="button"
-                    color="error"
-                    colorStyle="fill"
-                    isDisabled={isRemoving}
-                    onPress={handleRemoveMember}
-                  >
-                    {isRemoving ? "処理中..." : "抜けさせる"}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </Dialog>
-        </Modal>
-      </ModalOverlay>
-    </>
-  );
+			<div className="flex flex-col gap-2">
+				<label htmlFor="invite-email" className="text-sm font-semibold">
+					メンバーを追加
+				</label>
+				<div className="flex gap-2">
+					<Input
+						id="invite-email"
+						type="email"
+						placeholder="email@example.com"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						className="flex-1"
+					/>
+					<button
+						type="button"
+						onClick={handleAdd}
+						disabled={search.isPending || addMember.isPending}
+						className={cn(
+							"px-4 py-2 rounded-md",
+							"border border-primary-base bg-primary-base text-white",
+							"hover:bg-primary-hover",
+							"disabled:opacity-50",
+							"transition-colors",
+						)}
+					>
+						追加
+					</button>
+				</div>
+				{feedback && <p className="text-sm text-error-base">{feedback}</p>}
+			</div>
+		</div>
+	);
 }

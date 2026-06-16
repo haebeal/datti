@@ -1,0 +1,16 @@
+.air.toml
+.env
+.env.example
+.dockerignore
+.git
+.gitignore
+.wrangler
+node_modules
+package.json
+pnpm-lock.yaml
+tsconfig.json
+wrangler.toml
+src
+tmp
+CLAUDE.md
+README.md

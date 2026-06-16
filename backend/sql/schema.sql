@@ -64,3 +64,7 @@ CREATE TABLE subscriptions (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT current_timestamp,
   PRIMARY KEY (user_id, channel)
 );
+
+-- Cloudflare 移行に伴う初回 schema apply トリガー用 no-op マーカー
+-- GHA apply-schema ジョブは backend/sql/** の差分で起動するため、
+-- このコメントで本番 Neon DB に schema.sql 全体を反映させる。

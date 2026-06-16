@@ -107,6 +107,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users/me/avatar/upload-url": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** アバター画像アップロード用の署名付きURLを発行 */
+        post: operations["User_createAvatarUploadURL"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/me/line": {
         parameters: {
             query?: never;
@@ -419,6 +436,24 @@ export interface components {
             code: string;
             /** @description LINE Loginのリダイレクト URI */
             redirectUri: string;
+        };
+        "User.AvatarUploadURLRequest": {
+            /**
+             * @description アップロードするファイルのMIMEタイプ
+             * @enum {string}
+             */
+            contentType: "image/jpeg" | "image/png" | "image/webp";
+            /**
+             * Format: int64
+             * @description アップロードするファイルのサイズ (バイト、最大10MB)
+             */
+            contentLength: number;
+        };
+        "User.AvatarUploadURLResponse": {
+            /** @description S3への直接PUTアップロード用URL (5分有効) */
+            uploadUrl: string;
+            /** @description アップロード完了後、プロフィール更新時にavatarフィールドに指定するURL */
+            publicUrl: string;
         };
         "Subscription.GetResponse": {
             /** @enum {string} */
@@ -853,6 +888,57 @@ export interface operations {
                 };
             };
             /** @description The server could not understand the request due to invalid syntax. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Access is unauthorized. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Server error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    User_createAvatarUploadURL: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["User.AvatarUploadURLRequest"];
+            };
+        };
+        responses: {
+            /** @description 署名付きURLの発行成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["User.AvatarUploadURLResponse"];
+                };
+            };
+            /** @description リクエストが不正 */
             400: {
                 headers: {
                     [name: string]: unknown;

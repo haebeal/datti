@@ -1,0 +1,3 @@
+config:
+  datti:accountId: CHANGE_ME
+  datti:zoneId: CHANGE_ME  # datti.app の Cloudflare DNS Zone ID

@@ -5,6 +5,7 @@ import (
 
 	"github.com/haebeal/datti/internal/domain"
 	"github.com/haebeal/datti/internal/gateway/line"
+	"github.com/haebeal/datti/internal/gateway/storage"
 	"github.com/haebeal/datti/internal/presentation/api/handler"
 	"go.opentelemetry.io/otel/codes"
 )
@@ -13,13 +14,15 @@ import (
 type UserUseCaseImpl struct {
 	ur domain.UserRepository
 	lc *line.Client
+	as *storage.AvatarStorage
 }
 
 // NewUserUseCase UserUseCaseImplのファクトリ関数
-func NewUserUseCase(ur domain.UserRepository, lc *line.Client) UserUseCaseImpl {
+func NewUserUseCase(ur domain.UserRepository, lc *line.Client, as *storage.AvatarStorage) UserUseCaseImpl {
 	return UserUseCaseImpl{
 		ur: ur,
 		lc: lc,
+		as: as,
 	}
 }
 
@@ -165,6 +168,28 @@ func (u UserUseCaseImpl) LinkLINE(ctx context.Context, input handler.UserLinkLIN
 
 	return &handler.UserLinkLINEOutput{
 		User: updatedUser,
+	}, nil
+}
+
+// CreateAvatarUploadURL アバター画像アップロード用の署名付きURLを発行する
+func (u UserUseCaseImpl) CreateAvatarUploadURL(ctx context.Context, input handler.UserCreateAvatarUploadURLInput) (output *handler.UserCreateAvatarUploadURLOutput, err error) {
+	ctx, span := tracer.Start(ctx, "usecase.User.CreateAvatarUploadURL")
+	defer func() {
+		if err != nil {
+			span.SetStatus(codes.Error, err.Error())
+			span.RecordError(err)
+		}
+		span.End()
+	}()
+
+	uploadURL, publicURL, err := u.as.GeneratePresignedUploadURL(ctx, input.ContentType, input.ContentLength)
+	if err != nil {
+		return nil, err
+	}
+
+	return &handler.UserCreateAvatarUploadURLOutput{
+		UploadURL: uploadURL,
+		PublicURL: publicURL,
 	}, nil
 }
 

@@ -1,6 +1,19 @@
 # Backend CLAUDE.md
 
-Datti APIバックエンド固有のコンテキスト。汎用的なGoバックエンド開発ガイドはプラグイン（go-backend-plugin）を参照。
+Datti API バックエンド固有のコンテキスト。汎用的な Go バックエンド開発ガイドはプラグイン (go-backend-plugin) を参照。
+
+## デプロイ構成
+
+- **本番**: Cloudflare Containers
+  - `wrangler.toml` で Container class (`BackendContainer`) を Durable Object として登録
+  - `src/index.ts` (Worker) が Container Binding 経由で HTTP リクエストを Go コンテナにフォワード
+  - シークレット (POSTGRES_DSN / LINE_* / AWS_*) は `wrangler secret put` で登録
+  - 本番値は `wrangler.toml` の `[vars]` セクション
+- **ローカル**: `air` で Go バイナリを直接ホットリロード (デバッグポート :2345)
+  - Worker / Container Binding は通常使わない。確認したいときだけ `pnpm dev` (wrangler dev)
+- **ストレージ**:
+  - 本番: Cloudflare R2 (S3 互換 API なので aws-sdk-go-v2 がそのまま動く)
+  - ローカル: LocalStack S3 (R2 のローカル代替)
 
 ## アーキテクチャ
 
@@ -147,8 +160,10 @@ task api:test            # go test -race ./...
 ## 認証・環境
 
 - **認証**: AWS Cognito（`middleware.AuthMiddleware` が `uid` を注入）
+  - 現状は `GetUser` API でアクセストークンを毎回検証する実装。将来的に JWKS でローカル検証に切替予定。
 - **通貨**: すべて円（整数）
-- **環境変数**: `.env` 参照
+- **環境変数**: ローカルは `.env`、本番は Cloudflare Secrets / wrangler.toml の `[vars]`
+- **CORS**: `CORS_ALLOW_ORIGINS` 環境変数 (カンマ区切り) で制御。未指定なら localhost:3000。
 
 ## ローカルデバッグ
 

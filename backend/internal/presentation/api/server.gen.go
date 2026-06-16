@@ -88,6 +88,9 @@ type ServerInterface interface {
 	// 自身のユーザー情報更新
 	// (PUT /users/me)
 	UserUpdateMe(ctx echo.Context) error
+	// アバター画像アップロード用の署名付きURLを発行
+	// (POST /users/me/avatar/upload-url)
+	UserCreateAvatarUploadURL(ctx echo.Context) error
 	// LINE連携解除
 	// (DELETE /users/me/line)
 	UserUnlinkLINE(ctx echo.Context) error
@@ -582,6 +585,17 @@ func (w *ServerInterfaceWrapper) UserUpdateMe(ctx echo.Context) error {
 	return err
 }
 
+// UserCreateAvatarUploadURL converts echo context to params.
+func (w *ServerInterfaceWrapper) UserCreateAvatarUploadURL(ctx echo.Context) error {
+	var err error
+
+	ctx.Set(BearerAuthScopes, []string{})
+
+	// Invoke the callback with all the unmarshaled arguments
+	err = w.Handler.UserCreateAvatarUploadURL(ctx)
+	return err
+}
+
 // UserUnlinkLINE converts echo context to params.
 func (w *ServerInterfaceWrapper) UserUnlinkLINE(ctx echo.Context) error {
 	var err error
@@ -722,6 +736,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/users", wrapper.UserSearch)
 	router.GET(baseURL+"/users/me", wrapper.UserGetMe)
 	router.PUT(baseURL+"/users/me", wrapper.UserUpdateMe)
+	router.POST(baseURL+"/users/me/avatar/upload-url", wrapper.UserCreateAvatarUploadURL)
 	router.DELETE(baseURL+"/users/me/line", wrapper.UserUnlinkLINE)
 	router.PUT(baseURL+"/users/me/line", wrapper.UserLinkLINE)
 	router.GET(baseURL+"/users/me/subscriptions", wrapper.SubscriptionGetAll)

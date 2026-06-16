@@ -27,7 +27,7 @@ func newGitHubActionsRole(scope constructs.Construct) awsiam.IRole {
 				"token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
 			},
 			"StringLike": map[string]string{
-				"token.actions.githubusercontent.com:sub": "repo:haebeal/datti:*",
+				"token.actions.githubusercontent.com:sub": "repo:rom6621/datti:*",
 			},
 		},
 		jsii.String("sts:AssumeRoleWithWebIdentity"),

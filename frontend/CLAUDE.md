@@ -1,376 +1,236 @@
 # Frontend CLAUDE.md
 
-Dattiフロントエンド固有のコンテキスト。汎用的なNext.js開発ガイドはプラグイン（nextjs-frontend-plugin）を参照。
+Datti フロントエンド固有のコンテキスト。
 
 ## 技術スタック
 
 - **パッケージマネージャー**: pnpm
-- **フレームワーク**: Next.js 15 (App Router)
+- **ビルドツール**: Vite
 - **言語**: TypeScript 5
-- **フォームライブラリ**: Conform + Zod
-- **スタイリング**: Tailwind CSS
-- **UIコンポーネント**: react-aria-components (Button等)
-- **状態管理**: React hooks (useState, useTransition, useActionState)
-- **Server Actions**: Next.js Server Actions
+- **ルーティング**: TanStack Router (file-based)
+- **データ取得・キャッシュ**: TanStack Query
+- **フォーム**: TanStack Form + Zod
+- **スタイリング**: Tailwind CSS v4
+- **UI コンポーネント**: React Aria Components
+- **認証**: oidc-client-ts (Cognito PKCE)
+- **API クライアント**: openapi-fetch (`pnpm gen:api` で `../backend/openapi.yaml` からスキーマ再生成)
+- **画像圧縮**: browser-image-compression
+- **Lint/Format**: Biome
 
-## 絶対に守るべき3つのルール
+## 絶対に守るべきルール
 
-### 1. HTMLセマンティックルールの厳守
+### 1. データ取得は loader + ensureQueryData
 
-**CRITICAL**: 実装前に必ず[MDN](https://developer.mozilla.org/ja/)でHTML仕様を確認すること。
-
-```tsx
-// NG: <a>の中に<button>を入れてはいけない
-<Link href="/groups/1">
-  <Button>開く</Button>
-</Link>
-
-// OK: LinkButtonコンポーネントを使う
-<LinkButton href="/groups/1">開く</LinkButton>
-```
-
-### 2. `name` 属性は必須
-
-FormDataに含めたい全ての入力要素に `name` 属性を設定する。
+`useEffect` + `useState` でデータ取得しない。ルート定義の `loader` で `queryClient.ensureQueryData(queryOptions(...))` を呼び、コンポーネントは `useSuspenseQuery` で読む。
 
 ```tsx
-// NG: name属性がない
-<input id={field.id} defaultValue={field.initialValue} />
+export const Route = createFileRoute("/_authenticated/groups/")({
+  loader: ({ context }) => context.queryClient.ensureQueryData(groupsQueryOptions),
+  component: GroupsPage,
+});
 
-// OK: name属性を設定
-<input name={field.name} id={field.id} defaultValue={field.initialValue} />
+function GroupsPage() {
+  const { data: groups } = useSuspenseQuery(groupsQueryOptions);
+  // ...
+}
 ```
 
-### 3. UIコンポーネントを使う
+### 2. 認証ガードは beforeLoad
 
 ```tsx
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { LinkButton } from "@/components/ui/link-button";
+export const Route = createFileRoute("/_authenticated")({
+  beforeLoad: async ({ location }) => {
+    const user = await userManager.getUser();
+    if (!user || user.expired) {
+      throw redirect({ to: "/auth", search: { redirect: location.href } });
+    }
+  },
+  component: AuthenticatedLayout,
+});
 ```
+
+### 3. ローディング UI は defaultPendingComponent
+
+`useState`/`useEffect` でロード状態を作らない。Router の `defaultPendingComponent` (or ルートの `pendingComponent`) を使う。
+
+### 4. hooks を増やしすぎない
+
+長寿命のシングルトン状態 (認証ユーザーなど) は Context/Provider ではなく、シングルトン (例: `oidc-client-ts` の `UserManager`) を直接エクスポートし、`queryOptions` で TanStack Query 化する。コンポーネントは `useQuery(authUserQueryOptions)` で読む。
+
+### 5. セマンティックカラーを使う
+
+`text-red-500` のような Tailwind デフォルトではなく、`globals.css` で定義された `text-error-base` 等を使う。
 
 ## ディレクトリ構造
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── (auth)/            # 認証が必要なページ
-│   │   ├── page.tsx       # ダッシュボード
-│   │   ├── groups/        # グループ関連
-│   │   └── layout.tsx     # 認証レイアウト
-│   ├── globals.css        # グローバルスタイル
-│   └── layout.tsx         # ルートレイアウト
-├── components/            # 共通UIコンポーネント
-│   ├── ui/               # 汎用UIコンポーネント
-│   ├── header/           # ヘッダー
-│   └── sidebar/          # サイドバー
-├── features/             # 機能別ディレクトリ
-│   ├── group/           # グループ機能
-│   │   ├── actions/     # Server Actions
-│   │   ├── components/  # コンポーネント
-│   │   ├── schema.ts    # Zodスキーマ
-│   │   └── types.ts     # 型定義
-│   ├── lending/         # 貸し出し機能
-│   ├── repayment/       # 返済機能
-│   └── user/            # ユーザー機能
-├── libs/                # ライブラリ・ユーティリティ
-│   └── api/            # APIクライアント
-└── utils/              # ユーティリティ関数
+├── routes/                    # TanStack Router file-based
+│   ├── __root.tsx
+│   ├── _authenticated.tsx     # 認証ガード + Layout
+│   ├── _authenticated/        # 認証必須ページ
+│   │   ├── index.tsx          # /
+│   │   ├── groups/
+│   │   ├── repayments/
+│   │   └── profile.tsx
+│   ├── auth/                  # ログインページ
+│   └── api/auth/cognito/      # OAuth callback
+├── components/                # 共通コンポーネント
+│   ├── ui/                    # Button, Input, Select, ...
+│   ├── header.tsx
+│   ├── sidebar.tsx
+│   └── mobile-menu.tsx
+├── features/                  # 機能別
+│   ├── credit/{types,queries}.ts
+│   ├── group/{types,schema,queries,mutations,components}/
+│   ├── lending/...
+│   ├── repayment/...
+│   └── user/...
+├── libs/
+│   ├── api/                   # openapi-fetch client + 生成スキーマ
+│   └── auth/                  # Cognito userManager + queries
+├── hooks/
+├── utils/                     # cn, format
+└── styles/globals.css
 ```
 
-### レイヤー構造
+## ルート命名
 
-- **Page Layer (Server Component)**: データフェッチとルーティング
-- **Component Layer (Client Component)**: UI とインタラクション
-- **Action Layer (Server Actions)**: フォーム送信とデータ更新
-- **API Layer**: バックエンドAPI呼び出し
+- `_authenticated.tsx` — pathless layout (ガードのみ、URLには出ない)
+- `_authenticated/groups/$groupId/settings.tsx` — `/groups/$groupId/settings`
+- `auth/index.tsx` — `/auth`
+- `api/auth/cognito/callback.tsx` — OAuth コールバック (パスは Cognito 登録済みに合わせる)
 
-## 新機能実装フロー
-
-1. **型定義とスキーマ定義**: `features/[feature]/types.ts`, `schema.ts`
-2. **Server Actions 実装**: `features/[feature]/actions/`
-3. **Page 実装 (Server Component)**: `app/(auth)/[path]/page.tsx`
-4. **Component 実装 (Client Component)**: `features/[feature]/components/`
-5. **スタイリング調整**: Tailwind CSS + cn()
-6. **動作確認**: `pnpm dev`
-
-## フォーム実装パターン（Conform + Zod + Server Actions）
-
-### スキーマ定義
-
-```typescript
-// features/group/schema.ts
-import z from "zod";
-
-export const updateGroupSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1, "グループ名を入力してください"),
-});
-```
-
-### Server Action
-
-```typescript
-// features/group/actions/updateGroup.ts
-"use server";
-
-import { parseWithZod } from "@conform-to/zod";
-import { updateGroupSchema } from "../schema";
-import { revalidatePath } from "next/cache";
-import { apiClient } from "@/libs/api/client";
-
-export async function updateGroup(_: unknown, formData: FormData) {
-  const submission = parseWithZod(formData, { schema: updateGroupSchema });
-  if (submission.status !== "success") {
-    return submission.reply();
-  }
-
-  const { id, name } = submission.value;
-
-  try {
-    await apiClient.put(`/groups/${id}`, { name });
-    revalidatePath("/groups");
-    return submission.reply({ resetForm: true });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return submission.reply({ formErrors: [message] });
-  }
-}
-```
-
-### Client Component
-
-```typescript
-"use client";
-
-import { useActionState } from "react";
-import { useForm } from "@conform-to/react";
-import { parseWithZod } from "@conform-to/zod";
-
-export function GroupBasicInfoForm({ group }: Props) {
-  const [lastResult, action, isPending] = useActionState(updateGroup, undefined);
-
-  const [form, { id, name }] = useForm({
-    lastResult,
-    defaultValue: group,
-    onValidate({ formData }) {
-      return parseWithZod(formData, { schema: updateGroupSchema });
-    },
-  });
-
-  return (
-    <form id={form.id} onSubmit={form.onSubmit} action={action}
-      className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}>
-      <input type="hidden" name={id.name} value={group.id} />
-      <label htmlFor={name.id}>グループ名</label>
-      <Input type="text" name={name.name} id={name.id} key={name.key}
-        defaultValue={name.initialValue} />
-      <Button type="submit" isDisabled={isPending}>
-        {isPending ? "更新中..." : "更新"}
-      </Button>
-    </form>
-  );
-}
-```
-
-### ローディング状態
-
-- **フォーム送信**: `useActionState` の `isPending`
-- **その他の非同期処理**: `useTransition`
-
-```typescript
-const [isDeleting, startTransition] = useTransition();
-const handleDelete = (id: string) => {
-  startTransition(async () => { await deleteAction(id); });
-};
-```
-
-### エラーハンドリング
-
-```typescript
-// Server Action
-return submission.reply({ formErrors: ["エラーメッセージ"] });
-
-// Component
-{form.errors && <ErrorText>{form.errors}</ErrorText>}
-```
-
-### 配列フィールド（React Aria + Conform）
+## フォーム実装パターン (TanStack Form + Zod)
 
 ```tsx
-// NG: getButtonPropsはReact Aria Buttonと互換性がない
-<Button {...form.insert.getButtonProps({ name: fields.debts.name })}>
+import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
 
-// OK: onPressで直接呼び出す
-<Button type="button" onPress={() => {
-  form.insert({ name: fields.debts.name, defaultValue: { userId: "", amount: 0 } });
-}}>
-  追加
-</Button>
+const schema = z.object({ name: z.string().min(1, "...") });
+
+const form = useForm({
+  defaultValues: { name: "" },
+  validators: { onChange: schema },
+  onSubmit: async ({ value }) => { await mutation.mutateAsync(value); },
+});
+
+return (
+  <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}>
+    <form.Field name="name">
+      {(field) => (
+        <Input
+          value={field.state.value}
+          onChange={(e) => field.handleChange(e.target.value)}
+          onBlur={field.handleBlur}
+        />
+      )}
+    </form.Field>
+    <form.Subscribe selector={(s) => s.isSubmitting}>
+      {(isSubmitting) => <button type="submit" disabled={isSubmitting}>...</button>}
+    </form.Subscribe>
+  </form>
+);
 ```
 
-## データ取得パターン
+### 動的配列フィールド
 
-### 関連ユーザーの並列取得
-
-```typescript
-const [payer, debtor] = await Promise.all([
-  apiClient.get<User>(`/users/${response.payerId}`),
-  apiClient.get<User>(`/users/${response.debtorId}`),
-]);
+```tsx
+<form.Field name="debts" mode="array">
+  {(field) => (
+    <>
+      {field.state.value.map((_, i) => (
+        <form.Field key={i} name={`debts[${i}].amount`}>...</form.Field>
+      ))}
+      <button onClick={() => field.pushValue({ userId: "", amount: 0 })}>追加</button>
+    </>
+  )}
+</form.Field>
 ```
 
-### 複数データの重複排除
+## API クライアント
 
-```typescript
-const userIds = new Set<string>();
-responses.forEach((r) => { userIds.add(r.payerId); userIds.add(r.debtorId); });
-const users = await Promise.all(Array.from(userIds).map((id) => apiClient.get<User>(`/users/${id}`)));
-const userMap = new Map(users.map((user) => [user.id, user]));
-```
+- `src/libs/api/client.ts` — openapi-fetch クライアント。`onRequest` で `userManager.getUser()` から access_token を取得して `Authorization: Bearer` を付与
+- `src/libs/api/schema.d.ts` — openapi.yaml から自動生成。`pnpm gen:api` で更新
+- 各 feature の `queries.ts` で `queryOptions(...)` を、`mutations.ts` で `useMutation` を定義
 
-### 型設計（Response型とフロントエンド型の分離）
+## 認証フロー
 
-```typescript
-// バックエンドAPIのレスポンス型（IDのみ）
-type RepaymentResponse = { id: string; payerId: string; debtorId: string; amount: number; };
+1. `/auth` で「Googleで続ける」ボタン → `login("Google")` → `userManager.signinRedirect(...)` で Cognito Hosted UI へ
+2. Cognito 認証後、`/api/auth/cognito/callback` にリダイレクト (PKCE 検証つき)
+3. callback ルートの `loader` で `userManager.signinRedirectCallback()` → 完了で `/` へ redirect
+4. 以降、`_authenticated.tsx` の `beforeLoad` で認証状態を確認
 
-// フロントエンド型（完全なユーザーオブジェクト）
-type Repayment = { id: string; payer: User; debtor: User; amount: number; };
-```
+## アバターアップロード (Presigned URL)
 
-## 日付処理
-
-**全ての日付処理はJST（Asia/Tokyo）で統一する。**
-
-```typescript
-// 送信時: JSTのISO形式
-body: { eventDate: `${eventDate}T00:00:00+09:00` }
-
-// 表示時: 必ずtimeZone指定
-new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "long", day: "numeric", timeZone: "Asia/Tokyo" }).format(date);
-
-// 今日の日付（yyyy-mm-dd）
-new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(new Date())
-
-// 表示用フォーマット
-import { formatDate } from "@/utils/format";
-formatDate(dateString);  // "2026年1月15日"
-```
-
-## 環境変数の変更ルール
-
-追加・変更時は以下の3ファイルを必ず確認・更新：
-
-1. **`src/env.d.ts`** - 型定義
-2. **`.env.example`** - サンプル値
-3. **`Taskfile.yaml`** - LocalStackリソース関連の場合
-
-### 命名規則
-
-- `_NAME` サフィックスは不要（例: `S3_AVATAR_BUCKET`）
-- ローカル開発用リソースは `local-` プレフィックス（例: `local-datti-avatar`）
-- AWS SDKが自動読み取りする環境変数はソースコードで明示的に使用しない
-
----
+1. ファイル選択 → `browser-image-compression` で webp 1MB に圧縮
+2. `POST /users/me/avatar/upload-url` で署名付きURL取得 (有効期限5分)
+3. その URL に PUT で直接 S3 アップロード
+4. `PUT /users/me` で avatar URL を保存
 
 ## デザインシステム
 
-### カラーパレット
+### カラー (globals.css `@theme`)
 
-定義ファイル: `src/app/globals.css`
+| カテゴリ | トークン |
+|----------|----------|
+| Primary | `primary-hover` / `primary-base` / `primary-active` / `primary-surface` |
+| Accent | `accent-hover` / `accent-base` / `accent-active` |
+| Success | `success-hover` / `success-base` / `success-active` (プラス金額) |
+| Error | `error-hover` / `error-base` / `error-active` (マイナス金額) |
 
-| カテゴリ | トークン | 用途 |
-|----------|----------|------|
-| **Primary** | `primary-hover` / `primary-base` / `primary-active` / `primary-surface` | テキスト、ボタン、選択状態背景 |
-| **Accent** | `accent-hover` / `accent-base` / `accent-active` | アクセントカラー |
-| **Success** | `success-hover` / `success-base` / `success-active` | プラス金額、成功メッセージ |
-| **Error** | `error-hover` / `error-base` / `error-active` | マイナス金額、エラーメッセージ |
-
-**セマンティックカラーの使い分け**:
-- 回収予定（+金額）: `text-success-base`
-- 支払い予定（-金額）: `text-error-base`
-- 選択状態の背景: `bg-primary-surface`
-- ハードコードの色は使わない（`text-red-500` ではなく `text-error-base`）
-
-### 間隔（Spacing）
+### スペーシング規約
 
 | 用途 | クラス |
 |------|--------|
 | フォームコンテナのパディング | `p-6` |
 | フォーム要素の縦間隔 | `gap-3` |
-| 横並び要素の間隔 | `gap-5` |
 | ページセクション間 | `gap-5` |
-| カードのパディング（リスト） | `p-4` |
-| カードのパディング（詳細） | `p-6` |
 
 ### ページレイアウト
 
 ```tsx
-<div className={cn("w-4xl mx-auto", "flex flex-col gap-5")}>
-  <h1>ページタイトル</h1>
+<div className="flex flex-col gap-5">
+  <h1 className="hidden sm:block text-2xl font-bold text-primary-base">...</h1>
+  ...
 </div>
 ```
 
-最大幅: `w-4xl`（896px）、中央揃え: `mx-auto`
+`_authenticated.tsx` で `max-w-[800px] mx-auto` を当てているので、ページ側で max-width 指定は不要。
 
-### UIコンポーネント仕様
+## 日付処理
 
-| コンポーネント | パス | 特徴 |
-|----------------|------|------|
-| **Input** | `components/ui/input/` | `autoComplete="off"`, `data-1p-ignore` |
-| **DatePicker** | `components/ui/date-picker/` | React Aria Components ベース、hidden input でFormData対応 |
-| **Select** | `components/ui/select/` | React Aria Components ベース、ジェネリック型 |
-| **Button** | `components/ui/button/` | disabled状態のスタイル、React Aria対応 |
-| **LinkButton** | `components/ui/link-button/` | ページ遷移・ナビゲーション用 |
-| **ErrorText** | `components/ui/error-text/` | エラーメッセージ表示 |
+**全ての日付処理は JST (Asia/Tokyo) で統一する。**
 
-### スタイリング原則
+```typescript
+// 送信時: JST の ISO 形式
+body: { eventDate: `${eventDate}T00:00:00+09:00` }
 
-**入力コンポーネントの統一スタイル**:
-```tsx
-className={cn("px-3 py-2", "border rounded-md",
-  "focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base")}
+// 表示用
+import { formatDate } from "@/utils/format";
+formatDate(dateString);  // "2026年1月15日"
 ```
 
-**cn() ユーティリティ**: Tailwindクラスのグループ化と条件付きクラス管理に使用。
+## コマンド
 
-**React Aria Components**: CSS擬似クラスではなくデータ属性を使用。
-```tsx
-// NG: hover:bg-gray-100
-// OK: data-[hovered]:bg-gray-100
+```bash
+pnpm dev       # 開発サーバー
+pnpm build     # 本番ビルド (tsc -b && vite build)
+pnpm typecheck # tsc --noEmit
+pnpm lint      # Biome lint
+pnpm format    # Biome format --write
+pnpm gen:api   # openapi-typescript で schema.d.ts 再生成
 ```
-
-## トラブルシューティング
-
-| 問題 | 原因 | 解決策 |
-|------|------|--------|
-| FormDataが空 | `name` 属性の欠落 | `name={field.name}` を設定 |
-| `Unexpected end of JSON input` | 204 No Content | `response.text()` で空チェック |
-| revalidatePathで更新されない | パス不足 | 関連パスを全て revalidate |
-| Conformフィールドが更新されない | `key` 属性の欠落 | `key={field.key}` を設定 |
-| isPendingが動作しない | `action` 未設定 | `<form action={action}>` を設定 |
-
-## コーディング規約
-
-- **フォーマット**: Biome
-- **命名規則**: コンポーネント=PascalCase、関数=camelCase、定数=UPPER_SNAKE_CASE
-- **1ファイルで完結**: 200〜300行程度なら分割不要
-- **浅い階層を維持**: 不要な div ネストを避ける
 
 ## 参考資料
 
-ライブラリのAPIを確認する際は `use context7` を使用すること。
+ライブラリの API を確認する際は `use context7` を使用すること。
 
 対象ライブラリ:
-- **Conform** - フォームAPI（field.initialValue等）
+- **TanStack Router** - ルーター API、loader、beforeLoad、context
+- **TanStack Query** - queryOptions、useSuspenseQuery、useMutation
+- **TanStack Form** - useForm、Field、array mode
 - **Zod** - バリデーションスキーマ
-- **Next.js** - App Router、Server Actions
 - **React Aria Components** - データ属性、アクセシビリティ
-- **Tailwind CSS** - ユーティリティクラス
-
-参考実装:
-- `src/features/group/components/group-basic-info-form.tsx` - フォーム実装
-- `src/features/group/components/group-member-management.tsx` - 複雑なフォーム
-- `src/features/lending/components/lending-create-form.tsx` - 動的配列フォーム
-- `src/components/ui/` - UIコンポーネント
+- **Tailwind CSS v4** - `@theme`、`@plugin`
+- **oidc-client-ts** - UserManager、events

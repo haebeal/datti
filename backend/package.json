@@ -1,0 +1,17 @@
+{
+	"name": "datti-backend-worker",
+	"private": true,
+	"description": "Cloudflare Worker entry that proxies HTTP requests to the Go backend Container",
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev"
+	},
+	"dependencies": {
+		"@cloudflare/containers": "^0.0.30"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20260101.0",
+		"typescript": "~5.9.3",
+		"wrangler": "^4.0.0"
+	}
+}

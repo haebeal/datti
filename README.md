@@ -222,6 +222,8 @@ pnpm dev   # wrangler dev (内部で docker build + container 起動)
 #    Access Key ID / Secret Access Key を控える
 
 # 3. Pulumi に state backend を登録
+#    AWS_REGION=auto は R2 が "ap-northeast-1" などのリージョン名を受け付けないため必須
+export AWS_REGION=auto
 export AWS_ACCESS_KEY_ID=<R2 Access Key>
 export AWS_SECRET_ACCESS_KEY=<R2 Secret>
 pulumi login 's3://datti-pulumi-state?endpoint=https://<ACCOUNT_ID>.r2.cloudflarestorage.com&s3ForcePathStyle=true'
@@ -244,6 +246,7 @@ pulumi up
 #### 通常運用
 ```bash
 cd infra-cloudflare
+export AWS_REGION=auto
 export AWS_ACCESS_KEY_ID=<R2 Access Key>
 export AWS_SECRET_ACCESS_KEY=<R2 Secret>
 export PULUMI_CONFIG_PASSPHRASE=<パスフレーズ>

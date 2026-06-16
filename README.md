@@ -235,9 +235,12 @@ export PULUMI_CONFIG_PASSPHRASE=<好きな文字列>
 export CLOUDFLARE_API_TOKEN=<アカウント API トークン>
 
 # 6. stack 初期化と config セット
+#    self-managed backend は stack 名を organization/project/stack の 3 階層で指定する必要あり
+#    organization の部分は任意 (慣例で "organization" や handle を使う)
 cd infra-cloudflare
-pulumi stack init prod
+pulumi stack init organization/datti/prod
 pulumi config set accountId <CLOUDFLARE_ACCOUNT_ID>
+pulumi config set zoneId <CLOUDFLARE_ZONE_ID>
 
 # 7. apply
 pulumi up

@@ -115,7 +115,7 @@ jobs:
           go-version: stable
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ap-northeast-1
       - uses: actions/setup-node@v4
         with:
@@ -126,9 +126,9 @@ jobs:
         working-directory: infra
         run: cdk diff DattiStack
         env:
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          LINE_CHANNEL_ID: ${{ secrets.LINE_CHANNEL_ID }}
+          LINE_CHANNEL_ID: ${{ vars.LINE_CHANNEL_ID }}
           LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
 
   preview-cf-infra:
@@ -144,9 +144,9 @@ jobs:
       - uses: pulumi/actions@v6
         with:
           command: preview
-          stack-name: ${{ secrets.PULUMI_STACK_NAME }}
+          stack-name: ${{ vars.PULUMI_STACK_NAME }}
           work-dir: infra-cloudflare
-          cloud-url: s3://datti-pulumi-state?endpoint=${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com&s3ForcePathStyle=true
+          cloud-url: s3://datti-pulumi-state?endpoint=${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com&s3ForcePathStyle=true
         env:
           AWS_REGION: auto
           AWS_ACCESS_KEY_ID: ${{ secrets.PULUMI_STATE_R2_ACCESS_KEY_ID }}

@@ -224,7 +224,7 @@ pnpm dev   # wrangler dev (内部で docker build + container 起動)
 # 3. Pulumi に state backend を登録
 export AWS_ACCESS_KEY_ID=<R2 Access Key>
 export AWS_SECRET_ACCESS_KEY=<R2 Secret>
-pulumi login s3://datti-pulumi-state?endpoint=https://<ACCOUNT_ID>.r2.cloudflarestorage.com&s3ForcePathStyle=true
+pulumi login 's3://datti-pulumi-state?endpoint=https://<ACCOUNT_ID>.r2.cloudflarestorage.com&s3ForcePathStyle=true'
 
 # 4. state 暗号化用パスフレーズを設定 (今後 apply するたびに必須)
 export PULUMI_CONFIG_PASSPHRASE=<好きな文字列>

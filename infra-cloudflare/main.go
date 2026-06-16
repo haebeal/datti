@@ -82,9 +82,32 @@ func main() {
 			return err
 		}
 
+		// Pages: OpenAPI (SwaggerUI) プロジェクト。
+		// 実デプロイは wrangler-action 経由なので build/source 設定は持たない。
+		openapiProject, err := cloudflare.NewPagesProject(ctx, "openapi", &cloudflare.PagesProjectArgs{
+			AccountId:        pulumi.String(accountID),
+			Name:             pulumi.String("datti-openapi"),
+			ProductionBranch: pulumi.String("main"),
+		})
+		if err != nil {
+			return err
+		}
+
+		// Pages: openapi.datti.app を OpenAPI ドキュメントの本番ドメインとしてバインド
+		_, err = cloudflare.NewPagesDomain(ctx, "openapi-domain", &cloudflare.PagesDomainArgs{
+			AccountId:   pulumi.String(accountID),
+			ProjectName: openapiProject.Name,
+			Name:        pulumi.String("openapi.datti.app"),
+		})
+		if err != nil {
+			return err
+		}
+
 		ctx.Export("cdnBucketName", cdnBucket.Name)
 		ctx.Export("pagesProjectName", pagesProject.Name)
 		ctx.Export("pagesProjectSubdomain", pagesProject.Subdomain)
+		ctx.Export("openapiProjectName", openapiProject.Name)
+		ctx.Export("openapiProjectSubdomain", openapiProject.Subdomain)
 		return nil
 	})
 }

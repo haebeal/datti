@@ -2,6 +2,11 @@ name = "datti-backend"
 main = "src/index.ts"
 compatibility_date = "2026-06-13"
 
+# カスタムドメイン (DNS レコードは wrangler が自動で作成)
+routes = [
+  { pattern = "api.datti.app", custom_domain = true }
+]
+
 [observability]
 enabled = true
 

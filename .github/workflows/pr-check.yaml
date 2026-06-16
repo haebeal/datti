@@ -104,6 +104,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
+    environment: prod
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-go@v6

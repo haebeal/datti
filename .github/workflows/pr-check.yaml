@@ -168,8 +168,10 @@ jobs:
         run: pulumi stack select --create "${{ vars.PULUMI_STACK_NAME }}"
       - name: Pre-fetch Go dependencies
         run: go mod download
+      - name: Pre-install Cloudflare provider plugin
+        run: pulumi plugin install resource cloudflare
       - name: Pulumi preview
-        run: pulumi preview --non-interactive --diff
+        run: pulumi preview --non-interactive --diff --logtostderr --logflow -v=9 2>&1
 
   backend-lint:
     needs: detect-changes

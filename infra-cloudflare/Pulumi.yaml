@@ -1,3 +1,8 @@
 name: datti
-runtime: go
+runtime:
+  name: go
+  options:
+    # Pulumi 実行時の内部ビルドをスキップして、事前ビルド済みバイナリを直接 exec する。
+    # Cloudflare provider SDK のコンパイルが重いので CI で必須。
+    binary: ./bin/pulumi-program
 description: Datti の Cloudflare リソース (R2 / Pages)

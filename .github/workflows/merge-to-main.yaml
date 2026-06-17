@@ -87,9 +87,9 @@ jobs:
         with:
           go-version: stable
           cache-dependency-path: infra-cloudflare/go.sum
-      - name: Download Go dependencies
+      - name: Build Pulumi program
         working-directory: infra-cloudflare
-        run: go mod download
+        run: go build -o ./bin/pulumi-program .
       - uses: pulumi/actions@v7
         with:
           command: up

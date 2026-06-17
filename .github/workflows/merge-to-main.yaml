@@ -80,32 +80,33 @@ jobs:
     if: needs.detect-changes.outputs.cf-infra == 'true'
     runs-on: ubuntu-latest
     environment: prod
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: infra-cloudflare
+    env:
+      AWS_REGION: auto
+      AWS_ACCESS_KEY_ID: ${{ secrets.PULUMI_STATE_R2_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.PULUMI_STATE_R2_SECRET_ACCESS_KEY }}
+      PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PULUMI_BACKEND_URL: s3://datti-pulumi-state?endpoint=https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com&s3ForcePathStyle=true
     steps:
       - uses: actions/checkout@v6
-
       - uses: actions/setup-go@v5
         with:
           go-version: stable
           cache-dependency-path: infra-cloudflare/go.sum
-
+      - name: Install Pulumi CLI
+        uses: pulumi/actions@v6
+      - name: Pulumi login
+        run: pulumi login "$PULUMI_BACKEND_URL"
+      - name: Pulumi stack select (create if missing)
+        run: pulumi stack select --create "${{ vars.PULUMI_STACK_NAME }}"
       - name: Pre-fetch Go dependencies
-        working-directory: infra-cloudflare
         run: go mod download
-
-      - uses: pulumi/actions@v6
-        with:
-          command: up
-          stack-name: ${{ vars.PULUMI_STACK_NAME }}
-          work-dir: infra-cloudflare
-          cloud-url: s3://datti-pulumi-state?endpoint=https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com&s3ForcePathStyle=true
-          upsert: true
-          log-flow: true
-        env:
-          AWS_REGION: auto
-          AWS_ACCESS_KEY_ID: ${{ secrets.PULUMI_STATE_R2_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.PULUMI_STATE_R2_SECRET_ACCESS_KEY }}
-          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      - name: Pulumi up
+        run: pulumi up --yes --non-interactive
 
   apply-schema:
     needs: detect-changes

@@ -83,13 +83,10 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-go@v6
-        with:
-          go-version: stable
-          cache-dependency-path: infra-cloudflare/go.sum
-      - name: Build Pulumi program
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
         working-directory: infra-cloudflare
-        run: go build -o ./bin/pulumi-program .
+        run: bun install --frozen-lockfile
       - uses: pulumi/actions@v7
         with:
           command: up

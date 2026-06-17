@@ -15,6 +15,44 @@ Dattiは割り勘・立て替え管理アプリです。誰にいくら払った
 
 セットアップ手順は [README.md](README.md) を参照。
 
+## 開発フローの全体像（計画層と実行層）
+
+本リポジトリの開発は **2 層** で構成される。Kiro SDD と従来の git/Linear フローは競合するものではなく、上下に重なる関係にある。
+
+```
+[計画層] Kiro SDD (.kiro/)
+  /kiro-discovery → spec (requirements → design → tasks)
+        │  tasks.md が実行層への入力になる
+        ▼
+[実行層] git / Linear / CI-CD
+  feature(/fix) ブランチ → 細かいコミット
+  → PR (DATTI-xxx) → CI (pr-check) → main マージ → 自動デプロイ (merge-to-main)
+```
+
+- **計画層 (Kiro SDD)**: 「何を・なぜ・どう作るか」を仕様化する。成果物は `.kiro/specs/<feature>/` の `requirements.md` / `design.md` / `tasks.md`。詳細は本書末尾の [Agentic SDLC and Spec-Driven Development](#agentic-sdlc-and-spec-driven-development) を参照。
+- **実行層 (git/Linear/CI-CD)**: 計画層が出力した tasks を実際のコード変更として届ける。コミット粒度・PR・チケット連携・デプロイのルールはすべて実行層に一本化されており、`## 開発フロー` 以降が唯一の正となる。
+- **橋渡し**: spec の `tasks.md` を実装するときは、必ず実行層のコミット/PR/Linear ルール（後述）に従う。計画層は「単位を決める」だけで、届け方は常に実行層が担う。
+
+### 計画層を使う単位
+
+- **spec を作る**: 新機能や複数ファイル・複数ドメインにまたがる変更（おおむね `/kiro-discovery` が新規 spec と判定する規模）。
+- **spec を作らず実行層へ直接**: バグ修正・設定変更・小さなリファクタなど、仕様化の価値が低い変更。
+- 迷ったら `/kiro-discovery "やりたいこと"` に判定させる。
+
+> 規模ごとの厳密な判定基準のルール化は今後の課題。現状は上記の目安と `/kiro-discovery` の判定に従う。
+
+## 対応づけ（Linear ↔ Kiro ↔ git）
+
+2 つの追跡（Linear と Kiro spec）が並走しないよう、粒度を対応させる。
+
+| 計画層 | 追跡 | 実行層 |
+|--------|------|--------|
+| 1 spec (`.kiro/specs/<feature>/`) | ≒ 1 Linear チケット (`DATTI-xxx`) | 1 本以上の PR |
+| spec 内の 1 task (`tasks.md`) | — | 1 コミット（または関連ファイルをまとめた最小単位） |
+
+- spec を起点にした作業でも、PR タイトルには対応する `DATTI-xxx` を含めて Linear と連携する。
+- spec を伴わない直接作業は、従来どおり Linear チケット単位で進める。
+
 ## バックエンド開発
 
 バックエンドタスクを実行する際は、以下が自動的に適用されます：
@@ -55,7 +93,9 @@ Dattiは割り勘・立て替え管理アプリです。誰にいくら払った
 - **進捗の扱い**: 標準フローのどこにいるかをこまめに共有し、次へ進む前に合意を得る。
 - **未確定事項の管理**: 仕様が曖昧な点は TODO やメモとして残す。
 
-## 開発フロー
+## 開発フロー（実行層・単一ソース）
+
+ここがコミット・PR を含む実行層ルールの唯一の正。**Kiro spec の tasks を実装する場合も、spec を伴わない直接作業の場合も、共通してこのルールに従う。**
 
 1. **ブランチ作成**: `feature/` または `fix/` プレフィックスを使用
 
@@ -95,6 +135,8 @@ Dattiは割り勘・立て替え管理アプリです。誰にいくら払った
 
 Kiro-style Spec-Driven Development on an agentic SDLC
 
+これは本リポジトリの **計画層** の詳細ルール。実行層（コミット・PR・Linear・デプロイ）との関係は本書冒頭の [開発フローの全体像（計画層と実行層）](#開発フローの全体像計画層と実行層) を参照。
+
 ## Project Context
 
 ### Paths
@@ -111,7 +153,8 @@ Kiro-style Spec-Driven Development on an agentic SDLC
 - Use `/kiro-spec-status [feature-name]` to check progress
 
 ## Development Guidelines
-- Think in English, generate responses in English. All Markdown content written to project files (e.g., requirements.md, design.md, tasks.md, research.md, validation reports) MUST be written in the target language configured for this specification (see spec.json.language).
+- 思考は任意の言語で行ってよいが、**ユーザーへの応答は常に日本語**（グローバル設定に従う）。
+- spec の成果物（`requirements.md` / `design.md` / `tasks.md` / `research.md` / validation report 等）は、その spec の `spec.json.language` で設定された言語で書く。
 
 ## Minimal Workflow
 - Phase 0 (optional): `/kiro-steering`, `/kiro-steering-custom`
@@ -143,8 +186,11 @@ Skills are located in `.claude/skills/kiro-*/SKILL.md`
 - **If there is even a 1% chance a skill applies to the current task, invoke it.** Do not skip skills because the task seems simple.
 
 ## Development Rules
-- 3-phase approval workflow: Requirements → Design → Tasks → Implementation
-- Human review required each phase; use `-y` only for intentional fast-track
+- **承認ゲートの位置づけ（二重承認にしない）**:
+  - 計画層のゲート = この 3-phase approval（Requirements → Design → Tasks）。各フェーズで人間レビューが必要。意図的な fast-track のときだけ `-y`。
+  - 実行層のゲート = `## 作業開始前の確認`（ブランチ確認・プラン共有と承認）。tasks 実装に着手する段階で適用する。
+  - つまり「何を作るか」は計画層で、「どう着手するか」は実行層で承認を取る。同じ内容を二度承認しない。
+- **実行層への橋渡し**: `/kiro-impl` 等で tasks を実装する際のコミット・PR・Linear 連携は、本書前半の `## 開発フロー` / `## PRの作成` / `## 対応づけ` に従う（Kiro 側で独自のコミット/PR ルールを定義しない）。
 - Keep steering current and verify alignment with `/kiro-spec-status`
 - Follow the user's instructions precisely, and within that scope act autonomously: gather the necessary context and complete the requested work end-to-end in this run, asking questions only when essential information is missing or the instructions are critically ambiguous.
 

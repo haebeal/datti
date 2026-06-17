@@ -14,7 +14,8 @@ jobs:
     outputs:
       openapi: ${{ steps.filter.outputs.openapi }}
       schema: ${{ steps.filter.outputs.schema }}
-      infra: ${{ steps.filter.outputs.infra }}
+      aws-infra: ${{ steps.filter.outputs.aws-infra }}
+      cf-infra: ${{ steps.filter.outputs.cf-infra }}
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
     steps:
@@ -27,17 +28,100 @@ jobs:
               - 'backend/openapi.yaml'
             schema:
               - 'backend/sql/**'
-            infra:
+            aws-infra:
               - 'infra/cmd/**'
               - 'infra/internal/**'
+            cf-infra:
+              - 'infra-cloudflare/**'
             backend:
               - 'backend/**'
             frontend:
               - 'frontend/**'
 
-  deploy-openapi:
+  provision-aws-infra:
     needs: detect-changes
-    if: needs.detect-changes.outputs.openapi == 'true'
+    if: needs.detect-changes.outputs.aws-infra == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    environment: prod
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install CDK
+        run: npm install -g aws-cdk
+
+      - name: CDK Deploy
+        working-directory: infra
+        run: cdk deploy SharedDattiStack DattiStack --require-approval never
+        env:
+          GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          LINE_CHANNEL_ID: ${{ vars.LINE_CHANNEL_ID }}
+          LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
+
+  provision-cf-infra:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.cf-infra == 'true'
+    runs-on: ubuntu-latest
+    environment: prod
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        working-directory: infra-cloudflare
+        run: bun install --frozen-lockfile
+      - uses: pulumi/actions@v7
+        with:
+          command: up
+          stack-name: ${{ vars.PULUMI_STACK_NAME }}
+          work-dir: infra-cloudflare
+          cloud-url: s3://datti-pulumi-state?endpoint=https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com&s3ForcePathStyle=true
+          upsert: true
+        env:
+          AWS_REGION: auto
+          AWS_ACCESS_KEY_ID: ${{ secrets.PULUMI_STATE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.PULUMI_STATE_R2_SECRET_ACCESS_KEY }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+  apply-schema:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.schema == 'true'
+    runs-on: ubuntu-latest
+    environment: prod
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ariga/setup-atlas@v0
+      - uses: ariga/atlas-action/schema/apply@v1
+        with:
+          url: ${{ secrets.POSTGRES_DSN }}
+          to: "file://backend/sql/schema.sql"
+          dev-url: "docker://postgres"
+          auto-approve: true
+
+  deploy-openapi:
+    needs: [detect-changes, provision-cf-infra]
+    if: |
+      always() &&
+      needs.detect-changes.outputs.openapi == 'true' &&
+      (needs.provision-cf-infra.result == 'success' || needs.provision-cf-infra.result == 'skipped')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -56,66 +140,16 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy _site --project-name=datti-openapi
-
-  provision-infra:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.infra == 'true'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-    environment: prod
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version: stable
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Install CDK
-        run: npm install -g aws-cdk
-
-      - name: CDK Deploy
-        working-directory: infra
-        run: cdk deploy SharedDattiStack DattiStack --require-approval never
-        env:
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          LINE_CHANNEL_ID: ${{ secrets.LINE_CHANNEL_ID }}
-          LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
-
-  apply-schema:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.schema == 'true'
-    runs-on: ubuntu-latest
-    environment: prod
-    steps:
-      - uses: actions/checkout@v6
-      - uses: ariga/setup-atlas@v0
-      - uses: ariga/atlas-action/schema/apply@v1
-        with:
-          url: ${{ secrets.POSTGRES_DSN }}
-          to: "file://backend/sql/schema.sql"
-          dev-url: "docker://postgres"
-          auto-approve: true
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy _site --project-name=datti-openapi --branch=main
 
   deploy-backend:
-    needs: [detect-changes, apply-schema]
+    needs: [detect-changes, provision-aws-infra, provision-cf-infra, apply-schema]
     if: |
       always() &&
       needs.detect-changes.outputs.backend == 'true' &&
+      (needs.provision-aws-infra.result == 'success' || needs.provision-aws-infra.result == 'skipped') &&
+      (needs.provision-cf-infra.result == 'success' || needs.provision-cf-infra.result == 'skipped') &&
       (needs.apply-schema.result == 'success' || needs.apply-schema.result == 'skipped')
     runs-on: ubuntu-latest
     environment: prod
@@ -140,13 +174,16 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: backend
           command: deploy
 
   deploy-frontend:
-    needs: detect-changes
-    if: needs.detect-changes.outputs.frontend == 'true'
+    needs: [detect-changes, provision-cf-infra]
+    if: |
+      always() &&
+      needs.detect-changes.outputs.frontend == 'true' &&
+      (needs.provision-cf-infra.result == 'success' || needs.provision-cf-infra.result == 'skipped')
     runs-on: ubuntu-latest
     environment: prod
     steps:
@@ -170,14 +207,14 @@ jobs:
         working-directory: frontend
         run: pnpm build
         env:
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          VITE_COGNITO_DOMAIN: ${{ secrets.VITE_COGNITO_DOMAIN }}
-          VITE_COGNITO_CLIENT_ID: ${{ secrets.VITE_COGNITO_CLIENT_ID }}
-          VITE_COGNITO_REDIRECT_URI: ${{ secrets.VITE_COGNITO_REDIRECT_URI }}
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
+          VITE_COGNITO_DOMAIN: ${{ vars.VITE_COGNITO_DOMAIN }}
+          VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+          VITE_COGNITO_REDIRECT_URI: ${{ vars.VITE_COGNITO_REDIRECT_URI }}
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy frontend/dist --project-name=datti --branch=main

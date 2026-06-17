@@ -38,7 +38,7 @@ func main() {
 		panic("LINE_CHANNEL_ID and LINE_CHANNEL_SECRET environment variables are required")
 	}
 
-	// 本番スタック (dev は廃止、ローカル開発は localhost のまま動かす)
+	// 本番スタック
 	env.NewStack(app, "DattiStack", &env.StackProps{
 		StackProps: awscdk.StackProps{
 			Env: region,

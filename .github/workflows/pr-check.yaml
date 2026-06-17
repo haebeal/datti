@@ -11,7 +11,8 @@ jobs:
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       openapi: ${{ steps.filter.outputs.openapi }}
-      infra: ${{ steps.filter.outputs.infra }}
+      aws-infra: ${{ steps.filter.outputs.aws-infra }}
+      cf-infra: ${{ steps.filter.outputs.cf-infra }}
       backend: ${{ steps.filter.outputs.backend }}
     steps:
       - uses: actions/checkout@v6
@@ -23,8 +24,10 @@ jobs:
               - 'frontend/**'
             openapi:
               - 'backend/openapi.yaml'
-            infra:
+            aws-infra:
               - 'infra/**'
+            cf-infra:
+              - 'infra-cloudflare/**'
             backend:
               - 'backend/**'
               - '!backend/openapi.yaml'
@@ -97,9 +100,9 @@ jobs:
       - name: Check for uncommitted changes
         run: git diff --exit-code src/libs/api/
 
-  preview-infra:
+  preview-aws-infra:
     needs: detect-changes
-    if: needs.detect-changes.outputs.infra == 'true'
+    if: needs.detect-changes.outputs.aws-infra == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -112,7 +115,7 @@ jobs:
           go-version: stable
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ap-northeast-1
       - uses: actions/setup-node@v4
         with:
@@ -123,10 +126,38 @@ jobs:
         working-directory: infra
         run: cdk diff DattiStack
         env:
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          LINE_CHANNEL_ID: ${{ secrets.LINE_CHANNEL_ID }}
+          LINE_CHANNEL_ID: ${{ vars.LINE_CHANNEL_ID }}
           LINE_CHANNEL_SECRET: ${{ secrets.LINE_CHANNEL_SECRET }}
+
+  preview-cf-infra:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.cf-infra == 'true'
+    runs-on: ubuntu-latest
+    environment: prod
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        working-directory: infra-cloudflare
+        run: bun install --frozen-lockfile
+      - uses: pulumi/actions@v7
+        with:
+          command: preview
+          stack-name: ${{ vars.PULUMI_STACK_NAME }}
+          work-dir: infra-cloudflare
+          cloud-url: s3://datti-pulumi-state?endpoint=https://${{ vars.CLOUDFLARE_ACCOUNT_ID }}.r2.cloudflarestorage.com&s3ForcePathStyle=true
+          upsert: true
+          comment-on-pr: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          AWS_REGION: auto
+          AWS_ACCESS_KEY_ID: ${{ secrets.PULUMI_STATE_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.PULUMI_STATE_R2_SECRET_ACCESS_KEY }}
+          PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
   backend-lint:
     needs: detect-changes

@@ -1,3 +1,6 @@
 name: datti
-runtime: go
+runtime:
+  name: nodejs
+  options:
+    packagemanager: bun
 description: Datti の Cloudflare リソース (R2 / Pages)

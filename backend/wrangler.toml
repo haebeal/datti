@@ -40,4 +40,4 @@ CORS_ALLOW_ORIGINS = "https://datti.app"
 S3_AVATAR_BUCKET = "datti-cdn"
 AVATAR_BASE_URL = "https://cdn.datti.app"
 # R2 エンドポイント (Cloudflare ダッシュボード → R2 → 設定で確認)
-AWS_ENDPOINT_URL_S3 = "https://CHANGE_ME.r2.cloudflarestorage.com"
+AWS_ENDPOINT_URL_S3 = "https://4f5e10c2fb5822e544334c6d9325fc2b.r2.cloudflarestorage.com"

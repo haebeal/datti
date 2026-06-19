@@ -8,7 +8,7 @@ import {
 	SelectValue,
 } from "react-aria-components";
 import { useIsTouchDevice } from "@/hooks/useIsTouchDevice";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 type Props<T> = Omit<ComponentPropsWithRef<"input">, "defaultValue"> & {
 	isError?: boolean;

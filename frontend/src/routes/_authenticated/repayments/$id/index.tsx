@@ -7,7 +7,7 @@ import { useDeleteRepayment } from "@/features/repayment/mutations";
 import { repaymentQueryOptions } from "@/features/repayment/queries";
 import { meQueryOptions } from "@/features/user/queries";
 import { formatCurrency, formatDate } from "@/utils/format";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/repayments/$id/")({
 	loader: async ({ context, params }) => {

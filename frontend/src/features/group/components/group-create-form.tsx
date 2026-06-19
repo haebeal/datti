@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { useNavigate } from "@tanstack/react-router";
 import { ErrorText } from "@/components/ui/error-text";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { useCreateGroup } from "../mutations";
 import { createGroupSchema } from "../schema";
 

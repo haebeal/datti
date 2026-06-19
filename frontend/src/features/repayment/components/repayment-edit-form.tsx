@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { ErrorText } from "@/components/ui/error-text";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { updateRepaymentSchema } from "../schema";
 import type { UpdateRepaymentInput } from "../schema";
 

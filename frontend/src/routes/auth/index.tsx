@@ -4,7 +4,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { login } from "@/libs/auth/actions";
 import { userManager } from "@/libs/auth/cognito";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 const ERROR_MESSAGES: Record<string, string> = {
 	no_result: "認証結果が取得できませんでした",

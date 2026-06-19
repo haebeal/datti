@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { ErrorText } from "@/components/ui/error-text";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { useUploadAvatar } from "../mutations";
 
 type Props = {

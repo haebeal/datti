@@ -2,7 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
 import { ErrorText } from "@/components/ui/error-text";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { useUpdateProfile } from "../mutations";
 import { profileEditSchema } from "../schema";
 import type { User } from "../types";

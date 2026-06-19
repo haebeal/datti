@@ -3,7 +3,7 @@ import { Header } from "@/components/header";
 import { MobileMenu } from "@/components/mobile-menu";
 import { Sidebar } from "@/components/sidebar";
 import { userManager } from "@/libs/auth/cognito";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated")({
 	beforeLoad: async ({ location }) => {

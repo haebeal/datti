@@ -5,7 +5,7 @@ import { ErrorText } from "@/components/ui/error-text";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import type { GroupMember } from "@/features/group/types";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { lendingFormSchema, type LendingFormInput } from "../schema";
 
 type Props = {

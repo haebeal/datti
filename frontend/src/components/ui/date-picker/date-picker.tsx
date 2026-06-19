@@ -15,7 +15,7 @@ import {
 	Popover,
 } from "react-aria-components";
 import { useIsTouchDevice } from "@/hooks/useIsTouchDevice";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 type Props = ComponentPropsWithRef<"input"> & {
 	isError?: boolean;

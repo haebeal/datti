@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { ErrorText } from "@/components/ui/error-text";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { useUpdateGroup } from "../mutations";
 import { updateGroupSchema } from "../schema";
 import type { Group } from "../types";

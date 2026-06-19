@@ -16,7 +16,7 @@ import {
 import { lendingQueryOptions } from "@/features/lending/queries";
 import { meQueryOptions } from "@/features/user/queries";
 import { formatCurrency, formatDate } from "@/utils/format";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute(
 	"/_authenticated/groups/$groupId/lendings/$lendingId/",

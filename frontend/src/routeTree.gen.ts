@@ -13,6 +13,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthIndexRouteImport } from './routes/auth/index'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedGroupsRouteImport } from './routes/_authenticated/groups'
 import { Route as AuthenticatedRepaymentsIndexRouteImport } from './routes/_authenticated/repayments/index'
 import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenticated/groups/index'
 import { Route as AuthenticatedRepaymentsNewRouteImport } from './routes/_authenticated/repayments/new'
@@ -45,6 +46,11 @@ const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedGroupsRoute = AuthenticatedGroupsRouteImport.update({
+  id: '/groups',
+  path: '/groups',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedRepaymentsIndexRoute =
   AuthenticatedRepaymentsIndexRouteImport.update({
     id: '/repayments/',
@@ -53,9 +59,9 @@ const AuthenticatedRepaymentsIndexRoute =
   } as any)
 const AuthenticatedGroupsIndexRoute =
   AuthenticatedGroupsIndexRouteImport.update({
-    id: '/groups/',
-    path: '/groups/',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedGroupsRoute,
   } as any)
 const AuthenticatedRepaymentsNewRoute =
   AuthenticatedRepaymentsNewRouteImport.update({
@@ -64,9 +70,9 @@ const AuthenticatedRepaymentsNewRoute =
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedGroupsNewRoute = AuthenticatedGroupsNewRouteImport.update({
-  id: '/groups/new',
-  path: '/groups/new',
-  getParentRoute: () => AuthenticatedRoute,
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthenticatedGroupsRoute,
 } as any)
 const AuthenticatedRepaymentsIdIndexRoute =
   AuthenticatedRepaymentsIdIndexRouteImport.update({
@@ -87,37 +93,38 @@ const AuthenticatedRepaymentsIdEditRoute =
   } as any)
 const AuthenticatedGroupsGroupIdSettingsRoute =
   AuthenticatedGroupsGroupIdSettingsRouteImport.update({
-    id: '/groups/$groupId/settings',
-    path: '/groups/$groupId/settings',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/$groupId/settings',
+    path: '/$groupId/settings',
+    getParentRoute: () => AuthenticatedGroupsRoute,
   } as any)
 const AuthenticatedGroupsGroupIdLendingsIndexRoute =
   AuthenticatedGroupsGroupIdLendingsIndexRouteImport.update({
-    id: '/groups/$groupId/lendings/',
-    path: '/groups/$groupId/lendings/',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/$groupId/lendings/',
+    path: '/$groupId/lendings/',
+    getParentRoute: () => AuthenticatedGroupsRoute,
   } as any)
 const AuthenticatedGroupsGroupIdLendingsNewRoute =
   AuthenticatedGroupsGroupIdLendingsNewRouteImport.update({
-    id: '/groups/$groupId/lendings/new',
-    path: '/groups/$groupId/lendings/new',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/$groupId/lendings/new',
+    path: '/$groupId/lendings/new',
+    getParentRoute: () => AuthenticatedGroupsRoute,
   } as any)
 const AuthenticatedGroupsGroupIdLendingsLendingIdIndexRoute =
   AuthenticatedGroupsGroupIdLendingsLendingIdIndexRouteImport.update({
-    id: '/groups/$groupId/lendings/$lendingId/',
-    path: '/groups/$groupId/lendings/$lendingId/',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/$groupId/lendings/$lendingId/',
+    path: '/$groupId/lendings/$lendingId/',
+    getParentRoute: () => AuthenticatedGroupsRoute,
   } as any)
 const AuthenticatedGroupsGroupIdLendingsLendingIdEditRoute =
   AuthenticatedGroupsGroupIdLendingsLendingIdEditRouteImport.update({
-    id: '/groups/$groupId/lendings/$lendingId/edit',
-    path: '/groups/$groupId/lendings/$lendingId/edit',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/$groupId/lendings/$lendingId/edit',
+    path: '/$groupId/lendings/$lendingId/edit',
+    getParentRoute: () => AuthenticatedGroupsRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
+  '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/profile': typeof AuthenticatedProfileRoute
   '/auth/': typeof AuthIndexRoute
   '/groups/new': typeof AuthenticatedGroupsNewRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/_authenticated/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/auth/': typeof AuthIndexRoute
@@ -173,6 +181,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/groups'
     | '/profile'
     | '/auth/'
     | '/groups/new'
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/_authenticated'
+    | '/_authenticated/groups'
     | '/_authenticated/profile'
     | '/_authenticated/'
     | '/auth/'
@@ -260,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/groups': {
+      id: '/_authenticated/groups'
+      path: '/groups'
+      fullPath: '/groups'
+      preLoaderRoute: typeof AuthenticatedGroupsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/repayments/': {
       id: '/_authenticated/repayments/'
       path: '/repayments'
@@ -269,10 +286,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/groups/': {
       id: '/_authenticated/groups/'
-      path: '/groups'
+      path: '/'
       fullPath: '/groups/'
       preLoaderRoute: typeof AuthenticatedGroupsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGroupsRoute
     }
     '/_authenticated/repayments/new': {
       id: '/_authenticated/repayments/new'
@@ -283,10 +300,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/groups/new': {
       id: '/_authenticated/groups/new'
-      path: '/groups/new'
+      path: '/new'
       fullPath: '/groups/new'
       preLoaderRoute: typeof AuthenticatedGroupsNewRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGroupsRoute
     }
     '/_authenticated/repayments/$id/': {
       id: '/_authenticated/repayments/$id/'
@@ -311,69 +328,57 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/groups/$groupId/settings': {
       id: '/_authenticated/groups/$groupId/settings'
-      path: '/groups/$groupId/settings'
+      path: '/$groupId/settings'
       fullPath: '/groups/$groupId/settings'
       preLoaderRoute: typeof AuthenticatedGroupsGroupIdSettingsRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGroupsRoute
     }
     '/_authenticated/groups/$groupId/lendings/': {
       id: '/_authenticated/groups/$groupId/lendings/'
-      path: '/groups/$groupId/lendings'
+      path: '/$groupId/lendings'
       fullPath: '/groups/$groupId/lendings/'
       preLoaderRoute: typeof AuthenticatedGroupsGroupIdLendingsIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGroupsRoute
     }
     '/_authenticated/groups/$groupId/lendings/new': {
       id: '/_authenticated/groups/$groupId/lendings/new'
-      path: '/groups/$groupId/lendings/new'
+      path: '/$groupId/lendings/new'
       fullPath: '/groups/$groupId/lendings/new'
       preLoaderRoute: typeof AuthenticatedGroupsGroupIdLendingsNewRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGroupsRoute
     }
     '/_authenticated/groups/$groupId/lendings/$lendingId/': {
       id: '/_authenticated/groups/$groupId/lendings/$lendingId/'
-      path: '/groups/$groupId/lendings/$lendingId'
+      path: '/$groupId/lendings/$lendingId'
       fullPath: '/groups/$groupId/lendings/$lendingId/'
       preLoaderRoute: typeof AuthenticatedGroupsGroupIdLendingsLendingIdIndexRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGroupsRoute
     }
     '/_authenticated/groups/$groupId/lendings/$lendingId/edit': {
       id: '/_authenticated/groups/$groupId/lendings/$lendingId/edit'
-      path: '/groups/$groupId/lendings/$lendingId/edit'
+      path: '/$groupId/lendings/$lendingId/edit'
       fullPath: '/groups/$groupId/lendings/$lendingId/edit'
       preLoaderRoute: typeof AuthenticatedGroupsGroupIdLendingsLendingIdEditRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGroupsRoute
     }
   }
 }
 
-interface AuthenticatedRouteChildren {
-  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+interface AuthenticatedGroupsRouteChildren {
   AuthenticatedGroupsNewRoute: typeof AuthenticatedGroupsNewRoute
-  AuthenticatedRepaymentsNewRoute: typeof AuthenticatedRepaymentsNewRoute
   AuthenticatedGroupsIndexRoute: typeof AuthenticatedGroupsIndexRoute
-  AuthenticatedRepaymentsIndexRoute: typeof AuthenticatedRepaymentsIndexRoute
   AuthenticatedGroupsGroupIdSettingsRoute: typeof AuthenticatedGroupsGroupIdSettingsRoute
-  AuthenticatedRepaymentsIdEditRoute: typeof AuthenticatedRepaymentsIdEditRoute
-  AuthenticatedRepaymentsIdIndexRoute: typeof AuthenticatedRepaymentsIdIndexRoute
   AuthenticatedGroupsGroupIdLendingsNewRoute: typeof AuthenticatedGroupsGroupIdLendingsNewRoute
   AuthenticatedGroupsGroupIdLendingsIndexRoute: typeof AuthenticatedGroupsGroupIdLendingsIndexRoute
   AuthenticatedGroupsGroupIdLendingsLendingIdEditRoute: typeof AuthenticatedGroupsGroupIdLendingsLendingIdEditRoute
   AuthenticatedGroupsGroupIdLendingsLendingIdIndexRoute: typeof AuthenticatedGroupsGroupIdLendingsLendingIdIndexRoute
 }
 
-const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+const AuthenticatedGroupsRouteChildren: AuthenticatedGroupsRouteChildren = {
   AuthenticatedGroupsNewRoute: AuthenticatedGroupsNewRoute,
-  AuthenticatedRepaymentsNewRoute: AuthenticatedRepaymentsNewRoute,
   AuthenticatedGroupsIndexRoute: AuthenticatedGroupsIndexRoute,
-  AuthenticatedRepaymentsIndexRoute: AuthenticatedRepaymentsIndexRoute,
   AuthenticatedGroupsGroupIdSettingsRoute:
     AuthenticatedGroupsGroupIdSettingsRoute,
-  AuthenticatedRepaymentsIdEditRoute: AuthenticatedRepaymentsIdEditRoute,
-  AuthenticatedRepaymentsIdIndexRoute: AuthenticatedRepaymentsIdIndexRoute,
   AuthenticatedGroupsGroupIdLendingsNewRoute:
     AuthenticatedGroupsGroupIdLendingsNewRoute,
   AuthenticatedGroupsGroupIdLendingsIndexRoute:
@@ -382,6 +387,29 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedGroupsGroupIdLendingsLendingIdEditRoute,
   AuthenticatedGroupsGroupIdLendingsLendingIdIndexRoute:
     AuthenticatedGroupsGroupIdLendingsLendingIdIndexRoute,
+}
+
+const AuthenticatedGroupsRouteWithChildren =
+  AuthenticatedGroupsRoute._addFileChildren(AuthenticatedGroupsRouteChildren)
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedGroupsRoute: typeof AuthenticatedGroupsRouteWithChildren
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedRepaymentsNewRoute: typeof AuthenticatedRepaymentsNewRoute
+  AuthenticatedRepaymentsIndexRoute: typeof AuthenticatedRepaymentsIndexRoute
+  AuthenticatedRepaymentsIdEditRoute: typeof AuthenticatedRepaymentsIdEditRoute
+  AuthenticatedRepaymentsIdIndexRoute: typeof AuthenticatedRepaymentsIdIndexRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedGroupsRoute: AuthenticatedGroupsRouteWithChildren,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedRepaymentsNewRoute: AuthenticatedRepaymentsNewRoute,
+  AuthenticatedRepaymentsIndexRoute: AuthenticatedRepaymentsIndexRoute,
+  AuthenticatedRepaymentsIdEditRoute: AuthenticatedRepaymentsIdEditRoute,
+  AuthenticatedRepaymentsIdIndexRoute: AuthenticatedRepaymentsIdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

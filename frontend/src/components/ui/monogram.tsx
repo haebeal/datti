@@ -8,6 +8,15 @@ export function groupColor(index: number): string {
 	return GROUP_COLORS[((index % GROUP_COLORS.length) + GROUP_COLORS.length) % GROUP_COLORS.length];
 }
 
+/** グループ id から決定的に色を選ぶ (一覧と詳細で同じ色になる) */
+export function groupColorFor(seed: string): string {
+	let h = 0;
+	for (let i = 0; i < seed.length; i++) {
+		h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+	}
+	return GROUP_COLORS[h % GROUP_COLORS.length];
+}
+
 type MonogramProps = {
 	/** 表示する1文字 (通常はグループ名の先頭) */
 	label: string;

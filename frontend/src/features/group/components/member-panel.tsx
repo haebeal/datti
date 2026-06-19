@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { ListGroup, ListRow } from "@/components/ui/list-group";
 import { UserAvatar } from "@/components/ui/user-avatar";
@@ -73,10 +74,11 @@ export function MemberPanel({ groupId }: { groupId: string }) {
 				))}
 			</ListGroup>
 
-			<div className="flex flex-col gap-2">
-				<label htmlFor="invite-email" className="text-sm font-semibold">
-					メンバーを追加
-				</label>
+			<FormField
+				label="メンバーを追加"
+				htmlFor="invite-email"
+				error={feedback ?? undefined}
+			>
 				<div className="flex gap-2">
 					<Input
 						id="invite-email"
@@ -93,8 +95,7 @@ export function MemberPanel({ groupId }: { groupId: string }) {
 						追加
 					</Button>
 				</div>
-				{feedback && <p className="text-sm text-destructive">{feedback}</p>}
-			</div>
+			</FormField>
 		</div>
 	);
 }

@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
-import { ErrorText } from "@/components/ui/error-text";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import {
 	Select,
@@ -10,9 +10,10 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import type { Credit } from "@/features/credit/types";
+import { getFieldErrorMessage } from "@/utils/form";
 import { formatCurrency } from "@/utils/format";
-import { createRepaymentSchema } from "../schema";
 import type { CreateRepaymentInput } from "../schema";
+import { createRepaymentSchema } from "../schema";
 
 type Props = {
 	credits: Credit[];
@@ -20,20 +21,6 @@ type Props = {
 	defaultAmount?: number;
 	onSubmit: (values: CreateRepaymentInput) => Promise<void>;
 };
-
-function getFieldErrorMessage(errors: ReadonlyArray<unknown>) {
-	if (errors.length === 0) return undefined;
-	return errors
-		.map((err) =>
-			typeof err === "string"
-				? err
-				: typeof err === "object" && err && "message" in err
-					? String((err as { message: unknown }).message)
-					: undefined,
-		)
-		.filter(Boolean)
-		.join(", ");
-}
 
 export function RepaymentCreateForm({
 	credits,
@@ -68,10 +55,11 @@ export function RepaymentCreateForm({
 		>
 			<form.Field name="debtorId">
 				{(field) => (
-					<div className="flex flex-col gap-1.5">
-						<label htmlFor={field.name} className="text-xs font-medium">
-							誰に？
-						</label>
+					<FormField
+						label="誰に？"
+						htmlFor={field.name}
+						error={getFieldErrorMessage(field.state.meta.errors)}
+					>
 						<Select
 							name={field.name}
 							value={field.state.value}
@@ -96,19 +84,17 @@ export function RepaymentCreateForm({
 								))}
 							</SelectContent>
 						</Select>
-						<ErrorText>
-							{getFieldErrorMessage(field.state.meta.errors)}
-						</ErrorText>
-					</div>
+					</FormField>
 				)}
 			</form.Field>
 
 			<form.Field name="amount">
 				{(field) => (
-					<div className="flex flex-col gap-1.5">
-						<label htmlFor={field.name} className="text-xs font-medium">
-							いくら？
-						</label>
+					<FormField
+						label="いくら？"
+						htmlFor={field.name}
+						error={getFieldErrorMessage(field.state.meta.errors)}
+					>
 						<Input
 							type="number"
 							id={field.name}
@@ -118,10 +104,7 @@ export function RepaymentCreateForm({
 							onBlur={field.handleBlur}
 							placeholder="0"
 						/>
-						<ErrorText>
-							{getFieldErrorMessage(field.state.meta.errors)}
-						</ErrorText>
-					</div>
+					</FormField>
 				)}
 			</form.Field>
 

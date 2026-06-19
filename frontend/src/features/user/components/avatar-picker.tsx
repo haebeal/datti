@@ -37,7 +37,9 @@ export function AvatarPicker({ currentAvatar, onAvatarChange }: Props) {
 			setPreviewUrl(url);
 			onAvatarChange(url);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "アップロードに失敗しました");
+			setError(
+				err instanceof Error ? err.message : "アップロードに失敗しました",
+			);
 		}
 	};
 

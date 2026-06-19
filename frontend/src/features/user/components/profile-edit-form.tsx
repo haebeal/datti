@@ -1,26 +1,13 @@
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
-import { ErrorText } from "@/components/ui/error-text";
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { getFieldErrorMessage } from "@/utils/form";
 import { useUpdateProfile } from "../mutations";
 import { profileEditSchema } from "../schema";
 import type { User } from "../types";
 import { AvatarPicker } from "./avatar-picker";
-
-function getFieldErrorMessage(errors: ReadonlyArray<unknown>) {
-	if (errors.length === 0) return undefined;
-	return errors
-		.map((err) =>
-			typeof err === "string"
-				? err
-				: typeof err === "object" && err && "message" in err
-					? String((err as { message: unknown }).message)
-					: undefined,
-		)
-		.filter(Boolean)
-		.join(", ");
-}
 
 export function ProfileEditForm({ user }: { user: User }) {
 	const updateProfile = useUpdateProfile();
@@ -40,13 +27,9 @@ export function ProfileEditForm({ user }: { user: User }) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className={cn(
-				"p-6",
-				"flex flex-col gap-5",
-				"bg-white border border-gray-200 rounded-xl",
-			)}
+			className="flex flex-col gap-5 rounded-xl border border-border bg-card p-6"
 		>
-			<h2 className="text-base sm:text-xl font-semibold text-primary-base">
+			<h2 className="font-heading text-[17px] font-bold text-foreground">
 				プロフィール編集
 			</h2>
 
@@ -63,10 +46,11 @@ export function ProfileEditForm({ user }: { user: User }) {
 
 			<form.Field name="name">
 				{(field) => (
-					<div className="flex flex-col gap-1.5">
-						<label htmlFor={field.name} className="text-xs font-medium">
-							名前
-						</label>
+					<FormField
+						label="名前"
+						htmlFor={field.name}
+						error={getFieldErrorMessage(field.state.meta.errors)}
+					>
 						<Input
 							id={field.name}
 							name={field.name}
@@ -74,27 +58,15 @@ export function ProfileEditForm({ user }: { user: User }) {
 							onChange={(e) => field.handleChange(e.target.value)}
 							onBlur={field.handleBlur}
 						/>
-						<ErrorText>{getFieldErrorMessage(field.state.meta.errors)}</ErrorText>
-					</div>
+					</FormField>
 				)}
 			</form.Field>
 
 			<form.Subscribe selector={(state) => state.isSubmitting}>
 				{(isSubmitting) => (
-					<button
-						type="submit"
-						disabled={isSubmitting}
-						className={cn(
-							"px-4 py-2 self-end rounded-md",
-							"border border-primary-base bg-primary-base text-white",
-							"hover:bg-primary-hover active:bg-primary-active",
-							"disabled:opacity-50 disabled:cursor-not-allowed",
-							"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-							"transition-colors",
-						)}
-					>
+					<Button type="submit" disabled={isSubmitting} className="self-end">
 						{isSubmitting ? "更新中…" : "更新"}
-					</button>
+					</Button>
 				)}
 			</form.Subscribe>
 		</form>

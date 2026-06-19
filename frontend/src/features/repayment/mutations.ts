@@ -1,11 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "@/libs/api/client";
 import { creditKeys } from "@/features/credit/queries";
+import { apiClient } from "@/libs/api/client";
 import { repaymentKeys } from "./queries";
-import type {
-	CreateRepaymentInput,
-	UpdateRepaymentInput,
-} from "./schema";
+import type { CreateRepaymentInput, UpdateRepaymentInput } from "./schema";
 
 export function useCreateRepayment() {
 	const queryClient = useQueryClient();

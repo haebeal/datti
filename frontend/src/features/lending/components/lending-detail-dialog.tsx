@@ -47,9 +47,7 @@ export function LendingDetailDialog({
 	const memberMap = new Map(members.map((m) => [m.id, m]));
 	const payer = lending ? memberMap.get(lending.createdBy) : undefined;
 	const isPayer = lending?.createdBy === meId;
-	const total = lending
-		? lending.debts.reduce((s, d) => s + d.amount, 0)
-		: 0;
+	const total = lending ? lending.debts.reduce((s, d) => s + d.amount, 0) : 0;
 
 	return (
 		<Dialog
@@ -82,7 +80,9 @@ export function LendingDetailDialog({
 						</div>
 
 						<div className="rounded-xl border border-border px-4 py-3.5">
-							<div className="mb-1 text-[11.5px] text-muted-foreground">日付</div>
+							<div className="mb-1 text-[11.5px] text-muted-foreground">
+								日付
+							</div>
 							<div className="text-[14.5px] font-semibold text-foreground">
 								{formatMonthDay(lending.eventDate)}
 							</div>
@@ -97,7 +97,10 @@ export function LendingDetailDialog({
 									const u = memberMap.get(d.userId);
 									const isMe = d.userId === meId;
 									return (
-										<ListRow key={d.userId} last={i === lending.debts.length - 1}>
+										<ListRow
+											key={d.userId}
+											last={i === lending.debts.length - 1}
+										>
 											{u ? (
 												<UserAvatar user={u} className="size-9 text-sm" />
 											) : (

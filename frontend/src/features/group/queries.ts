@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { apiClient } from "@/libs/api/client";
 import type { User } from "@/features/user/types";
+import { apiClient } from "@/libs/api/client";
 import type { Group, GroupMember } from "./types";
 
 export const groupKeys = {
@@ -10,9 +10,7 @@ export const groupKeys = {
 	members: (id: string) => [...groupKeys.all, "members", id] as const,
 };
 
-async function enrichWithCreator(
-	createdBy: string,
-): Promise<User | null> {
+async function enrichWithCreator(createdBy: string): Promise<User | null> {
 	const { data } = await apiClient.GET("/users/{id}", {
 		params: { path: { id: createdBy } },
 	});

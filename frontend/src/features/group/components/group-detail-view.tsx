@@ -3,7 +3,7 @@ import { Plus, Users } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/ui/money";
-import { Monogram, groupColorFor } from "@/components/ui/monogram";
+import { groupColorFor, Monogram } from "@/components/ui/monogram";
 import { Panel, PanelHead } from "@/components/ui/panel";
 import { AvatarStack, UserAvatar } from "@/components/ui/user-avatar";
 import { MembersDialog } from "@/features/group/components/members-dialog";
@@ -88,7 +88,11 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 				<PanelHead
 					count={lendings.length}
 					action={
-						<Button size="sm" className="text-xs" onClick={() => setAddOpen(true)}>
+						<Button
+							size="sm"
+							className="text-xs"
+							onClick={() => setAddOpen(true)}
+						>
 							<Plus className="size-4" /> 追加
 						</Button>
 					}

@@ -1,28 +1,15 @@
 import { useForm } from "@tanstack/react-form";
-import { ErrorText } from "@/components/ui/error-text";
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { updateRepaymentSchema } from "../schema";
+import { getFieldErrorMessage } from "@/utils/form";
 import type { UpdateRepaymentInput } from "../schema";
+import { updateRepaymentSchema } from "../schema";
 
 type Props = {
 	defaultAmount: number;
 	onSubmit: (values: UpdateRepaymentInput) => Promise<void>;
 };
-
-function getFieldErrorMessage(errors: ReadonlyArray<unknown>) {
-	if (errors.length === 0) return undefined;
-	return errors
-		.map((err) =>
-			typeof err === "string"
-				? err
-				: typeof err === "object" && err && "message" in err
-					? String((err as { message: unknown }).message)
-					: undefined,
-		)
-		.filter(Boolean)
-		.join(", ");
-}
 
 export function RepaymentEditForm({ defaultAmount, onSubmit }: Props) {
 	const form = useForm({
@@ -39,49 +26,32 @@ export function RepaymentEditForm({ defaultAmount, onSubmit }: Props) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className={cn(
-				"p-6",
-				"flex flex-col gap-3",
-				"bg-white border border-gray-200 rounded-xl",
-			)}
+			className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6"
 		>
 			<form.Field name="amount">
 				{(field) => (
-					<>
-						<label htmlFor={field.name} className="text-xs font-medium">
-							金額
-						</label>
+					<FormField
+						label="金額"
+						htmlFor={field.name}
+						error={getFieldErrorMessage(field.state.meta.errors)}
+					>
 						<Input
 							type="number"
 							id={field.name}
 							name={field.name}
 							value={String(field.state.value)}
-							onChange={(e) =>
-								field.handleChange(Number(e.target.value) || 0)
-							}
+							onChange={(e) => field.handleChange(Number(e.target.value) || 0)}
 							onBlur={field.handleBlur}
 							placeholder="0"
 						/>
-						<ErrorText>{getFieldErrorMessage(field.state.meta.errors)}</ErrorText>
-					</>
+					</FormField>
 				)}
 			</form.Field>
 			<form.Subscribe selector={(state) => state.isSubmitting}>
 				{(isSubmitting) => (
-					<button
-						type="submit"
-						disabled={isSubmitting}
-						className={cn(
-							"px-4 py-2 self-end rounded-md",
-							"border border-primary-base bg-primary-base text-white",
-							"hover:bg-primary-hover active:bg-primary-active",
-							"disabled:opacity-50 disabled:cursor-not-allowed",
-							"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-							"transition-colors",
-						)}
-					>
+					<Button type="submit" disabled={isSubmitting} className="self-end">
 						{isSubmitting ? "更新中…" : "更新"}
-					</button>
+					</Button>
 				)}
 			</form.Subscribe>
 		</form>

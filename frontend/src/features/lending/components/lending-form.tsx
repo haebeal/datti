@@ -2,6 +2,7 @@ import { useForm } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { ErrorText } from "@/components/ui/error-text";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import {
 	Select,
@@ -12,7 +13,8 @@ import {
 } from "@/components/ui/select";
 import type { GroupMember } from "@/features/group/types";
 import { cn } from "@/lib/utils";
-import { lendingFormSchema, type LendingFormInput } from "../schema";
+import { getFieldErrorMessage } from "@/utils/form";
+import { type LendingFormInput, lendingFormSchema } from "../schema";
 
 type Props = {
 	members: GroupMember[];
@@ -30,22 +32,6 @@ const initialValues: LendingFormInput = {
 	}).format(new Date()),
 	debts: [{ userId: "", amount: 0 }],
 };
-
-function getFieldErrorMessage(
-	errors: ReadonlyArray<unknown>,
-): string | undefined {
-	if (errors.length === 0) return undefined;
-	return errors
-		.map((err) =>
-			typeof err === "string"
-				? err
-				: typeof err === "object" && err && "message" in err
-					? String((err as { message: unknown }).message)
-					: undefined,
-		)
-		.filter(Boolean)
-		.join(", ");
-}
 
 export function LendingForm({
 	members,
@@ -74,10 +60,11 @@ export function LendingForm({
 		>
 			<form.Field name="name">
 				{(field) => (
-					<div className="flex flex-col gap-1.5">
-						<label htmlFor={field.name} className="text-xs font-medium">
-							タイトル
-						</label>
+					<FormField
+						label="タイトル"
+						htmlFor={field.name}
+						error={getFieldErrorMessage(field.state.meta.errors)}
+					>
 						<Input
 							id={field.name}
 							name={field.name}
@@ -86,19 +73,17 @@ export function LendingForm({
 							onBlur={field.handleBlur}
 							placeholder="例: ランチ代, 飲み会"
 						/>
-						<ErrorText>
-							{getFieldErrorMessage(field.state.meta.errors)}
-						</ErrorText>
-					</div>
+					</FormField>
 				)}
 			</form.Field>
 
 			<form.Field name="amount">
 				{(field) => (
-					<div className="flex flex-col gap-1.5">
-						<label htmlFor={field.name} className="text-xs font-medium">
-							いくら？
-						</label>
+					<FormField
+						label="いくら？"
+						htmlFor={field.name}
+						error={getFieldErrorMessage(field.state.meta.errors)}
+					>
 						<Input
 							id={field.name}
 							name={field.name}
@@ -108,29 +93,24 @@ export function LendingForm({
 							onBlur={field.handleBlur}
 							placeholder="0"
 						/>
-						<ErrorText>
-							{getFieldErrorMessage(field.state.meta.errors)}
-						</ErrorText>
-					</div>
+					</FormField>
 				)}
 			</form.Field>
 
 			<form.Field name="eventDate">
 				{(field) => (
-					<div className="flex flex-col gap-1.5">
-						<label htmlFor={field.name} className="text-xs font-medium">
-							いつ？
-						</label>
+					<FormField
+						label="いつ？"
+						htmlFor={field.name}
+						error={getFieldErrorMessage(field.state.meta.errors)}
+					>
 						<DatePicker
 							id={field.name}
 							value={field.state.value}
 							onChange={field.handleChange}
 							placeholder="日付を選択"
 						/>
-						<ErrorText>
-							{getFieldErrorMessage(field.state.meta.errors)}
-						</ErrorText>
-					</div>
+					</FormField>
 				)}
 			</form.Field>
 

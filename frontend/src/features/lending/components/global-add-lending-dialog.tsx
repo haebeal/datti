@@ -7,7 +7,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { Monogram, groupColorFor } from "@/components/ui/monogram";
+import { groupColorFor, Monogram } from "@/components/ui/monogram";
 import {
 	groupMembersQueryOptions,
 	groupsQueryOptions,

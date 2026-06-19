@@ -3,7 +3,13 @@ import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { ErrorText } from "@/components/ui/error-text";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import type { GroupMember } from "@/features/group/types";
 import { cn } from "@/lib/utils";
 import { lendingFormSchema, type LendingFormInput } from "../schema";
@@ -80,7 +86,9 @@ export function LendingForm({
 							onBlur={field.handleBlur}
 							placeholder="例: ランチ代, 飲み会"
 						/>
-						<ErrorText>{getFieldErrorMessage(field.state.meta.errors)}</ErrorText>
+						<ErrorText>
+							{getFieldErrorMessage(field.state.meta.errors)}
+						</ErrorText>
 					</div>
 				)}
 			</form.Field>
@@ -100,7 +108,9 @@ export function LendingForm({
 							onBlur={field.handleBlur}
 							placeholder="0"
 						/>
-						<ErrorText>{getFieldErrorMessage(field.state.meta.errors)}</ErrorText>
+						<ErrorText>
+							{getFieldErrorMessage(field.state.meta.errors)}
+						</ErrorText>
 					</div>
 				)}
 			</form.Field>
@@ -118,7 +128,9 @@ export function LendingForm({
 							onChange={(e) => field.handleChange(e.currentTarget.value)}
 							placeholder="日付を選択"
 						/>
-						<ErrorText>{getFieldErrorMessage(field.state.meta.errors)}</ErrorText>
+						<ErrorText>
+							{getFieldErrorMessage(field.state.meta.errors)}
+						</ErrorText>
 					</div>
 				)}
 			</form.Field>
@@ -132,7 +144,8 @@ export function LendingForm({
 					{(field) => {
 						const totalAmount = Number(form.state.values.amount) || 0;
 						const memberCount = field.state.value.length + 1;
-						const canAddMore = field.state.value.length < availableMembers.length;
+						const canAddMore =
+							field.state.value.length < availableMembers.length;
 
 						const splitBill = () => {
 							const splitAmount = Math.floor(totalAmount / memberCount);
@@ -217,16 +230,23 @@ export function LendingForm({
 										<form.Field name={`debts[${index}].userId`}>
 											{(field) => (
 												<>
-													<Select<GroupMember>
-														id={field.name}
+													<Select
 														name={field.name}
-														defaultValue={field.state.value}
-														placeholder="メンバーを選択"
-														options={options}
-														getOptionLabel={(m) => m.name}
-														getOptionValue={(m) => m.id}
+														value={field.state.value}
+														onValueChange={field.handleChange}
 														required
-													/>
+													>
+														<SelectTrigger id={field.name} className="w-full">
+															<SelectValue placeholder="メンバーを選択" />
+														</SelectTrigger>
+														<SelectContent>
+															{options.map((m) => (
+																<SelectItem key={m.id} value={m.id}>
+																	{m.name}
+																</SelectItem>
+															))}
+														</SelectContent>
+													</Select>
 													<ErrorText>
 														{getFieldErrorMessage(field.state.meta.errors)}
 													</ErrorText>

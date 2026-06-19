@@ -2,7 +2,13 @@ import { useForm } from "@tanstack/react-form";
 import { Button } from "@/components/ui/button";
 import { ErrorText } from "@/components/ui/error-text";
 import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import type { Credit } from "@/features/credit/types";
 import { formatCurrency } from "@/utils/format";
 import { createRepaymentSchema } from "../schema";
@@ -66,19 +72,33 @@ export function RepaymentCreateForm({
 						<label htmlFor={field.name} className="text-xs font-medium">
 							誰に？
 						</label>
-						<Select<Credit>
-							id={field.name}
+						<Select
 							name={field.name}
-							defaultValue={field.state.value}
-							placeholder={
-								hasCandidates ? "返す相手を選択" : "返せるユーザーがいません"
-							}
-							options={debtCredits}
-							getOptionLabel={getCreditLabel}
-							getOptionValue={(c) => c.user.id}
+							value={field.state.value}
+							onValueChange={field.handleChange}
 							required
-						/>
-						<ErrorText>{getFieldErrorMessage(field.state.meta.errors)}</ErrorText>
+							disabled={!hasCandidates}
+						>
+							<SelectTrigger id={field.name} className="w-full">
+								<SelectValue
+									placeholder={
+										hasCandidates
+											? "返す相手を選択"
+											: "返せるユーザーがいません"
+									}
+								/>
+							</SelectTrigger>
+							<SelectContent>
+								{debtCredits.map((c) => (
+									<SelectItem key={c.user.id} value={c.user.id}>
+										{getCreditLabel(c)}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+						<ErrorText>
+							{getFieldErrorMessage(field.state.meta.errors)}
+						</ErrorText>
 					</div>
 				)}
 			</form.Field>
@@ -94,13 +114,13 @@ export function RepaymentCreateForm({
 							id={field.name}
 							name={field.name}
 							value={String(field.state.value)}
-							onChange={(e) =>
-								field.handleChange(Number(e.target.value) || 0)
-							}
+							onChange={(e) => field.handleChange(Number(e.target.value) || 0)}
 							onBlur={field.handleBlur}
 							placeholder="0"
 						/>
-						<ErrorText>{getFieldErrorMessage(field.state.meta.errors)}</ErrorText>
+						<ErrorText>
+							{getFieldErrorMessage(field.state.meta.errors)}
+						</ErrorText>
 					</div>
 				)}
 			</form.Field>

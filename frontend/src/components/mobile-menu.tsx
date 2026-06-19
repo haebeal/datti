@@ -31,7 +31,7 @@ export function MobileMenu() {
 		<nav
 			className={cn(
 				"sm:hidden fixed bottom-0 left-0 right-0",
-				"bg-white border-t border-gray-200 z-50",
+				"bg-card border-t border-border z-50",
 			)}
 		>
 			<div className="flex justify-around items-center h-16">
@@ -42,8 +42,8 @@ export function MobileMenu() {
 						className={cn(
 							"flex flex-col items-center justify-center gap-1 flex-1 h-full",
 							item.match
-								? "text-accent-base font-semibold"
-								: "text-gray-400",
+								? "text-primary font-semibold"
+								: "text-muted-foreground",
 						)}
 					>
 						<item.icon className="w-5.5 h-5.5" />

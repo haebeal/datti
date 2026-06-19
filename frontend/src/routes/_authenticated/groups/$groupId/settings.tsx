@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { GroupBasicInfoForm } from "@/features/group/components/group-basic-info-form";
 import { MemberPanel } from "@/features/group/components/member-panel";
 import { useDeleteGroup } from "@/features/group/mutations";

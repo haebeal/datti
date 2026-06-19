@@ -29,11 +29,11 @@ function AuthenticatedLayout() {
 						className={cn(
 							"flex-1 overflow-y-auto",
 							"px-4 sm:px-6 lg:px-10",
-							"py-5 sm:py-8",
-							"pb-20 sm:pb-8",
+							"py-5 sm:py-9",
+							"pb-20",
 						)}
 					>
-						<div className={cn("w-full max-w-[800px] mx-auto")}>
+						<div className={cn("w-full max-w-[1080px] mx-auto")}>
 							<Outlet />
 						</div>
 					</main>

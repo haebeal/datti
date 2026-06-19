@@ -79,29 +79,18 @@ function AuthPage() {
 
 					<div className={cn("flex flex-col gap-3")}>
 						<Button
-							onPress={() => login("Google")}
-							color="primary"
-							colorStyle="fill"
-							className={cn(
-								"py-3.5 px-6",
-								"text-sm font-semibold",
-								"flex items-center justify-center gap-2.5",
-							)}
+							onClick={() => login("Google")}
+							className={cn("h-12 w-full gap-2.5 text-sm font-semibold")}
 						>
-							<Globe className="w-5 h-5" />
+							<Globe className="size-5" />
 							Googleで続ける
 						</Button>
 						<Button
-							onPress={() => login("LINE")}
-							color="primary"
-							colorStyle="outline"
-							className={cn(
-								"py-3.5 px-6",
-								"text-sm font-semibold",
-								"flex items-center justify-center gap-2.5",
-							)}
+							variant="outline"
+							onClick={() => login("LINE")}
+							className={cn("h-12 w-full gap-2.5 text-sm font-semibold")}
 						>
-							<MessageCircle className="w-5 h-5" />
+							<MessageCircle className="size-5" />
 							LINEで続ける
 						</Button>
 					</div>

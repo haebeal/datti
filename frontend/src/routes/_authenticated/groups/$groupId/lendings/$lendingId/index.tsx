@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
 	groupMembersQueryOptions,
 } from "@/features/group/queries";

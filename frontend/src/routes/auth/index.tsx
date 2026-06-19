@@ -79,16 +79,18 @@ function AuthPage() {
 
 					<div className={cn("flex flex-col gap-3")}>
 						<Button
+							size="lg"
 							onClick={() => login("Google")}
-							className={cn("h-12 w-full gap-2.5 text-sm font-semibold")}
+							className={cn("w-full gap-2.5 font-semibold")}
 						>
 							<Globe className="size-5" />
 							Googleで続ける
 						</Button>
 						<Button
+							size="lg"
 							variant="outline"
 							onClick={() => login("LINE")}
-							className={cn("h-12 w-full gap-2.5 text-sm font-semibold")}
+							className={cn("w-full gap-2.5 font-semibold")}
 						>
 							<MessageCircle className="size-5" />
 							LINEで続ける

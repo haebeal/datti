@@ -42,7 +42,7 @@ export function Sidebar() {
 				</span>
 			</Link>
 
-			<Button asChild className="mb-4 h-11 w-full justify-center">
+			<Button asChild size="lg" className="mb-4 w-full justify-center">
 				<Link to="/groups">
 					<Plus className="size-[18px]" /> 立て替えを追加
 				</Link>

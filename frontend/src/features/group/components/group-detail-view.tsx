@@ -1,6 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Plus, Users } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/ui/money";
 import { Monogram, groupColorFor } from "@/components/ui/monogram";
@@ -10,6 +11,7 @@ import {
 	groupMembersQueryOptions,
 	groupQueryOptions,
 } from "@/features/group/queries";
+import { LendingDetailDialog } from "@/features/lending/components/lending-detail-dialog";
 import { lendingsByGroupQueryOptions } from "@/features/lending/queries";
 import { meQueryOptions } from "@/features/user/queries";
 import { formatMonthDay } from "@/utils/format";
@@ -25,6 +27,7 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 
 	const lendings = paginated.lendings ?? [];
 	const memberMap = new Map(members.map((m) => [m.id, m]));
+	const [detail, setDetail] = useState<(typeof lendings)[number] | null>(null);
 
 	const myAmountOf = (l: (typeof lendings)[number]) => {
 		const total = l.debts.reduce((s, d) => s + d.amount, 0);
@@ -106,11 +109,11 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 						const isPayer = l.createdBy === me.id;
 						const total = l.debts.reduce((s, d) => s + d.amount, 0);
 						return (
-							<Link
+							<button
+								type="button"
 								key={l.id}
-								to="/groups/$groupId/lendings/$lendingId"
-								params={{ groupId, lendingId: l.id }}
-								className="flex items-center gap-3 border-b border-hair px-5 py-3 transition-colors last:border-b-0 hover:bg-secondary"
+								onClick={() => setDetail(l)}
+								className="flex w-full items-center gap-3 border-b border-hair px-5 py-3 text-left transition-colors last:border-b-0 hover:bg-secondary"
 							>
 								{payer ? (
 									<UserAvatar user={payer} className="size-10" />
@@ -138,11 +141,19 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 										className="mt-0.5 block text-[10.5px] font-normal text-muted-foreground"
 									/>
 								</div>
-							</Link>
+							</button>
 						);
 					})
 				)}
 			</Panel>
+
+			<LendingDetailDialog
+				lending={detail}
+				members={members}
+				meId={me.id}
+				groupId={groupId}
+				onClose={() => setDetail(null)}
+			/>
 		</div>
 	);
 }

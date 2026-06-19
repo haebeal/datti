@@ -123,9 +123,8 @@ export function LendingForm({
 						</label>
 						<DatePicker
 							id={field.name}
-							name={field.name}
-							defaultValue={field.state.value}
-							onChange={(e) => field.handleChange(e.currentTarget.value)}
+							value={field.state.value}
+							onChange={field.handleChange}
 							placeholder="日付を選択"
 						/>
 						<ErrorText>

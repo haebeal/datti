@@ -1,68 +1,107 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { Money } from "@/components/ui/money";
+import { PageHead } from "@/components/ui/page-head";
+import { Panel } from "@/components/ui/panel";
+import { UserAvatar } from "@/components/ui/user-avatar";
+import { creditsQueryOptions } from "@/features/credit/queries";
 import { ProfileEditForm } from "@/features/user/components/profile-edit-form";
 import { useUnlinkLine } from "@/features/user/mutations";
 import { meQueryOptions } from "@/features/user/queries";
 import { logout } from "@/libs/auth/actions";
-import { cn } from "@/utils/cn";
 
 export const Route = createFileRoute("/_authenticated/profile")({
-	loader: ({ context }) => context.queryClient.ensureQueryData(meQueryOptions),
+	loader: ({ context }) =>
+		Promise.all([
+			context.queryClient.ensureQueryData(meQueryOptions),
+			context.queryClient.ensureQueryData(creditsQueryOptions()),
+		]),
 	component: ProfilePage,
 });
 
 function ProfilePage() {
 	const { data: me } = useSuspenseQuery(meQueryOptions);
+	const { data: credits } = useSuspenseQuery(creditsQueryOptions());
 	const unlinkLine = useUnlinkLine();
 
+	const totalLent = credits
+		.filter((c) => c.amount > 0)
+		.reduce((s, c) => s + c.amount, 0);
+	const totalBorrowed = credits
+		.filter((c) => c.amount < 0)
+		.reduce((s, c) => s + Math.abs(c.amount), 0);
+
 	return (
-		<div className="flex flex-col gap-5">
-			<h1 className="hidden sm:block text-2xl font-bold text-primary-base">
-				マイページ
-			</h1>
+		<div>
+			<PageHead title="マイページ" sub="プロフィールとアプリの設定" />
 
-			<ProfileEditForm user={me} />
+			<div className="grid grid-cols-1 items-start gap-[22px] md:grid-cols-[300px_1fr]">
+				{/* 左: プロフィールカード＋ログアウト */}
+				<div className="flex flex-col gap-[22px]">
+					<Panel className="p-[22px] text-center">
+						<UserAvatar user={me} className="mx-auto size-[76px] text-2xl" />
+						<div className="mt-3 font-heading text-lg font-extrabold text-foreground">
+							{me.name}
+						</div>
+						<div className="font-num mt-1 text-[12.5px] text-muted-foreground">
+							{me.email}
+						</div>
+						<div className="mt-[18px] flex overflow-hidden rounded-xl border border-border">
+							<div className="flex-1 px-2 py-3">
+								<div className="mb-1.5 text-[11px] text-ink-2">返してもらう</div>
+								<Money value={totalLent} colored className="text-[15px]" />
+							</div>
+							<div className="w-px bg-hair" />
+							<div className="flex-1 px-2 py-3">
+								<div className="mb-1.5 text-[11px] text-ink-2">返す</div>
+								<Money value={-totalBorrowed} colored className="text-[15px]" />
+							</div>
+						</div>
+					</Panel>
 
-			<div className={cn("p-6 flex flex-col gap-3 border rounded-lg bg-white")}>
-				<h2 className="text-lg font-semibold">LINE 連携</h2>
-				{me.lineUserId ? (
-					<>
-						<p className="text-sm text-gray-600">連携済み</p>
-						<button
-							type="button"
-							onClick={() => unlinkLine.mutate()}
-							disabled={unlinkLine.isPending}
-							className={cn(
-								"px-4 py-2 self-start rounded-md",
-								"border border-error-base text-error-base",
-								"hover:bg-error-base hover:text-white",
-								"disabled:opacity-50 transition-colors",
-							)}
-						>
-							{unlinkLine.isPending ? "解除中…" : "連携を解除する"}
-						</button>
-					</>
-				) : (
-					<p className="text-sm text-gray-600">
-						未連携 (LINE 連携機能はバックエンドの LINE OAuth コールバック側で実装中)
-					</p>
-				)}
-			</div>
+					<Button
+						variant="outline"
+						onClick={() => logout()}
+						className="w-full border-destructive/50 text-destructive hover:bg-destructive/5 hover:text-destructive"
+					>
+						ログアウト
+					</Button>
+				</div>
 
-			<div className={cn("p-6 flex flex-col gap-3 border rounded-lg bg-white")}>
-				<h2 className="text-lg font-semibold">ログアウト</h2>
-				<button
-					type="button"
-					onClick={() => logout()}
-					className={cn(
-						"px-4 py-2 self-start rounded-md",
-						"border border-primary-base text-primary-base",
-						"hover:bg-primary-base hover:text-white",
-						"transition-colors",
-					)}
-				>
-					ログアウト
-				</button>
+				{/* 右: アカウント設定＋LINE連携 */}
+				<div className="flex flex-col gap-[22px]">
+					<Panel className="p-6">
+						<h2 className="mb-5 font-heading text-[17px] font-bold text-foreground">
+							アカウント設定
+						</h2>
+						<ProfileEditForm user={me} />
+					</Panel>
+
+					<Panel className="p-6">
+						<h2 className="mb-4 font-heading text-[17px] font-bold text-foreground">
+							LINE 連携
+						</h2>
+						{me.lineUserId ? (
+							<div className="flex flex-col items-start gap-3">
+								<p className="text-sm text-muted-foreground">連携済み</p>
+								<Button
+									variant="outline"
+									onClick={() => unlinkLine.mutate()}
+									disabled={unlinkLine.isPending}
+									className="border-destructive/50 text-destructive hover:bg-destructive/5 hover:text-destructive"
+								>
+									{unlinkLine.isPending ? "解除中…" : "連携を解除する"}
+								</Button>
+							</div>
+						) : (
+							<p className="text-sm text-muted-foreground">
+								未連携 (LINE 連携機能はバックエンドの LINE OAuth
+								コールバック側で実装中)
+							</p>
+						)}
+					</Panel>
+				</div>
 			</div>
 		</div>
 	);

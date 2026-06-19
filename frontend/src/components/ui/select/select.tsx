@@ -63,10 +63,10 @@ export function Select<T>(props: Props<T>) {
 				className={cn(
 					"w-full",
 					"px-3 py-2",
-					"border rounded-md",
-					"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
+					"rounded-lg border border-input bg-card",
+					"outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30",
 					"disabled:opacity-50 disabled:cursor-not-allowed",
-					isError && "border-red-500",
+					isError && "border-destructive",
 					className,
 				)}
 			>
@@ -98,16 +98,16 @@ export function Select<T>(props: Props<T>) {
 				className={cn(
 					"flex items-center justify-between w-full",
 					"px-3 py-2",
-					"border rounded-md",
-					"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
+					"rounded-lg border border-input bg-card",
+					"outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30",
 					"hover:cursor-pointer",
-					isError && "border-red-500",
+					isError && "border-destructive",
 				)}
 			>
-				<SelectValue className={cn(!selectedOption && "text-gray-400")}>
+				<SelectValue className={cn(!selectedOption && "text-muted-foreground")}>
 					{selectedOption ? getOptionLabel(selectedOption) : placeholder}
 				</SelectValue>
-				<span aria-hidden="true" className="text-gray-400">
+				<span aria-hidden="true" className="text-muted-foreground">
 					▼
 				</span>
 			</Button>
@@ -115,7 +115,7 @@ export function Select<T>(props: Props<T>) {
 				className={cn(
 					"w-[--trigger-width] min-w-64",
 					"mt-1",
-					"rounded-md border bg-white shadow-lg",
+					"rounded-lg border border-border bg-popover shadow-lg",
 					"entering:animate-in entering:fade-in entering:zoom-in-95",
 					"exiting:animate-out exiting:fade-out exiting:zoom-out-95",
 				)}
@@ -133,9 +133,9 @@ export function Select<T>(props: Props<T>) {
 								"px-4 py-2",
 								"cursor-pointer outline-none rounded-md",
 								"transition-colors duration-150",
-								"data-[hovered]:bg-gray-100",
+								"data-[hovered]:bg-secondary",
 								"data-[focused]:outline-none",
-								"data-[selected]:bg-primary-base data-[selected]:text-white",
+								"data-[selected]:bg-primary data-[selected]:text-primary-foreground",
 							)}
 						>
 							{item.label}

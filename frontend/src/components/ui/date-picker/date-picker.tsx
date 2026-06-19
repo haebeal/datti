@@ -56,9 +56,9 @@ export function DatePicker(props: Props) {
 				className={cn(
 					"w-full",
 					"px-3 py-2",
-					"border rounded-md",
-					"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-					isError && "border-red-500",
+					"rounded-lg border border-input bg-card",
+					"outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30",
+					isError && "border-destructive",
 					className,
 				)}
 			/>
@@ -90,16 +90,16 @@ export function DatePicker(props: Props) {
 					className={cn(
 						"flex items-center justify-between w-full text-left",
 						"px-3 py-2",
-						"border rounded-md",
-						"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
+						"rounded-lg border border-input bg-card",
+						"outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/30",
 						"hover:cursor-text",
-						isError && "border-red-500",
+						isError && "border-destructive",
 					)}
 				>
 					{value ? (
 						<p>{value.toString()}</p>
 					) : (
-						<p className="text-gray-400">{placeholder}</p>
+						<p className="text-muted-foreground">{placeholder}</p>
 					)}
 				</button>
 				<input
@@ -112,7 +112,7 @@ export function DatePicker(props: Props) {
 			<Popover isOpen={isOpen} onOpenChange={setOpen}>
 				<Dialog
 					className={cn(
-						"min-w-80 max-w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-slate-800",
+						"min-w-80 max-w-full rounded-lg border border-border bg-popover px-4 py-3 text-foreground",
 					)}
 				>
 					<Calendar>
@@ -139,8 +139,8 @@ export function DatePicker(props: Props) {
 										date={date}
 										className={cn(
 											"p-3 rounded text-center hover:cursor-pointer",
-											"data-[outside-month]:text-gray-400 data-[outside-month]:cursor-default",
-											"data-[selected]:bg-primary-base data-[selected]:text-white",
+											"data-[outside-month]:text-muted-foreground data-[outside-month]:cursor-default",
+											"data-[selected]:bg-primary data-[selected]:text-primary-foreground",
 										)}
 									/>
 								)}

@@ -35,6 +35,7 @@ export function AddLendingDialog({
 					members={members}
 					currentUserId={currentUserId}
 					submitLabel="この内容で記録する"
+					onCancel={() => onOpenChange(false)}
 					onSubmit={async (values) => {
 						await createLending.mutateAsync(values);
 						onOpenChange(false);

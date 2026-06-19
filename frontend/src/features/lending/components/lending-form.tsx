@@ -18,6 +18,8 @@ type Props = {
 	defaultValues?: LendingFormInput;
 	submitLabel: string;
 	onSubmit: (values: LendingFormInput) => Promise<void>;
+	/** 指定するとキャンセルボタンつきの右寄せフッターになる (モーダル用) */
+	onCancel?: () => void;
 };
 
 /** name / amount / eventDate のみを検証するスキーマ (debts は分割UIから導出) */
@@ -40,6 +42,7 @@ export function LendingForm({
 	defaultValues,
 	submitLabel,
 	onSubmit,
+	onCancel,
 }: Props) {
 	const form = useForm({
 		defaultValues: {
@@ -55,7 +58,6 @@ export function LendingForm({
 	});
 
 	const amount = useStore(form.store, (s) => s.values.amount);
-	const meMember = members.find((m) => m.id === currentUserId);
 
 	// 分割UIのローカル状態 (編集時は既存 debts から復元)
 	const [selected, setSelected] = useState<Set<string>>(() => {
@@ -206,21 +208,41 @@ export function LendingForm({
 				)}
 			</form.Field>
 
-			{/* 立て替えた人 (作成者固定) */}
+			{/* 立て替えた人 (作成者固定: あなたを選択ロック) */}
 			<FormField label="立て替えた人">
-				<div className="flex w-fit items-center gap-3 rounded-xl border border-border bg-surface-alt px-3.5 py-2.5">
-					{meMember && (
-						<UserAvatar
-							user={meMember}
-							className="size-9 ring-2 ring-key ring-offset-1"
-						/>
-					)}
-					<div className="leading-tight">
-						<div className="text-sm font-bold text-ink">あなた</div>
-						<div className="text-[11px] text-muted-foreground">
-							あなたが立て替えました
-						</div>
-					</div>
+				<div className="flex flex-wrap gap-1">
+					{members.map((m) => {
+						const isMe = m.id === currentUserId;
+						return (
+							<div
+								key={m.id}
+								className={cn(
+									"flex min-w-14 flex-col items-center gap-1.5 px-1 py-1",
+									!isMe && "opacity-50",
+								)}
+							>
+								<UserAvatar
+									user={m}
+									className={cn(
+										"size-10",
+										isMe
+											? "ring-[2.5px] ring-key ring-offset-1"
+											: "ring-1 ring-border",
+									)}
+								/>
+								<span
+									className={cn(
+										"whitespace-nowrap text-[11px]",
+										isMe
+											? "font-bold text-ink"
+											: "font-medium text-muted-foreground",
+									)}
+								>
+									{isMe ? "あなた" : m.name.split(" ")[0]}
+								</span>
+							</div>
+						);
+					})}
 				</div>
 			</FormField>
 
@@ -360,16 +382,36 @@ export function LendingForm({
 			</FormField>
 
 			<form.Subscribe selector={(state) => state.isSubmitting}>
-				{(isSubmitting) => (
-					<Button
-						type="submit"
-						size="lg"
-						disabled={isSubmitting || !splitValid}
-						className="w-full"
-					>
-						{isSubmitting ? "送信中…" : submitLabel}
-					</Button>
-				)}
+				{(isSubmitting) =>
+					onCancel ? (
+						<div className="flex justify-end gap-3 border-t border-hair pt-4">
+							<Button
+								type="button"
+								variant="outline"
+								size="lg"
+								onClick={onCancel}
+							>
+								キャンセル
+							</Button>
+							<Button
+								type="submit"
+								size="lg"
+								disabled={isSubmitting || !splitValid}
+							>
+								{isSubmitting ? "送信中…" : submitLabel}
+							</Button>
+						</div>
+					) : (
+						<Button
+							type="submit"
+							size="lg"
+							disabled={isSubmitting || !splitValid}
+							className="w-full"
+						>
+							{isSubmitting ? "送信中…" : submitLabel}
+						</Button>
+					)
+				}
 			</form.Subscribe>
 		</form>
 	);

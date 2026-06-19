@@ -105,6 +105,7 @@ export function GlobalAddLendingDialog({ open, onOpenChange }: Props) {
 								members={membersQuery.data}
 								currentUserId={meQuery.data.id}
 								submitLabel="この内容で記録する"
+								onCancel={() => close(false)}
 								onSubmit={async (values) => {
 									await createLending.mutateAsync(values);
 									close(false);

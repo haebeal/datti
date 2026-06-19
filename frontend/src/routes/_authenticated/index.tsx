@@ -1,13 +1,14 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Plus } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/ui/money";
 import { PageHead } from "@/components/ui/page-head";
 import { Panel, PanelHead } from "@/components/ui/panel";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { creditsQueryOptions } from "@/features/credit/queries";
+import { RepayDialog } from "@/features/repayment/components/repay-dialog";
 
 export const Route = createFileRoute("/_authenticated/")({
 	loader: ({ context }) =>
@@ -25,6 +26,11 @@ function Empty({ children }: { children: ReactNode }) {
 
 function DashboardPage() {
 	const { data: credits } = useSuspenseQuery(creditsQueryOptions());
+
+	const [repayTarget, setRepayTarget] = useState<{
+		debtorId: string;
+		amount: number;
+	} | null>(null);
 
 	const lent = credits.filter((c) => c.amount > 0);
 	const borrowed = credits.filter((c) => c.amount < 0);
@@ -123,22 +129,34 @@ function DashboardPage() {
 									{c.user.name}
 								</span>
 								<Money value={c.amount} signed colored className="text-base" />
-								<Button asChild variant="outline" size="sm" className="text-primary">
-									<Link
-										to="/repayments/new"
-										search={{
+								<Button
+									variant="outline"
+									size="sm"
+									className="text-primary"
+									onClick={() =>
+										setRepayTarget({
 											debtorId: c.user.id,
 											amount: Math.abs(c.amount),
-										}}
-									>
-										返す
-									</Link>
+										})
+									}
+								>
+									返す
 								</Button>
 							</div>
 						))
 					)}
 				</Panel>
 			</div>
+
+			<RepayDialog
+				open={!!repayTarget}
+				onOpenChange={(o) => {
+					if (!o) setRepayTarget(null);
+				}}
+				credits={credits}
+				debtorId={repayTarget?.debtorId}
+				amount={repayTarget?.amount}
+			/>
 		</div>
 	);
 }

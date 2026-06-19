@@ -1,9 +1,9 @@
 import { useForm } from "@tanstack/react-form";
+import { Button } from "@/components/ui/button";
 import { ErrorText } from "@/components/ui/error-text";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import type { Credit } from "@/features/credit/types";
-import { cn } from "@/utils/cn";
 import { formatCurrency } from "@/utils/format";
 import { createRepaymentSchema } from "../schema";
 import type { CreateRepaymentInput } from "../schema";
@@ -58,16 +58,8 @@ export function RepaymentCreateForm({
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className={cn(
-				"p-6",
-				"flex flex-col gap-5",
-				"bg-white border border-gray-200 rounded-xl",
-			)}
+			className="flex flex-col gap-5"
 		>
-			<h2 className="text-base sm:text-xl font-semibold text-primary-base">
-				返す相手と金額
-			</h2>
-
 			<form.Field name="debtorId">
 				{(field) => (
 					<div className="flex flex-col gap-1.5">
@@ -115,20 +107,14 @@ export function RepaymentCreateForm({
 
 			<form.Subscribe selector={(state) => state.isSubmitting}>
 				{(isSubmitting) => (
-					<button
+					<Button
 						type="submit"
+						size="lg"
 						disabled={isSubmitting || !hasCandidates}
-						className={cn(
-							"px-4 py-2 self-end rounded-md",
-							"border border-primary-base bg-primary-base text-white",
-							"hover:bg-primary-hover active:bg-primary-active",
-							"disabled:opacity-50 disabled:cursor-not-allowed",
-							"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-							"transition-colors",
-						)}
+						className="w-full"
 					>
 						{isSubmitting ? "処理中…" : "返した記録をつける"}
-					</button>
+					</Button>
 				)}
 			</form.Subscribe>
 		</form>

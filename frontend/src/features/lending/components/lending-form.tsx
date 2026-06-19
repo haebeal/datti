@@ -1,19 +1,15 @@
-import { useForm } from "@tanstack/react-form";
+import { useForm, useStore } from "@tanstack/react-form";
+import { Check } from "lucide-react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
-import { ErrorText } from "@/components/ui/error-text";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import type { GroupMember } from "@/features/group/types";
 import { cn } from "@/lib/utils";
 import { getFieldErrorMessage } from "@/utils/form";
+import { yen } from "@/utils/format";
 import { type LendingFormInput, lendingFormSchema } from "../schema";
 
 type Props = {
@@ -24,14 +20,19 @@ type Props = {
 	onSubmit: (values: LendingFormInput) => Promise<void>;
 };
 
-const initialValues: LendingFormInput = {
-	name: "",
-	amount: 0,
-	eventDate: new Intl.DateTimeFormat("sv-SE", {
-		timeZone: "Asia/Tokyo",
-	}).format(new Date()),
-	debts: [{ userId: "", amount: 0 }],
-};
+/** name / amount / eventDate のみを検証するスキーマ (debts は分割UIから導出) */
+const fieldsSchema = lendingFormSchema.pick({
+	name: true,
+	amount: true,
+	eventDate: true,
+});
+
+const todayJst = () =>
+	new Intl.DateTimeFormat("sv-SE", { timeZone: "Asia/Tokyo" }).format(
+		new Date(),
+	);
+
+type SplitMode = "even" | "custom";
 
 export function LendingForm({
 	members,
@@ -41,14 +42,89 @@ export function LendingForm({
 	onSubmit,
 }: Props) {
 	const form = useForm({
-		defaultValues: defaultValues ?? initialValues,
-		validators: { onChange: lendingFormSchema },
+		defaultValues: {
+			name: defaultValues?.name ?? "",
+			amount: defaultValues?.amount ?? 0,
+			eventDate: defaultValues?.eventDate ?? todayJst(),
+		},
+		validators: { onChange: fieldsSchema },
 		onSubmit: async ({ value }) => {
-			await onSubmit(value);
+			if (!splitValidRef.current) return;
+			await onSubmit({ ...value, debts: debtsRef.current });
 		},
 	});
 
-	const availableMembers = members.filter((m) => m.id !== currentUserId);
+	const amount = useStore(form.store, (s) => s.values.amount);
+	const meMember = members.find((m) => m.id === currentUserId);
+
+	// 分割UIのローカル状態 (編集時は既存 debts から復元)
+	const [selected, setSelected] = useState<Set<string>>(() => {
+		if (defaultValues) {
+			const ids = new Set(defaultValues.debts.map((d) => d.userId));
+			ids.add(currentUserId);
+			return ids;
+		}
+		return new Set(members.map((m) => m.id));
+	});
+	const [mode, setMode] = useState<SplitMode>(
+		defaultValues ? "custom" : "even",
+	);
+	const [custom, setCustom] = useState<Record<string, number>>(() => {
+		if (!defaultValues) return {};
+		const next: Record<string, number> = {};
+		let sum = 0;
+		for (const d of defaultValues.debts) {
+			next[d.userId] = d.amount;
+			sum += d.amount;
+		}
+		next[currentUserId] = Math.max(defaultValues.amount - sum, 0);
+		return next;
+	});
+
+	const splitIds = members.filter((m) => selected.has(m.id)).map((m) => m.id);
+	const splitCount = splitIds.length;
+	const per = splitCount ? Math.floor(amount / splitCount) : 0;
+	const ca = (id: string) => custom[id] ?? 0;
+	const customSum = splitIds.reduce((s, id) => s + ca(id), 0);
+	const remaining = amount - customSum;
+
+	const debtors = members.filter(
+		(m) => m.id !== currentUserId && selected.has(m.id),
+	);
+	const debts = debtors.map((m) => ({
+		userId: m.id,
+		amount: mode === "even" ? per : ca(m.id),
+	}));
+
+	const splitValid =
+		debtors.length > 0 &&
+		(mode === "even"
+			? per >= 1
+			: remaining === 0 && debtors.every((m) => ca(m.id) >= 1));
+
+	// onSubmit (init時クロージャ) から最新値を読むための ref
+	const debtsRef = useRef(debts);
+	debtsRef.current = debts;
+	const splitValidRef = useRef(splitValid);
+	splitValidRef.current = splitValid;
+
+	const toggle = (id: string) =>
+		setSelected((prev) => {
+			const next = new Set(prev);
+			if (next.has(id)) next.delete(id);
+			else next.add(id);
+			return next;
+		});
+
+	const splitEven = () => {
+		const base = splitCount ? Math.floor(amount / splitCount) : 0;
+		const rem = amount - base * splitCount;
+		const next: Record<string, number> = {};
+		splitIds.forEach((id, i) => {
+			next[id] = base + (i === 0 ? rem : 0);
+		});
+		setCustom(next);
+	};
 
 	return (
 		<form
@@ -58,45 +134,61 @@ export function LendingForm({
 			}}
 			className="flex flex-col gap-5"
 		>
-			<form.Field name="name">
-				{(field) => (
-					<FormField
-						label="タイトル"
-						htmlFor={field.name}
-						error={getFieldErrorMessage(field.state.meta.errors)}
-					>
-						<Input
-							id={field.name}
-							name={field.name}
-							value={field.state.value}
-							onChange={(e) => field.handleChange(e.target.value)}
-							onBlur={field.handleBlur}
-							placeholder="例: ランチ代, 飲み会"
-						/>
-					</FormField>
-				)}
-			</form.Field>
+			{/* 内容 + 金額 */}
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				<form.Field name="name">
+					{(field) => (
+						<FormField
+							label="内容"
+							htmlFor={field.name}
+							error={getFieldErrorMessage(field.state.meta.errors)}
+						>
+							<Input
+								id={field.name}
+								name={field.name}
+								value={field.state.value}
+								onChange={(e) => field.handleChange(e.target.value)}
+								onBlur={field.handleBlur}
+								placeholder="例：居酒屋、新幹線"
+							/>
+						</FormField>
+					)}
+				</form.Field>
 
-			<form.Field name="amount">
-				{(field) => (
-					<FormField
-						label="いくら？"
-						htmlFor={field.name}
-						error={getFieldErrorMessage(field.state.meta.errors)}
-					>
-						<Input
-							id={field.name}
-							name={field.name}
-							type="number"
-							value={String(field.state.value)}
-							onChange={(e) => field.handleChange(Number(e.target.value) || 0)}
-							onBlur={field.handleBlur}
-							placeholder="0"
-						/>
-					</FormField>
-				)}
-			</form.Field>
+				<form.Field name="amount">
+					{(field) => (
+						<FormField
+							label="金額"
+							htmlFor={field.name}
+							error={getFieldErrorMessage(field.state.meta.errors)}
+						>
+							<div className="relative">
+								<span className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 font-num text-base font-bold text-muted-foreground">
+									¥
+								</span>
+								<Input
+									id={field.name}
+									name={field.name}
+									inputMode="numeric"
+									value={
+										field.state.value ? field.state.value.toLocaleString() : ""
+									}
+									onChange={(e) =>
+										field.handleChange(
+											Number(e.target.value.replace(/[^0-9]/g, "")) || 0,
+										)
+									}
+									onBlur={field.handleBlur}
+									placeholder="0"
+									className="pl-8 font-num text-[17px] font-bold tabular-nums"
+								/>
+							</div>
+						</FormField>
+					)}
+				</form.Field>
+			</div>
 
+			{/* いつ？ */}
 			<form.Field name="eventDate">
 				{(field) => (
 					<FormField
@@ -114,174 +206,165 @@ export function LendingForm({
 				)}
 			</form.Field>
 
-			<div className="flex items-center gap-2">
-				<span className="font-heading text-base font-bold text-foreground">
-					だれがいくら？
-				</span>
-				<div className="flex-1" />
-				<form.Field name="debts" mode="array">
-					{(field) => {
-						const totalAmount = Number(form.state.values.amount) || 0;
-						const memberCount = field.state.value.length + 1;
-						const canAddMore =
-							field.state.value.length < availableMembers.length;
+			{/* 立て替えた人 (作成者固定) */}
+			<FormField label="立て替えた人">
+				<div className="flex w-fit items-center gap-3 rounded-xl border border-border bg-surface-alt px-3.5 py-2.5">
+					{meMember && (
+						<UserAvatar
+							user={meMember}
+							className="size-9 ring-2 ring-key ring-offset-1"
+						/>
+					)}
+					<div className="leading-tight">
+						<div className="text-sm font-bold text-ink">あなた</div>
+						<div className="text-[11px] text-muted-foreground">
+							あなたが立て替えました
+						</div>
+					</div>
+				</div>
+			</FormField>
 
-						const splitBill = () => {
-							const splitAmount = Math.floor(totalAmount / memberCount);
-							for (let i = 0; i < field.state.value.length; i++) {
-								form.setFieldValue(`debts[${i}].amount`, splitAmount);
-							}
-						};
-						const addDebt = () => {
-							field.pushValue({ userId: "", amount: 0 });
-						};
+			{/* 負担するメンバー */}
+			<FormField label={`負担するメンバー（${splitCount}人）`}>
+				<div className="mb-2.5 flex gap-1.5">
+					{(
+						[
+							["even", "均等に割り勘"],
+							["custom", "金額を指定"],
+						] as const
+					).map(([id, label]) => {
+						const on = mode === id;
 						return (
-							<div className="flex gap-2">
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={splitBill}
-									disabled={field.state.value.length === 0}
-								>
-									割り勘
-								</Button>
-								<Button
-									type="button"
-									variant="outline"
-									size="sm"
-									onClick={addDebt}
-									disabled={!canAddMore}
-								>
-									＋ ひとを追加
-								</Button>
-							</div>
-						);
-					}}
-				</form.Field>
-			</div>
-
-			<form.Subscribe
-				selector={(state) => ({
-					amount: state.values.amount,
-					debts: state.values.debts,
-				})}
-			>
-				{({ amount, debts }) => {
-					const othersTotal = debts.reduce(
-						(sum, d) => sum + (Number(d.amount) || 0),
-						0,
-					);
-					const myShare = (Number(amount) || 0) - othersTotal;
-					const currentUserName =
-						members.find((m) => m.id === currentUserId)?.name ?? "自分";
-					return (
-						<div className="flex items-center gap-3 rounded-lg bg-secondary px-4 py-2.5">
-							<span className="flex-1 text-sm text-foreground">
-								{currentUserName}（自分）
-							</span>
-							<span
+							<button
+								key={id}
+								type="button"
+								onClick={() => {
+									setMode(id);
+									if (id === "custom" && customSum === 0) splitEven();
+								}}
 								className={cn(
-									"text-sm font-semibold",
-									myShare < 0 ? "text-destructive" : "text-foreground",
+									"flex-1 rounded-lg border py-2.5 text-[13px] font-bold transition-colors",
+									on
+										? "border-key bg-key-soft text-key"
+										: "border-border bg-surface text-ink-2 hover:bg-secondary",
 								)}
 							>
-								¥{myShare.toLocaleString()}
-							</span>
-						</div>
-					);
-				}}
-			</form.Subscribe>
+								{label}
+							</button>
+						);
+					})}
+				</div>
 
-			<form.Field name="debts" mode="array">
-				{(debtsField) => (
-					<div className="flex flex-col gap-3">
-						{debtsField.state.value.map((_, index) => {
-							const selectedElsewhere = debtsField.state.value
-								.map((d, i) => (i === index ? null : d.userId))
-								.filter((id): id is string => !!id);
-							const options = availableMembers.filter(
-								(m) => !selectedElsewhere.includes(m.id),
-							);
-							return (
-								<div key={index} className="flex items-start gap-3">
-									<div className="flex-1">
-										<form.Field name={`debts[${index}].userId`}>
-											{(field) => (
-												<>
-													<Select
-														name={field.name}
-														value={field.state.value}
-														onValueChange={field.handleChange}
-														required
-													>
-														<SelectTrigger id={field.name} className="w-full">
-															<SelectValue placeholder="メンバーを選択" />
-														</SelectTrigger>
-														<SelectContent>
-															{options.map((m) => (
-																<SelectItem key={m.id} value={m.id}>
-																	{m.name}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
-													<ErrorText>
-														{getFieldErrorMessage(field.state.meta.errors)}
-													</ErrorText>
-												</>
-											)}
-										</form.Field>
+				<div className="overflow-hidden rounded-xl border border-border">
+					{members.map((m, i) => {
+						const on = selected.has(m.id);
+						const isMe = m.id === currentUserId;
+						return (
+							<div
+								key={m.id}
+								className={cn(
+									"flex items-center gap-3 px-3.5 py-2.5",
+									i !== members.length - 1 && "border-b border-hair",
+								)}
+							>
+								<button
+									type="button"
+									onClick={() => toggle(m.id)}
+									className="flex min-w-0 flex-1 items-center gap-3 text-left"
+								>
+									<UserAvatar user={m} className="size-8" />
+									<span
+										className={cn(
+											"truncate text-sm",
+											on ? "font-medium text-ink" : "text-muted-foreground",
+										)}
+									>
+										{isMe ? "あなた" : m.name}
+									</span>
+								</button>
+
+								{on && mode === "even" && per > 0 && (
+									<span className="font-num text-[13.5px] font-semibold text-ink-2 tabular-nums">
+										{yen(per)}
+									</span>
+								)}
+								{on && mode === "custom" && (
+									<div className="relative w-28">
+										<span className="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 font-num text-[13px] font-bold text-muted-foreground">
+											¥
+										</span>
+										<Input
+											inputMode="numeric"
+											value={ca(m.id) ? ca(m.id).toLocaleString() : ""}
+											onChange={(e) => {
+												const v =
+													Number(e.target.value.replace(/[^0-9]/g, "")) || 0;
+												setCustom((p) => ({ ...p, [m.id]: v }));
+											}}
+											placeholder="0"
+											className="h-9 pr-2 pl-6 text-right font-num text-sm font-bold tabular-nums"
+										/>
 									</div>
-									<div className="w-32">
-										<form.Field name={`debts[${index}].amount`}>
-											{(field) => (
-												<>
-													<div className="relative">
-														<span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground">
-															¥
-														</span>
-														<Input
-															type="number"
-															name={field.name}
-															value={String(field.state.value)}
-															onChange={(e) =>
-																field.handleChange(Number(e.target.value) || 0)
-															}
-															onBlur={field.handleBlur}
-															className="w-full pl-7"
-														/>
-													</div>
-													<ErrorText>
-														{getFieldErrorMessage(field.state.meta.errors)}
-													</ErrorText>
-												</>
-											)}
-										</form.Field>
-									</div>
-									{debtsField.state.value.length > 1 && (
-										<Button
-											type="button"
-											variant="outline"
-											className="border-destructive/50 text-destructive hover:bg-destructive/5 hover:text-destructive"
-											onClick={() => debtsField.removeValue(index)}
-										>
-											削除
-										</Button>
+								)}
+
+								<button
+									type="button"
+									onClick={() => toggle(m.id)}
+									aria-label={on ? "選択を外す" : "選択する"}
+									className={cn(
+										"flex size-[22px] shrink-0 items-center justify-center rounded-md transition-colors",
+										on
+											? "bg-key text-white"
+											: "border-2 border-border text-transparent",
 									)}
-								</div>
-							);
-						})}
+								>
+									{on && <Check className="size-[15px]" />}
+								</button>
+							</div>
+						);
+					})}
+				</div>
+
+				{mode === "custom" && amount > 0 && (
+					<div className="mt-2.5 flex items-center gap-2.5 px-0.5">
+						<span className="text-[12.5px] text-ink-2">
+							合計{" "}
+							<span className="font-num font-bold text-ink">
+								{yen(customSum)}
+							</span>{" "}
+							/ {yen(amount)}
+						</span>
+						<div className="flex-1" />
+						{remaining === 0 ? (
+							<span className="inline-flex items-center gap-1 text-[12.5px] font-bold text-pos">
+								<Check className="size-[15px]" /> 一致
+							</span>
+						) : (
+							<span className="text-[12.5px] font-bold text-neg">
+								{remaining > 0
+									? `残り ${yen(remaining)}`
+									: `${yen(-remaining)} 超過`}
+							</span>
+						)}
+						<Button
+							type="button"
+							variant="ghost"
+							size="sm"
+							onClick={splitEven}
+							className="h-7 px-2.5 text-xs text-key"
+						>
+							均等に
+						</Button>
 					</div>
 				)}
-			</form.Field>
+			</FormField>
 
 			<form.Subscribe selector={(state) => state.isSubmitting}>
 				{(isSubmitting) => (
 					<Button
 						type="submit"
 						size="lg"
-						disabled={isSubmitting}
+						disabled={isSubmitting || !splitValid}
 						className="w-full"
 					>
 						{isSubmitting ? "送信中…" : submitLabel}

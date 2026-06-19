@@ -1,5 +1,5 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDown, ArrowUp, Plus } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { PageHead } from "@/components/ui/page-head";
 import { Panel, PanelHead } from "@/components/ui/panel";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { creditsQueryOptions } from "@/features/credit/queries";
+import { GlobalAddLendingDialog } from "@/features/lending/components/global-add-lending-dialog";
 import { RepayDialog } from "@/features/repayment/components/repay-dialog";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -31,6 +32,7 @@ function DashboardPage() {
 		debtorId: string;
 		amount: number;
 	} | null>(null);
+	const [addOpen, setAddOpen] = useState(false);
 
 	const lent = credits.filter((c) => c.amount > 0);
 	const borrowed = credits.filter((c) => c.amount < 0);
@@ -44,10 +46,8 @@ function DashboardPage() {
 				title="ホーム"
 				sub="あなたの貸し借りの全体状況"
 				right={
-					<Button asChild size="lg">
-						<Link to="/groups">
-							<Plus className="size-[18px]" /> 立て替えを追加
-						</Link>
+					<Button size="lg" onClick={() => setAddOpen(true)}>
+						<Plus className="size-[18px]" /> 立て替えを追加
 					</Button>
 				}
 			/>
@@ -157,6 +157,8 @@ function DashboardPage() {
 				debtorId={repayTarget?.debtorId}
 				amount={repayTarget?.amount}
 			/>
+
+			<GlobalAddLendingDialog open={addOpen} onOpenChange={setAddOpen} />
 		</div>
 	);
 }

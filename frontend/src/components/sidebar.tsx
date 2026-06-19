@@ -1,9 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "@tanstack/react-router";
 import { ArrowLeftRight, House, Plus, User, Users } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DattiMark } from "@/components/ui/datti-mark";
 import { UserAvatar } from "@/components/ui/user-avatar";
+import { GlobalAddLendingDialog } from "@/features/lending/components/global-add-lending-dialog";
 import { authUserQueryOptions } from "@/libs/auth/queries";
 import { cn } from "@/lib/utils";
 
@@ -32,6 +34,7 @@ const NAV = [
 export function Sidebar() {
 	const { data: user } = useQuery(authUserQueryOptions);
 	const { pathname } = useLocation();
+	const [addOpen, setAddOpen] = useState(false);
 
 	return (
 		<aside className="hidden h-full w-[252px] shrink-0 flex-col border-r border-border bg-card px-4 pt-5 pb-4 sm:flex">
@@ -42,11 +45,15 @@ export function Sidebar() {
 				</span>
 			</Link>
 
-			<Button asChild size="lg" className="mb-4 w-full justify-center">
-				<Link to="/groups">
-					<Plus className="size-[18px]" /> 立て替えを追加
-				</Link>
+			<Button
+				size="lg"
+				className="mb-4 w-full justify-center"
+				onClick={() => setAddOpen(true)}
+			>
+				<Plus className="size-[18px]" /> 立て替えを追加
 			</Button>
+
+			<GlobalAddLendingDialog open={addOpen} onOpenChange={setAddOpen} />
 
 			<nav className="flex flex-col gap-0.5">
 				{NAV.map((item) => {

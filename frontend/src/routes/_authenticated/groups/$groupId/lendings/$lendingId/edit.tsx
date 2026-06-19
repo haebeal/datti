@@ -1,8 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-	groupMembersQueryOptions,
-} from "@/features/group/queries";
+import { PageHead } from "@/components/ui/page-head";
+import { Panel } from "@/components/ui/panel";
+import { groupMembersQueryOptions } from "@/features/group/queries";
 import { LendingForm } from "@/features/lending/components/lending-form";
 import { useUpdateLending } from "@/features/lending/mutations";
 import { lendingQueryOptions } from "@/features/lending/queries";
@@ -45,23 +45,23 @@ function EditLendingPage() {
 	};
 
 	return (
-		<div className="flex flex-col gap-5">
-			<h1 className="hidden sm:block text-2xl font-bold text-primary-base">
-				立て替えを編集
-			</h1>
-			<LendingForm
-				members={members}
-				currentUserId={me.id}
-				defaultValues={defaultValues}
-				submitLabel="更新"
-				onSubmit={async (values) => {
-					await updateLending.mutateAsync(values);
-					navigate({
-						to: "/groups/$groupId/lendings/$lendingId",
-						params: { groupId, lendingId },
-					});
-				}}
-			/>
+		<div className="mx-auto max-w-[560px]">
+			<PageHead title="立て替えを編集" />
+			<Panel className="p-6">
+				<LendingForm
+					members={members}
+					currentUserId={me.id}
+					defaultValues={defaultValues}
+					submitLabel="更新"
+					onSubmit={async (values) => {
+						await updateLending.mutateAsync(values);
+						navigate({
+							to: "/groups/$groupId/lendings/$lendingId",
+							params: { groupId, lendingId },
+						});
+					}}
+				/>
+			</Panel>
 		</div>
 	);
 }

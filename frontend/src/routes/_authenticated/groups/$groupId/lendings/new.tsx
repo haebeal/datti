@@ -1,5 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { PageHead } from "@/components/ui/page-head";
+import { Panel } from "@/components/ui/panel";
 import {
 	groupMembersQueryOptions,
 	groupQueryOptions,
@@ -33,22 +35,22 @@ function NewLendingPage() {
 	const createLending = useCreateLending(groupId);
 
 	return (
-		<div className="flex flex-col gap-5">
-			<h1 className="hidden sm:block text-2xl font-bold text-primary-base">
-				立て替えを追加
-			</h1>
-			<LendingForm
-				members={members}
-				currentUserId={me.id}
-				submitLabel="作成"
-				onSubmit={async (values) => {
-					const created = await createLending.mutateAsync(values);
-					navigate({
-						to: "/groups/$groupId/lendings/$lendingId",
-						params: { groupId, lendingId: created.id },
-					});
-				}}
-			/>
+		<div className="mx-auto max-w-[560px]">
+			<PageHead title="立て替えを追加" />
+			<Panel className="p-6">
+				<LendingForm
+					members={members}
+					currentUserId={me.id}
+					submitLabel="作成"
+					onSubmit={async (values) => {
+						const created = await createLending.mutateAsync(values);
+						navigate({
+							to: "/groups/$groupId/lendings/$lendingId",
+							params: { groupId, lendingId: created.id },
+						});
+					}}
+				/>
+			</Panel>
 		</div>
 	);
 }

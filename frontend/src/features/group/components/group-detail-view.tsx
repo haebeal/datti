@@ -11,6 +11,7 @@ import {
 	groupMembersQueryOptions,
 	groupQueryOptions,
 } from "@/features/group/queries";
+import { AddLendingDialog } from "@/features/lending/components/add-lending-dialog";
 import { LendingDetailDialog } from "@/features/lending/components/lending-detail-dialog";
 import { lendingsByGroupQueryOptions } from "@/features/lending/queries";
 import { meQueryOptions } from "@/features/user/queries";
@@ -28,6 +29,7 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 	const lendings = paginated.lendings ?? [];
 	const memberMap = new Map(members.map((m) => [m.id, m]));
 	const [detail, setDetail] = useState<(typeof lendings)[number] | null>(null);
+	const [addOpen, setAddOpen] = useState(false);
 
 	const myAmountOf = (l: (typeof lendings)[number]) => {
 		const total = l.debts.reduce((s, d) => s + d.amount, 0);
@@ -87,13 +89,8 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 				<PanelHead
 					count={lendings.length}
 					action={
-						<Button asChild size="sm" className="text-xs">
-							<Link
-								to="/groups/$groupId/lendings/new"
-								params={{ groupId }}
-							>
-								<Plus className="size-4" /> 追加
-							</Link>
+						<Button size="sm" className="text-xs" onClick={() => setAddOpen(true)}>
+							<Plus className="size-4" /> 追加
 						</Button>
 					}
 				>
@@ -153,6 +150,14 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 				meId={me.id}
 				groupId={groupId}
 				onClose={() => setDetail(null)}
+			/>
+
+			<AddLendingDialog
+				open={addOpen}
+				onOpenChange={setAddOpen}
+				groupId={groupId}
+				members={members}
+				currentUserId={me.id}
 			/>
 		</div>
 	);

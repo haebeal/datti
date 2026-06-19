@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form";
+import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { ErrorText } from "@/components/ui/error-text";
 import { Input } from "@/components/ui/input";
@@ -63,16 +64,8 @@ export function LendingForm({
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className={cn(
-				"p-6",
-				"flex flex-col gap-5",
-				"bg-white border border-gray-200 rounded-xl",
-			)}
+			className="flex flex-col gap-5"
 		>
-			<h2 className="text-base sm:text-xl font-semibold text-primary-base">
-				なにに使った？
-			</h2>
-
 			<form.Field name="name">
 				{(field) => (
 					<div className="flex flex-col gap-1.5">
@@ -103,9 +96,7 @@ export function LendingForm({
 							name={field.name}
 							type="number"
 							value={String(field.state.value)}
-							onChange={(e) =>
-								field.handleChange(Number(e.target.value) || 0)
-							}
+							onChange={(e) => field.handleChange(Number(e.target.value) || 0)}
 							onBlur={field.handleBlur}
 							placeholder="0"
 						/>
@@ -133,7 +124,7 @@ export function LendingForm({
 			</form.Field>
 
 			<div className="flex items-center gap-2">
-				<span className="text-base sm:text-xl font-semibold text-primary-base">
+				<span className="font-heading text-base font-bold text-foreground">
 					だれがいくら？
 				</span>
 				<div className="flex-1" />
@@ -154,34 +145,24 @@ export function LendingForm({
 						};
 						return (
 							<div className="flex gap-2">
-								<button
+								<Button
 									type="button"
+									variant="outline"
+									size="sm"
 									onClick={splitBill}
 									disabled={field.state.value.length === 0}
-									className={cn(
-										"px-4 py-2 rounded-md text-sm",
-										"border border-primary-base text-primary-base",
-										"hover:bg-primary-base hover:text-white",
-										"disabled:opacity-50",
-										"transition-colors",
-									)}
 								>
 									割り勘
-								</button>
-								<button
+								</Button>
+								<Button
 									type="button"
+									variant="outline"
+									size="sm"
 									onClick={addDebt}
 									disabled={!canAddMore}
-									className={cn(
-										"px-4 py-2 rounded-md text-sm",
-										"border border-primary-base text-primary-base",
-										"hover:bg-primary-base hover:text-white",
-										"disabled:opacity-50",
-										"transition-colors",
-									)}
 								>
-									+ ひとを追加
-								</button>
+									＋ ひとを追加
+								</Button>
 							</div>
 						);
 					}}
@@ -203,20 +184,14 @@ export function LendingForm({
 					const currentUserName =
 						members.find((m) => m.id === currentUserId)?.name ?? "自分";
 					return (
-						<div
-							className={cn(
-								"flex items-center gap-3",
-								"px-4 py-2.5",
-								"bg-gray-100 rounded-md",
-							)}
-						>
-							<span className="text-sm text-primary-base flex-1">
+						<div className="flex items-center gap-3 rounded-lg bg-secondary px-4 py-2.5">
+							<span className="flex-1 text-sm text-foreground">
 								{currentUserName}（自分）
 							</span>
 							<span
 								className={cn(
 									"text-sm font-semibold",
-									myShare < 0 ? "text-error-base" : "text-primary-base",
+									myShare < 0 ? "text-destructive" : "text-foreground",
 								)}
 							>
 								¥{myShare.toLocaleString()}
@@ -237,7 +212,7 @@ export function LendingForm({
 								(m) => !selectedElsewhere.includes(m.id),
 							);
 							return (
-								<div key={index} className="flex gap-3 items-start">
+								<div key={index} className="flex items-start gap-3">
 									<div className="flex-1">
 										<form.Field name={`debts[${index}].userId`}>
 											{(field) => (
@@ -264,7 +239,7 @@ export function LendingForm({
 											{(field) => (
 												<>
 													<div className="relative">
-														<span className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+														<span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground">
 															¥
 														</span>
 														<Input
@@ -286,18 +261,14 @@ export function LendingForm({
 										</form.Field>
 									</div>
 									{debtsField.state.value.length > 1 && (
-										<button
+										<Button
 											type="button"
+											variant="outline"
+											className="border-destructive/50 text-destructive hover:bg-destructive/5 hover:text-destructive"
 											onClick={() => debtsField.removeValue(index)}
-											className={cn(
-												"px-3 py-2 rounded-md text-sm",
-												"border border-error-base text-error-base",
-												"hover:bg-error-base hover:text-white",
-												"transition-colors",
-											)}
 										>
 											削除
-										</button>
+										</Button>
 									)}
 								</div>
 							);
@@ -308,20 +279,14 @@ export function LendingForm({
 
 			<form.Subscribe selector={(state) => state.isSubmitting}>
 				{(isSubmitting) => (
-					<button
+					<Button
 						type="submit"
+						size="lg"
 						disabled={isSubmitting}
-						className={cn(
-							"px-4 py-2 self-end rounded-md",
-							"border border-primary-base bg-primary-base text-white",
-							"hover:bg-primary-hover active:bg-primary-active",
-							"disabled:opacity-50 disabled:cursor-not-allowed",
-							"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-							"transition-colors",
-						)}
+						className="w-full"
 					>
 						{isSubmitting ? "送信中…" : submitLabel}
-					</button>
+					</Button>
 				)}
 			</form.Subscribe>
 		</form>

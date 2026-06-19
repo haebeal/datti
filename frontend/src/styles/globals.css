@@ -3,7 +3,6 @@
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
-@plugin "tailwindcss-react-aria-components";
 
 /* ──────────────────────────────────────────────────────────
    Datti デザインシステム (datti-web リデザイン)

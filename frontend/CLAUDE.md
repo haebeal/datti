@@ -11,7 +11,7 @@ Datti フロントエンド固有のコンテキスト。
 - **データ取得・キャッシュ**: TanStack Query
 - **フォーム**: TanStack Form + Zod
 - **スタイリング**: Tailwind CSS v4
-- **UI コンポーネント**: React Aria Components
+- **UI コンポーネント**: shadcn/ui (Radix UI ベース)
 - **認証**: oidc-client-ts (Cognito PKCE)
 - **API クライアント**: openapi-fetch (`pnpm gen:api` で `../backend/openapi.yaml` からスキーマ再生成)
 - **画像圧縮**: browser-image-compression
@@ -231,6 +231,6 @@ pnpm gen:api   # openapi-typescript で schema.d.ts 再生成
 - **TanStack Query** - queryOptions、useSuspenseQuery、useMutation
 - **TanStack Form** - useForm、Field、array mode
 - **Zod** - バリデーションスキーマ
-- **React Aria Components** - データ属性、アクセシビリティ
+- **shadcn/ui / Radix UI** - コンポーネント API、データ属性、アクセシビリティ
 - **Tailwind CSS v4** - `@theme`、`@plugin`
 - **oidc-client-ts** - UserManager、events

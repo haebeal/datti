@@ -1,5 +1,4 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
 import { Plus, Users } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { Money } from "@/components/ui/money";
 import { Monogram, groupColorFor } from "@/components/ui/monogram";
 import { Panel, PanelHead } from "@/components/ui/panel";
 import { AvatarStack, UserAvatar } from "@/components/ui/user-avatar";
+import { MembersDialog } from "@/features/group/components/members-dialog";
 import {
 	groupMembersQueryOptions,
 	groupQueryOptions,
@@ -30,6 +30,7 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 	const memberMap = new Map(members.map((m) => [m.id, m]));
 	const [detail, setDetail] = useState<(typeof lendings)[number] | null>(null);
 	const [addOpen, setAddOpen] = useState(false);
+	const [membersOpen, setMembersOpen] = useState(false);
 
 	const myAmountOf = (l: (typeof lendings)[number]) => {
 		const total = l.debts.reduce((s, d) => s + d.amount, 0);
@@ -64,10 +65,8 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 							</span>
 						</div>
 					</div>
-					<Button asChild variant="outline">
-						<Link to="/groups/$groupId/settings" params={{ groupId }}>
-							<Users className="size-[17px]" /> メンバー
-						</Link>
+					<Button variant="outline" onClick={() => setMembersOpen(true)}>
+						<Users className="size-[17px]" /> メンバー
 					</Button>
 				</div>
 				<div className="mt-[22px] flex items-center justify-between border-t border-hair pt-[18px]">
@@ -158,6 +157,13 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 				groupId={groupId}
 				members={members}
 				currentUserId={me.id}
+			/>
+
+			<MembersDialog
+				open={membersOpen}
+				onOpenChange={setMembersOpen}
+				groupId={groupId}
+				groupName={group.name}
 			/>
 		</div>
 	);

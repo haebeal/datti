@@ -59,7 +59,7 @@ function DialogContent({
 			<DialogPrimitive.Content
 				data-slot="dialog-content"
 				className={cn(
-					"fixed top-1/2 left-1/2 z-50 flex max-h-[88vh] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl bg-popover text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+					"fixed top-1/2 left-1/2 z-50 flex max-h-[88vh] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-5 overflow-y-auto rounded-xl bg-popover p-5 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 					className,
 				)}
 				{...props}
@@ -87,20 +87,10 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
 		<div
 			data-slot="dialog-header"
 			className={cn(
-				"flex shrink-0 flex-col gap-2 border-b px-5 py-4",
+				// 親 (DialogContent) の p-5 を相殺して全幅・上端に出す
+				"-mx-5 -mt-5 flex flex-col gap-2 border-b px-5 py-4",
 				className,
 			)}
-			{...props}
-		/>
-	);
-}
-
-/** スクロール可能な本文領域。各自パディングを持つ。 */
-function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
-	return (
-		<div
-			data-slot="dialog-body"
-			className={cn("flex-1 overflow-y-auto px-5 py-5", className)}
 			{...props}
 		/>
 	);
@@ -118,7 +108,8 @@ function DialogFooter({
 		<div
 			data-slot="dialog-footer"
 			className={cn(
-				"flex shrink-0 flex-col-reverse gap-2 border-t bg-card px-5 py-4 sm:flex-row sm:justify-end",
+				// 親 (DialogContent) の p-5 を相殺して全幅・下端に出す
+				"-mx-5 -mb-5 flex flex-col-reverse gap-2 border-t bg-card px-5 py-4 sm:flex-row sm:justify-end",
 				className,
 			)}
 			{...props}
@@ -167,7 +158,6 @@ function DialogDescription({
 
 export {
 	Dialog,
-	DialogBody,
 	DialogClose,
 	DialogContent,
 	DialogDescription,

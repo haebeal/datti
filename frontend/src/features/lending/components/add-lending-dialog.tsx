@@ -1,6 +1,5 @@
 import {
 	Dialog,
-	DialogBody,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
@@ -32,18 +31,16 @@ export function AddLendingDialog({
 				<DialogHeader>
 					<DialogTitle>立て替えを追加</DialogTitle>
 				</DialogHeader>
-				<DialogBody>
-					<LendingForm
-						members={members}
-						currentUserId={currentUserId}
-						submitLabel="この内容で記録する"
-						onCancel={() => onOpenChange(false)}
-						onSubmit={async (values) => {
-							await createLending.mutateAsync(values);
-							onOpenChange(false);
-						}}
-					/>
-				</DialogBody>
+				<LendingForm
+					members={members}
+					currentUserId={currentUserId}
+					submitLabel="この内容で記録する"
+					onCancel={() => onOpenChange(false)}
+					onSubmit={async (values) => {
+						await createLending.mutateAsync(values);
+						onOpenChange(false);
+					}}
+				/>
 			</DialogContent>
 		</Dialog>
 	);

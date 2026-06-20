@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
 	Dialog,
-	DialogBody,
 	DialogContent,
 	DialogFooter,
 	DialogHeader,
@@ -64,65 +63,60 @@ export function LendingDetailDialog({
 							<DialogTitle>立て替えの詳細</DialogTitle>
 						</DialogHeader>
 
-						<DialogBody className="flex flex-col gap-5">
-							<div className="text-center">
-								<div className="mb-1.5 text-[13.5px] text-muted-foreground">
-									{lending.name}
-								</div>
-								<Money
-									value={total}
-									className="text-[40px] tracking-[-0.03em]"
-								/>
-								<div className="mt-3 inline-flex items-center gap-2">
-									{payer ? (
-										<UserAvatar user={payer} className="size-6 text-xs" />
-									) : null}
-									<span className="text-[13px] text-ink-2">
-										{isPayer ? "あなた" : (payer?.name ?? "メンバー")}
-										が立て替えました
-									</span>
-								</div>
+						<div className="text-center">
+							<div className="mb-1.5 text-[13.5px] text-muted-foreground">
+								{lending.name}
 							</div>
-
-							<div className="rounded-xl border border-border px-4 py-3.5">
-								<div className="mb-1 text-[11.5px] text-muted-foreground">
-									日付
-								</div>
-								<div className="text-[14.5px] font-semibold text-foreground">
-									{formatMonthDay(lending.eventDate)}
-								</div>
+							<Money value={total} className="text-[40px] tracking-[-0.03em]" />
+							<div className="mt-3 inline-flex items-center gap-2">
+								{payer ? (
+									<UserAvatar user={payer} className="size-6 text-xs" />
+								) : null}
+								<span className="text-[13px] text-ink-2">
+									{isPayer ? "あなた" : (payer?.name ?? "メンバー")}
+									が立て替えました
+								</span>
 							</div>
+						</div>
 
-							<div>
-								<div className="mb-2.5 font-heading text-[13px] font-bold text-ink-2">
-									内訳
-								</div>
-								<ListGroup>
-									{lending.debts.map((d, i) => {
-										const u = memberMap.get(d.userId);
-										const isMe = d.userId === meId;
-										return (
-											<ListRow
-												key={d.userId}
-												last={i === lending.debts.length - 1}
+						<div className="rounded-xl border border-border px-4 py-3.5">
+							<div className="mb-1 text-[11.5px] text-muted-foreground">
+								日付
+							</div>
+							<div className="text-[14.5px] font-semibold text-foreground">
+								{formatMonthDay(lending.eventDate)}
+							</div>
+						</div>
+
+						<div>
+							<div className="mb-2.5 font-heading text-[13px] font-bold text-ink-2">
+								内訳
+							</div>
+							<ListGroup>
+								{lending.debts.map((d, i) => {
+									const u = memberMap.get(d.userId);
+									const isMe = d.userId === meId;
+									return (
+										<ListRow
+											key={d.userId}
+											last={i === lending.debts.length - 1}
+										>
+											{u ? (
+												<UserAvatar user={u} className="size-9 text-sm" />
+											) : (
+												<div className="size-9 shrink-0 rounded-full bg-muted" />
+											)}
+											<span
+												className={`flex-1 text-[14.5px] ${isMe ? "font-bold" : "font-medium"} text-foreground`}
 											>
-												{u ? (
-													<UserAvatar user={u} className="size-9 text-sm" />
-												) : (
-													<div className="size-9 shrink-0 rounded-full bg-muted" />
-												)}
-												<span
-													className={`flex-1 text-[14.5px] ${isMe ? "font-bold" : "font-medium"} text-foreground`}
-												>
-													{isMe ? "あなた" : (u?.name ?? d.userId)}
-												</span>
-												<Money value={d.amount} className="text-[15px]" />
-											</ListRow>
-										);
-									})}
-								</ListGroup>
-							</div>
-						</DialogBody>
+												{isMe ? "あなた" : (u?.name ?? d.userId)}
+											</span>
+											<Money value={d.amount} className="text-[15px]" />
+										</ListRow>
+									);
+								})}
+							</ListGroup>
+						</div>
 
 						{isPayer && (
 							<DialogFooter className="sm:justify-between">

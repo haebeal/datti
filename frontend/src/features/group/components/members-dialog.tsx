@@ -1,5 +1,6 @@
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
@@ -22,11 +23,13 @@ export function MembersDialog({
 }: Props) {
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-h-[88vh] overflow-y-auto sm:max-w-[500px]">
+			<DialogContent className="sm:max-w-[500px]">
 				<DialogHeader>
 					<DialogTitle>{groupName} のメンバー</DialogTitle>
 				</DialogHeader>
-				<MemberPanel groupId={groupId} />
+				<DialogBody>
+					<MemberPanel groupId={groupId} />
+				</DialogBody>
 			</DialogContent>
 		</Dialog>
 	);

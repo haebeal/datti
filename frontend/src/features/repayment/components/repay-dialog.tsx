@@ -1,5 +1,6 @@
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogDescription,
 	DialogHeader,
@@ -35,15 +36,17 @@ export function RepayDialog({
 						グループに関係なく、相手ごとにまとめて精算します
 					</DialogDescription>
 				</DialogHeader>
-				<RepaymentCreateForm
-					credits={credits}
-					defaultDebtorId={debtorId}
-					defaultAmount={amount}
-					onSubmit={async (values) => {
-						await createRepayment.mutateAsync(values);
-						onOpenChange(false);
-					}}
-				/>
+				<DialogBody>
+					<RepaymentCreateForm
+						credits={credits}
+						defaultDebtorId={debtorId}
+						defaultAmount={amount}
+						onSubmit={async (values) => {
+							await createRepayment.mutateAsync(values);
+							onOpenChange(false);
+						}}
+					/>
+				</DialogBody>
 			</DialogContent>
 		</Dialog>
 	);

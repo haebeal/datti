@@ -145,4 +145,10 @@
 		-webkit-font-smoothing: antialiased;
 		text-rendering: optimizeLegibility;
 	}
+	/* Tailwind v4 は button を cursor:default にするため、押せる要素は pointer に戻す */
+	button:not(:disabled),
+	[role="button"]:not([aria-disabled="true"]),
+	label:has(> input[type="file"]:not(:disabled)) {
+		cursor: pointer;
+	}
 }

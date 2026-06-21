@@ -61,10 +61,9 @@ export function MemberPanel({ groupId }: { groupId: string }) {
 						</div>
 						{member.id !== me.id && (
 							<Button
-								variant="outline"
+								variant="destructive"
 								size="sm"
 								disabled={removeMember.isPending}
-								className="border-destructive/50 text-destructive hover:bg-destructive/5 hover:text-destructive"
 								onClick={() => removeMember.mutate(member.id)}
 							>
 								削除

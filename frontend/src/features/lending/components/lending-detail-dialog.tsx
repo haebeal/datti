@@ -129,8 +129,7 @@ export function LendingDetailDialog({
 									</Link>
 								</Button>
 								<Button
-									variant="outline"
-									className="border-destructive/50 text-destructive hover:bg-destructive/5 hover:text-destructive"
+									variant="destructive"
 									onClick={() => setConfirmOpen(true)}
 								>
 									この立て替えを削除する

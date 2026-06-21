@@ -49,7 +49,9 @@ function ProfilePage() {
 						</div>
 						<div className="mt-[18px] flex overflow-hidden rounded-xl border border-border">
 							<div className="flex-1 px-2 py-3">
-								<div className="mb-1.5 text-[11px] text-ink-2">返してもらう</div>
+								<div className="mb-1.5 text-[11px] text-ink-2">
+									返してもらう
+								</div>
 								<Money value={totalLent} colored className="text-[15px]" />
 							</div>
 							<div className="w-px bg-hair" />
@@ -61,9 +63,10 @@ function ProfilePage() {
 					</Panel>
 
 					<Button
-						variant="outline"
+						variant="destructive"
+						size="lg"
 						onClick={() => logout()}
-						className="w-full border-destructive/50 text-destructive hover:bg-destructive/5 hover:text-destructive"
+						className="w-full"
 					>
 						ログアウト
 					</Button>
@@ -86,10 +89,9 @@ function ProfilePage() {
 							<div className="flex flex-col items-start gap-3">
 								<p className="text-sm text-muted-foreground">連携済み</p>
 								<Button
-									variant="outline"
+									variant="destructive"
 									onClick={() => unlinkLine.mutate()}
 									disabled={unlinkLine.isPending}
-									className="border-destructive/50 text-destructive hover:bg-destructive/5 hover:text-destructive"
 								>
 									{unlinkLine.isPending ? "解除中…" : "連携を解除する"}
 								</Button>

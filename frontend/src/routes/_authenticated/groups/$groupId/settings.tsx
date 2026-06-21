@@ -13,7 +13,9 @@ import {
 	groupQueryOptions,
 } from "@/features/group/queries";
 
-export const Route = createFileRoute("/_authenticated/groups/$groupId/settings")({
+export const Route = createFileRoute(
+	"/_authenticated/groups/$groupId/settings",
+)({
 	loader: async ({ context, params }) => {
 		await Promise.all([
 			context.queryClient.ensureQueryData(groupQueryOptions(params.groupId)),
@@ -58,11 +60,7 @@ function GroupSettingsPage() {
 					<p className="mb-3 text-sm text-muted-foreground">
 						グループを削除すると、関連する立て替え・返済もすべて消えます。
 					</p>
-					<Button
-						variant="outline"
-						className="border-destructive/50 text-destructive hover:bg-destructive/5 hover:text-destructive"
-						onClick={() => setDeleteOpen(true)}
-					>
+					<Button variant="destructive" onClick={() => setDeleteOpen(true)}>
 						グループを削除する
 					</Button>
 				</Panel>

@@ -9,6 +9,8 @@ type Props = {
 	htmlFor?: string;
 	/** エラーメッセージ (なければ非表示) */
 	error?: string;
+	/** 補足説明 (コントロール下に淡色表示) */
+	hint?: ReactNode;
 	/** 必須マーク (*) を表示 */
 	required?: boolean;
 	className?: string;
@@ -23,6 +25,7 @@ export function FormField({
 	label,
 	htmlFor,
 	error,
+	hint,
 	required,
 	className,
 	children,
@@ -34,6 +37,7 @@ export function FormField({
 				{required && <span className="ml-0.5 text-destructive">*</span>}
 			</label>
 			{children}
+			{hint && <p className="text-[11.5px] text-muted-foreground">{hint}</p>}
 			<ErrorText>{error}</ErrorText>
 		</div>
 	);

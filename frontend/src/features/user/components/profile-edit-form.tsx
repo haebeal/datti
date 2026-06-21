@@ -27,27 +27,20 @@ export function ProfileEditForm({ user }: { user: User }) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="flex flex-col gap-5 rounded-xl border border-border bg-card p-6"
+			className="flex max-w-[460px] flex-col gap-5"
 		>
-			<h2 className="font-heading text-[17px] font-bold text-foreground">
-				プロフィール編集
-			</h2>
-
-			<div className="flex flex-col gap-2">
-				<span className="text-xs font-medium">アバター</span>
-				<AvatarPicker
-					currentAvatar={avatar}
-					onAvatarChange={(url) => {
-						setAvatar(url);
-						form.setFieldValue("avatar", url);
-					}}
-				/>
-			</div>
+			<AvatarPicker
+				currentAvatar={avatar}
+				onAvatarChange={(url) => {
+					setAvatar(url);
+					form.setFieldValue("avatar", url);
+				}}
+			/>
 
 			<form.Field name="name">
 				{(field) => (
 					<FormField
-						label="名前"
+						label="表示名"
 						htmlFor={field.name}
 						error={getFieldErrorMessage(field.state.meta.errors)}
 					>
@@ -62,10 +55,19 @@ export function ProfileEditForm({ user }: { user: User }) {
 				)}
 			</form.Field>
 
+			<FormField
+				label="メールアドレス"
+				hint="ログインに使うメールアドレスは変更できません。"
+			>
+				<div className="flex h-11 items-center rounded-lg border border-input bg-secondary px-3.5 text-sm text-muted-foreground">
+					{user.email}
+				</div>
+			</FormField>
+
 			<form.Subscribe selector={(state) => state.isSubmitting}>
 				{(isSubmitting) => (
-					<Button type="submit" disabled={isSubmitting} className="self-end">
-						{isSubmitting ? "更新中…" : "更新"}
+					<Button type="submit" disabled={isSubmitting} className="self-start">
+						{isSubmitting ? "保存中…" : "変更を保存"}
 					</Button>
 				)}
 			</form.Subscribe>

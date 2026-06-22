@@ -208,14 +208,18 @@ return (
 
 ### Dialog
 
-shadcn `Dialog` を使う。`DialogContent` が padding を持ち、`DialogHeader`/`DialogFooter` は負マージンで全幅・上下端に出る（`DialogBody` は無い）。消費側は `<DialogHeader>` + 本文を並べるだけ。
+shadcn `Dialog` を **Header / Body / Footer の3領域**で組む（DS のアナトミー準拠）。`DialogContent` 自体は padding を持たず、各領域が padding と hair 罫を持つ。**本文(`DialogBody`)だけが縦スクロール**し、Header/Footer は固定。
 
 ```tsx
-<DialogContent className="sm:max-w-[560px]">
+<DialogContent className="sm:max-w-[480px]">  {/* 幅は 420/480/500/560 から中身の密度で選ぶ */}
   <DialogHeader><DialogTitle>…</DialogTitle></DialogHeader>
-  {/* 本文 */}
+  <DialogBody>{/* 本文。スクロール領域 */}</DialogBody>
+  <DialogFooter>{/* 任意。固定・右寄せ。主アクションは Primary 1つ */}</DialogFooter>
 </DialogContent>
 ```
+
+- Container: 角丸 20px・1px 罫線・`--shadow-modal`・max-h 88vh。Overlay は `--overlay`(青み暗幕)+blur。
+- フォームをモーダルで使う場合、フォーム本体は `DialogBody` でラップする（送信/キャンセル行はフォーム側が持つ）。
 
 ### モーダル
 

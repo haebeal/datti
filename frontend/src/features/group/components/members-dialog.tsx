@@ -1,5 +1,6 @@
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
@@ -26,7 +27,9 @@ export function MembersDialog({
 				<DialogHeader>
 					<DialogTitle>{groupName} のメンバー</DialogTitle>
 				</DialogHeader>
-				<MemberPanel groupId={groupId} />
+				<DialogBody>
+					<MemberPanel groupId={groupId} />
+				</DialogBody>
 			</DialogContent>
 		</Dialog>
 	);

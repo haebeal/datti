@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
 	Dialog,
+	DialogBody,
 	DialogContent,
 	DialogHeader,
 	DialogTitle,
@@ -54,70 +55,72 @@ export function GlobalAddLendingDialog({ open, onOpenChange }: Props) {
 					<DialogTitle>立て替えを追加</DialogTitle>
 				</DialogHeader>
 
-				{groupsQuery.isSuccess && groups.length === 0 ? (
-					<div className="flex flex-col items-start gap-3 py-4 text-sm text-muted-foreground">
-						まず立て替えを記録するグループが必要です。
-						<Link
-							to="/groups/new"
-							onClick={() => onOpenChange(false)}
-							className="font-semibold text-primary hover:underline"
-						>
-							グループをつくる →
-						</Link>
-					</div>
-				) : (
-					<>
-						{/* グループ選択 */}
-						<div>
-							<div className="mb-2 text-xs font-semibold text-foreground">
-								グループ
-							</div>
-							<div className="flex flex-wrap gap-2">
-								{groups.map((g) => {
-									const on = g.id === groupId;
-									return (
-										<button
-											type="button"
-											key={g.id}
-											onClick={() => setGroupId(g.id)}
-											className={cn(
-												"inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-semibold transition-colors",
-												on
-													? "border-primary bg-accent text-primary"
-													: "border-border text-ink-2 hover:bg-secondary",
-											)}
-										>
-											<Monogram
-												label={g.name.charAt(0)}
-												color={groupColorFor(g.id)}
-												className="size-[22px] text-[11px]"
-											/>
-											{g.name}
-										</button>
-									);
-								})}
-							</div>
+				<DialogBody className="flex flex-col gap-5">
+					{groupsQuery.isSuccess && groups.length === 0 ? (
+						<div className="flex flex-col items-start gap-3 py-4 text-sm text-muted-foreground">
+							まず立て替えを記録するグループが必要です。
+							<Link
+								to="/groups/new"
+								onClick={() => onOpenChange(false)}
+								className="font-semibold text-primary hover:underline"
+							>
+								グループをつくる →
+							</Link>
 						</div>
-
-						{groupId && membersQuery.data && meQuery.data ? (
-							<LendingForm
-								key={groupId}
-								members={membersQuery.data}
-								currentUserId={meQuery.data.id}
-								submitLabel="この内容で記録する"
-								onCancel={() => close(false)}
-								onSubmit={async (values) => {
-									await createLending.mutateAsync(values);
-									close(false);
-								}}
-							/>
-						) : (
-							<div className="py-6 text-center text-sm text-muted-foreground">
-								読み込み中…
+					) : (
+						<>
+							{/* グループ選択 */}
+							<div>
+								<div className="mb-2 text-xs font-semibold text-foreground">
+									グループ
+								</div>
+								<div className="flex flex-wrap gap-2">
+									{groups.map((g) => {
+										const on = g.id === groupId;
+										return (
+											<button
+												type="button"
+												key={g.id}
+												onClick={() => setGroupId(g.id)}
+												className={cn(
+													"inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[13px] font-semibold transition-colors",
+													on
+														? "border-primary bg-accent text-primary"
+														: "border-border text-ink-2 hover:bg-secondary",
+												)}
+											>
+												<Monogram
+													label={g.name.charAt(0)}
+													color={groupColorFor(g.id)}
+													className="size-[22px] text-[11px]"
+												/>
+												{g.name}
+											</button>
+										);
+									})}
+								</div>
 							</div>
-						)}
-					</>
-				)}
+
+							{groupId && membersQuery.data && meQuery.data ? (
+								<LendingForm
+									key={groupId}
+									members={membersQuery.data}
+									currentUserId={meQuery.data.id}
+									submitLabel="この内容で記録する"
+									onCancel={() => close(false)}
+									onSubmit={async (values) => {
+										await createLending.mutateAsync(values);
+										close(false);
+									}}
+								/>
+							) : (
+								<div className="py-6 text-center text-sm text-muted-foreground">
+									読み込み中…
+								</div>
+							)}
+						</>
+					)}
+				</DialogBody>
 			</DialogContent>
 		</Dialog>
 	);

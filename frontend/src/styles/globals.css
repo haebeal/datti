@@ -56,6 +56,7 @@
 	--color-surface: var(--surface);
 	--color-surface-alt: var(--surface-alt);
 	--color-canvas: var(--canvas);
+	--color-overlay: var(--overlay);
 
 	/* 角丸 */
 	--radius-sm: calc(var(--radius) * 0.6);
@@ -121,6 +122,11 @@
 	--surface: #ffffff;
 	--surface-alt: #f4f5f7;
 	--canvas: #edeff2;
+
+	/* overlay / elevation (モーダル用) */
+	--overlay: rgba(18, 22, 32, 0.42);
+	--shadow-modal: 0 24px 70px rgba(15, 18, 30, 0.35),
+		0 6px 18px rgba(15, 18, 30, 0.16);
 
 	/* sidebar (shadcn) */
 	--sidebar: #ffffff;

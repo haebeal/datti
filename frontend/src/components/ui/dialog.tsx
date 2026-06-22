@@ -1,8 +1,8 @@
-import * as React from "react";
 import { Dialog as DialogPrimitive } from "radix-ui";
+import * as React from "react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { XIcon } from "lucide-react";
 
 function Dialog({
@@ -37,7 +37,7 @@ function DialogOverlay({
 		<DialogPrimitive.Overlay
 			data-slot="dialog-overlay"
 			className={cn(
-				"fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+				"fixed inset-0 isolate z-50 bg-overlay backdrop-blur-[3px] duration-150 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
 				className,
 			)}
 			{...props}
@@ -59,7 +59,9 @@ function DialogContent({
 			<DialogPrimitive.Content
 				data-slot="dialog-content"
 				className={cn(
-					"fixed top-1/2 left-1/2 z-50 flex max-h-[88vh] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col gap-5 overflow-y-auto rounded-xl bg-popover p-5 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+					// Container: 中央寄せ・角丸 20px・1px 罫線・モーダル影・最大高 88vh
+					// padding は持たず Header/Body/Footer がそれぞれ持つ (本文だけスクロール)
+					"fixed top-1/2 left-1/2 z-50 flex max-h-[88vh] w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-popover text-sm text-popover-foreground shadow-[var(--shadow-modal)] duration-150 outline-none sm:max-w-[480px] data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 					className,
 				)}
 				{...props}
@@ -69,11 +71,11 @@ function DialogContent({
 					<DialogPrimitive.Close data-slot="dialog-close" asChild>
 						<Button
 							variant="ghost"
-							className="absolute top-3 right-3 bg-secondary text-muted-foreground hover:bg-muted hover:text-foreground"
 							size="icon-sm"
+							className="absolute top-4 right-4 size-9 rounded-lg bg-surface-alt text-ink-2 hover:bg-muted hover:text-foreground"
 						>
-							<XIcon />
-							<span className="sr-only">Close</span>
+							<XIcon className="size-[18px]" />
+							<span className="sr-only">閉じる</span>
 						</Button>
 					</DialogPrimitive.Close>
 				)}
@@ -82,13 +84,13 @@ function DialogContent({
 	);
 }
 
+/** ヘッダー (固定): padding 20/24・下 hair 罫・タイトル 16/700 */
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
 	return (
 		<div
 			data-slot="dialog-header"
 			className={cn(
-				// 親 (DialogContent) の p-5 を相殺して全幅・上端に出す
-				"-mx-5 -mt-5 flex flex-col gap-2 border-b px-5 py-4",
+				"flex shrink-0 flex-col gap-1.5 border-b border-hair px-6 py-5 pr-14",
 				className,
 			)}
 			{...props}
@@ -96,31 +98,28 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
 	);
 }
 
-function DialogFooter({
-	className,
-	showCloseButton = false,
-	children,
-	...props
-}: React.ComponentProps<"div"> & {
-	showCloseButton?: boolean;
-}) {
+/** 本文 (縦スクロール領域): padding 24 */
+function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
+	return (
+		<div
+			data-slot="dialog-body"
+			className={cn("flex-1 overflow-y-auto px-6 py-6", className)}
+			{...props}
+		/>
+	);
+}
+
+/** フッター (固定): padding 16/24・上 hair 罫・常に右寄せ gap 12 */
+function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
 	return (
 		<div
 			data-slot="dialog-footer"
 			className={cn(
-				// 親 (DialogContent) の p-5 を相殺して全幅・下端に出す
-				"-mx-5 -mb-5 flex flex-col-reverse gap-2 border-t bg-card px-5 py-4 sm:flex-row sm:justify-end",
+				"flex shrink-0 items-center justify-end gap-3 border-t border-hair px-6 py-4",
 				className,
 			)}
 			{...props}
-		>
-			{children}
-			{showCloseButton && (
-				<DialogPrimitive.Close asChild>
-					<Button variant="outline">Close</Button>
-				</DialogPrimitive.Close>
-			)}
-		</div>
+		/>
 	);
 }
 
@@ -132,7 +131,7 @@ function DialogTitle({
 		<DialogPrimitive.Title
 			data-slot="dialog-title"
 			className={cn(
-				"font-heading text-base leading-none font-medium",
+				"font-heading text-base leading-none font-bold text-ink",
 				className,
 			)}
 			{...props}
@@ -148,7 +147,7 @@ function DialogDescription({
 		<DialogPrimitive.Description
 			data-slot="dialog-description"
 			className={cn(
-				"text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
+				"text-[13px] text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
 				className,
 			)}
 			{...props}
@@ -158,6 +157,7 @@ function DialogDescription({
 
 export {
 	Dialog,
+	DialogBody,
 	DialogClose,
 	DialogContent,
 	DialogDescription,

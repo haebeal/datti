@@ -3,7 +3,7 @@ import { Header } from "@/components/header";
 import { MobileMenu } from "@/components/mobile-menu";
 import { Sidebar } from "@/components/sidebar";
 import { userManager } from "@/libs/auth/cognito";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated")({
 	beforeLoad: async ({ location }) => {
@@ -29,11 +29,11 @@ function AuthenticatedLayout() {
 						className={cn(
 							"flex-1 overflow-y-auto",
 							"px-4 sm:px-6 lg:px-10",
-							"py-5 sm:py-8",
-							"pb-20 sm:pb-8",
+							"py-5 sm:py-9",
+							"pb-20",
 						)}
 					>
-						<div className={cn("w-full max-w-[800px] mx-auto")}>
+						<div className={cn("w-full max-w-[1080px] mx-auto")}>
 							<Outlet />
 						</div>
 					</main>

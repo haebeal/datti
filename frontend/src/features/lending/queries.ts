@@ -14,10 +14,9 @@ export const lendingsByGroupQueryOptions = (groupId: string) =>
 	queryOptions({
 		queryKey: lendingKeys.listByGroup(groupId),
 		queryFn: async () => {
-			const { data, error } = await apiClient.GET(
-				"/groups/{id}/lendings",
-				{ params: { path: { id: groupId } } },
-			);
+			const { data, error } = await apiClient.GET("/groups/{id}/lendings", {
+				params: { path: { id: groupId } },
+			});
 			if (error || !data) {
 				throw new Error("立て替え一覧の取得に失敗しました");
 			}

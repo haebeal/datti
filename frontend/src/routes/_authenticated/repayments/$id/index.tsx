@@ -2,12 +2,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useDeleteRepayment } from "@/features/repayment/mutations";
 import { repaymentQueryOptions } from "@/features/repayment/queries";
 import { meQueryOptions } from "@/features/user/queries";
 import { formatCurrency, formatDate } from "@/utils/format";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/repayments/$id/")({
 	loader: async ({ context, params }) => {

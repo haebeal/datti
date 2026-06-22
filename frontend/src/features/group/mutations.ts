@@ -69,9 +69,12 @@ export function useRemoveMember(groupId: string) {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (userId: string) => {
-			const { error } = await apiClient.DELETE("/groups/{id}/members/{userId}", {
-				params: { path: { id: groupId, userId } },
-			});
+			const { error } = await apiClient.DELETE(
+				"/groups/{id}/members/{userId}",
+				{
+					params: { path: { id: groupId, userId } },
+				},
+			);
 			if (error) throw new Error("メンバー削除に失敗しました");
 		},
 		onSuccess: () => {

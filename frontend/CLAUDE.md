@@ -11,7 +11,7 @@ Datti フロントエンド固有のコンテキスト。
 - **データ取得・キャッシュ**: TanStack Query
 - **フォーム**: TanStack Form + Zod
 - **スタイリング**: Tailwind CSS v4
-- **UI コンポーネント**: React Aria Components
+- **UI コンポーネント**: shadcn/ui (Radix UI ベース)
 - **認証**: oidc-client-ts (Cognito PKCE)
 - **API クライアント**: openapi-fetch (`pnpm gen:api` で `../backend/openapi.yaml` からスキーマ再生成)
 - **画像圧縮**: browser-image-compression
@@ -59,7 +59,18 @@ export const Route = createFileRoute("/_authenticated")({
 
 ### 5. セマンティックカラーを使う
 
-`text-red-500` のような Tailwind デフォルトではなく、`globals.css` で定義された `text-error-base` 等を使う。
+`text-red-500` のような Tailwind デフォルトを直書きしない。`globals.css` 定義のトークンを使う:
+
+- **shadcn セマンティック**: `bg-primary` / `bg-card` / `text-muted-foreground` / `text-destructive` / `border-border` など
+- **Datti 固有**: `text-pos`(貸し) / `text-neg`(借り) / `text-ink` / `text-ink-2` / `border-hair` / `bg-surface` / `bg-surface-alt` / `text-key`
+- **注意**: `--background` は canvas の**グレー**(#edeff2)。白いサーフェスには `bg-background` ではなく `bg-card`(白) を使う。
+
+### 6. UI は shadcn/ui (radix-nova)、`components/ui/` は flat
+
+- React Aria は使わない。プリミティブは shadcn CLI (`pnpm dlx shadcn@latest add ...`、preset は radix-nova) で追加。
+- `components/ui/` は **flat 構成**（`dir/index.ts` 形式にしない）。shadcn プリミティブ(button/input/select/dialog…)も Datti 固有 composite(Money/Panel/UserAvatar/Monogram/FormField/ListGroup…)も全て flat な `.tsx` で並べる。
+- `cn` は **`@/lib/utils`** から import（`@/utils/cn` は廃止済み）。
+- デザインの正典は Claude Design プロジェクト「Datti デザインシステム.html」。トークン→shadcn セマンティックのマッピングが定義されている。
 
 ## ディレクトリ構造
 
@@ -86,11 +97,11 @@ src/
 │   ├── lending/...
 │   ├── repayment/...
 │   └── user/...
+├── lib/                       # cn (utils.ts) ← shadcn 標準
 ├── libs/
 │   ├── api/                   # openapi-fetch client + 生成スキーマ
 │   └── auth/                  # Cognito userManager + queries
-├── hooks/
-├── utils/                     # cn, format
+├── utils/                     # format, form (getFieldErrorMessage)
 └── styles/globals.css
 ```
 
@@ -103,8 +114,17 @@ src/
 
 ## フォーム実装パターン (TanStack Form + Zod)
 
+- 各フィールドは `FormField`(`@/components/ui/form-field`) でラップ: `label` / `htmlFor` / `error` / `hint` / `required` を渡すと「ラベル + コントロール + エラー(+補足)」が揃う。
+- エラー整形は `getFieldErrorMessage`(`@/utils/form`) を使う（各フォームに再実装しない）。
+- フォームは**コンテナ非依存**に作る（自前で card/見出しを持たない）。モーダルと全幅ルートの両方で再利用できるよう、Panel/PageHead は呼び出し側で付ける。
+- 送信ボタンは shadcn `Button`（生 `<button>` を使わない）。
+
 ```tsx
 import { useForm } from "@tanstack/react-form";
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { getFieldErrorMessage } from "@/utils/form";
 import { z } from "zod";
 
 const schema = z.object({ name: z.string().min(1, "...") });
@@ -119,15 +139,18 @@ return (
   <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit(); }}>
     <form.Field name="name">
       {(field) => (
-        <Input
-          value={field.state.value}
-          onChange={(e) => field.handleChange(e.target.value)}
-          onBlur={field.handleBlur}
-        />
+        <FormField label="名前" htmlFor={field.name} error={getFieldErrorMessage(field.state.meta.errors)}>
+          <Input
+            id={field.name}
+            value={field.state.value}
+            onChange={(e) => field.handleChange(e.target.value)}
+            onBlur={field.handleBlur}
+          />
+        </FormField>
       )}
     </form.Field>
     <form.Subscribe selector={(s) => s.isSubmitting}>
-      {(isSubmitting) => <button type="submit" disabled={isSubmitting}>...</button>}
+      {(isSubmitting) => <Button type="submit" disabled={isSubmitting}>...</Button>}
     </form.Subscribe>
   </form>
 );
@@ -170,33 +193,41 @@ return (
 
 ## デザインシステム
 
-### カラー (globals.css `@theme`)
+### Button
 
-| カテゴリ | トークン |
-|----------|----------|
-| Primary | `primary-hover` / `primary-base` / `primary-active` / `primary-surface` |
-| Accent | `accent-hover` / `accent-base` / `accent-active` |
-| Success | `success-hover` / `success-base` / `success-active` (プラス金額) |
-| Error | `error-hover` / `error-base` / `error-active` (マイナス金額) |
+| 用途 | 指定 |
+|------|------|
+| 主要 CTA (送信・追加など) | `variant="default"` + `size="lg"` |
+| 副次アクション (キャンセル・編集など) | `variant="outline"` (白地+罫線) |
+| **破壊的操作** (削除・ログアウトなど) | **`variant="destructive"`**（白地+赤罫線の薄塗り。手書き className で赤くしない） |
+| パネル内のコンパクト操作 | `size="sm"` |
+| アイコンのみ | `size="icon"` / `size="icon-sm"` |
 
-### スペーシング規約
+- サイズは **padding 基準**（`h-*`/`size-N` の固定高さは使わない）。高さは padding + font-size から決まる。
+- variant マッピング: Primary→`default` / Secondary→`secondary` / 罫線→`outline` / Soft→`ghost`+`bg-accent` / Danger→`destructive` / Link→`link`。
 
-| 用途 | クラス |
-|------|--------|
-| フォームコンテナのパディング | `p-6` |
-| フォーム要素の縦間隔 | `gap-3` |
-| ページセクション間 | `gap-5` |
+### Dialog
+
+shadcn `Dialog` を **Header / Body / Footer の3領域**で組む（DS のアナトミー準拠）。`DialogContent` 自体は padding を持たず、各領域が padding と hair 罫を持つ。**本文(`DialogBody`)だけが縦スクロール**し、Header/Footer は固定。
+
+```tsx
+<DialogContent className="sm:max-w-[480px]">  {/* 幅は 420/480/500/560 から中身の密度で選ぶ */}
+  <DialogHeader><DialogTitle>…</DialogTitle></DialogHeader>
+  <DialogBody>{/* 本文。スクロール領域 */}</DialogBody>
+  <DialogFooter>{/* 任意。固定・右寄せ。主アクションは Primary 1つ */}</DialogFooter>
+</DialogContent>
+```
+
+- Container: 角丸 20px・1px 罫線・`--shadow-modal`・max-h 88vh。Overlay は `--overlay`(青み暗幕)+blur。
+- フォームをモーダルで使う場合、フォーム本体は `DialogBody` でラップする（送信/キャンセル行はフォーム側が持つ）。
+
+### モーダル
+
+Provider は使わない。トリガー箇所のローカル `useState` + shadcn Dialog で開閉する。中身のフォームはコンテナ非依存にして全幅ルートと共用する。
 
 ### ページレイアウト
 
-```tsx
-<div className="flex flex-col gap-5">
-  <h1 className="hidden sm:block text-2xl font-bold text-primary-base">...</h1>
-  ...
-</div>
-```
-
-`_authenticated.tsx` で `max-w-[800px] mx-auto` を当てているので、ページ側で max-width 指定は不要。
+`_authenticated.tsx` で `max-w-[1080px] mx-auto` を当てているので、ページ側で max-width 指定は不要。ページ見出しは `PageHead`(`@/components/ui/page-head`)、枠付きパネルは `Panel`/`PanelHead`(`@/components/ui/panel`) を使う。
 
 ## 日付処理
 
@@ -215,12 +246,14 @@ formatDate(dateString);  // "2026年1月15日"
 
 ```bash
 pnpm dev       # 開発サーバー
-pnpm build     # 本番ビルド (tsc -b && vite build)
-pnpm typecheck # tsc --noEmit
+pnpm build     # 本番ビルド (tsc -b && vite build) ← 型検査はこれで行う
+pnpm typecheck # ルート tsconfig が files:[] で実質ノーチェック。使わない
 pnpm lint      # Biome lint
 pnpm format    # Biome format --write
 pnpm gen:api   # openapi-typescript で schema.d.ts 再生成
 ```
+
+**型検査は `pnpm build` を使う**（`pnpm typecheck` は実質ノーチェックのため）。
 
 ## 参考資料
 
@@ -231,6 +264,6 @@ pnpm gen:api   # openapi-typescript で schema.d.ts 再生成
 - **TanStack Query** - queryOptions、useSuspenseQuery、useMutation
 - **TanStack Form** - useForm、Field、array mode
 - **Zod** - バリデーションスキーマ
-- **React Aria Components** - データ属性、アクセシビリティ
+- **shadcn/ui / Radix UI** - コンポーネント API、データ属性、アクセシビリティ
 - **Tailwind CSS v4** - `@theme`、`@plugin`
 - **oidc-client-ts** - UserManager、events

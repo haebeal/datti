@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { apiClient } from "@/libs/api/client";
 import type { User } from "@/features/user/types";
+import { apiClient } from "@/libs/api/client";
 import type { Repayment } from "./types";
 
 export const repaymentKeys = {

@@ -16,10 +16,10 @@ export function useCreateLending(groupId: string) {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (input: LendingFormInput) => {
-			const { data, error } = await apiClient.POST(
-				"/groups/{id}/lendings",
-				{ params: { path: { id: groupId } }, body: toBody(input) },
-			);
+			const { data, error } = await apiClient.POST("/groups/{id}/lendings", {
+				params: { path: { id: groupId } },
+				body: toBody(input),
+			});
 			if (error || !data) throw new Error("立て替えの作成に失敗しました");
 			return data;
 		},

@@ -1,6 +1,8 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
+import { PageHead } from "@/components/ui/page-head";
+import { Panel } from "@/components/ui/panel";
 import { creditsQueryOptions } from "@/features/credit/queries";
 import { RepaymentCreateForm } from "@/features/repayment/components/repayment-create-form";
 import { useCreateRepayment } from "@/features/repayment/mutations";
@@ -25,19 +27,19 @@ function NewRepaymentPage() {
 	const createRepayment = useCreateRepayment();
 
 	return (
-		<div className="flex flex-col gap-5">
-			<h1 className="hidden sm:block text-2xl font-bold text-primary-base">
-				返した記録をつける
-			</h1>
-			<RepaymentCreateForm
-				credits={credits}
-				defaultDebtorId={debtorId}
-				defaultAmount={amount}
-				onSubmit={async (values) => {
-					const created = await createRepayment.mutateAsync(values);
-					navigate({ to: "/repayments/$id", params: { id: created.id } });
-				}}
-			/>
+		<div className="mx-auto max-w-[480px]">
+			<PageHead title="返した記録をつける" />
+			<Panel className="p-6">
+				<RepaymentCreateForm
+					credits={credits}
+					defaultDebtorId={debtorId}
+					defaultAmount={amount}
+					onSubmit={async (values) => {
+						const created = await createRepayment.mutateAsync(values);
+						navigate({ to: "/repayments/$id", params: { id: created.id } });
+					}}
+				/>
+			</Panel>
 		</div>
 	);
 }

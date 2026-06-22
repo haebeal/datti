@@ -1,7 +1,8 @@
 import { useForm } from "@tanstack/react-form";
-import { ErrorText } from "@/components/ui/error-text";
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/utils/cn";
+import { getFieldErrorMessage } from "@/utils/form";
 import { useUpdateGroup } from "../mutations";
 import { updateGroupSchema } from "../schema";
 import type { Group } from "../types";
@@ -23,15 +24,18 @@ export function GroupBasicInfoForm({ group }: { group: Group }) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}
+			className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6"
 		>
-			<h2 className="text-lg font-semibold">基本情報</h2>
+			<h2 className="font-heading text-[17px] font-bold text-foreground">
+				基本情報
+			</h2>
 			<form.Field name="name">
 				{(field) => (
-					<>
-						<label htmlFor={field.name} className="text-sm">
-							グループ名
-						</label>
+					<FormField
+						label="グループ名"
+						htmlFor={field.name}
+						error={getFieldErrorMessage(field.state.meta.errors)}
+					>
 						<Input
 							id={field.name}
 							name={field.name}
@@ -39,36 +43,14 @@ export function GroupBasicInfoForm({ group }: { group: Group }) {
 							onChange={(e) => field.handleChange(e.target.value)}
 							onBlur={field.handleBlur}
 						/>
-						{field.state.meta.errors.length > 0 && (
-							<ErrorText>
-								{field.state.meta.errors
-									.map((err) =>
-										typeof err === "string" ? err : err?.message,
-									)
-									.filter(Boolean)
-									.join(", ")}
-							</ErrorText>
-						)}
-					</>
+					</FormField>
 				)}
 			</form.Field>
 			<form.Subscribe selector={(state) => state.isSubmitting}>
 				{(isSubmitting) => (
-					<button
-						type="submit"
-						disabled={isSubmitting}
-						className={cn(
-							"px-4 py-2 self-end",
-							"rounded-md",
-							"border border-primary-base bg-primary-base text-white",
-							"hover:bg-primary-hover active:bg-primary-active",
-							"disabled:opacity-50 disabled:cursor-not-allowed",
-							"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-							"transition-colors",
-						)}
-					>
+					<Button type="submit" disabled={isSubmitting} className="self-end">
 						{isSubmitting ? "更新中…" : "更新"}
-					</button>
+					</Button>
 				)}
 			</form.Subscribe>
 		</form>

@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
+import { buttonVariants } from "@/components/ui/button";
 import { ErrorText } from "@/components/ui/error-text";
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 import { useUploadAvatar } from "../mutations";
 
 type Props = {
@@ -37,7 +38,9 @@ export function AvatarPicker({ currentAvatar, onAvatarChange }: Props) {
 			setPreviewUrl(url);
 			onAvatarChange(url);
 		} catch (err) {
-			setError(err instanceof Error ? err.message : "アップロードに失敗しました");
+			setError(
+				err instanceof Error ? err.message : "アップロードに失敗しました",
+			);
 		}
 	};
 
@@ -46,30 +49,25 @@ export function AvatarPicker({ currentAvatar, onAvatarChange }: Props) {
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center gap-4">
-				<div
-					className={cn(
-						"w-20 h-20 rounded-full overflow-hidden bg-gray-200",
-						"flex items-center justify-center",
-					)}
-				>
+				<div className="flex size-16 items-center justify-center overflow-hidden rounded-full bg-muted ring-1 ring-border">
 					{previewUrl ? (
 						<img
 							src={previewUrl}
 							alt="アバター"
-							className="w-full h-full object-cover"
+							className="size-full object-cover"
 						/>
 					) : (
-						<span className="text-gray-400 text-2xl">?</span>
+						<span className="text-2xl text-muted-foreground">?</span>
 					)}
 				</div>
 				<label
 					className={cn(
-						"px-4 py-2 rounded-md text-sm font-medium cursor-pointer",
-						"bg-gray-100 hover:bg-gray-200 transition-colors",
-						isUploading && "opacity-50 cursor-not-allowed",
+						buttonVariants({ variant: "outline" }),
+						"cursor-pointer",
+						isUploading && "pointer-events-none opacity-50",
 					)}
 				>
-					{isUploading ? "アップロード中…" : "画像を選択"}
+					{isUploading ? "アップロード中…" : "画像を変更"}
 					<input
 						ref={inputRef}
 						type="file"

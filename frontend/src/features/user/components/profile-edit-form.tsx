@@ -1,26 +1,13 @@
 import { useForm } from "@tanstack/react-form";
 import { useState } from "react";
-import { ErrorText } from "@/components/ui/error-text";
+import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/utils/cn";
+import { getFieldErrorMessage } from "@/utils/form";
 import { useUpdateProfile } from "../mutations";
 import { profileEditSchema } from "../schema";
 import type { User } from "../types";
 import { AvatarPicker } from "./avatar-picker";
-
-function getFieldErrorMessage(errors: ReadonlyArray<unknown>) {
-	if (errors.length === 0) return undefined;
-	return errors
-		.map((err) =>
-			typeof err === "string"
-				? err
-				: typeof err === "object" && err && "message" in err
-					? String((err as { message: unknown }).message)
-					: undefined,
-		)
-		.filter(Boolean)
-		.join(", ");
-}
 
 export function ProfileEditForm({ user }: { user: User }) {
 	const updateProfile = useUpdateProfile();
@@ -40,33 +27,23 @@ export function ProfileEditForm({ user }: { user: User }) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className={cn(
-				"p-6",
-				"flex flex-col gap-5",
-				"bg-white border border-gray-200 rounded-xl",
-			)}
+			className="flex max-w-[460px] flex-col gap-5"
 		>
-			<h2 className="text-base sm:text-xl font-semibold text-primary-base">
-				プロフィール編集
-			</h2>
-
-			<div className="flex flex-col gap-2">
-				<span className="text-xs font-medium">アバター</span>
-				<AvatarPicker
-					currentAvatar={avatar}
-					onAvatarChange={(url) => {
-						setAvatar(url);
-						form.setFieldValue("avatar", url);
-					}}
-				/>
-			</div>
+			<AvatarPicker
+				currentAvatar={avatar}
+				onAvatarChange={(url) => {
+					setAvatar(url);
+					form.setFieldValue("avatar", url);
+				}}
+			/>
 
 			<form.Field name="name">
 				{(field) => (
-					<div className="flex flex-col gap-1.5">
-						<label htmlFor={field.name} className="text-xs font-medium">
-							名前
-						</label>
+					<FormField
+						label="表示名"
+						htmlFor={field.name}
+						error={getFieldErrorMessage(field.state.meta.errors)}
+					>
 						<Input
 							id={field.name}
 							name={field.name}
@@ -74,27 +51,24 @@ export function ProfileEditForm({ user }: { user: User }) {
 							onChange={(e) => field.handleChange(e.target.value)}
 							onBlur={field.handleBlur}
 						/>
-						<ErrorText>{getFieldErrorMessage(field.state.meta.errors)}</ErrorText>
-					</div>
+					</FormField>
 				)}
 			</form.Field>
 
+			<FormField
+				label="メールアドレス"
+				hint="ログインに使うメールアドレスは変更できません。"
+			>
+				<div className="flex h-11 items-center rounded-lg border border-input bg-secondary px-3.5 text-sm text-muted-foreground">
+					{user.email}
+				</div>
+			</FormField>
+
 			<form.Subscribe selector={(state) => state.isSubmitting}>
 				{(isSubmitting) => (
-					<button
-						type="submit"
-						disabled={isSubmitting}
-						className={cn(
-							"px-4 py-2 self-end rounded-md",
-							"border border-primary-base bg-primary-base text-white",
-							"hover:bg-primary-hover active:bg-primary-active",
-							"disabled:opacity-50 disabled:cursor-not-allowed",
-							"focus:outline-none focus:ring-2 focus:ring-offset-4 focus:ring-primary-base",
-							"transition-colors",
-						)}
-					>
-						{isSubmitting ? "更新中…" : "更新"}
-					</button>
+					<Button type="submit" disabled={isSubmitting} className="self-start">
+						{isSubmitting ? "保存中…" : "変更を保存"}
+					</Button>
 				)}
 			</form.Subscribe>
 		</form>

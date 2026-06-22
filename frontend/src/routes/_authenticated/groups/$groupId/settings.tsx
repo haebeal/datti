@@ -1,7 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PageHead } from "@/components/ui/page-head";
+import { Panel } from "@/components/ui/panel";
 import { GroupBasicInfoForm } from "@/features/group/components/group-basic-info-form";
 import { MemberPanel } from "@/features/group/components/member-panel";
 import { useDeleteGroup } from "@/features/group/mutations";
@@ -9,9 +12,10 @@ import {
 	groupMembersQueryOptions,
 	groupQueryOptions,
 } from "@/features/group/queries";
-import { cn } from "@/utils/cn";
 
-export const Route = createFileRoute("/_authenticated/groups/$groupId/settings")({
+export const Route = createFileRoute(
+	"/_authenticated/groups/$groupId/settings",
+)({
 	loader: async ({ context, params }) => {
 		await Promise.all([
 			context.queryClient.ensureQueryData(groupQueryOptions(params.groupId)),
@@ -36,34 +40,30 @@ function GroupSettingsPage() {
 	};
 
 	return (
-		<div className="flex flex-col gap-5">
-			<h1 className="hidden sm:block text-2xl font-bold text-primary-base">
-				{group.name} の設定
-			</h1>
+		<div className="mx-auto max-w-[640px]">
+			<PageHead title={`${group.name} の設定`} />
 
-			<GroupBasicInfoForm group={group} />
+			<div className="flex flex-col gap-[22px]">
+				<GroupBasicInfoForm group={group} />
 
-			<MemberPanel groupId={groupId} />
+				<Panel className="p-6">
+					<h2 className="mb-4 font-heading text-[17px] font-bold text-foreground">
+						メンバー
+					</h2>
+					<MemberPanel groupId={groupId} />
+				</Panel>
 
-			<div className={cn("p-6", "flex flex-col gap-3", "border rounded-lg")}>
-				<h2 className="text-lg font-semibold text-error-base">
-					危険な操作
-				</h2>
-				<p className="text-sm text-gray-600">
-					グループを削除すると、関連する立て替え・返済もすべて消えます。
-				</p>
-				<button
-					type="button"
-					onClick={() => setDeleteOpen(true)}
-					className={cn(
-						"px-4 py-2 self-start rounded-md",
-						"border border-error-base text-error-base",
-						"hover:bg-error-base hover:text-white",
-						"transition-colors",
-					)}
-				>
-					グループを削除する
-				</button>
+				<Panel className="p-6">
+					<h2 className="mb-2 font-heading text-[17px] font-bold text-destructive">
+						危険な操作
+					</h2>
+					<p className="mb-3 text-sm text-muted-foreground">
+						グループを削除すると、関連する立て替え・返済もすべて消えます。
+					</p>
+					<Button variant="destructive" onClick={() => setDeleteOpen(true)}>
+						グループを削除する
+					</Button>
+				</Panel>
 			</div>
 
 			<ConfirmDialog

@@ -70,7 +70,7 @@ export const Route = createFileRoute("/_authenticated")({
 - React Aria は使わない。プリミティブは shadcn CLI (`pnpm dlx shadcn@latest add ...`、preset は radix-nova) で追加。
 - `components/ui/` は **flat 構成**（`dir/index.ts` 形式にしない）。shadcn プリミティブ(button/input/select/dialog…)も Datti 固有 composite(Money/Panel/UserAvatar/Monogram/FormField/ListGroup…)も全て flat な `.tsx` で並べる。
 - `cn` は **`@/lib/utils`** から import（`@/utils/cn` は廃止済み）。
-- デザインの正典は Claude Design プロジェクト「Datti デザインシステム.html」。トークン→shadcn セマンティックのマッピングが定義されている。
+- デザインの正典は **Claude.ai の Claude Design** プロジェクト「Datti デザインシステム」。トークン→shadcn セマンティックのマッピングが定義されている。（旧 Pencil のローカルデザイン `design/*.pen` は廃止・削除済み）
 
 ## ディレクトリ構造
 

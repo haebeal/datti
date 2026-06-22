@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DattiMark } from "@/components/ui/datti-mark";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { CreateLendingDialog } from "@/features/lending/components/create-lending-dialog";
-import { authUserQueryOptions } from "@/libs/auth/queries";
+import { meQueryOptions } from "@/features/user/queries";
 import { cn } from "@/lib/utils";
 
 const NAV = [
@@ -32,7 +32,7 @@ const NAV = [
 ] as const;
 
 export function Sidebar() {
-	const { data: user } = useQuery(authUserQueryOptions);
+	const { data: me } = useQuery(meQueryOptions);
 	const { pathname } = useLocation();
 	const [addOpen, setAddOpen] = useState(false);
 
@@ -78,21 +78,18 @@ export function Sidebar() {
 
 			<div className="flex-1" />
 
-			{user && (
+			{me && (
 				<Link
 					to="/profile"
 					className="flex items-center gap-3 rounded-xl border border-border bg-card p-2.5 transition-colors hover:bg-secondary"
 				>
-					<UserAvatar
-						user={{ name: user.name, avatar: user.picture }}
-						className="size-9"
-					/>
+					<UserAvatar user={me} className="size-9" />
 					<div className="min-w-0">
 						<p className="truncate font-heading text-[13.5px] font-bold text-foreground">
-							{user.name}
+							{me.name}
 						</p>
 						<p className="font-num truncate text-[11px] text-muted-foreground">
-							{user.email}
+							{me.email}
 						</p>
 					</div>
 				</Link>

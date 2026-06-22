@@ -8,7 +8,7 @@ import { PageHead } from "@/components/ui/page-head";
 import { Panel, PanelHead } from "@/components/ui/panel";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { creditsQueryOptions } from "@/features/credit/queries";
-import { GlobalAddLendingDialog } from "@/features/lending/components/global-add-lending-dialog";
+import { CreateLendingDialog } from "@/features/lending/components/create-lending-dialog";
 import { RepayDialog } from "@/features/repayment/components/repay-dialog";
 
 export const Route = createFileRoute("/_authenticated/")({
@@ -158,7 +158,7 @@ function DashboardPage() {
 				amount={repayTarget?.amount}
 			/>
 
-			<GlobalAddLendingDialog open={addOpen} onOpenChange={setAddOpen} />
+			<CreateLendingDialog open={addOpen} onOpenChange={setAddOpen} />
 		</div>
 	);
 }

@@ -11,7 +11,11 @@ import {
 	groupMembersQueryOptions,
 	groupQueryOptions,
 } from "@/features/group/queries";
-import { AddLendingDialog } from "@/features/lending/components/add-lending-dialog";
+import { CreateLendingDialog } from "@/features/lending/components/create-lending-dialog";
+import {
+	EditLendingDialog,
+	type LendingForEdit,
+} from "@/features/lending/components/edit-lending-dialog";
 import { LendingDetailDialog } from "@/features/lending/components/lending-detail-dialog";
 import { lendingsByGroupQueryOptions } from "@/features/lending/queries";
 import { meQueryOptions } from "@/features/user/queries";
@@ -29,6 +33,7 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 	const lendings = paginated.lendings ?? [];
 	const memberMap = new Map(members.map((m) => [m.id, m]));
 	const [detail, setDetail] = useState<(typeof lendings)[number] | null>(null);
+	const [editTarget, setEditTarget] = useState<LendingForEdit | null>(null);
 	const [addOpen, setAddOpen] = useState(false);
 	const [membersOpen, setMembersOpen] = useState(false);
 
@@ -153,14 +158,22 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 				meId={me.id}
 				groupId={groupId}
 				onClose={() => setDetail(null)}
+				onEdit={(l) => {
+					setDetail(null);
+					setEditTarget(l);
+				}}
 			/>
 
-			<AddLendingDialog
+			<CreateLendingDialog
 				open={addOpen}
 				onOpenChange={setAddOpen}
 				groupId={groupId}
-				members={members}
-				currentUserId={me.id}
+			/>
+
+			<EditLendingDialog
+				lending={editTarget}
+				groupId={groupId}
+				onClose={() => setEditTarget(null)}
 			/>
 
 			<MembersDialog

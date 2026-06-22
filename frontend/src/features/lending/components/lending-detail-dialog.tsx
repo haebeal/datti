@@ -1,4 +1,3 @@
-import { Link } from "@tanstack/react-router";
 import { Pencil } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -21,6 +20,7 @@ import { formatMonthDay } from "@/utils/format";
 type LendingLike = {
 	id: string;
 	name: string;
+	amount: number;
 	eventDate: string;
 	createdBy: string;
 	debts: { userId: string; amount: number }[];
@@ -32,6 +32,8 @@ type Props = {
 	meId: string;
 	groupId: string;
 	onClose: () => void;
+	/** 「編集」押下時 (詳細を閉じて編集モーダルを開く) */
+	onEdit: (lending: LendingLike) => void;
 };
 
 /** 立て替えの詳細モーダル。一覧の lending データを受け取り追加フェッチしない。 */
@@ -41,6 +43,7 @@ export function LendingDetailDialog({
 	meId,
 	groupId,
 	onClose,
+	onEdit,
 }: Props) {
 	const deleteLending = useDeleteLending(groupId);
 	const [confirmOpen, setConfirmOpen] = useState(false);
@@ -126,13 +129,8 @@ export function LendingDetailDialog({
 
 						{isPayer && (
 							<DialogFooter className="justify-between">
-								<Button asChild variant="outline">
-									<Link
-										to="/groups/$groupId/lendings/$lendingId/edit"
-										params={{ groupId, lendingId: lending.id }}
-									>
-										<Pencil className="size-4" /> 編集
-									</Link>
+								<Button variant="outline" onClick={() => onEdit(lending)}>
+									<Pencil className="size-4" /> 編集
 								</Button>
 								<Button
 									variant="destructive"

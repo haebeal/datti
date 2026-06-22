@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { DattiMark } from "@/components/ui/datti-mark";
 import { UserAvatar } from "@/components/ui/user-avatar";
-import { GlobalAddLendingDialog } from "@/features/lending/components/global-add-lending-dialog";
+import { CreateLendingDialog } from "@/features/lending/components/create-lending-dialog";
 import { authUserQueryOptions } from "@/libs/auth/queries";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +53,7 @@ export function Sidebar() {
 				<Plus className="size-[18px]" /> 立て替えを追加
 			</Button>
 
-			<GlobalAddLendingDialog open={addOpen} onOpenChange={setAddOpen} />
+			<CreateLendingDialog open={addOpen} onOpenChange={setAddOpen} />
 
 			<nav className="flex flex-col gap-0.5">
 				{NAV.map((item) => {

@@ -18,9 +18,6 @@ import { Route as AuthenticatedRepaymentsIndexRouteImport } from './routes/_auth
 import { Route as AuthenticatedProfileIndexRouteImport } from './routes/_authenticated/profile/index'
 import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenticated/groups/index'
 import { Route as AuthenticatedRepaymentsNewRouteImport } from './routes/_authenticated/repayments/new'
-import { Route as AuthenticatedProfileNotificationsRouteImport } from './routes/_authenticated/profile/notifications'
-import { Route as AuthenticatedProfileHelpRouteImport } from './routes/_authenticated/profile/help'
-import { Route as AuthenticatedProfileDisplayRouteImport } from './routes/_authenticated/profile/display'
 import { Route as AuthenticatedProfileConnectRouteImport } from './routes/_authenticated/profile/connect'
 import { Route as AuthenticatedProfileAccountRouteImport } from './routes/_authenticated/profile/account'
 import { Route as AuthenticatedGroupsNewRouteImport } from './routes/_authenticated/groups/new'
@@ -78,24 +75,6 @@ const AuthenticatedRepaymentsNewRoute =
     path: '/repayments/new',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedProfileNotificationsRoute =
-  AuthenticatedProfileNotificationsRouteImport.update({
-    id: '/notifications',
-    path: '/notifications',
-    getParentRoute: () => AuthenticatedProfileRoute,
-  } as any)
-const AuthenticatedProfileHelpRoute =
-  AuthenticatedProfileHelpRouteImport.update({
-    id: '/help',
-    path: '/help',
-    getParentRoute: () => AuthenticatedProfileRoute,
-  } as any)
-const AuthenticatedProfileDisplayRoute =
-  AuthenticatedProfileDisplayRouteImport.update({
-    id: '/display',
-    path: '/display',
-    getParentRoute: () => AuthenticatedProfileRoute,
-  } as any)
 const AuthenticatedProfileConnectRoute =
   AuthenticatedProfileConnectRouteImport.update({
     id: '/connect',
@@ -151,9 +130,6 @@ export interface FileRoutesByFullPath {
   '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/profile/account': typeof AuthenticatedProfileAccountRoute
   '/profile/connect': typeof AuthenticatedProfileConnectRoute
-  '/profile/display': typeof AuthenticatedProfileDisplayRoute
-  '/profile/help': typeof AuthenticatedProfileHelpRoute
-  '/profile/notifications': typeof AuthenticatedProfileNotificationsRoute
   '/repayments/new': typeof AuthenticatedRepaymentsNewRoute
   '/groups/': typeof AuthenticatedGroupsIndexRoute
   '/profile/': typeof AuthenticatedProfileIndexRoute
@@ -170,9 +146,6 @@ export interface FileRoutesByTo {
   '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/profile/account': typeof AuthenticatedProfileAccountRoute
   '/profile/connect': typeof AuthenticatedProfileConnectRoute
-  '/profile/display': typeof AuthenticatedProfileDisplayRoute
-  '/profile/help': typeof AuthenticatedProfileHelpRoute
-  '/profile/notifications': typeof AuthenticatedProfileNotificationsRoute
   '/repayments/new': typeof AuthenticatedRepaymentsNewRoute
   '/groups': typeof AuthenticatedGroupsIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
@@ -193,9 +166,6 @@ export interface FileRoutesById {
   '/_authenticated/groups/new': typeof AuthenticatedGroupsNewRoute
   '/_authenticated/profile/account': typeof AuthenticatedProfileAccountRoute
   '/_authenticated/profile/connect': typeof AuthenticatedProfileConnectRoute
-  '/_authenticated/profile/display': typeof AuthenticatedProfileDisplayRoute
-  '/_authenticated/profile/help': typeof AuthenticatedProfileHelpRoute
-  '/_authenticated/profile/notifications': typeof AuthenticatedProfileNotificationsRoute
   '/_authenticated/repayments/new': typeof AuthenticatedRepaymentsNewRoute
   '/_authenticated/groups/': typeof AuthenticatedGroupsIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
@@ -216,9 +186,6 @@ export interface FileRouteTypes {
     | '/groups/new'
     | '/profile/account'
     | '/profile/connect'
-    | '/profile/display'
-    | '/profile/help'
-    | '/profile/notifications'
     | '/repayments/new'
     | '/groups/'
     | '/profile/'
@@ -235,9 +202,6 @@ export interface FileRouteTypes {
     | '/groups/new'
     | '/profile/account'
     | '/profile/connect'
-    | '/profile/display'
-    | '/profile/help'
-    | '/profile/notifications'
     | '/repayments/new'
     | '/groups'
     | '/profile'
@@ -257,9 +221,6 @@ export interface FileRouteTypes {
     | '/_authenticated/groups/new'
     | '/_authenticated/profile/account'
     | '/_authenticated/profile/connect'
-    | '/_authenticated/profile/display'
-    | '/_authenticated/profile/help'
-    | '/_authenticated/profile/notifications'
     | '/_authenticated/repayments/new'
     | '/_authenticated/groups/'
     | '/_authenticated/profile/'
@@ -342,27 +303,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRepaymentsNewRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/profile/notifications': {
-      id: '/_authenticated/profile/notifications'
-      path: '/notifications'
-      fullPath: '/profile/notifications'
-      preLoaderRoute: typeof AuthenticatedProfileNotificationsRouteImport
-      parentRoute: typeof AuthenticatedProfileRoute
-    }
-    '/_authenticated/profile/help': {
-      id: '/_authenticated/profile/help'
-      path: '/help'
-      fullPath: '/profile/help'
-      preLoaderRoute: typeof AuthenticatedProfileHelpRouteImport
-      parentRoute: typeof AuthenticatedProfileRoute
-    }
-    '/_authenticated/profile/display': {
-      id: '/_authenticated/profile/display'
-      path: '/display'
-      fullPath: '/profile/display'
-      preLoaderRoute: typeof AuthenticatedProfileDisplayRouteImport
-      parentRoute: typeof AuthenticatedProfileRoute
-    }
     '/_authenticated/profile/connect': {
       id: '/_authenticated/profile/connect'
       path: '/connect'
@@ -444,19 +384,12 @@ const AuthenticatedGroupsRouteWithChildren =
 interface AuthenticatedProfileRouteChildren {
   AuthenticatedProfileAccountRoute: typeof AuthenticatedProfileAccountRoute
   AuthenticatedProfileConnectRoute: typeof AuthenticatedProfileConnectRoute
-  AuthenticatedProfileDisplayRoute: typeof AuthenticatedProfileDisplayRoute
-  AuthenticatedProfileHelpRoute: typeof AuthenticatedProfileHelpRoute
-  AuthenticatedProfileNotificationsRoute: typeof AuthenticatedProfileNotificationsRoute
   AuthenticatedProfileIndexRoute: typeof AuthenticatedProfileIndexRoute
 }
 
 const AuthenticatedProfileRouteChildren: AuthenticatedProfileRouteChildren = {
   AuthenticatedProfileAccountRoute: AuthenticatedProfileAccountRoute,
   AuthenticatedProfileConnectRoute: AuthenticatedProfileConnectRoute,
-  AuthenticatedProfileDisplayRoute: AuthenticatedProfileDisplayRoute,
-  AuthenticatedProfileHelpRoute: AuthenticatedProfileHelpRoute,
-  AuthenticatedProfileNotificationsRoute:
-    AuthenticatedProfileNotificationsRoute,
   AuthenticatedProfileIndexRoute: AuthenticatedProfileIndexRoute,
 }
 

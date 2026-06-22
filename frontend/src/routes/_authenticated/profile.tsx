@@ -5,13 +5,7 @@ import {
 	Outlet,
 	useLocation,
 } from "@tanstack/react-router";
-import {
-	Bell,
-	Link2,
-	Receipt,
-	SunMedium,
-	User as UserIcon,
-} from "lucide-react";
+import { Link2, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/ui/money";
 import { PageHead } from "@/components/ui/page-head";
@@ -34,9 +28,6 @@ export const Route = createFileRoute("/_authenticated/profile")({
 const SECTIONS = [
 	{ to: "/profile/account", label: "アカウント設定", icon: UserIcon },
 	{ to: "/profile/connect", label: "アカウント連携", icon: Link2 },
-	{ to: "/profile/notifications", label: "通知", icon: Bell },
-	{ to: "/profile/display", label: "表示・テーマ", icon: SunMedium },
-	{ to: "/profile/help", label: "ヘルプ", icon: Receipt },
 ] as const;
 
 function ProfileLayout() {

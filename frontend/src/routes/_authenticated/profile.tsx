@@ -1,5 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	Link,
+	Outlet,
+	useLocation,
+} from "@tanstack/react-router";
 import {
 	Bell,
 	Link2,
@@ -7,23 +12,15 @@ import {
 	SunMedium,
 	User as UserIcon,
 } from "lucide-react";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/ui/money";
 import { PageHead } from "@/components/ui/page-head";
 import { Panel } from "@/components/ui/panel";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { creditsQueryOptions } from "@/features/credit/queries";
-import { AccountConnectPanel } from "@/features/user/components/account-connect-panel";
-import { ProfileEditForm } from "@/features/user/components/profile-edit-form";
-import {
-	DisplayPanel,
-	HelpPanel,
-	NotificationsPanel,
-} from "@/features/user/components/settings-sections";
 import { meQueryOptions } from "@/features/user/queries";
-import { cn } from "@/lib/utils";
 import { logout } from "@/libs/auth/actions";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/profile")({
 	loader: ({ context }) =>
@@ -31,27 +28,21 @@ export const Route = createFileRoute("/_authenticated/profile")({
 			context.queryClient.ensureQueryData(meQueryOptions),
 			context.queryClient.ensureQueryData(creditsQueryOptions()),
 		]),
-	component: ProfilePage,
+	component: ProfileLayout,
 });
 
-type SectionId = "account" | "connect" | "notifications" | "display" | "help";
-
 const SECTIONS = [
-	{ id: "account", label: "アカウント設定", icon: UserIcon },
-	{ id: "connect", label: "アカウント連携", icon: Link2 },
-	{ id: "notifications", label: "通知", icon: Bell },
-	{ id: "display", label: "表示・テーマ", icon: SunMedium },
-	{ id: "help", label: "ヘルプ", icon: Receipt },
-] as const satisfies ReadonlyArray<{
-	id: SectionId;
-	label: string;
-	icon: typeof UserIcon;
-}>;
+	{ to: "/profile/account", label: "アカウント設定", icon: UserIcon },
+	{ to: "/profile/connect", label: "アカウント連携", icon: Link2 },
+	{ to: "/profile/notifications", label: "通知", icon: Bell },
+	{ to: "/profile/display", label: "表示・テーマ", icon: SunMedium },
+	{ to: "/profile/help", label: "ヘルプ", icon: Receipt },
+] as const;
 
-function ProfilePage() {
+function ProfileLayout() {
+	const { pathname } = useLocation();
 	const { data: me } = useSuspenseQuery(meQueryOptions);
 	const { data: credits } = useSuspenseQuery(creditsQueryOptions());
-	const [section, setSection] = useState<SectionId>("account");
 
 	const totalLent = credits
 		.filter((c) => c.amount > 0)
@@ -77,9 +68,7 @@ function ProfilePage() {
 						</div>
 						<div className="mt-[18px] flex overflow-hidden rounded-xl border border-border">
 							<div className="flex-1 px-2 py-3">
-								<div className="mb-1.5 text-[11px] text-ink-2">
-									返してもらう
-								</div>
+								<div className="mb-1.5 text-[11px] text-ink-2">返してもらう</div>
 								<Money value={totalLent} colored className="text-[15px]" />
 							</div>
 							<div className="w-px bg-hair" />
@@ -92,12 +81,11 @@ function ProfilePage() {
 
 					<Panel className="flex flex-col gap-0.5 p-1.5">
 						{SECTIONS.map((s) => {
-							const on = s.id === section;
+							const on = pathname === s.to;
 							return (
-								<button
-									type="button"
-									key={s.id}
-									onClick={() => setSection(s.id)}
+								<Link
+									key={s.to}
+									to={s.to}
 									className={cn(
 										"flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
 										on
@@ -107,7 +95,7 @@ function ProfilePage() {
 								>
 									<s.icon className="size-[19px]" />
 									{s.label}
-								</button>
+								</Link>
 							);
 						})}
 					</Panel>
@@ -122,20 +110,9 @@ function ProfilePage() {
 					</Button>
 				</div>
 
-				{/* 右: 選択セクション */}
+				{/* 右: 選択セクション (子ルート) */}
 				<div>
-					{section === "account" && (
-						<Panel className="p-6">
-							<h2 className="mb-5 font-heading text-[17px] font-bold text-foreground">
-								アカウント設定
-							</h2>
-							<ProfileEditForm user={me} />
-						</Panel>
-					)}
-					{section === "connect" && <AccountConnectPanel user={me} />}
-					{section === "notifications" && <NotificationsPanel />}
-					{section === "display" && <DisplayPanel />}
-					{section === "help" && <HelpPanel />}
+					<Outlet />
 				</div>
 			</div>
 		</div>

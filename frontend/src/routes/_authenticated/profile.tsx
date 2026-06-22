@@ -90,7 +90,7 @@ function ProfilePage() {
 						</div>
 					</Panel>
 
-					<Panel className="p-1.5">
+					<Panel className="flex flex-col gap-0.5 p-1.5">
 						{SECTIONS.map((s) => {
 							const on = s.id === section;
 							return (

@@ -1,14 +1,28 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import {
+	Bell,
+	Link2,
+	Receipt,
+	SunMedium,
+	User as UserIcon,
+} from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/ui/money";
 import { PageHead } from "@/components/ui/page-head";
 import { Panel } from "@/components/ui/panel";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { creditsQueryOptions } from "@/features/credit/queries";
+import { AccountConnectPanel } from "@/features/user/components/account-connect-panel";
 import { ProfileEditForm } from "@/features/user/components/profile-edit-form";
-import { useUnlinkLine } from "@/features/user/mutations";
+import {
+	DisplayPanel,
+	HelpPanel,
+	NotificationsPanel,
+} from "@/features/user/components/settings-sections";
 import { meQueryOptions } from "@/features/user/queries";
+import { cn } from "@/lib/utils";
 import { logout } from "@/libs/auth/actions";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -20,10 +34,24 @@ export const Route = createFileRoute("/_authenticated/profile")({
 	component: ProfilePage,
 });
 
+type SectionId = "account" | "connect" | "notifications" | "display" | "help";
+
+const SECTIONS = [
+	{ id: "account", label: "アカウント設定", icon: UserIcon },
+	{ id: "connect", label: "アカウント連携", icon: Link2 },
+	{ id: "notifications", label: "通知", icon: Bell },
+	{ id: "display", label: "表示・テーマ", icon: SunMedium },
+	{ id: "help", label: "ヘルプ", icon: Receipt },
+] as const satisfies ReadonlyArray<{
+	id: SectionId;
+	label: string;
+	icon: typeof UserIcon;
+}>;
+
 function ProfilePage() {
 	const { data: me } = useSuspenseQuery(meQueryOptions);
 	const { data: credits } = useSuspenseQuery(creditsQueryOptions());
-	const unlinkLine = useUnlinkLine();
+	const [section, setSection] = useState<SectionId>("account");
 
 	const totalLent = credits
 		.filter((c) => c.amount > 0)
@@ -37,7 +65,7 @@ function ProfilePage() {
 			<PageHead title="マイページ" sub="プロフィールとアプリの設定" />
 
 			<div className="grid grid-cols-1 items-start gap-[22px] md:grid-cols-[300px_1fr]">
-				{/* 左: プロフィールカード＋ログアウト */}
+				{/* 左: プロフィールカード＋セクションナビ＋ログアウト */}
 				<div className="flex flex-col gap-[22px]">
 					<Panel className="p-[22px] text-center">
 						<UserAvatar user={me} className="mx-auto size-[76px] text-2xl" />
@@ -62,6 +90,28 @@ function ProfilePage() {
 						</div>
 					</Panel>
 
+					<Panel className="p-1.5">
+						{SECTIONS.map((s) => {
+							const on = s.id === section;
+							return (
+								<button
+									type="button"
+									key={s.id}
+									onClick={() => setSection(s.id)}
+									className={cn(
+										"flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors",
+										on
+											? "bg-accent font-bold text-key"
+											: "font-semibold text-ink-2 hover:bg-secondary",
+									)}
+								>
+									<s.icon className="size-[19px]" />
+									{s.label}
+								</button>
+							);
+						})}
+					</Panel>
+
 					<Button
 						variant="destructive"
 						size="lg"
@@ -72,37 +122,20 @@ function ProfilePage() {
 					</Button>
 				</div>
 
-				{/* 右: アカウント設定＋LINE連携 */}
-				<div className="flex flex-col gap-[22px]">
-					<Panel className="p-6">
-						<h2 className="mb-5 font-heading text-[17px] font-bold text-foreground">
-							アカウント設定
-						</h2>
-						<ProfileEditForm user={me} />
-					</Panel>
-
-					<Panel className="p-6">
-						<h2 className="mb-4 font-heading text-[17px] font-bold text-foreground">
-							LINE 連携
-						</h2>
-						{me.lineUserId ? (
-							<div className="flex flex-col items-start gap-3">
-								<p className="text-sm text-muted-foreground">連携済み</p>
-								<Button
-									variant="destructive"
-									onClick={() => unlinkLine.mutate()}
-									disabled={unlinkLine.isPending}
-								>
-									{unlinkLine.isPending ? "解除中…" : "連携を解除する"}
-								</Button>
-							</div>
-						) : (
-							<p className="text-sm text-muted-foreground">
-								未連携 (LINE 連携機能はバックエンドの LINE OAuth
-								コールバック側で実装中)
-							</p>
-						)}
-					</Panel>
+				{/* 右: 選択セクション */}
+				<div>
+					{section === "account" && (
+						<Panel className="p-6">
+							<h2 className="mb-5 font-heading text-[17px] font-bold text-foreground">
+								アカウント設定
+							</h2>
+							<ProfileEditForm user={me} />
+						</Panel>
+					)}
+					{section === "connect" && <AccountConnectPanel user={me} />}
+					{section === "notifications" && <NotificationsPanel />}
+					{section === "display" && <DisplayPanel />}
+					{section === "help" && <HelpPanel />}
 				</div>
 			</div>
 		</div>

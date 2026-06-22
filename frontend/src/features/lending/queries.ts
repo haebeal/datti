@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { apiClient } from "@/libs/api/client";
 import type { Lending } from "./types";
 
@@ -11,17 +11,23 @@ export const lendingKeys = {
 };
 
 export const lendingsByGroupQueryOptions = (groupId: string) =>
-	queryOptions({
+	infiniteQueryOptions({
 		queryKey: lendingKeys.listByGroup(groupId),
-		queryFn: async () => {
+		queryFn: async ({ pageParam }) => {
 			const { data, error } = await apiClient.GET("/groups/{id}/lendings", {
-				params: { path: { id: groupId } },
+				params: {
+					path: { id: groupId },
+					query: { cursor: pageParam ?? undefined },
+				},
 			});
 			if (error || !data) {
 				throw new Error("立て替え一覧の取得に失敗しました");
 			}
 			return data;
 		},
+		initialPageParam: null as string | null,
+		getNextPageParam: (lastPage) =>
+			lastPage.hasMore ? (lastPage.nextCursor ?? undefined) : undefined,
 	});
 
 export const lendingQueryOptions = (groupId: string, lendingId: string) =>

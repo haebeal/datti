@@ -1,4 +1,7 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
+import {
+	useSuspenseInfiniteQuery,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { Plus, Users } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -25,12 +28,15 @@ import { formatMonthDay } from "@/utils/format";
 export function GroupDetailView({ groupId }: { groupId: string }) {
 	const { data: group } = useSuspenseQuery(groupQueryOptions(groupId));
 	const { data: members } = useSuspenseQuery(groupMembersQueryOptions(groupId));
-	const { data: paginated } = useSuspenseQuery(
-		lendingsByGroupQueryOptions(groupId),
-	);
+	const {
+		data: lendingPages,
+		hasNextPage,
+		fetchNextPage,
+		isFetchingNextPage,
+	} = useSuspenseInfiniteQuery(lendingsByGroupQueryOptions(groupId));
 	const { data: me } = useSuspenseQuery(meQueryOptions);
 
-	const lendings = paginated.lendings ?? [];
+	const lendings = lendingPages.pages.flatMap((p) => p.lendings ?? []);
 	const memberMap = new Map(members.map((m) => [m.id, m]));
 	const [detail, setDetail] = useState<(typeof lendings)[number] | null>(null);
 	const [editTarget, setEditTarget] = useState<LendingForEdit | null>(null);
@@ -47,7 +53,6 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 				? -myDebt.amount
 				: 0;
 	};
-	const myBalance = lendings.reduce((s, l) => s + myAmountOf(l), 0);
 
 	return (
 		<div className="flex flex-col gap-[22px]">
@@ -74,18 +79,6 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 						<Users className="size-[17px]" /> メンバー
 					</Button>
 				</div>
-				<div className="mt-[22px] flex items-center justify-between border-t border-hair pt-[18px]">
-					<span className="text-[13.5px] text-ink-2">
-						このグループでのあなたの残高
-					</span>
-					{myBalance === 0 ? (
-						<span className="font-heading text-[22px] font-bold text-muted-foreground">
-							精算済み
-						</span>
-					) : (
-						<Money value={myBalance} signed colored className="text-[28px]" />
-					)}
-				</div>
 			</Panel>
 
 			{/* 立て替え一覧 */}
@@ -109,46 +102,60 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 						まだ立て替えがありません
 					</div>
 				) : (
-					lendings.map((l) => {
-						const payer = memberMap.get(l.createdBy);
-						const isPayer = l.createdBy === me.id;
-						const total = l.debts.reduce((s, d) => s + d.amount, 0);
-						return (
-							<button
-								type="button"
-								key={l.id}
-								onClick={() => setDetail(l)}
-								className="flex w-full items-center gap-3 border-b border-hair px-5 py-3 text-left transition-colors last:border-b-0 hover:bg-secondary"
-							>
-								{payer ? (
-									<UserAvatar user={payer} className="size-10" />
-								) : (
-									<div className="size-10 shrink-0 rounded-full bg-muted" />
-								)}
-								<div className="min-w-0 flex-1">
-									<div className="truncate text-[14.5px] font-semibold text-foreground">
-										{l.name}
+					<>
+						{lendings.map((l) => {
+							const payer = memberMap.get(l.createdBy);
+							const isPayer = l.createdBy === me.id;
+							const total = l.debts.reduce((s, d) => s + d.amount, 0);
+							return (
+								<button
+									type="button"
+									key={l.id}
+									onClick={() => setDetail(l)}
+									className="flex w-full items-center gap-3 border-b border-hair px-5 py-3 text-left transition-colors last:border-b-0 hover:bg-secondary"
+								>
+									{payer ? (
+										<UserAvatar user={payer} className="size-10" />
+									) : (
+										<div className="size-10 shrink-0 rounded-full bg-muted" />
+									)}
+									<div className="min-w-0 flex-1">
+										<div className="truncate text-[14.5px] font-semibold text-foreground">
+											{l.name}
+										</div>
+										<div className="mt-0.5 text-[11.5px] text-muted-foreground">
+											{formatMonthDay(l.eventDate)} ·{" "}
+											{isPayer ? "あなた" : (payer?.name ?? "メンバー")}が立替
+										</div>
 									</div>
-									<div className="mt-0.5 text-[11.5px] text-muted-foreground">
-										{formatMonthDay(l.eventDate)} ·{" "}
-										{isPayer ? "あなた" : (payer?.name ?? "メンバー")}が立替
+									<div className="text-right">
+										<Money
+											value={myAmountOf(l)}
+											signed
+											colored
+											className="text-[15px]"
+										/>
+										<Money
+											value={total}
+											className="mt-0.5 block text-[10.5px] font-normal text-muted-foreground"
+										/>
 									</div>
-								</div>
-								<div className="text-right">
-									<Money
-										value={myAmountOf(l)}
-										signed
-										colored
-										className="text-[15px]"
-									/>
-									<Money
-										value={total}
-										className="mt-0.5 block text-[10.5px] font-normal text-muted-foreground"
-									/>
-								</div>
-							</button>
-						);
-					})
+								</button>
+							);
+						})}
+						{hasNextPage && (
+							<div className="border-t border-hair p-3">
+								<Button
+									variant="outline"
+									className="w-full"
+									onClick={() => fetchNextPage()}
+									disabled={isFetchingNextPage}
+								>
+									{isFetchingNextPage ? "読み込み中…" : "もっと見る"}
+								</Button>
+							</div>
+						)}
+					</>
 				)}
 			</Panel>
 

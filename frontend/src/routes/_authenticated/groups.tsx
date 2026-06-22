@@ -7,7 +7,6 @@ import {
 } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Money } from "@/components/ui/money";
 import { Monogram, groupColorFor } from "@/components/ui/monogram";
 import { PageHead } from "@/components/ui/page-head";
 import { Panel } from "@/components/ui/panel";
@@ -15,28 +14,19 @@ import {
 	groupMembersQueryOptions,
 	groupsQueryOptions,
 } from "@/features/group/queries";
-import { lendingsByGroupQueryOptions } from "@/features/lending/queries";
-import { meQueryOptions } from "@/features/user/queries";
 
 export const Route = createFileRoute("/_authenticated/groups")({
 	loader: ({ context }) =>
-		Promise.all([
-			context.queryClient.ensureQueryData(groupsQueryOptions),
-			context.queryClient.ensureQueryData(meQueryOptions),
-		]),
+		context.queryClient.ensureQueryData(groupsQueryOptions),
 	component: GroupsLayout,
 });
 
 function GroupsLayout() {
 	const { pathname } = useLocation();
 	const { data: groups } = useSuspenseQuery(groupsQueryOptions);
-	const { data: me } = useSuspenseQuery(meQueryOptions);
 
 	const memberQueries = useQueries({
 		queries: groups.map((g) => groupMembersQueryOptions(g.id)),
-	});
-	const lendingQueries = useQueries({
-		queries: groups.map((g) => lendingsByGroupQueryOptions(g.id)),
 	});
 
 	// マスターリスト＋詳細を出すのは一覧(/groups)とグループ詳細(/groups/$id/lendings)のみ。
@@ -48,25 +38,6 @@ function GroupsLayout() {
 		pathname.match(/^\/groups\/([^/]+)\/lendings/)?.[1] ?? null;
 
 	if (!showMaster) return <Outlet />;
-
-	const balanceOf = (i: number): number | null => {
-		const q = lendingQueries[i];
-		if (!q.isSuccess) return null;
-		const lendings = q.data.lendings ?? [];
-		return lendings.reduce((sum, l) => {
-			const total = l.debts.reduce((s, d) => s + d.amount, 0);
-			const myDebt = l.debts.find((d) => d.userId === me.id);
-			const isPayer = l.createdBy === me.id;
-			return (
-				sum +
-				(isPayer
-					? total - (myDebt?.amount ?? 0)
-					: myDebt
-						? -myDebt.amount
-						: 0)
-			);
-		}, 0);
-	};
 
 	return (
 		<div>
@@ -92,7 +63,6 @@ function GroupsLayout() {
 						{groups.map((group, i) => {
 							const on = group.id === selectedId;
 							const memberCount = memberQueries[i].data?.length;
-							const balance = balanceOf(i);
 							return (
 								<Link
 									key={group.id}
@@ -115,16 +85,6 @@ function GroupsLayout() {
 											{memberCount != null ? `${memberCount}人` : "…"}
 										</div>
 									</div>
-									{balance == null ? null : balance === 0 ? (
-										<span className="text-xs text-muted-foreground">—</span>
-									) : (
-										<Money
-											value={balance}
-											signed
-											colored
-											className="text-[13.5px]"
-										/>
-									)}
 								</Link>
 							);
 						})}

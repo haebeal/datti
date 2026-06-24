@@ -24,11 +24,8 @@ export function GroupBasicInfoForm({ group }: { group: Group }) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6"
+			className="flex flex-col gap-3"
 		>
-			<h2 className="font-heading text-[17px] font-bold text-foreground">
-				基本情報
-			</h2>
 			<form.Field name="name">
 				{(field) => (
 					<FormField

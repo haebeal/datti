@@ -2,13 +2,14 @@ import {
 	useSuspenseInfiniteQuery,
 	useSuspenseQuery,
 } from "@tanstack/react-query";
-import { Plus, Users } from "lucide-react";
+import { Plus, Settings, Users } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Money } from "@/components/ui/money";
 import { groupColorFor, Monogram } from "@/components/ui/monogram";
 import { Panel, PanelHead } from "@/components/ui/panel";
 import { AvatarStack, UserAvatar } from "@/components/ui/user-avatar";
+import { GroupSettingsDialog } from "@/features/group/components/group-settings-dialog";
 import { MembersDialog } from "@/features/group/components/members-dialog";
 import {
 	groupMembersQueryOptions,
@@ -42,6 +43,7 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 	const [editTarget, setEditTarget] = useState<LendingForEdit | null>(null);
 	const [addOpen, setAddOpen] = useState(false);
 	const [membersOpen, setMembersOpen] = useState(false);
+	const [settingsOpen, setSettingsOpen] = useState(false);
 
 	const myAmountOf = (l: (typeof lendings)[number]) => {
 		const total = l.debts.reduce((s, d) => s + d.amount, 0);
@@ -75,9 +77,20 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 							</span>
 						</div>
 					</div>
-					<Button variant="outline" onClick={() => setMembersOpen(true)}>
-						<Users className="size-[17px]" /> メンバー
-					</Button>
+					<div className="flex items-center gap-2">
+						<Button variant="outline" onClick={() => setMembersOpen(true)}>
+							<Users className="size-[17px]" /> メンバー
+						</Button>
+						<Button
+							variant="outline"
+							size="icon"
+							aria-label="グループの設定"
+							title="グループの設定"
+							onClick={() => setSettingsOpen(true)}
+						>
+							<Settings className="size-[18px]" />
+						</Button>
+					</div>
 				</div>
 			</Panel>
 
@@ -188,6 +201,12 @@ export function GroupDetailView({ groupId }: { groupId: string }) {
 				onOpenChange={setMembersOpen}
 				groupId={groupId}
 				groupName={group.name}
+			/>
+
+			<GroupSettingsDialog
+				open={settingsOpen}
+				onOpenChange={setSettingsOpen}
+				group={group}
 			/>
 		</div>
 	);

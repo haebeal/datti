@@ -17,7 +17,7 @@ export function GroupCreateForm() {
 		onSubmit: async ({ value }) => {
 			const created = await createGroup.mutateAsync(value);
 			navigate({
-				to: "/groups/$groupId/settings",
+				to: "/groups/$groupId/lendings",
 				params: { groupId: created.id },
 			});
 		},

@@ -30,7 +30,7 @@ function GroupsLayout() {
 	});
 
 	// マスターリスト＋詳細を出すのは一覧(/groups)とグループ詳細(/groups/$id/lendings)のみ。
-	// フォーム系(new/settings/立て替え詳細)は全幅で表示する。
+	// フォーム系(new)は全幅で表示する。
 	const showMaster =
 		/^\/groups\/?$/.test(pathname) ||
 		/^\/groups\/[^/]+\/lendings\/?$/.test(pathname);

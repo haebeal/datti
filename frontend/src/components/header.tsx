@@ -16,15 +16,9 @@ function getPageConfig(pathname: string): PageConfig {
 	if (pathname.startsWith("/repayments/"))
 		return { title: "返した記録", back: "/repayments" };
 	if (pathname === "/groups") return { title: "グループ" };
-	if (pathname === "/groups/new")
-		return { title: "グループをつくる", back: "/groups" };
 	if (pathname.endsWith("/lendings/new")) {
 		const groupPath = pathname.replace("/lendings/new", "/lendings");
 		return { title: "立て替えを追加", back: groupPath };
-	}
-	if (pathname.endsWith("/settings")) {
-		const groupPath = pathname.replace("/settings", "/lendings");
-		return { title: "グループ設定", back: groupPath, bell: true };
 	}
 	if (pathname === "/profile") return { title: "マイページ" };
 	return { title: "ホーム" };

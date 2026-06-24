@@ -16,7 +16,7 @@ export const Route = createFileRoute(
 			context.queryClient.ensureQueryData(
 				groupMembersQueryOptions(params.groupId),
 			),
-			context.queryClient.ensureQueryData(
+			context.queryClient.ensureInfiniteQueryData(
 				lendingsByGroupQueryOptions(params.groupId),
 			),
 			context.queryClient.ensureQueryData(meQueryOptions),

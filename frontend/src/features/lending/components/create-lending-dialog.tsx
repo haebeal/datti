@@ -107,7 +107,7 @@ function CreateBody({
 				<div className="flex flex-col items-start gap-3 py-4 text-sm text-muted-foreground">
 					まず立て替えを記録するグループが必要です。
 					<Link
-						to="/groups/new"
+						to="/groups"
 						onClick={onClose}
 						className="font-semibold text-primary hover:underline"
 					>

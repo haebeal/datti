@@ -7,7 +7,11 @@ import { getFieldErrorMessage } from "@/utils/form";
 import { useCreateGroup } from "../mutations";
 import { createGroupSchema } from "../schema";
 
-export function GroupCreateForm() {
+export function GroupCreateForm({
+	onSuccess,
+}: {
+	onSuccess?: () => void;
+} = {}) {
 	const navigate = useNavigate();
 	const createGroup = useCreateGroup();
 
@@ -16,8 +20,9 @@ export function GroupCreateForm() {
 		validators: { onChange: createGroupSchema },
 		onSubmit: async ({ value }) => {
 			const created = await createGroup.mutateAsync(value);
+			onSuccess?.();
 			navigate({
-				to: "/groups/$groupId/settings",
+				to: "/groups/$groupId/lendings",
 				params: { groupId: created.id },
 			});
 		},
@@ -29,7 +34,7 @@ export function GroupCreateForm() {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="flex flex-col gap-3 rounded-xl border border-border bg-card p-6"
+			className="flex flex-col gap-3"
 		>
 			<form.Field name="name">
 				{(field) => (

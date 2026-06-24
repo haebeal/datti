@@ -20,11 +20,9 @@ import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedRepaymentsNewRouteImport } from './routes/_authenticated/repayments/new'
 import { Route as AuthenticatedProfileConnectRouteImport } from './routes/_authenticated/profile/connect'
 import { Route as AuthenticatedProfileAccountRouteImport } from './routes/_authenticated/profile/account'
-import { Route as AuthenticatedGroupsNewRouteImport } from './routes/_authenticated/groups/new'
 import { Route as AuthenticatedRepaymentsIdIndexRouteImport } from './routes/_authenticated/repayments/$id/index'
 import { Route as ApiAuthCognitoCallbackRouteImport } from './routes/api/auth/cognito/callback'
 import { Route as AuthenticatedRepaymentsIdEditRouteImport } from './routes/_authenticated/repayments/$id/edit'
-import { Route as AuthenticatedGroupsGroupIdSettingsRouteImport } from './routes/_authenticated/groups/$groupId/settings'
 import { Route as AuthenticatedGroupsGroupIdLendingsIndexRouteImport } from './routes/_authenticated/groups/$groupId/lendings/index'
 
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -87,11 +85,6 @@ const AuthenticatedProfileAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedProfileRoute,
   } as any)
-const AuthenticatedGroupsNewRoute = AuthenticatedGroupsNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthenticatedGroupsRoute,
-} as any)
 const AuthenticatedRepaymentsIdIndexRoute =
   AuthenticatedRepaymentsIdIndexRouteImport.update({
     id: '/repayments/$id/',
@@ -109,12 +102,6 @@ const AuthenticatedRepaymentsIdEditRoute =
     path: '/repayments/$id/edit',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedGroupsGroupIdSettingsRoute =
-  AuthenticatedGroupsGroupIdSettingsRouteImport.update({
-    id: '/$groupId/settings',
-    path: '/$groupId/settings',
-    getParentRoute: () => AuthenticatedGroupsRoute,
-  } as any)
 const AuthenticatedGroupsGroupIdLendingsIndexRoute =
   AuthenticatedGroupsGroupIdLendingsIndexRouteImport.update({
     id: '/$groupId/lendings/',
@@ -127,14 +114,12 @@ export interface FileRoutesByFullPath {
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/profile': typeof AuthenticatedProfileRouteWithChildren
   '/auth/': typeof AuthIndexRoute
-  '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/profile/account': typeof AuthenticatedProfileAccountRoute
   '/profile/connect': typeof AuthenticatedProfileConnectRoute
   '/repayments/new': typeof AuthenticatedRepaymentsNewRoute
   '/groups/': typeof AuthenticatedGroupsIndexRoute
   '/profile/': typeof AuthenticatedProfileIndexRoute
   '/repayments/': typeof AuthenticatedRepaymentsIndexRoute
-  '/groups/$groupId/settings': typeof AuthenticatedGroupsGroupIdSettingsRoute
   '/repayments/$id/edit': typeof AuthenticatedRepaymentsIdEditRoute
   '/api/auth/cognito/callback': typeof ApiAuthCognitoCallbackRoute
   '/repayments/$id/': typeof AuthenticatedRepaymentsIdIndexRoute
@@ -143,14 +128,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthIndexRoute
-  '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/profile/account': typeof AuthenticatedProfileAccountRoute
   '/profile/connect': typeof AuthenticatedProfileConnectRoute
   '/repayments/new': typeof AuthenticatedRepaymentsNewRoute
   '/groups': typeof AuthenticatedGroupsIndexRoute
   '/profile': typeof AuthenticatedProfileIndexRoute
   '/repayments': typeof AuthenticatedRepaymentsIndexRoute
-  '/groups/$groupId/settings': typeof AuthenticatedGroupsGroupIdSettingsRoute
   '/repayments/$id/edit': typeof AuthenticatedRepaymentsIdEditRoute
   '/api/auth/cognito/callback': typeof ApiAuthCognitoCallbackRoute
   '/repayments/$id': typeof AuthenticatedRepaymentsIdIndexRoute
@@ -163,14 +146,12 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/auth/': typeof AuthIndexRoute
-  '/_authenticated/groups/new': typeof AuthenticatedGroupsNewRoute
   '/_authenticated/profile/account': typeof AuthenticatedProfileAccountRoute
   '/_authenticated/profile/connect': typeof AuthenticatedProfileConnectRoute
   '/_authenticated/repayments/new': typeof AuthenticatedRepaymentsNewRoute
   '/_authenticated/groups/': typeof AuthenticatedGroupsIndexRoute
   '/_authenticated/profile/': typeof AuthenticatedProfileIndexRoute
   '/_authenticated/repayments/': typeof AuthenticatedRepaymentsIndexRoute
-  '/_authenticated/groups/$groupId/settings': typeof AuthenticatedGroupsGroupIdSettingsRoute
   '/_authenticated/repayments/$id/edit': typeof AuthenticatedRepaymentsIdEditRoute
   '/api/auth/cognito/callback': typeof ApiAuthCognitoCallbackRoute
   '/_authenticated/repayments/$id/': typeof AuthenticatedRepaymentsIdIndexRoute
@@ -183,14 +164,12 @@ export interface FileRouteTypes {
     | '/groups'
     | '/profile'
     | '/auth/'
-    | '/groups/new'
     | '/profile/account'
     | '/profile/connect'
     | '/repayments/new'
     | '/groups/'
     | '/profile/'
     | '/repayments/'
-    | '/groups/$groupId/settings'
     | '/repayments/$id/edit'
     | '/api/auth/cognito/callback'
     | '/repayments/$id/'
@@ -199,14 +178,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/groups/new'
     | '/profile/account'
     | '/profile/connect'
     | '/repayments/new'
     | '/groups'
     | '/profile'
     | '/repayments'
-    | '/groups/$groupId/settings'
     | '/repayments/$id/edit'
     | '/api/auth/cognito/callback'
     | '/repayments/$id'
@@ -218,14 +195,12 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/'
     | '/auth/'
-    | '/_authenticated/groups/new'
     | '/_authenticated/profile/account'
     | '/_authenticated/profile/connect'
     | '/_authenticated/repayments/new'
     | '/_authenticated/groups/'
     | '/_authenticated/profile/'
     | '/_authenticated/repayments/'
-    | '/_authenticated/groups/$groupId/settings'
     | '/_authenticated/repayments/$id/edit'
     | '/api/auth/cognito/callback'
     | '/_authenticated/repayments/$id/'
@@ -317,13 +292,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileAccountRouteImport
       parentRoute: typeof AuthenticatedProfileRoute
     }
-    '/_authenticated/groups/new': {
-      id: '/_authenticated/groups/new'
-      path: '/new'
-      fullPath: '/groups/new'
-      preLoaderRoute: typeof AuthenticatedGroupsNewRouteImport
-      parentRoute: typeof AuthenticatedGroupsRoute
-    }
     '/_authenticated/repayments/$id/': {
       id: '/_authenticated/repayments/$id/'
       path: '/repayments/$id'
@@ -345,13 +313,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRepaymentsIdEditRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/groups/$groupId/settings': {
-      id: '/_authenticated/groups/$groupId/settings'
-      path: '/$groupId/settings'
-      fullPath: '/groups/$groupId/settings'
-      preLoaderRoute: typeof AuthenticatedGroupsGroupIdSettingsRouteImport
-      parentRoute: typeof AuthenticatedGroupsRoute
-    }
     '/_authenticated/groups/$groupId/lendings/': {
       id: '/_authenticated/groups/$groupId/lendings/'
       path: '/$groupId/lendings'
@@ -363,17 +324,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedGroupsRouteChildren {
-  AuthenticatedGroupsNewRoute: typeof AuthenticatedGroupsNewRoute
   AuthenticatedGroupsIndexRoute: typeof AuthenticatedGroupsIndexRoute
-  AuthenticatedGroupsGroupIdSettingsRoute: typeof AuthenticatedGroupsGroupIdSettingsRoute
   AuthenticatedGroupsGroupIdLendingsIndexRoute: typeof AuthenticatedGroupsGroupIdLendingsIndexRoute
 }
 
 const AuthenticatedGroupsRouteChildren: AuthenticatedGroupsRouteChildren = {
-  AuthenticatedGroupsNewRoute: AuthenticatedGroupsNewRoute,
   AuthenticatedGroupsIndexRoute: AuthenticatedGroupsIndexRoute,
-  AuthenticatedGroupsGroupIdSettingsRoute:
-    AuthenticatedGroupsGroupIdSettingsRoute,
   AuthenticatedGroupsGroupIdLendingsIndexRoute:
     AuthenticatedGroupsGroupIdLendingsIndexRoute,
 }

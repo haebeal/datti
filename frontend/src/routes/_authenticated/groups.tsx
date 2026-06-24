@@ -6,41 +6,33 @@ import {
 	useLocation,
 } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Money } from "@/components/ui/money";
 import { Monogram, groupColorFor } from "@/components/ui/monogram";
 import { PageHead } from "@/components/ui/page-head";
 import { Panel } from "@/components/ui/panel";
+import { GroupCreateDialog } from "@/features/group/components/group-create-dialog";
 import {
 	groupMembersQueryOptions,
 	groupsQueryOptions,
 } from "@/features/group/queries";
-import { lendingsByGroupQueryOptions } from "@/features/lending/queries";
-import { meQueryOptions } from "@/features/user/queries";
 
 export const Route = createFileRoute("/_authenticated/groups")({
 	loader: ({ context }) =>
-		Promise.all([
-			context.queryClient.ensureQueryData(groupsQueryOptions),
-			context.queryClient.ensureQueryData(meQueryOptions),
-		]),
+		context.queryClient.ensureQueryData(groupsQueryOptions),
 	component: GroupsLayout,
 });
 
 function GroupsLayout() {
 	const { pathname } = useLocation();
 	const { data: groups } = useSuspenseQuery(groupsQueryOptions);
-	const { data: me } = useSuspenseQuery(meQueryOptions);
+	const [createOpen, setCreateOpen] = useState(false);
 
 	const memberQueries = useQueries({
 		queries: groups.map((g) => groupMembersQueryOptions(g.id)),
 	});
-	const lendingQueries = useQueries({
-		queries: groups.map((g) => lendingsByGroupQueryOptions(g.id)),
-	});
 
 	// マスターリスト＋詳細を出すのは一覧(/groups)とグループ詳細(/groups/$id/lendings)のみ。
-	// フォーム系(new/settings/立て替え詳細)は全幅で表示する。
 	const showMaster =
 		/^\/groups\/?$/.test(pathname) ||
 		/^\/groups\/[^/]+\/lendings\/?$/.test(pathname);
@@ -49,38 +41,19 @@ function GroupsLayout() {
 
 	if (!showMaster) return <Outlet />;
 
-	const balanceOf = (i: number): number | null => {
-		const q = lendingQueries[i];
-		if (!q.isSuccess) return null;
-		const lendings = q.data.lendings ?? [];
-		return lendings.reduce((sum, l) => {
-			const total = l.debts.reduce((s, d) => s + d.amount, 0);
-			const myDebt = l.debts.find((d) => d.userId === me.id);
-			const isPayer = l.createdBy === me.id;
-			return (
-				sum +
-				(isPayer
-					? total - (myDebt?.amount ?? 0)
-					: myDebt
-						? -myDebt.amount
-						: 0)
-			);
-		}, 0);
-	};
-
 	return (
 		<div>
 			<PageHead
 				title="グループ"
 				sub="旅行・シェアハウスなど、共有の精算"
 				right={
-					<Button asChild size="lg">
-						<Link to="/groups/new">
-							<Plus className="size-[18px]" /> 新規作成
-						</Link>
+					<Button size="lg" onClick={() => setCreateOpen(true)}>
+						<Plus className="size-[18px]" /> 新規作成
 					</Button>
 				}
 			/>
+
+			<GroupCreateDialog open={createOpen} onOpenChange={setCreateOpen} />
 
 			{groups.length === 0 ? (
 				<div className="rounded-[16px] border border-border bg-card px-6 py-12 text-center text-[13.5px] text-muted-foreground">
@@ -92,7 +65,6 @@ function GroupsLayout() {
 						{groups.map((group, i) => {
 							const on = group.id === selectedId;
 							const memberCount = memberQueries[i].data?.length;
-							const balance = balanceOf(i);
 							return (
 								<Link
 									key={group.id}
@@ -115,16 +87,6 @@ function GroupsLayout() {
 											{memberCount != null ? `${memberCount}人` : "…"}
 										</div>
 									</div>
-									{balance == null ? null : balance === 0 ? (
-										<span className="text-xs text-muted-foreground">—</span>
-									) : (
-										<Money
-											value={balance}
-											signed
-											colored
-											className="text-[13.5px]"
-										/>
-									)}
 								</Link>
 							);
 						})}

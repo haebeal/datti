@@ -20,7 +20,6 @@ import { Route as AuthenticatedGroupsIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedRepaymentsNewRouteImport } from './routes/_authenticated/repayments/new'
 import { Route as AuthenticatedProfileConnectRouteImport } from './routes/_authenticated/profile/connect'
 import { Route as AuthenticatedProfileAccountRouteImport } from './routes/_authenticated/profile/account'
-import { Route as AuthenticatedGroupsNewRouteImport } from './routes/_authenticated/groups/new'
 import { Route as AuthenticatedRepaymentsIdIndexRouteImport } from './routes/_authenticated/repayments/$id/index'
 import { Route as ApiAuthCognitoCallbackRouteImport } from './routes/api/auth/cognito/callback'
 import { Route as AuthenticatedRepaymentsIdEditRouteImport } from './routes/_authenticated/repayments/$id/edit'
@@ -86,11 +85,6 @@ const AuthenticatedProfileAccountRoute =
     path: '/account',
     getParentRoute: () => AuthenticatedProfileRoute,
   } as any)
-const AuthenticatedGroupsNewRoute = AuthenticatedGroupsNewRouteImport.update({
-  id: '/new',
-  path: '/new',
-  getParentRoute: () => AuthenticatedGroupsRoute,
-} as any)
 const AuthenticatedRepaymentsIdIndexRoute =
   AuthenticatedRepaymentsIdIndexRouteImport.update({
     id: '/repayments/$id/',
@@ -120,7 +114,6 @@ export interface FileRoutesByFullPath {
   '/groups': typeof AuthenticatedGroupsRouteWithChildren
   '/profile': typeof AuthenticatedProfileRouteWithChildren
   '/auth/': typeof AuthIndexRoute
-  '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/profile/account': typeof AuthenticatedProfileAccountRoute
   '/profile/connect': typeof AuthenticatedProfileConnectRoute
   '/repayments/new': typeof AuthenticatedRepaymentsNewRoute
@@ -135,7 +128,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/auth': typeof AuthIndexRoute
-  '/groups/new': typeof AuthenticatedGroupsNewRoute
   '/profile/account': typeof AuthenticatedProfileAccountRoute
   '/profile/connect': typeof AuthenticatedProfileConnectRoute
   '/repayments/new': typeof AuthenticatedRepaymentsNewRoute
@@ -154,7 +146,6 @@ export interface FileRoutesById {
   '/_authenticated/profile': typeof AuthenticatedProfileRouteWithChildren
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/auth/': typeof AuthIndexRoute
-  '/_authenticated/groups/new': typeof AuthenticatedGroupsNewRoute
   '/_authenticated/profile/account': typeof AuthenticatedProfileAccountRoute
   '/_authenticated/profile/connect': typeof AuthenticatedProfileConnectRoute
   '/_authenticated/repayments/new': typeof AuthenticatedRepaymentsNewRoute
@@ -173,7 +164,6 @@ export interface FileRouteTypes {
     | '/groups'
     | '/profile'
     | '/auth/'
-    | '/groups/new'
     | '/profile/account'
     | '/profile/connect'
     | '/repayments/new'
@@ -188,7 +178,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/groups/new'
     | '/profile/account'
     | '/profile/connect'
     | '/repayments/new'
@@ -206,7 +195,6 @@ export interface FileRouteTypes {
     | '/_authenticated/profile'
     | '/_authenticated/'
     | '/auth/'
-    | '/_authenticated/groups/new'
     | '/_authenticated/profile/account'
     | '/_authenticated/profile/connect'
     | '/_authenticated/repayments/new'
@@ -304,13 +292,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfileAccountRouteImport
       parentRoute: typeof AuthenticatedProfileRoute
     }
-    '/_authenticated/groups/new': {
-      id: '/_authenticated/groups/new'
-      path: '/new'
-      fullPath: '/groups/new'
-      preLoaderRoute: typeof AuthenticatedGroupsNewRouteImport
-      parentRoute: typeof AuthenticatedGroupsRoute
-    }
     '/_authenticated/repayments/$id/': {
       id: '/_authenticated/repayments/$id/'
       path: '/repayments/$id'
@@ -343,13 +324,11 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedGroupsRouteChildren {
-  AuthenticatedGroupsNewRoute: typeof AuthenticatedGroupsNewRoute
   AuthenticatedGroupsIndexRoute: typeof AuthenticatedGroupsIndexRoute
   AuthenticatedGroupsGroupIdLendingsIndexRoute: typeof AuthenticatedGroupsGroupIdLendingsIndexRoute
 }
 
 const AuthenticatedGroupsRouteChildren: AuthenticatedGroupsRouteChildren = {
-  AuthenticatedGroupsNewRoute: AuthenticatedGroupsNewRoute,
   AuthenticatedGroupsIndexRoute: AuthenticatedGroupsIndexRoute,
   AuthenticatedGroupsGroupIdLendingsIndexRoute:
     AuthenticatedGroupsGroupIdLendingsIndexRoute,

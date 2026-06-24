@@ -6,10 +6,12 @@ import {
 	useLocation,
 } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Monogram, groupColorFor } from "@/components/ui/monogram";
 import { PageHead } from "@/components/ui/page-head";
 import { Panel } from "@/components/ui/panel";
+import { GroupCreateDialog } from "@/features/group/components/group-create-dialog";
 import {
 	groupMembersQueryOptions,
 	groupsQueryOptions,
@@ -24,13 +26,13 @@ export const Route = createFileRoute("/_authenticated/groups")({
 function GroupsLayout() {
 	const { pathname } = useLocation();
 	const { data: groups } = useSuspenseQuery(groupsQueryOptions);
+	const [createOpen, setCreateOpen] = useState(false);
 
 	const memberQueries = useQueries({
 		queries: groups.map((g) => groupMembersQueryOptions(g.id)),
 	});
 
 	// マスターリスト＋詳細を出すのは一覧(/groups)とグループ詳細(/groups/$id/lendings)のみ。
-	// フォーム系(new)は全幅で表示する。
 	const showMaster =
 		/^\/groups\/?$/.test(pathname) ||
 		/^\/groups\/[^/]+\/lendings\/?$/.test(pathname);
@@ -45,13 +47,13 @@ function GroupsLayout() {
 				title="グループ"
 				sub="旅行・シェアハウスなど、共有の精算"
 				right={
-					<Button asChild size="lg">
-						<Link to="/groups/new">
-							<Plus className="size-[18px]" /> 新規作成
-						</Link>
+					<Button size="lg" onClick={() => setCreateOpen(true)}>
+						<Plus className="size-[18px]" /> 新規作成
 					</Button>
 				}
 			/>
+
+			<GroupCreateDialog open={createOpen} onOpenChange={setCreateOpen} />
 
 			{groups.length === 0 ? (
 				<div className="rounded-[16px] border border-border bg-card px-6 py-12 text-center text-[13.5px] text-muted-foreground">
